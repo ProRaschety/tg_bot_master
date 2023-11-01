@@ -1,0 +1,2172 @@
+{
+    "Алюминий": {
+        "substance_name": [
+            "Алюминий"
+        ],
+        "substance_id": [
+            "9"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "Al"
+        ],
+        "atoms_nC": [
+            0
+        ],
+        "atoms_nH": [
+            0
+        ],
+        "atoms_nO": [
+            0
+        ],
+        "atoms_nX": [
+            0
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            26.98
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            31097
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            40
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            320
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Бензойная кислота": {
+        "substance_name": [
+            "Бензойная кислота"
+        ],
+        "substance_id": [
+            "18"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "C7H6O2"
+        ],
+        "atoms_nC": [
+            7
+        ],
+        "atoms_nH": [
+            6
+        ],
+        "atoms_nO": [
+            "2"
+        ],
+        "atoms_nX": [
+            0
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            122.12
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            26007
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            20
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            532
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Галловая кислота": {
+        "substance_name": [
+            "Галловая кислота"
+        ],
+        "substance_id": [
+            "23"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "C7H6O5"
+        ],
+        "atoms_nC": [
+            7
+        ],
+        "atoms_nH": [
+            6
+        ],
+        "atoms_nO": [
+            5
+        ],
+        "atoms_nX": [
+            0
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            170.13
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            16516
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            130
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            407
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Глюкоза": {
+        "substance_name": [
+            "Глюкоза"
+        ],
+        "substance_id": [
+            "27"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "C6H12O6"
+        ],
+        "atoms_nC": [
+            6
+        ],
+        "atoms_nH": [
+            12
+        ],
+        "atoms_nO": [
+            6
+        ],
+        "atoms_nX": [
+            0
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            180.1
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            15563
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            35
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            367
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Графит": {
+        "substance_name": [
+            "Графит"
+        ],
+        "substance_id": [
+            "28"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "C"
+        ],
+        "atoms_nC": [
+            1
+        ],
+        "atoms_nH": [
+            0
+        ],
+        "atoms_nO": [
+            0
+        ],
+        "atoms_nX": [
+            0
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            12.001
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            33000000
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            0
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            0
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Железо": {
+        "substance_name": [
+            "Железо"
+        ],
+        "substance_id": [
+            "33"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "Fe"
+        ],
+        "atoms_nC": [
+            null
+        ],
+        "atoms_nH": [
+            null
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            56
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            7450
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            "100 - 875"
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            "300 - 945"
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Кальций": {
+        "substance_name": [
+            "Кальций"
+        ],
+        "substance_id": [
+            "40"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "Ca"
+        ],
+        "atoms_nC": [
+            null
+        ],
+        "atoms_nH": [
+            null
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            40.08
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            15800
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            0
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            "730 - 750 "
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Магний": {
+        "substance_name": [
+            "Магний"
+        ],
+        "substance_id": [
+            "41"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "Mg"
+        ],
+        "atoms_nC": [
+            null
+        ],
+        "atoms_nH": [
+            null
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            24.32
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            25000
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            25
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            "420 - 440"
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Пенополиуретан": {
+        "substance_name": [
+            "Пенополиуретан"
+        ],
+        "substance_id": [
+            "67"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "-"
+        ],
+        "atoms_nC": [
+            null
+        ],
+        "atoms_nH": [
+            null
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            0
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            "24850-27360"
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            30
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            450
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Полипропилен": {
+        "substance_name": [
+            "Полипропилен"
+        ],
+        "substance_id": [
+            "70"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "(C3H6)n"
+        ],
+        "atoms_nC": [
+            null
+        ],
+        "atoms_nH": [
+            null
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            0
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            44000
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            40
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            "325-388"
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Полиэтилен": {
+        "substance_name": [
+            "Полиэтилен"
+        ],
+        "substance_id": [
+            "71"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "(C2H4)"
+        ],
+        "atoms_nC": [
+            null
+        ],
+        "atoms_nH": [
+            null
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            0
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            46590
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            20
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            380
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Сахар (сахароза)": {
+        "substance_name": [
+            "Сахар (сахароза)"
+        ],
+        "substance_id": [
+            "74"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "C12H22O11"
+        ],
+        "atoms_nC": [
+            12
+        ],
+        "atoms_nH": [
+            22
+        ],
+        "atoms_nO": [
+            11
+        ],
+        "atoms_nX": [
+            0
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            342.3
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            16490
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            "35-85"
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            220
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Сера": {
+        "substance_name": [
+            "Сера"
+        ],
+        "substance_id": [
+            "75"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "S"
+        ],
+        "atoms_nC": [
+            null
+        ],
+        "atoms_nH": [
+            null
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            256.5
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            9210
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            37.5
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            260
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    },
+    "Цинк": {
+        "substance_name": [
+            "Цинк"
+        ],
+        "substance_id": [
+            "87"
+        ],
+        "substance_synonym": [
+            "None"
+        ],
+        "molecular_formula": [
+            "Zn"
+        ],
+        "atoms_nC": [
+            null
+        ],
+        "atoms_nH": [
+            null
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "substance_type": [
+            "ГП"
+        ],
+        "molecular_weight": [
+            65.4
+        ],
+        "density_vap_by_air": [
+            null
+        ],
+        "density_gas": [
+            null
+        ],
+        "temperature_boil": [
+            null
+        ],
+        "heat_of_burn": [
+            5020
+        ],
+        "heat_of_vaporization": [
+            null
+        ],
+        "pressure_saturated_vapor": [
+            null
+        ],
+        "density_liquid": [
+            null
+        ],
+        "stoichiometric_concentration": [
+            null
+        ],
+        "pressure_expl_max": [
+            null
+        ],
+        "heat_capacity_liquid": [
+            null
+        ],
+        "coefficient_gamma": [
+            null
+        ],
+        "PC_t50": [
+            null
+        ],
+        "LC_t50": [
+            null
+        ],
+        "dispersion_of_toxicity": [
+            null
+        ],
+        "pdk_concentration": [
+            null
+        ],
+        "enthalpy_boil": [
+            null
+        ],
+        "heat_capacity_vapor": [
+            null
+        ],
+        "lower_flammability_limit": [
+            250
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "lower_flammability_limit_kg_m3": [
+            null
+        ],
+        "upper_flammability_limit_kg_m3": [
+            null
+        ],
+        "a_tox": [
+            null
+        ],
+        "b_tox": [
+            null
+        ],
+        "n_tox": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "sensitivity_class": [
+            null
+        ],
+        "temperature_flash": [
+            0
+        ],
+        "temperature_spon_combustion": [
+            440
+        ],
+        "coefficient_beta": [
+            null
+        ],
+        "temperature_critic": [
+            null
+        ],
+        "pressure_critic": [
+            null
+        ],
+        "const_ant_eq": [
+            null
+        ],
+        "BEMZ_meaning": [
+            null
+        ],
+        "explosive_mixture_group": [
+            null
+        ],
+        "category_of_explosive_mixture": [
+            null
+        ],
+        "burning_rate": [
+            null
+        ],
+        "coefficient_beta_stoichiometric": [
+            null
+        ],
+        "const_ant_in_temp": [
+            null
+        ],
+        "source": [
+            "Пособие по определению расчетных величин пожарного риска для производственных объектов / 2-е изд., испр. и доп. М.: ВНИИПО, 2019. 344 с."
+        ]
+    }
+}

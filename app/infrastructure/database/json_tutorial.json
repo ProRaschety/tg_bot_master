@@ -1,0 +1,41 @@
+{
+  "tutorial":
+  [
+    {
+      "name_tutorial": "Предел_огнестойкости",
+      "video_id": "BAACAgIAAxkBAAIEOGT02w__0Y5YHF7C8CsPCKF9-95QAAIfOgAC6YqgS3TNtG1UVjRRMAQ"
+    },
+    {
+      "name_tutorial": "Пожар-пролива",
+      "video_id": "BAACAgIAAxkBAAIEmGT1TZ9R11UBekJIjWpSaTadT1RuAAKaMgAC28WwS5BkkqnBY5aKMAQ"
+    },
+    {
+      "name_tutorial": "Пожар-вспышка",
+      "video_id": "BAACAgIAAxkBAAIEmmT1Tbqydany-vVw36BfDYEJYJx1AAKbMgAC28WwS0Ugsn6XtYHyMAQ"
+    },
+    {
+      "name_tutorial": "Огненный_шар",
+      "video_id": ""
+    },
+    {
+      "name_tutorial": "BLEVE",
+      "video_id": ""
+    },
+    {
+      "name_tutorial": "Горизонтальный_факел",
+      "video_id": ""
+    },
+    {
+      "name_tutorial": "Вертикальный_факел",
+      "video_id": ""
+    },
+    {
+      "name_tutorial": "Взрыв_облака паров ЛВЖ",
+      "video_id": ""
+    },
+    {
+      "name_tutorial": "Взрыв_облака смеси ГГ",
+      "video_id": ""
+    }
+  ]
+}
