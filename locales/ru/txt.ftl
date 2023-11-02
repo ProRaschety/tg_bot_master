@@ -5,7 +5,8 @@ general_menu-text = Выберите методику для расчёта.
 
 general_menu = \u2630 Главное меню
 
-https://t.me/r_kamalovich = Связаться с разработчиком
+link_1 = https://t.me/r_kamalovic
+link_1-text = Связаться с разработчиком
 
 calculators = Калькуляторы
 fire_resistance = Огнестойкость

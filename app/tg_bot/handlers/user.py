@@ -41,9 +41,7 @@ async def process_start_command(message: Message, state: FSMContext, i18n: Trans
 @user_router.message(Command(commands=["contacts"]))
 async def process_get_admin_contacts(message: Message, i18n: TranslatorRunner) -> None:
     await message.answer(text=i18n.contacts.admin(),
-                         reply_markup=get_inline_url_kb(1,
-                                                        'https://t.me/r_kamalovich',
-                                                        i18n=i18n))
+                         reply_markup=get_inline_url_kb(1, i18n=i18n, link_1="link_1-text"))
 
 
 @user_router.message(Command(commands=["data_base"]))

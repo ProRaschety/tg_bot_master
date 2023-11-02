@@ -1,30 +1,28 @@
 import math as m
+from scipy.interpolate import interp1d
 
-def steel_heating(ptm: float,
-                  temp: float,
-                  mode: str,
-                  s_0: float,
-                  s_1: float,
-                  T_0: float,
-                  T_crit: float):
-    '''Теплотехнический расчет
+def steel_heating(self, ptm: float, temp: float, mode: str, s_0: float, s_1: float, T_0: float, t_critic: float):
+
+    '''
+    Теплотехнический расчет
+    Прогрев элемента конструкции по уравнению Яковлева А.И. при тепловом воздействии по ГОСТ 30247.0 и ГОСТ Р ЕН 1363-2
 
     Параметры
     ----------
     ptm: float, приведенная толщина металла (m)
-    temp: float, критическая температура элемента (С)
-    rho: float, density (kg/m^3)
-    Y: float, mass fraction fuel
-    theta: float, release angle from horizontal (rad)
-    x: float, x position (m),
-    y: float, y position (m),
-    S: float, distance along streamline (m)
+    temp: float, критическая температура элемента (с)
+    mode: str, режим теплового воздействия (стандартный, углеводородный, наружный, тлеющий)
+    s_0: float, степень черноты нагревающей среды (-)
+    s_1: float, степень черноты обогреваемого элемента (-)
+    T_0: float, начальная темепарутура (по умолчанию, 293.0)), (К)
+
     '''
+
     ptm = float(ptm) * 0.001
     temp = float(temp)
-    T_crit = float(temp)  # 500 C = 773 K
+    t_critic = float(temp)  # 500 C = 773 K
 
-    T_0 = 293.0  # начальная темепарутура, К
+    T_0 = 293.0
     spr = 1 / ((1 / s_0) + (1 / s_1) - 1)  # приведенная степень черноты
     x = 90 * 60  # общее время для расчета в сек
     if temp > 750.0 or mode == 'Тлеющий':
@@ -69,5 +67,6 @@ def steel_heating(ptm: float,
         temperature_element.append(Tsti - 273)
 
     temp_fsr = interp1d(Tst, time, kind='slinear', bounds_error=False, fill_value=0)
-    time_fsr = float(temp_fsr(Tcr + 273))  # Определение времени прогрева от температуры
+    time_fsr = float(temp_fsr(t_critic + 273))  # Определение времени прогрева от температуры
 
+    return Tst

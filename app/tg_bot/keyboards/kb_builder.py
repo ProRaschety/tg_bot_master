@@ -56,8 +56,8 @@ def get_inline_url_kb(width: int,
     if kwargs:
         for button, text in kwargs.items():
             buttons.append(InlineKeyboardButton(
-                text=text,
-                url=button))
+                text=button,
+                url=text))
 
     # Распаковываем список с кнопками в билдер методом row c параметром width
     kb_builder.row(*buttons, width=width)
