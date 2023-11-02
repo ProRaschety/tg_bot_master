@@ -39,25 +39,19 @@ def get_inline_cd_kb(width: int,
 
 
 def get_inline_url_kb(width: int,
-                      *args: str,
                       i18n: TranslatorRunner,
                       **kwargs: str) -> InlineKeyboardMarkup:
     # Инициализируем билдер
     kb_builder = InlineKeyboardBuilder()
     # Инициализируем список для кнопок
     buttons: list[InlineKeyboardButton] = []
-
+    logger.debug(kwargs)
     # Заполняем список кнопками из аргументов args и kwargs
-    if args:
-        for button in args:
-            buttons.append(InlineKeyboardButton(
-                text=i18n.get(button),
-                url=button))
     if kwargs:
-        for button, text in kwargs.items():
+        for link, text in kwargs.items():
             buttons.append(InlineKeyboardButton(
-                text=button,
-                url=text))
+                text=i18n.get(text),
+                url=i18n.get(link)))
 
     # Распаковываем список с кнопками в билдер методом row c параметром width
     kb_builder.row(*buttons, width=width)
