@@ -7,9 +7,10 @@ If not, see https://www.gnu.org/licenses/.
 """
 
 import numpy as np
+
 from scipy.stats import norm
 
-from ..utilities import misc_utils
+from ...tg_bot.utilities import misc_utils
 
 
 def calculate_fatality_probability(probit_value, normal_distribution_mean=5):
@@ -35,6 +36,7 @@ def calculate_fatality_probability(probit_value, normal_distribution_mean=5):
 """
 THERMAL Fatality Probit Models
 """
+
 
 def compute_thermal_fatality_prob(model_ref, heat_flux, exposure_time, mean=5):
     """
@@ -151,7 +153,6 @@ def thermal_lees(thermal_dose):
     return -29.02 + 1.99 * np.log(0.5 * thermal_dose)
 
 
-
 """
 OVERPRESSURE Fatality Probit Models
 
@@ -161,6 +162,7 @@ TNO whole body impact model produces lower probabilities than head
 impact model, which means head impact fatalities will dominate whole
 body impact fatalities. So we don't include TNO whole body fatalities.
 """
+
 
 def compute_overpressure_fatality_prob(model_ref, overp, impulse=None, mean=5):
     """
@@ -264,7 +266,6 @@ def overp_tno_struct_collapse(overp, impulse):
     return 5 - 0.22 * np.log((40000 / overp) ** 7.4 + (460 / impulse) ** 11.3)
 
 
-
 # Reference to fatality models
 #   key: internal reference string
 #   val: function reference
@@ -300,7 +301,8 @@ def parse_thermal_model(name):
     elif cleaned in ['lees', 'lee', 'le']:
         model_id = 'lees'
     else:
-        raise ValueError("Thermal model name {} not recognized".format(cleaned))
+        raise ValueError(
+            "Thermal model name {} not recognized".format(cleaned))
 
     return model_id
 
@@ -318,6 +320,7 @@ def parse_overp_model(name):
     elif cleaned in ['col', 'collapse', 'coll']:
         model_id = 'coll'
     else:
-        raise ValueError("Probit overpressure model name {} not recognized".format(cleaned))
+        raise ValueError(
+            "Probit overpressure model name {} not recognized".format(cleaned))
 
     return model_id

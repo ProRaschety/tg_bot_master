@@ -10,7 +10,7 @@ general_menu-text = Выберите методику для расчёта.
 
 general_menu = ☰ Главное меню
 
-link_1 = https://t.me/r_kamalovic
+link_1 = https://t.me/r_kamalovich
 
 link_1-text = Связаться с разработчиком
 

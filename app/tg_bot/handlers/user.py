@@ -1,12 +1,17 @@
 import logging
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
 from aiogram import Router, F
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, FSInputFile
+from aiogram.types.input_file import BufferedInputFile
 from fluentogram import TranslatorRunner
 from app.tg_bot.utilities.getting_data_base import quantity_keys_get
+from app.calculation.fire_resistance.fire_mode import run_fire_mode
+from app.calculation.physics._graph import plotting_fire_resistance
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
+from app.calculation.fire_resistance.steel_heating_calculation import steel_heating
+from app.tg_bot.utilities.misc_utils import get_temp_folder
 
 logger = logging.getLogger(__name__)
 
@@ -14,31 +19,33 @@ user_router = Router()
 
 
 @user_router.message(CommandStart())
-# async def process_start_command(
-#     message: Message,
-#     state: FSMContext,
-#     i18n: TranslatorRunner
-# ) -> None:
-#
-#     if not (username := message.from_user.full_name):
-#         username = message.from_user.username
-#     await message.answer(text=i18n.start.hello(username=username))
-#     await message.answer(text=i18n.hello(), reply_markup=get_inline_kb(2, 'one-btn', 'two-btn', i18n=i18n))
 async def process_start_command(message: Message, state: FSMContext, i18n: TranslatorRunner) -> None:
     await message.answer(text=i18n.start.menu(), reply_markup=get_inline_cd_kb(1,
                                                                                'calculators',
-                                                                                'fire_resistance',
-                                                                                'fire_pool',
-                                                                                'fire_flash',
-                                                                                'cloud_explosion',
-                                                                                'horizontal_jet',
-                                                                                'vertical_jet',
-                                                                                'fire_ball',
-                                                                                'bleve',
-                                                                                i18n=i18n))
+                                                                               'fire_resistance',
+                                                                               'fire_pool',
+                                                                               'fire_flash',
+                                                                               'cloud_explosion',
+                                                                               'horizontal_jet',
+                                                                               'vertical_jet',
+                                                                               'fire_ball',
+                                                                               'bleve',
+                                                                               i18n=i18n))
 
 
 @user_router.message(Command(commands=["contacts"]))
+async def process_get_admin_contacts(message: Message, i18n: TranslatorRunner) -> None:
+    await message.answer(text=i18n.contacts.admin(),
+                         reply_markup=get_inline_url_kb(1, i18n=i18n, link_1="link_1-text"))
+
+
+@user_router.message(Command(commands=["help"]))
+async def process_get_admin_contacts(message: Message, i18n: TranslatorRunner) -> None:
+    await message.answer(text=i18n.contacts.admin(),
+                         reply_markup=get_inline_url_kb(1, i18n=i18n, link_1="link_1-text"))
+
+
+@user_router.message(Command(commands=["bot_wiki"]))
 async def process_get_admin_contacts(message: Message, i18n: TranslatorRunner) -> None:
     await message.answer(text=i18n.contacts.admin(),
                          reply_markup=get_inline_url_kb(1, i18n=i18n, link_1="link_1-text"))

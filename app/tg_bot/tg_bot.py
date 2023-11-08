@@ -4,11 +4,13 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from fluent_compiler.bundle import FluentBundle
 from fluentogram import FluentTranslator, TranslatorHub
-
 from app.tg_bot.config.config import Config, load_config
-from app.tg_bot.handlers.user import user_router
 from app.tg_bot.middlewares.i18n import TranslatorRunnerMiddleware
 from app.tg_bot.set_menu import set_main_menu
+from app.tg_bot.handlers.admin import admin_router
+from app.tg_bot.handlers.user import user_router
+from app.tg_bot.handlers.fire_res import fire_res_router
+from app.tg_bot.handlers.other import other_router
 
 logger = logging.getLogger(__name__)
 
@@ -33,19 +35,29 @@ async def main():
                 locale="ru",
                 translator=FluentBundle.from_files(
                     locale="ru-RU",
-                    filenames=["locales/ru/txt.ftl"])),
+                    filenames=["locales/ru/user.ftl",
+                               "locales/ru/fire_resistance.ftl",
+                               "locales/ru/admin.ftl",
+                               "locales/ru/other.ftl"])),
             FluentTranslator(
                 locale="en",
                 translator=FluentBundle.from_files(
                     locale="en-US",
-                    filenames=["locales/en/txt.ftl"]))
+                    filenames=["locales/en/user.ftl",
+                               "locales/ru/fire_resistance.ftl",
+                               "locales/ru/admin.ftl",
+                               "locales/ru/other.ftl"]))
         ],
     )
 
     logging.debug('Include routers')
 
     # Регистриуем роутеры в диспетчере
+    dp.include_router(admin_router)
     dp.include_router(user_router)
+    dp.include_router(fire_res_router)
+
+    dp.include_router(other_router)
 
     dp.update.middleware(TranslatorRunnerMiddleware())
 
