@@ -5,7 +5,6 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from fluentogram import TranslatorRunner
 
-#
 logger = logging.getLogger(__name__)
 
 
