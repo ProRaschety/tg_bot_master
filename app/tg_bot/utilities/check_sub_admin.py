@@ -1,16 +1,8 @@
-from dataclasses import dataclass
+from aiogram import Bot
 from environs import Env
 
 
-def check_sub_admin(user_id):
-    """_summary_
-
-    Args:
-        user_id (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
+async def check_sub_admin(bot: Bot, path: str | None = None, user_id: int = None):
     env = Env()
     env.read_env(path)
     CHANNEL_ID = list(map(int, env.list('CHANNEL_IDS')))

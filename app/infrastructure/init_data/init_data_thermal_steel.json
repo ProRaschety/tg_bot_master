@@ -1,0 +1,36 @@
+{
+    "793011788": {
+        "user_name": "r_kamalovich",
+        "user_first_name": "Равшан",
+        "user_last_name": "Ибатулин",
+        "mode": "Углеводородный",
+        "ptm": 8,
+        "t_critic": "500",
+        "a_convection": 29,
+        "s_0": 0.85,
+        "s_1": 0.625,
+        "T_0": 293,
+        "xmax": 90,
+        "density_steel": 7800,
+        "heat_capacity": 310,
+        "heat_capacity_change": 0.469,
+        "time_fsr": 4.6
+    },
+    "6576326588": {
+        "user_name": "None",
+        "user_first_name": "Равшан",
+        "user_last_name": "None",
+        "mode": "Стандартный",
+        "ptm": "28",
+        "t_critic": "500",
+        "a_convection": 29,
+        "s_0": 0.85,
+        "s_1": 0.625,
+        "T_0": 293,
+        "xmax": 90,
+        "density_steel": 7800,
+        "heat_capacity": 310,
+        "heat_capacity_change": 0.469,
+        "time_fsr": 25.8
+    }
+}

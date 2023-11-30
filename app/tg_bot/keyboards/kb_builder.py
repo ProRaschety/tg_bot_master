@@ -42,9 +42,10 @@ def get_inline_url_kb(width: int,
                       **kwargs: str) -> InlineKeyboardMarkup:
     # Инициализируем билдер
     kb_builder = InlineKeyboardBuilder()
+
     # Инициализируем список для кнопок
     buttons: list[InlineKeyboardButton] = []
-    logger.debug(kwargs)
+
     # Заполняем список кнопками из аргументов args и kwargs
     if kwargs:
         for link, text in kwargs.items():

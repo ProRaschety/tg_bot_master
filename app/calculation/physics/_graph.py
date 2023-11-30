@@ -1,26 +1,32 @@
 import matplotlib.pyplot as plt
 
 
-def plotting_fire_resistance(chat_id, mode, time, temp, time_fsr=15, t_critic=500):
+def get_plot():
+    # print(f'Tm={temp}, chat_id={chat_id}')
+    # chat_id, mode, time, temp, time_fsr=15, t_critic=500
     # График изменения температуры во времени
-    # размеры рисунка в дюймах, 1 дюйм = 2,54 см
-    print(f'Tm={temp}, chat_id={chat_id}')
-    # inch = 2.54
-    # w = 20
-    # h = 20
-    # fig = plt.figure(figsize=(w/inch, h/inch))
-    # fsize = 16
-    # plt.style.use('classic')
-    # ax = fig.add_subplot(1, 1, 1)
-
     # x = time
     # mode = mode
     # time_fsr = time_fsr
     # Tm = temp
     # Tcr = t_critic
 
-    # tt = range(x)
+    # размеры рисунка в дюймах,
+    inch = 2.54  # 1 дюйм = 2.54 см = 96.358115 pixel
+    px = 96.358115
+    w = 5000  # px
+    h = 5000  # px
+    fsize = 14
 
+    # Создание объекта Figure
+    fig = plt.figure(figsize=(w/px, h/px), dpi=150)
+
+    plt.subplot(111)
+    plt.plot([0.0, 100], [0.0, 1000])
+    name_plot = 'График прогрева элемента'
+    plt.title(f'{name_plot}\n', fontsize=fsize)
+
+    # tt = range(x)
     # if mode == 'Углеводородный':
     #     rl = "Углеводородный режим"
     # elif mode == 'Наружный':
@@ -30,6 +36,10 @@ def plotting_fire_resistance(chat_id, mode, time, temp, time_fsr=15, t_critic=50
     # else:
     #     rl = "Стандартный режим"
     # label_plot_Tst = f'Температура элемента'
+
+    # Область рисования Axes
+    # rect = [0.0, 0.0, 1.0, 1.0]
+    # ax = fig.add_axes(rect)
 
     # ax.plot(tt, Tm, '-', linewidth=4, label=f'{rl}', color=(0.9, 0.1, 0, 0.9))
     # # ax.plot(tt, temperature_element, '-', linewidth=4,
@@ -52,15 +62,37 @@ def plotting_fire_resistance(chat_id, mode, time, temp, time_fsr=15, t_critic=50
     # #                 f'Приведенная толщина элемента: {round((ptm * 1000), 3)} мм',
     # #                 xy=(time_fsr, Tcr), xycoords='data', xytext=(2000, 200), textcoords='data')
 
-    # ax.set_xlim(0.0, x+100)
-    # ax.set_ylim(20.0, max(Tm)+100)
-    # ax.set_xlabel(r"Время, с")
-    # # set_y_label = str(f'Температура, \u00B0С')
-    # # ax.set_ylabel(f"{set_y_label}")
-    # plt.title(f'График прогрева элемента\n', fontsize=18)
-    # # plt.legend(fontsize=18, framealpha=0.95, facecolor="w", loc=4)
-    # # ax.grid(visible=True, which='major', axis='both',
-    # #         color='k', linestyle='--', linewidth=0.10)
+    # Ось абсцисс Xaxis
+    # plt.set_xlim(0.0, 10)
+    plt.xlabel(r"Время, с")
+
+    # Ось абсцисс Yaxis
+    # plt.set_ylim(2.0, 10)
+    set_y_label = str(f'Температура, \u00B0С')
+    plt.ylabel(f"{set_y_label}")
+
+    # Легенда
+    # plt.legend(fontsize=18, framealpha=0.95, facecolor="w", loc=4)
+
+    # Цветовая шкала
+    # plt.colorbar()
+    # Подпись горизонтальной оси абсцисс OY -> cbar.ax.set_xlabel();
+    # Подпись вертикальной оси абсцисс OY -> cbar.ax.set_ylabel();
+
+    # Деления на оси абсцисс OX
+    # plt.xticks()
+
+    # Деления на оси ординат OY
+    # plt.yticks()
+
+    # Вспомогательная сетка (grid)
+    plt.grid(True)
+    # ax.grid(visible=True,
+    #         which='major',
+    #         axis='both',
+    #         color='k',
+    #         linestyle='--',
+    #         linewidth=0.10)
 
     # # fig.savefig(f"temp_file/fig_calc0_{chat.id}.png", dpi=150)
 
@@ -69,6 +101,10 @@ def plotting_fire_resistance(chat_id, mode, time, temp, time_fsr=15, t_critic=50
     # filename = f'plot_fire_resistance_{chat_id}.png'
     # filepath = os.path.join(directory, filename)
     # fig.savefig(filepath, bbox_inches='tight')
-    # plt.show(fig)
 
-    return mode
+    plt.show()
+
+    # return plt.show()
+
+
+# get_plot()

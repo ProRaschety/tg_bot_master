@@ -1,3 +1,3 @@
-from .tg_bot import main
+from . tg_bot import main
 
 __all__ = [main]
