@@ -4,7 +4,7 @@ import os
 import csv
 
 
-def get_temp_folder(temp_dir_name='temp'):
+def get_temp_folder(dir_name='temp_files', fold_name='temp'):
     """
     Возвращает местоположение временной папки
     и создает ее при необходимости
@@ -19,14 +19,14 @@ def get_temp_folder(temp_dir_name='temp'):
     temp_dir_path : str
         absolute path to temporary folder
     """
-    temp_dir_path = os.path.join(os.getcwd(), temp_dir_name)
+    temp_dir_path = os.path.join(os.getcwd(), dir_name, fold_name)
     if not os.path.isdir(temp_dir_path):
         os.mkdir(temp_dir_path)
     return temp_dir_path
 
 
-def send_csv_file(data, file_name):
-    file = str(file_name)
+def get_csv_file(data, name_file):
+    file = str(name_file)
     try:
         with open(file, 'w', newline='') as file_w:
             csv_writer = csv.writer(
@@ -43,3 +43,8 @@ def send_csv_file(data, file_name):
         print(f"Ошибка ввода-вывода при работе с файлом. {IOError}")
     except Exception as e:
         print(f"Непредвиденная ошибка: {e}")
+
+
+def get_txt_file(data, name_file):
+
+    pass

@@ -12,7 +12,7 @@ from fluentogram import TranslatorRunner
 
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
 from app.tg_bot.utilities.misc_utils import get_temp_folder
-from app.infrastructure.substance_data.substance import SubstanceDB
+from app.calculation.database_mode.substance import SubstanceDB
 
 import json
 
@@ -50,11 +50,16 @@ async def process_get_data_base(message: Message, bot: Bot, i18n: TranslatorRunn
 
 @data_base_req_router.callback_query(F.data == 'back_to_list')
 async def back_to_list_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
+    chat_id = str(callback.message.chat.id)
+    q_keys = SubstanceDB(chat_id)
+    name_dir = q_keys.get_diagram_sankey()
+    media = FSInputFile(str(name_dir))
+    text = i18n.data_base(quantity_keys=q_keys.get_quantity_keys())
 
-    await bot.edit_message_reply_markup(
+    await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
+        caption=text,
         reply_markup=get_inline_cd_kb(4,
                                       'one_nine',
                                       'EN_alphabet',
@@ -65,11 +70,33 @@ async def back_to_list_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorR
     await callback.answer('')
 
 
+@data_base_req_router.callback_query(F.data == 'back_to_list_rus')
+async def back_to_list_rus_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+    num_let = 1
+    text = i18n.RUS_alphabet.text(rus_letters=num_let)
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(5, 'rus_1', 'rus_2', 'rus_3', 'rus_4', 'rus_5',
+                                         'rus_6', 'rus_7', 'rus_8', 'rus_9', 'rus_10',
+                                         'rus_11', 'rus_12', 'rus_13', 'rus_14', 'rus_15',
+                                         'rus_16', 'rus_17', 'rus_18', 'rus_19', 'rus_20',
+                                         'rus_21', 'rus_22', 'rus_23', 'rus_24', 'rus_25',
+                                         'rus_26', 'rus_27', 'rus_28', 'rus_29', 'rus_30',
+                                         'back_to_list',
+                                         i18n=i18n))
+    await callback.answer('')
+
+
 @data_base_req_router.callback_query(F.data == 'RUS_alphabet')
 async def rus_alphabet_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
-
-    text = i18n.RUS_alphabet.text()
+    # chat_id = str(callback.message.chat.id)
+    # rus_letters = SubstanceDB(chat_id=chat_id, data=callback.data)
+    # num_let = rus_letters.get_quantity_rus(i18n=i18n)
+    num_let = 1
+    text = i18n.RUS_alphabet.text(rus_letters=num_let)
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -87,8 +114,6 @@ async def rus_alphabet_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorR
 
 @data_base_req_router.callback_query(F.data == 'one_nine')
 async def one_nine_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
-
     text = i18n.one_nine.text()
 
     await bot.edit_message_caption(
@@ -101,8 +126,6 @@ async def one_nine_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunne
 
 @data_base_req_router.callback_query(F.data == 'EN_alphabet')
 async def en_alphabet_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
-
     text = i18n.EN_alphabet.text()
 
     await bot.edit_message_caption(
@@ -115,8 +138,6 @@ async def en_alphabet_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRu
 
 @data_base_req_router.callback_query(F.data == 'alfa_omega')
 async def alfa_omega_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
-
     text = i18n.alfa_omega.text()
 
     await bot.edit_message_caption(
@@ -125,6 +146,35 @@ async def alfa_omega_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRun
         caption=text,
         reply_markup=get_inline_cd_kb(1, 'back_to_list', i18n=i18n))
     await callback.answer('')
+
+
+@data_base_req_router.callback_query(F.data.in_(['rus_1', 'rus_2', 'rus_3', 'rus_4', 'rus_5',
+                                                 'rus_6', 'rus_7', 'rus_8', 'rus_9', 'rus_10',
+                                                 'rus_11', 'rus_12', 'rus_13', 'rus_14', 'rus_15',
+                                                 'rus_16', 'rus_17', 'rus_18', 'rus_19', 'rus_20',
+                                                 'rus_21', 'rus_22', 'rus_23', 'rus_24', 'rus_25',
+                                                 'rus_26', 'rus_27', 'rus_28', 'rus_29', 'rus_30']))
+async def select_substance_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+    chat_id = str(callback.message.chat.id)
+    data = i18n.get(callback.data)
+
+    rus_keys = SubstanceDB(chat_id=chat_id, data=data)
+    list_rus = rus_keys.get_rus_alphabet()
+    dict_rus = {key: key for key in list_rus}
+    # dict_rus.update({'back_to_list': i18n.get('back_to_list')})
+    text = i18n.data_base_rus(rus_letter=data, list_rus=len(list_rus))
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(3, i18n=i18n, param_back=True, back_data="back_to_list_rus", ** dict_rus))
+    await callback.answer('')
+
+
+# @data_base_req_router.callback_query(F.data.in_(['mode_standard']))
+# async def select_substance_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+
 
 # @data_base_req_router.callback_query(F.data == 'List_sub')
 # async def select_substance(callback_data: CallbackQuery):

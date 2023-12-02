@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 def get_inline_cd_kb(width: int,
                      *args: str,
                      i18n: TranslatorRunner,
+                     param_back: bool | None = False,
+                     back_data: str | None = None,
                      **kwargs: str) -> InlineKeyboardMarkup:
     # Инициализируем билдер
     kb_builder = InlineKeyboardBuilder()
@@ -32,6 +34,10 @@ def get_inline_cd_kb(width: int,
 
     # Распаковываем список с кнопками в билдер методом row c параметром width
     kb_builder.row(*buttons, width=width)
+
+    if param_back:
+        kb_builder.row(InlineKeyboardButton(
+            text=i18n.get(back_data), callback_data=back_data), width=1)
 
     # Возвращаем объект инлайн-клавиатуры
     return kb_builder.as_markup()

@@ -1,0 +1,37 @@
+{
+    "793011788": {
+        "Растяжение": {
+            "user_name": "r_kamalovich",
+            "user_first_name": "Равшан",
+            "user_last_name": "Ибатулин",
+            "name_profile": "Двутавр",
+            "sketch": "20Б1",
+            "reg_document": "ГОСТ_Р_57837_2017",
+            "num_sides_heated": 4,
+            "len_elem": 5.0,
+            "fixation": "beams_sealing_both_ends"
+        },
+        "Сжатие": {
+            "user_name": "r_kamalovich",
+            "user_first_name": "Равшан",
+            "user_last_name": "Ибатулин",
+            "name_profile": "Двутавр",
+            "sketch": "20Б1",
+            "reg_document": "ГОСТ_Р_57837_2017",
+            "num_sides_heated": 4,
+            "len_elem": 5.0,
+            "fixation": "beams_sealing_both_ends"
+        },
+        "Изгиб": {
+            "user_name": "r_kamalovich",
+            "user_first_name": "Равшан",
+            "user_last_name": "Ибатулин",
+            "name_profile": "Двутавр",
+            "sketch": "20Б1",
+            "reg_document": "ГОСТ_Р_57837_2017",
+            "num_sides_heated": 4,
+            "len_elem": 5.0,
+            "fixation": "beams_sealing_both_ends"
+        }
+    }
+}

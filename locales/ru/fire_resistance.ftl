@@ -2,6 +2,7 @@
 back_type_calc = ↩ Назад
 back_type_material = ↩ Назад
 back_thermal_calc = ↩ Назад
+back_steel_element = ↩ Назад
 forward_type_calc = ⤴ Выход
 
 stop_edit_thermal_calc = ❌ Отменить ввод
@@ -103,3 +104,16 @@ protocol_thermal-text = Протокол расчета собственного
 export_data_steel = 🔄 Экспорт
 export_data_steel-text = Экспорт данных расчета.
                             🚧 <i>Находится в разработке</i>
+
+type_ibeam = Двутавр
+reg_document_1 = "ГОСТ_Р_57837_2017"
+
+type_channel = Швеллер
+type_corner = Уголок
+type_profile = Профиль
+type_profile_square = Квадратный
+type_profile_rectangle = Прямоугольный
+
+stretching_element = Растяжение
+compression_element = Сжатие
+bend_element = Изгиб

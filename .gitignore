@@ -3,5 +3,6 @@ venv/
 .idea/
 __pycache__/
 .DS_Store
-.temp
+
+
 tests.py
