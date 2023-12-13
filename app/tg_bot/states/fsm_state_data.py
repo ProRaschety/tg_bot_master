@@ -25,6 +25,8 @@ class FSMSteelForm(StatesGroup):
     density_steel_edit_state = State()  # Состояние редактирвания Плотность стали
     s_0_edit_state = State()  # Состояние редактирвания Степень черноты среды, S\u2080
 
+    len_elem_edit_state = State()  # Состояние редактирвания длины элемеента конструкции
+
 
 class FSMWoodForm(StatesGroup):
 
@@ -34,3 +36,9 @@ class FSMWoodForm(StatesGroup):
 class FSMConcreteForm(StatesGroup):
 
     fr_concrete_edit_state = State()  # Состояние редактирвания исходных данных
+
+
+class FSMSubstanceForm(StatesGroup):
+
+    database_edit_state = State()  # Состояние выбора вещества из базы данных
+    database_search_state = State()  # Состояние поиска веществ в базе данных

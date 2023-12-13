@@ -1,0 +1,550 @@
+{
+    "Бутан (СУГ)": {
+        "substance_name": [
+            "Бутан (СУГ)"
+        ],
+        "substance_full_name": [
+            "Бутан (СУГ)"
+        ],
+        "substance_synonym": [
+            null
+        ],
+        "molecular_formula": [
+            "С4Н10"
+        ],
+        "atoms_nC": [
+            4
+        ],
+        "atoms_nH": [
+            10
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "molecular_weight": [
+            58.12
+        ],
+        "density_kg_m3": [
+            580
+        ],
+        "heat_of_burn_kJ_kg": [
+            45713
+        ],
+        "temperature_melting_C": [
+            null
+        ],
+        "temperature_boil_C": [
+            -0.6
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "const_ant_temperature_range": [
+            null
+        ],
+        "min_freon_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_n2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_co2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_h20_vap_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "description_substance": [
+            "В сжиженном состоянии"
+        ],
+        "property_substance": [
+            "Легковоспламеняющаяся жидкость"
+        ],
+        "substance_type": [
+            "СУГ"
+        ],
+        "temperature_flash_C": [
+            null
+        ],
+        "temperature_ignition_C": [
+            null
+        ],
+        "temperature_spon_combustion_in_air_C": [
+            null
+        ],
+        "temperature_spon_combustion_airgel_C": [
+            null
+        ],
+        "temperature_spon_combustion_airosol_C": [
+            null
+        ],
+        "temperature_smoldering_C": [
+            null
+        ],
+        "lower_temp_limit_flame_propagation": [
+            null
+        ],
+        "upper_temp_limit_flame_propagation": [
+            null
+        ],
+        "lower_flammability_limit": [
+            null
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "min_ignition_energy_mJ": [
+            null
+        ],
+        "speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_explosion_pressure_kPa": [
+            null
+        ],
+        "mean_rate_of_increase_in_explosion_pres_MPa_s": [
+            null
+        ],
+        "max_rate_of_increase_in_explosion_pressure_MPa_s": [
+            null
+        ],
+        "min_explosive_oxygen_cont_pr_vol": [
+            null
+        ],
+        "burning_rate_kg_m2_s": [
+            null
+        ],
+        "bemz_meaning_mm": [
+            null
+        ],
+        "extinguishin_agents": [
+            null
+        ],
+        "source": [
+            "А.Я. Корольченко, Д.А. Корольченко. Пожаровзрывоопасность веществ и материалов и средства их тушения. Справочник: в 2-х ч. - 2-е изд., перераб. и доп. М.: Асс. «Пожнаука», 2004."
+        ]
+    },
+    "Метан (СУГ)": {
+        "substance_name": [
+            "Метан (СУГ)"
+        ],
+        "substance_full_name": [
+            "Метан (СУГ)"
+        ],
+        "substance_synonym": [
+            null
+        ],
+        "molecular_formula": [
+            "СН4"
+        ],
+        "atoms_nC": [
+            1
+        ],
+        "atoms_nH": [
+            4
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "molecular_weight": [
+            16.04
+        ],
+        "density_kg_m3": [
+            450
+        ],
+        "heat_of_burn_kJ_kg": [
+            50000
+        ],
+        "temperature_melting_C": [
+            null
+        ],
+        "temperature_boil_C": [
+            -162
+        ],
+        "const_ant_a": [
+            5.68923
+        ],
+        "const_ant_b": [
+            380.224
+        ],
+        "const_ant_ca": [
+            264.804
+        ],
+        "const_ant_temperature_range": [
+            "от -182 до -162"
+        ],
+        "min_freon_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_n2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_co2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_h20_vap_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "description_substance": [
+            "В сжиженном состоянии"
+        ],
+        "property_substance": [
+            "Легковоспламеняющаяся жидкость"
+        ],
+        "substance_type": [
+            "СУГ"
+        ],
+        "temperature_flash_C": [
+            null
+        ],
+        "temperature_ignition_C": [
+            null
+        ],
+        "temperature_spon_combustion_in_air_C": [
+            null
+        ],
+        "temperature_spon_combustion_airgel_C": [
+            null
+        ],
+        "temperature_spon_combustion_airosol_C": [
+            null
+        ],
+        "temperature_smoldering_C": [
+            null
+        ],
+        "lower_temp_limit_flame_propagation": [
+            null
+        ],
+        "upper_temp_limit_flame_propagation": [
+            null
+        ],
+        "lower_flammability_limit": [
+            null
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "min_ignition_energy_mJ": [
+            null
+        ],
+        "speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_explosion_pressure_kPa": [
+            null
+        ],
+        "mean_rate_of_increase_in_explosion_pres_MPa_s": [
+            null
+        ],
+        "max_rate_of_increase_in_explosion_pressure_MPa_s": [
+            null
+        ],
+        "min_explosive_oxygen_cont_pr_vol": [
+            null
+        ],
+        "burning_rate_kg_m2_s": [
+            null
+        ],
+        "bemz_meaning_mm": [
+            null
+        ],
+        "extinguishin_agents": [
+            null
+        ],
+        "source": [
+            "А.Я. Корольченко, Д.А. Корольченко. Пожаровзрывоопасность веществ и материалов и средства их тушения. Справочник: в 2-х ч. - 2-е изд., перераб. и доп. М.: Асс. «Пожнаука», 2004."
+        ]
+    },
+    "Пропан (СУГ)": {
+        "substance_name": [
+            "Пропан (СУГ)"
+        ],
+        "substance_full_name": [
+            "Пропан (СУГ)"
+        ],
+        "substance_synonym": [
+            null
+        ],
+        "molecular_formula": [
+            "С3Н8"
+        ],
+        "atoms_nC": [
+            3
+        ],
+        "atoms_nH": [
+            8
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "molecular_weight": [
+            44.096
+        ],
+        "density_kg_m3": [
+            502
+        ],
+        "heat_of_burn_kJ_kg": [
+            46353
+        ],
+        "temperature_melting_C": [
+            null
+        ],
+        "temperature_boil_C": [
+            -42.06
+        ],
+        "const_ant_a": [
+            5.95547
+        ],
+        "const_ant_b": [
+            813.864
+        ],
+        "const_ant_ca": [
+            248.116
+        ],
+        "const_ant_temperature_range": [
+            "от -189 до -42"
+        ],
+        "min_freon_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_n2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_co2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_h20_vap_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "description_substance": [
+            "В сжиженном состоянии"
+        ],
+        "property_substance": [
+            "Легковоспламеняющаяся жидкость"
+        ],
+        "substance_type": [
+            "СУГ"
+        ],
+        "temperature_flash_C": [
+            null
+        ],
+        "temperature_ignition_C": [
+            null
+        ],
+        "temperature_spon_combustion_in_air_C": [
+            null
+        ],
+        "temperature_spon_combustion_airgel_C": [
+            null
+        ],
+        "temperature_spon_combustion_airosol_C": [
+            null
+        ],
+        "temperature_smoldering_C": [
+            null
+        ],
+        "lower_temp_limit_flame_propagation": [
+            null
+        ],
+        "upper_temp_limit_flame_propagation": [
+            null
+        ],
+        "lower_flammability_limit": [
+            null
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "min_ignition_energy_mJ": [
+            null
+        ],
+        "speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_explosion_pressure_kPa": [
+            null
+        ],
+        "mean_rate_of_increase_in_explosion_pres_MPa_s": [
+            null
+        ],
+        "max_rate_of_increase_in_explosion_pressure_MPa_s": [
+            null
+        ],
+        "min_explosive_oxygen_cont_pr_vol": [
+            null
+        ],
+        "burning_rate_kg_m2_s": [
+            null
+        ],
+        "bemz_meaning_mm": [
+            null
+        ],
+        "extinguishin_agents": [
+            null
+        ],
+        "source": [
+            "А.Я. Корольченко, Д.А. Корольченко. Пожаровзрывоопасность веществ и материалов и средства их тушения. Справочник: в 2-х ч. - 2-е изд., перераб. и доп. М.: Асс. «Пожнаука», 2004."
+        ]
+    },
+    "Этилен (СУГ)": {
+        "substance_name": [
+            "Этилен (СУГ)"
+        ],
+        "substance_full_name": [
+            "Этилен (СУГ)"
+        ],
+        "substance_synonym": [
+            null
+        ],
+        "molecular_formula": [
+            "С2Н4"
+        ],
+        "atoms_nC": [
+            2
+        ],
+        "atoms_nH": [
+            4
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "molecular_weight": [
+            28.05
+        ],
+        "density_kg_m3": [
+            600
+        ],
+        "heat_of_burn_kJ_kg": [
+            46988
+        ],
+        "temperature_melting_C": [
+            null
+        ],
+        "temperature_boil_C": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "const_ant_temperature_range": [
+            null
+        ],
+        "min_freon_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_n2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_co2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_h20_vap_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "description_substance": [
+            "В сжиженном состоянии"
+        ],
+        "property_substance": [
+            "Легковоспламеняющаяся жидкость"
+        ],
+        "substance_type": [
+            "СУГ"
+        ],
+        "temperature_flash_C": [
+            null
+        ],
+        "temperature_ignition_C": [
+            null
+        ],
+        "temperature_spon_combustion_in_air_C": [
+            null
+        ],
+        "temperature_spon_combustion_airgel_C": [
+            null
+        ],
+        "temperature_spon_combustion_airosol_C": [
+            null
+        ],
+        "temperature_smoldering_C": [
+            null
+        ],
+        "lower_temp_limit_flame_propagation": [
+            null
+        ],
+        "upper_temp_limit_flame_propagation": [
+            null
+        ],
+        "lower_flammability_limit": [
+            null
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "min_ignition_energy_mJ": [
+            null
+        ],
+        "speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_explosion_pressure_kPa": [
+            null
+        ],
+        "mean_rate_of_increase_in_explosion_pres_MPa_s": [
+            null
+        ],
+        "max_rate_of_increase_in_explosion_pressure_MPa_s": [
+            null
+        ],
+        "min_explosive_oxygen_cont_pr_vol": [
+            null
+        ],
+        "burning_rate_kg_m2_s": [
+            null
+        ],
+        "bemz_meaning_mm": [
+            null
+        ],
+        "extinguishin_agents": [
+            null
+        ],
+        "source": [
+            "А.Я. Корольченко, Д.А. Корольченко. Пожаровзрывоопасность веществ и материалов и средства их тушения. Справочник: в 2-х ч. - 2-е изд., перераб. и доп. М.: Асс. «Пожнаука», 2004."
+        ]
+    }
+}

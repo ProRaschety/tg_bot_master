@@ -1,7 +1,8 @@
 {
-    "С255": {
+    "C235": {
         "heating_temperature": [
             20,
+            250,
             300,
             350,
             400,
@@ -14,6 +15,7 @@
         ],
         "coeff_module_elasticity": [
             1.0,
+            0.99,
             0.94,
             0.89,
             0.79,
@@ -23,8 +25,9 @@
             0.52,
             0.43
         ],
-        "coeff_reduction_of yield strength": [
+        "coeff_reduction_of_yield_strength": [
             1.0,
+            0.99,
             0.84,
             0.78,
             0.72,
@@ -37,6 +40,7 @@
         ],
         "yield_strength": [
             318,
+            317,
             232,
             232,
             223,
@@ -48,9 +52,10 @@
             82
         ]
     },
-    "С355": {
+    "C255": {
         "heating_temperature": [
             20,
+            250,
             300,
             350,
             400,
@@ -63,6 +68,60 @@
         ],
         "coeff_module_elasticity": [
             1.0,
+            0.99,
+            0.94,
+            0.89,
+            0.79,
+            0.73,
+            0.67,
+            0.59,
+            0.52,
+            0.43
+        ],
+        "coeff_reduction_of_yield_strength": [
+            1.0,
+            0.99,
+            0.84,
+            0.78,
+            0.72,
+            0.67,
+            0.61,
+            0.54,
+            0.45,
+            0.34,
+            0.20
+        ],
+        "yield_strength": [
+            318,
+            317,
+            232,
+            232,
+            223,
+            229,
+            178,
+            143,
+            128,
+            117,
+            82
+        ]
+    },
+    "C355": {
+        "heating_temperature": [
+            20,
+            250,
+            300,
+            350,
+            400,
+            450,
+            500,
+            550,
+            600,
+            650,
+            700
+        ],
+        "coeff_module_elasticity": [
+            1.0,
+            0.99,
             0.96,
             0.92,
             0.88,
@@ -73,8 +132,9 @@
             0.53,
             0.35
         ],
-        "coeff_reduction_of yield strength": [
+        "coeff_reduction_of_yield_strength": [
             1.0,
+            0.99,
             0.84,
             0.75,
             0.70,
@@ -87,6 +147,7 @@
         ],
         "yield_strength": [
             409,
+            408,
             326,
             295,
             270,
@@ -98,9 +159,10 @@
             93
         ]
     },
-    "С390": {
+    "C390": {
         "heating_temperature": [
             20,
+            250,
             300,
             350,
             400,
@@ -113,6 +175,7 @@
         ],
         "coeff_module_elasticity": [
             1.0,
+            0.99,
             0.95,
             0.90,
             0.86,
@@ -123,8 +186,9 @@
             0.62,
             0.54
         ],
-        "coeff_reduction_of yield strength": [
+        "coeff_reduction_of_yield_strength": [
             1.0,
+            0.99,
             0.89,
             0.83,
             0.79,
@@ -137,6 +201,7 @@
         ],
         "yield_strength": [
             390,
+            389,
             329,
             325,
             307,
@@ -148,9 +213,10 @@
             128
         ]
     },
-    "С355П": {
+    "C355П": {
         "heating_temperature": [
             20,
+            250,
             300,
             350,
             400,
@@ -166,6 +232,7 @@
         ],
         "coeff_module_elasticity": [
             1.0,
+            0.99,
             0.96,
             0.93,
             0.90,
@@ -179,8 +246,9 @@
             0.42,
             0.33
         ],
-        "coeff_reduction_of yield strength": [
+        "coeff_reduction_of_yield_strength": [
             1.0,
+            0.99,
             0.96,
             0.95,
             0.92,
@@ -196,6 +264,7 @@
         ],
         "yield_strength": [
             471,
+            470,
             426,
             399,
             437,
@@ -210,9 +279,10 @@
             60
         ]
     },
-    "С390П": {
+    "C390П": {
         "heating_temperature": [
             20,
+            250,
             300,
             350,
             400,
@@ -228,6 +298,7 @@
         ],
         "coeff_module_elasticity": [
             1.0,
+            0.99,
             0.96,
             0.93,
             0.90,
@@ -241,8 +312,9 @@
             0.42,
             0.33
         ],
-        "coeff_reduction_of yield strength": [
+        "coeff_reduction_of_yield_strength": [
             1.0,
+            0.99,
             0.96,
             0.95,
             0.92,
@@ -258,6 +330,7 @@
         ],
         "yield_strength": [
             499,
+            498,
             497,
             475,
             448,

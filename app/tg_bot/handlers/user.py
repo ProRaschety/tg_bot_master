@@ -22,6 +22,7 @@ async def process_start_command(message: Message, state: FSMContext, i18n: Trans
                                                                                'calculators',
                                                                                'fire_resistance',
                                                                                'fire_risks',
+                                                                               'fire_category',
                                                                                i18n=i18n))
     await state.clear()
 
@@ -66,6 +67,7 @@ async def general_menu_call(callback_data: CallbackQuery, state: FSMContext, i18
                                                                      'calculators',
                                                                      'fire_resistance',
                                                                      'fire_risks',
+                                                                     'fire_category',
                                                                      i18n=i18n))
     await callback_data.answer('')
     await callback_data.message.delete()

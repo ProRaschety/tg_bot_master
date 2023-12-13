@@ -1,12 +1,11 @@
 from aiogram import Bot
 from aiogram.types import BotCommand
-
+# '/bot_wiki': 'Информация о боте',
 LEXICON_COMMANDS_RU: dict[str, str] = {
     '/start': 'Главное меню',
     '/help': 'Справка по работе c ботом',
     '/data_base': 'База данных веществ',
     '/contacts': 'Связь с разработчиком',
-    '/bot_wiki': 'Информация о боте',
     '/cansel': 'Отмена ввода даных'
 }
 

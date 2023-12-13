@@ -1,0 +1,42 @@
+{
+  "C235": {
+    "r_norm_MPa": 235,
+    "r_norm_kg_cm2": 2396.33
+  },
+  "C245": {
+    "r_norm_MPa": 245,
+    "r_norm_kg_cm2": 2498.30
+  },
+  "C255": {
+    "r_norm_MPa": 255,
+    "r_norm_kg_cm2": 2600.28
+  },
+  "C275": {
+    "r_norm_MPa": 275,
+    "r_norm_kg_cm2": 2804.22
+  },
+  "C345": {
+    "r_norm_MPa": 345,
+    "r_norm_kg_cm2": 3518.02
+  },
+  "C355": {
+    "r_norm_MPa": 355,
+    "r_norm_kg_cm2": 3619.99
+  },
+  "C375": {
+    "r_norm_MPa": 375,
+    "r_norm_kg_cm2": 3823.94
+  },
+  "C390": {
+    "r_norm_MPa": 390,
+    "r_norm_kg_cm2": 3976.89
+  },
+  "C355П": {
+    "r_norm_MPa": 355,
+    "r_norm_kg_cm2": 3619.99
+  },
+  "C390П": {
+    "r_norm_MPa": 390,
+    "r_norm_kg_cm2": 3976.89
+  }
+}

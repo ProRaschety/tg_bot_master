@@ -1,0 +1,824 @@
+{
+    "Акриловые смолы": {
+        "substance_name": [
+            "Акриловые смолы"
+        ],
+        "substance_full_name": [
+            "Акриловые смолы"
+        ],
+        "substance_synonym": [
+            null
+        ],
+        "molecular_formula": [
+            null
+        ],
+        "atoms_nC": [
+            null
+        ],
+        "atoms_nH": [
+            null
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "molecular_weight": [
+            null
+        ],
+        "density_kg_m3": [
+            null
+        ],
+        "heat_of_burn_kJ_kg": [
+            null
+        ],
+        "temperature_melting_C": [
+            null
+        ],
+        "temperature_boil_C": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "const_ant_temperature_range": [
+            null
+        ],
+        "min_freon_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_n2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_co2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_h20_vap_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "description_substance": [
+            "Термопластичные продукты, получаемые полимеризацией акриловой или метакриловой кислоты, а также их производных"
+        ],
+        "property_substance": [
+            "Легковоспламеняющеюся вещество"
+        ],
+        "substance_type": [
+            "ГВ"
+        ],
+        "temperature_flash_C": [
+            null
+        ],
+        "temperature_ignition_C": [
+            null
+        ],
+        "temperature_spon_combustion_in_air_C": [
+            null
+        ],
+        "temperature_spon_combustion_airgel_C": [
+            null
+        ],
+        "temperature_spon_combustion_airosol_C": [
+            null
+        ],
+        "temperature_smoldering_C": [
+            null
+        ],
+        "lower_temp_limit_flame_propagation": [
+            null
+        ],
+        "upper_temp_limit_flame_propagation": [
+            null
+        ],
+        "lower_flammability_limit": [
+            null
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "min_ignition_energy_mJ": [
+            null
+        ],
+        "speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_explosion_pressure_kPa": [
+            null
+        ],
+        "mean_rate_of_increase_in_explosion_pres_MPa_s": [
+            null
+        ],
+        "max_rate_of_increase_in_explosion_pressure_MPa_s": [
+            null
+        ],
+        "min_explosive_oxygen_cont_pr_vol": [
+            null
+        ],
+        "burning_rate_kg_m2_s": [
+            null
+        ],
+        "bemz_meaning_mm": [
+            null
+        ],
+        "extinguishin_agents": [
+            "Распыленная вода, воздушно-механическая пена"
+        ],
+        "source": [
+            "А.Я. Корольченко, Д.А. Корольченко. Пожаровзрывоопасность веществ и материалов и средства их тушения. Справочник: в 2-х ч. - 2-е изд., перераб. и доп. М.: Асс. «Пожнаука», 2004."
+        ]
+    },
+    "Диэтилстильбэстр": {
+        "substance_name": [
+            "Диэтилстильбэстр"
+        ],
+        "substance_full_name": [
+            "Диэтилстильбэстрол"
+        ],
+        "substance_synonym": [
+            null
+        ],
+        "molecular_formula": [
+            "C18Н20О"
+        ],
+        "atoms_nC": [
+            18
+        ],
+        "atoms_nH": [
+            20
+        ],
+        "atoms_nO": [
+            1
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "molecular_weight": [
+            268.34
+        ],
+        "density_kg_m3": [
+            null
+        ],
+        "heat_of_burn_kJ_kg": [
+            null
+        ],
+        "temperature_melting_C": [
+            169.5
+        ],
+        "temperature_boil_C": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "const_ant_temperature_range": [
+            null
+        ],
+        "min_freon_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_n2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_co2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_h20_vap_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "description_substance": [
+            "Белый кристалический порошок"
+        ],
+        "property_substance": [
+            "Горючее вещество"
+        ],
+        "substance_type": [
+            "ГВ"
+        ],
+        "temperature_flash_C": [
+            null
+        ],
+        "temperature_ignition_C": [
+            220
+        ],
+        "temperature_spon_combustion_in_air_C": [
+            440
+        ],
+        "temperature_spon_combustion_airgel_C": [
+            null
+        ],
+        "temperature_spon_combustion_airosol_C": [
+            null
+        ],
+        "temperature_smoldering_C": [
+            null
+        ],
+        "lower_temp_limit_flame_propagation": [
+            null
+        ],
+        "upper_temp_limit_flame_propagation": [
+            null
+        ],
+        "lower_flammability_limit": [
+            75
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "min_ignition_energy_mJ": [
+            null
+        ],
+        "speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_explosion_pressure_kPa": [
+            null
+        ],
+        "mean_rate_of_increase_in_explosion_pres_MPa_s": [
+            null
+        ],
+        "max_rate_of_increase_in_explosion_pressure_MPa_s": [
+            null
+        ],
+        "min_explosive_oxygen_cont_pr_vol": [
+            null
+        ],
+        "burning_rate_kg_m2_s": [
+            null
+        ],
+        "bemz_meaning_mm": [
+            null
+        ],
+        "extinguishin_agents": [
+            "Распыленная вода, воздушно-механическая пена"
+        ],
+        "source": [
+            "А.Я. Корольченко, Д.А. Корольченко. Пожаровзрывоопасность веществ и материалов и средства их тушения. Справочник: в 2-х ч. - 2-е изд., перераб. и доп. М.: Асс. «Пожнаука», 2004."
+        ]
+    },
+    "Изопропилксантог": {
+        "substance_name": [
+            "Изопропилксантог"
+        ],
+        "substance_full_name": [
+            "Изопропилксантогенат калия"
+        ],
+        "substance_synonym": [
+            null
+        ],
+        "molecular_formula": [
+            "C4H7OS2K"
+        ],
+        "atoms_nC": [
+            4
+        ],
+        "atoms_nH": [
+            7
+        ],
+        "atoms_nO": [
+            1
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "molecular_weight": [
+            174.33
+        ],
+        "density_kg_m3": [
+            null
+        ],
+        "heat_of_burn_kJ_kg": [
+            null
+        ],
+        "temperature_melting_C": [
+            null
+        ],
+        "temperature_boil_C": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "const_ant_temperature_range": [
+            null
+        ],
+        "min_freon_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_n2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_co2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_h20_vap_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "description_substance": [
+            "Кристаллическое вещество"
+        ],
+        "property_substance": [
+            "Горючее вещество"
+        ],
+        "substance_type": [
+            "ГВ"
+        ],
+        "temperature_flash_C": [
+            null
+        ],
+        "temperature_ignition_C": [
+            null
+        ],
+        "temperature_spon_combustion_in_air_C": [
+            null
+        ],
+        "temperature_spon_combustion_airgel_C": [
+            null
+        ],
+        "temperature_spon_combustion_airosol_C": [
+            790
+        ],
+        "temperature_smoldering_C": [
+            null
+        ],
+        "lower_temp_limit_flame_propagation": [
+            null
+        ],
+        "upper_temp_limit_flame_propagation": [
+            null
+        ],
+        "lower_flammability_limit": [
+            15
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "min_ignition_energy_mJ": [
+            null
+        ],
+        "speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_explosion_pressure_kPa": [
+            null
+        ],
+        "mean_rate_of_increase_in_explosion_pres_MPa_s": [
+            null
+        ],
+        "max_rate_of_increase_in_explosion_pressure_MPa_s": [
+            null
+        ],
+        "min_explosive_oxygen_cont_pr_vol": [
+            null
+        ],
+        "burning_rate_kg_m2_s": [
+            null
+        ],
+        "bemz_meaning_mm": [
+            null
+        ],
+        "extinguishin_agents": [
+            "Воздушно-механическая пена, порошки"
+        ],
+        "source": [
+            "А.Я. Корольченко, Д.А. Корольченко. Пожаровзрывоопасность веществ и материалов и средства их тушения. Справочник: в 2-х ч. - 2-е изд., перераб. и доп. М.: Асс. «Пожнаука», 2004."
+        ]
+    },
+    "Катапресан": {
+        "substance_name": [
+            "Катапресан"
+        ],
+        "substance_full_name": [
+            "Катапресан"
+        ],
+        "substance_synonym": [
+            null
+        ],
+        "molecular_formula": [
+            "С9Н9N3Cl2(HCl)"
+        ],
+        "atoms_nC": [
+            9
+        ],
+        "atoms_nH": [
+            10
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            3
+        ],
+        "molecular_weight": [
+            266.56
+        ],
+        "density_kg_m3": [
+            null
+        ],
+        "heat_of_burn_kJ_kg": [
+            null
+        ],
+        "temperature_melting_C": [
+            "314-316"
+        ],
+        "temperature_boil_C": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "const_ant_temperature_range": [
+            null
+        ],
+        "min_freon_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_n2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_co2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_h20_vap_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "description_substance": [
+            "Белый порошок"
+        ],
+        "property_substance": [
+            "Горючее вещество"
+        ],
+        "substance_type": [
+            "ГВ"
+        ],
+        "temperature_flash_C": [
+            null
+        ],
+        "temperature_ignition_C": [
+            315
+        ],
+        "temperature_spon_combustion_in_air_C": [
+            600
+        ],
+        "temperature_spon_combustion_airgel_C": [
+            null
+        ],
+        "temperature_spon_combustion_airosol_C": [
+            null
+        ],
+        "temperature_smoldering_C": [
+            null
+        ],
+        "lower_temp_limit_flame_propagation": [
+            null
+        ],
+        "upper_temp_limit_flame_propagation": [
+            null
+        ],
+        "lower_flammability_limit": [
+            75
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "min_ignition_energy_mJ": [
+            null
+        ],
+        "speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_explosion_pressure_kPa": [
+            null
+        ],
+        "mean_rate_of_increase_in_explosion_pres_MPa_s": [
+            null
+        ],
+        "max_rate_of_increase_in_explosion_pressure_MPa_s": [
+            null
+        ],
+        "min_explosive_oxygen_cont_pr_vol": [
+            null
+        ],
+        "burning_rate_kg_m2_s": [
+            null
+        ],
+        "bemz_meaning_mm": [
+            null
+        ],
+        "extinguishin_agents": [
+            "Распыленная вода со смачивателями, воздушно-механическая пена"
+        ],
+        "source": [
+            "А.Я. Корольченко, Д.А. Корольченко. Пожаровзрывоопасность веществ и материалов и средства их тушения. Справочник: в 2-х ч. - 2-е изд., перераб. и доп. М.: Асс. «Пожнаука», 2004."
+        ]
+    },
+    "Метилцеллюлоза": {
+        "substance_name": [
+            "Метилцеллюлоза"
+        ],
+        "substance_full_name": [
+            "Метилцеллюлоза"
+        ],
+        "substance_synonym": [
+            null
+        ],
+        "molecular_formula": [
+            "[С6Н7О2(ОН)(ОСН3)2]n"
+        ],
+        "atoms_nC": [
+            null
+        ],
+        "atoms_nH": [
+            null
+        ],
+        "atoms_nO": [
+            null
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "molecular_weight": [
+            null
+        ],
+        "density_kg_m3": [
+            null
+        ],
+        "heat_of_burn_kJ_kg": [
+            null
+        ],
+        "temperature_melting_C": [
+            null
+        ],
+        "temperature_boil_C": [
+            null
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "const_ant_temperature_range": [
+            null
+        ],
+        "min_freon_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_n2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_co2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_h20_vap_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "description_substance": [
+            "Белый аморфный порошок или вещество волокнистого строения, растворимое в воде (диметилцеллюлоза) или в разбавленных растворах щелочи (низкометилированные продукты)"
+        ],
+        "property_substance": [
+            "Горючее вещество"
+        ],
+        "substance_type": [
+            "ГВ"
+        ],
+        "temperature_flash_C": [
+            null
+        ],
+        "temperature_ignition_C": [
+            null
+        ],
+        "temperature_spon_combustion_in_air_C": [
+            null
+        ],
+        "temperature_spon_combustion_airgel_C": [
+            340
+        ],
+        "temperature_spon_combustion_airosol_C": [
+            360
+        ],
+        "temperature_smoldering_C": [
+            null
+        ],
+        "lower_temp_limit_flame_propagation": [
+            null
+        ],
+        "upper_temp_limit_flame_propagation": [
+            null
+        ],
+        "lower_flammability_limit": [
+            30
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "min_ignition_energy_mJ": [
+            20
+        ],
+        "speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_explosion_pressure_kPa": [
+            820
+        ],
+        "mean_rate_of_increase_in_explosion_pres_MPa_s": [
+            16.8
+        ],
+        "max_rate_of_increase_in_explosion_pressure_MPa_s": [
+            41.47
+        ],
+        "min_explosive_oxygen_cont_pr_vol": [
+            9.5
+        ],
+        "burning_rate_kg_m2_s": [
+            null
+        ],
+        "bemz_meaning_mm": [
+            null
+        ],
+        "extinguishin_agents": [
+            "Распыленная вода со смачивателями"
+        ],
+        "source": [
+            "А.Я. Корольченко, Д.А. Корольченко. Пожаровзрывоопасность веществ и материалов и средства их тушения. Справочник: в 2-х ч. - 2-е изд., перераб. и доп. М.: Асс. «Пожнаука», 2004."
+        ]
+    },
+    "Тетрадекановая к": {
+        "substance_name": [
+            "Тетрадекановая к"
+        ],
+        "substance_full_name": [
+            "Тетрадекановая кислота "
+        ],
+        "substance_synonym": [
+            "Миристиновая кислота; Тетрадециловая кислота"
+        ],
+        "molecular_formula": [
+            "С14Н28O2"
+        ],
+        "atoms_nC": [
+            14
+        ],
+        "atoms_nH": [
+            28
+        ],
+        "atoms_nO": [
+            2
+        ],
+        "atoms_nX": [
+            null
+        ],
+        "molecular_weight": [
+            null
+        ],
+        "density_kg_m3": [
+            858.9
+        ],
+        "heat_of_burn_kJ_kg": [
+            null
+        ],
+        "temperature_melting_C": [
+            "53.5-54.4 "
+        ],
+        "temperature_boil_C": [
+            196.5
+        ],
+        "const_ant_a": [
+            null
+        ],
+        "const_ant_b": [
+            null
+        ],
+        "const_ant_ca": [
+            null
+        ],
+        "const_ant_temperature_range": [
+            null
+        ],
+        "min_freon_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_n2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_co2_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "min_h20_vap_phlegmat_conc_proc_vol": [
+            null
+        ],
+        "description_substance": [
+            "Вещество"
+        ],
+        "property_substance": [
+            "Горючее вещество"
+        ],
+        "substance_type": [
+            "ГВ"
+        ],
+        "temperature_flash_C": [
+            180
+        ],
+        "temperature_ignition_C": [
+            null
+        ],
+        "temperature_spon_combustion_in_air_C": [
+            235
+        ],
+        "temperature_spon_combustion_airgel_C": [
+            null
+        ],
+        "temperature_spon_combustion_airosol_C": [
+            null
+        ],
+        "temperature_smoldering_C": [
+            null
+        ],
+        "lower_temp_limit_flame_propagation": [
+            null
+        ],
+        "upper_temp_limit_flame_propagation": [
+            null
+        ],
+        "lower_flammability_limit": [
+            null
+        ],
+        "upper_flammability_limit": [
+            null
+        ],
+        "min_ignition_energy_mJ": [
+            null
+        ],
+        "speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_speed_of_flame_propagation_m_s": [
+            null
+        ],
+        "max_explosion_pressure_kPa": [
+            null
+        ],
+        "mean_rate_of_increase_in_explosion_pres_MPa_s": [
+            null
+        ],
+        "max_rate_of_increase_in_explosion_pressure_MPa_s": [
+            null
+        ],
+        "min_explosive_oxygen_cont_pr_vol": [
+            null
+        ],
+        "burning_rate_kg_m2_s": [
+            null
+        ],
+        "bemz_meaning_mm": [
+            null
+        ],
+        "extinguishin_agents": [
+            "Распыленная вода, воздушно-механическая пена"
+        ],
+        "source": [
+            "А.Я. Корольченко, Д.А. Корольченко. Пожаровзрывоопасность веществ и материалов и средства их тушения. Справочник: в 2-х ч. - 2-е изд., перераб. и доп. М.: Асс. «Пожнаука», 2004."
+        ]
+    }
+}

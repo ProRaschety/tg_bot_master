@@ -1,37 +1,23 @@
 {
     "793011788": {
-        "Растяжение": {
-            "user_name": "r_kamalovich",
-            "user_first_name": "Равшан",
-            "user_last_name": "Ибатулин",
-            "name_profile": "Двутавр",
-            "sketch": "20Б1",
-            "reg_document": "ГОСТ_Р_57837_2017",
-            "num_sides_heated": 4,
-            "len_elem": 5.0,
-            "fixation": "beams_sealing_both_ends"
-        },
-        "Сжатие": {
-            "user_name": "r_kamalovich",
-            "user_first_name": "Равшан",
-            "user_last_name": "Ибатулин",
-            "name_profile": "Двутавр",
-            "sketch": "20Б1",
-            "reg_document": "ГОСТ_Р_57837_2017",
-            "num_sides_heated": 4,
-            "len_elem": 5.0,
-            "fixation": "beams_sealing_both_ends"
-        },
-        "Изгиб": {
-            "user_name": "r_kamalovich",
-            "user_first_name": "Равшан",
-            "user_last_name": "Ибатулин",
-            "name_profile": "Двутавр",
-            "sketch": "20Б1",
-            "reg_document": "ГОСТ_Р_57837_2017",
-            "num_sides_heated": 4,
-            "len_elem": 5.0,
-            "fixation": "beams_sealing_both_ends"
-        }
+        "user_name": "r_kamalovich",
+        "user_first_name": "Равшан",
+        "user_last_name": "Ибатулин",
+        "name_profile": "Двутавр",
+        "sketch": "20Б1",
+        "reg_document": "ГОСТ_Р_57837_2017",
+        "num_sides_heated": 3,
+        "len_elem": "250000",
+        "fixation": "beams_sealing_both_ends",
+        "type_loading": "bend",
+        "type_element": "Балка",
+        "loading_method": "concentrated_load_steel",
+        "ptm": 3.94,
+        "e_n": 2100000.0,
+        "n_load": 1500.0,
+        "a_load": 1.0,
+        "type_steel_element": "C235",
+        "quan_elem": 1,
+        "t_critic_C": 700
     }
 }

@@ -14,6 +14,7 @@ from app.tg_bot.handlers.admin import admin_router
 from app.tg_bot.handlers.user import user_router
 from app.tg_bot.handlers.fire_res import fire_res_router
 from app.tg_bot.handlers.fire_risk import fire_risk_router
+from app.tg_bot.handlers.fire_category import fire_category_router
 from app.tg_bot.handlers.data_base_req import data_base_req_router
 from app.tg_bot.handlers.other import other_router
 
@@ -45,6 +46,7 @@ async def main():
                     filenames=["locales/ru/user.ftl",
                                "locales/ru/fire_resistance.ftl",
                                "locales/ru/fire_risk.ftl",
+                               "locales/ru/fire_category.ftl",
                                "locales/ru/admin.ftl",
                                "locales/ru/data_base_subs.ftl",
                                "locales/ru/other.ftl"])),
@@ -55,6 +57,7 @@ async def main():
                     filenames=["locales/en/user.ftl",
                                "locales/ru/fire_resistance.ftl",
                                "locales/ru/fire_risk.ftl",
+                               "locales/ru/fire_category.ftl",
                                "locales/ru/admin.ftl",
                                "locales/ru/data_base_subs.ftl",
                                "locales/ru/other.ftl"]))
@@ -68,6 +71,7 @@ async def main():
     dp.include_router(user_router)
     dp.include_router(fire_res_router)
     dp.include_router(fire_risk_router)
+    dp.include_router(fire_category_router)
     dp.include_router(data_base_req_router)
     dp.include_router(other_router)
 
