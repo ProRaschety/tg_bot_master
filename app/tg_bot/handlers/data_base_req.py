@@ -1,4 +1,5 @@
 import logging
+import json
 
 from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, Command, StateFilter
@@ -7,7 +8,8 @@ from aiogram.utils.chat_action import ChatActionSender
 from aiogram.enums import ChatAction
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
-from aiogram.types import CallbackQuery, Message, FSInputFile, InputMediaPhoto, InputFile
+from aiogram.types import CallbackQuery, Message, FSInputFile, InputMediaPhoto, InputFile, BufferedInputFile
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
 
 from fluentogram import TranslatorRunner
 
@@ -16,7 +18,6 @@ from app.tg_bot.utilities.misc_utils import get_temp_folder
 from app.tg_bot.states.fsm_state_data import FSMSubstanceForm
 from app.calculation.database_mode.substance import SubstanceDB
 
-import json
 
 logger = logging.getLogger(__name__)
 logger = logging.getLogger('matplotlib').setLevel(logging.ERROR)
@@ -35,11 +36,13 @@ async def process_get_data_base(message: Message, bot: Bot, state: FSMContext, i
 
     chat_id = str(message.chat.id)
     q_keys = SubstanceDB(i18n=i18n, chat_id=chat_id)
-    name_dir = q_keys.get_diagram_sankey()
-    media = FSInputFile(str(name_dir))
+    fig_sankey = q_keys.get_diagram_sankey()
+
     text = i18n.data_base(quantity_keys=q_keys.get_quantity_keys())
+
     await message.answer_photo(
-        photo=media,
+        photo=BufferedInputFile(
+            file=fig_sankey, filename="fig_sankey"),
         caption=text,
         has_spoiler=False,
         reply_markup=get_inline_cd_kb(4,
@@ -48,8 +51,90 @@ async def process_get_data_base(message: Message, bot: Bot, state: FSMContext, i
                                       'alfa_omega',
                                       'RUS_alphabet',
                                       'data_base_search',
+                                      'data_base_inline_search',
                                       'general_menu',
                                       i18n=i18n))
+
+
+@data_base_req_router.callback_query(F.data == 'data_base_inline_search')
+async def data_base_inline_search_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    chat_id = str(callback.message.chat.id)
+
+    text = i18n.data_base_inline_search.text()
+
+    markup = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
+        text="Начать поиск", switch_inline_query_current_chat="")]])
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=markup)
+
+    await state.set_state(FSMSubstanceForm.database_inline_state)
+
+
+@data_base_req_router.inline_query(StateFilter(FSMSubstanceForm.database_inline_state))
+async def show_substances(inline_query: InlineQuery, state: FSMContext, i18n: TranslatorRunner):
+
+    q_keys = SubstanceDB(i18n=i18n)
+    list_sub = q_keys.get_list_substances()
+    results = []
+    for name in list_sub:
+        if inline_query.query in str(name):
+            results.append(InlineQueryResultArticle(id=str(name), title=f'{name}',
+                                                    input_message_content=InputTextMessageContent(message_text=f'{name}')))
+
+    await inline_query.answer(results=results[:20], cache_time=0, is_personal=True)
+
+
+@data_base_req_router.message(StateFilter(FSMSubstanceForm.database_inline_state))
+async def data_base_search_input(message: Message, state: FSMContext, i18n: TranslatorRunner) -> None:
+    chat_id = str(message.chat.id)
+    await message.bot.send_chat_action(
+        chat_id=message.chat.id,
+        action=ChatAction.TYPING)
+
+    word_search = message.text
+
+    q_keys = SubstanceDB(i18n=i18n, chat_id=chat_id, word_search=word_search)
+    fig_sankey = q_keys.get_diagram_sankey()
+    word_keys = q_keys.get_word_search_result()
+    dict_word = {key: key for key in word_keys}
+
+    text = i18n.data_base_search_result(
+        word_search=word_search, word_search_quan=len(word_keys))
+    await message.answer_photo(
+        photo=BufferedInputFile(
+            file=fig_sankey, filename="fig_sankey"),
+        caption=text,
+        has_spoiler=False,
+        reply_markup=get_inline_sub_kb(2, i18n=i18n, param_back=True, back_data="back_to_list", ** dict_word))
+
+    await state.set_state(FSMSubstanceForm.database_edit_state)
+    await message.delete()
+
+# @data_base_req_router.message(StateFilter(FSMSubstanceForm.database_inline_state))
+# async def data_base_search_input(message: Message, state: FSMContext, i18n: TranslatorRunner) -> None:
+#     chat_id = str(message.chat.id)
+#     word_search = message.text
+
+#     q_keys = SubstanceDB(i18n=i18n, chat_id=chat_id, word_search=word_search)
+#     fig_sankey = q_keys.get_diagram_sankey()
+#     word_keys = q_keys.get_word_search_result()
+#     dict_word = {key: key for key in word_keys}
+#     text = i18n.data_base_search_result(
+#         word_search=word_search, word_search_quan=len(word_keys))
+#     await message.answer_photo(
+#         photo=BufferedInputFile(
+#             file=fig_sankey, filename="fig_sankey"),
+#         caption=text,
+#         has_spoiler=False,
+#         reply_markup=get_inline_sub_kb(2, i18n=i18n, param_back=True, back_data="back_to_list", ** dict_word))
+#         # reply_markup=get_inline_sub_kb(2, i18n=i18n, param_back=True, back_data="back_to_list_rus", ** dict_rus))
+
+#     await state.clear()
+#     await message.delete()
 
 
 @data_base_req_router.callback_query(F.data == 'data_base_search')
@@ -122,15 +207,15 @@ async def data_base_search_input(message: Message, state: FSMContext, i18n: Tran
     word_search = message.text
 
     q_keys = SubstanceDB(i18n=i18n, chat_id=chat_id, word_search=word_search)
-    name_dir = q_keys.get_diagram_sankey()
-    media = FSInputFile(str(name_dir))
+    fig_sankey = q_keys.get_diagram_sankey()
     word_keys = q_keys.get_word_search_result()
     dict_word = {key: key for key in word_keys}
 
     text = i18n.data_base_search_result(
         word_search=word_search, word_search_quan=len(word_keys))
     await message.answer_photo(
-        photo=media,
+        photo=BufferedInputFile(
+            file=fig_sankey, filename="fig_sankey"),
         caption=text,
         has_spoiler=False,
         reply_markup=get_inline_sub_kb(2, i18n=i18n, param_back=True, back_data="back_to_list", ** dict_word))
@@ -156,20 +241,20 @@ async def data_base_search_input(message: Message, state: FSMContext, i18n: Tran
 async def back_to_list_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     chat_id = str(callback.message.chat.id)
     q_keys = SubstanceDB(i18n=i18n, chat_id=chat_id)
-    name_dir = q_keys.get_diagram_sankey()
-    media = FSInputFile(str(name_dir))
+
     text = i18n.data_base(quantity_keys=q_keys.get_quantity_keys())
 
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(1,
+        reply_markup=get_inline_cd_kb(2,
                                       'one_nine',
                                       'EN_alphabet',
                                       'alfa_omega',
                                       'RUS_alphabet',
                                       'data_base_search',
+                                      'data_base_inline_search',
                                       'general_menu',
                                       i18n=i18n))
     await state.clear()

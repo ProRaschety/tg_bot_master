@@ -20,12 +20,12 @@ from app.tg_bot.handlers.other import other_router
 
 storage = MemoryStorage()  # для хранения вводимой информации в оперативной памяти
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 async def main():
     # Выводим в консоль информацию о начале запуска бота
-    logger.info('Starting bot')
+    log.info('Starting bot')
 
     config: Config = load_config()
 
@@ -64,7 +64,7 @@ async def main():
         ],
     )
 
-    logging.debug('Include routers')
+    log.debug('Include routers')
 
     # Регистриуем роутеры в диспетчере
     dp.include_router(admin_router)

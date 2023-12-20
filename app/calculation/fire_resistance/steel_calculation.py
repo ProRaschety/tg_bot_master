@@ -3,8 +3,7 @@ import logging
 import io
 import json
 
-
-from app.tg_bot.utilities.misc_utils import get_temp_folder
+from fluentogram import TranslatorRunner
 
 import math as m
 import matplotlib as mpl
@@ -14,56 +13,59 @@ import matplotlib.patches as patches
 
 from scipy.interpolate import interp1d
 
-logger = logging.getLogger(__name__)
-
-# loading_method - способ нагружения
-# distributed_load = 'Распределенная\nнагрузка'
-# concentrated_load = 'Сосредоточенная\nнагрузка'
-
-# fixation - способ закрепления
-# beams_sealing_both_ends = 'Защемление\nпо двум концам'
-# beams_sealing_one_end_second_free_dist_loading = 'Защемление\nодного конца\nдругой свободен\nс нагрузкой'
-# beams_sealing_one_end_second_free_dist_a_load = 'Защемление\nодного конца\nдругой свободен\nс нагрузкой на расстоянии'
-# cantilever_beams_sealing_one_end = 'Консоль'  # жесткое закреплеие однго конца
-
-# type_loading - тип усилия
-# stretching_element = 'Растяжение'
-# compression_element = 'Сжатие'
-# bend = 'Изгиб'
+log = logging.getLogger(__name__)
 
 
 class SteelStrength:
-    def __init__(self,
-                 chat_id,
-                 name_profile,
-                 sketch,
-                 reg_document,
-                 num_sides_heated=4,
-                 fixation='beams_sealing_both_ends',
-                 n_load=1,
-                 a_load=1,
-                 type_loading='stretching_element',
-                 loading_method='distributed_load',
-                 len_elem=1,
-                 type_steel_element="C235",
-                 quan_elem=1):
 
+    def __init__(self,
+                 i18n: TranslatorRunner,
+                 chat_id=None):
+        #  name_profile,
+        #  sketch,
+        #  reg_document,
+        #  num_sides_heated='num_sides_heated_four',
+        #  fixation='console',
+        #  n_load=1,
+        #  type_loading='stretching_element',
+        #  loading_method='distributed_load_steel',
+        #  len_elem=1,
+        #  type_steel_element="C235",
+        #  quan_elem=1):
+        self.i18n = i18n
         self.chat_id = chat_id
-        self.name_profile: str = name_profile
+
+        with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
+            init_strenght_out = json.load(file_op)
+            num_profile = init_strenght_out[chat_id]["num_profile"]
+            sketch = init_strenght_out[chat_id]["sketch"]
+            reg_document = init_strenght_out[chat_id]["reg_document"]
+            num_sides_heated = init_strenght_out[chat_id]["num_sides_heated"]
+            len_elem = init_strenght_out[chat_id]["len_elem"]
+            fixation = init_strenght_out[chat_id]["fixation"]
+            type_loading = init_strenght_out[chat_id]["type_loading"]
+            n_load = init_strenght_out[chat_id]["n_load"]
+            type_steel_element = init_strenght_out[chat_id]["type_steel_element"]
+            loading_method = init_strenght_out[chat_id]["loading_method"]
+
+        self.num_profile: str = num_profile
         self.sketch: str = sketch
         self.reg_document: str = reg_document
-        self.num_sides_heated: int = num_sides_heated
-        self.len_elem: float = len_elem
+        self.num_sides_heated: str = num_sides_heated
+        self.len_elem: float = float(len_elem)
         self.fixation: str = fixation
-        self.n_load: float = n_load  # 1 Н ≈ 0,10197162 кгс , 1 кг = 9,807 Н
-        self.a_load: float = a_load  # см
-        self.type_loading: str = type_loading  # concentrated , distributed
-        self.e_n: float = 2_100_000  # начальный модуль упругости металла, кг/см2
+        # 1 Н ≈ 0,10197162 кгс , 1 кг = 9,807 Н
+        self.n_load: float = float(n_load)
+        # 'stretching_element', 'compression_element', 'bend_element' = растяжение, сжатие, изгиб
+        self.type_loading: str = type_loading
+        self.e_n_kg_cm2: float = 2_100_000  # начальный модуль упругости металла, кг/см2
         self.quan_elem: int = 1
         self.type_steel_element: str = type_steel_element
-        self.loading_method: str = loading_method
 
-        # 'stretching_element', 'compression_element', 'bend' = растяжение, сжатие, изгиб
+        if self.type_loading == 'compression_element' or self.type_loading == 'stretching_element':
+            self.loading_method = 'concentrated_load_steel'
+        else:
+            self.loading_method: str = loading_method
 
     def get_init_data_steel(self):
         """Функция возвращает список строк для заполнения таблицы исходных данных"""
@@ -96,57 +98,45 @@ class SteelStrength:
         return data
 
     def get_initial_data_strength(self):
-        if self.fixation == 'beams_sealing_both_ends':
-            fixation = 'Защемление\nпо двум концам'
-        elif self.fixation == 'beams_sealing_one_end_second_free_dist_loading':
-            fixation = 'Защемление\nодного конца\nдругой свободен\nс нагрузкой'
-        elif self.fixation == 'beams_sealing_one_end_second_free_dist_a_load':
-            fixation = 'Защемление\nодного конца\nдругой свободен\nс нагрузкой на расстоянии'
-        elif self.fixation == 'cantilever_beams_sealing_one_end':
-            fixation = 'Консоль'
-
-        # type_loading = ''
-        if self.type_loading == 'stretching_element':
-            type_loading = 'Растяжение'
-        elif self.type_loading == 'compression_element':
-            type_loading = 'Сжатие'
-        elif self.type_loading == 'bend':
-            type_loading = 'Изгиб'
-
-        loading_method = 'Распределенная\nнагрузка'
-        unit_load = 'Н/м'
+        log.info("Исходные данные для прочностного расчета")
+        with open('app\infrastructure\data_base\db_steel_property.json', encoding='utf-8') as file_op:
+            property_steel_in = json.load(file_op)
+        r_norm = float(
+            property_steel_in[self.type_steel_element]["r_norm_kg_cm2"])
+        num_sides_heated = self.i18n.get(self.num_sides_heated)
+        fixation = self.i18n.get(self.fixation)
+        type_loading = self.i18n.get(self.type_loading)
+        loading_method = self.i18n.get(self.loading_method)
+        unit_load = 'кг/м'
         if self.loading_method == 'distributed_load_steel':
-            loading_method = 'Распределенная\nнагрузка'
-            unit_load = "Н/м"
+            unit_load = "кг/м"
         elif self.loading_method == 'concentrated_load_steel':
-            print(1)
-            loading_method = 'Сосредоточенная\nнагрузка'
-            unit_load = "Н"
+            unit_load = "кг"
 
-        profile = self.name_profile
+        profile = self.num_profile
         sketch = self.sketch
         reg_document = self.reg_document
-        num_sides_heated = self.num_sides_heated
         len_elem = self.len_elem
         n_load = self.n_load
         ptm = round(self.get_reduced_thickness(), 2)
-
-        if profile == "Двутавр":
+        label = 'Исходные данные\nдля прочностного расчета'
+        if sketch == "Двутавр":
             data = [
                 {'id': 'Способ закрепления', 'var': fixation, 'unit': '-'},
                 {'id': 'Усилие', 'var': type_loading, 'unit': '-'},
                 {'id': 'Тип нагружения', 'var': loading_method, 'unit': '-'},
-                {'id': 'Нагрузка', 'var': self.n_load * 9.807, 'unit': unit_load},
+                {'id': 'Нагрузка', 'var': self.n_load, 'unit': unit_load},
                 {'id': 'Длина', 'var': self.len_elem, 'unit': 'мм'},
                 {'id': 'Приведенная толщина\nметалла', 'var': ptm, 'unit': 'мм'},
                 {'id': 'Количество сторон обогрева',
-                    'var': self.num_sides_heated, 'unit': 'шт'},
-                {'id': 'Тип стали', 'var': self.type_steel_element, 'unit': '-'},
-                {'id': 'Сечение', 'var': self.name_profile, 'unit': '-'},
-                {'id': 'Сортамент', 'var': self.sketch, 'unit': '-'},
-                {'id': 'Профиль по ГОСТ', 'var': self.reg_document, 'unit': '-'}]
+                    'var': num_sides_heated, 'unit': 'шт'},
+                {'id': 'Сечение', 'var': self.sketch, 'unit': '-'},
+                {'id': 'Профиль', 'var': self.num_profile, 'unit': '-'},
+                {'id': 'Профиль по ГОСТ', 'var': self.reg_document, 'unit': '-'},
+                {'id': 'Сопротивление стали', 'var': r_norm, 'unit': 'кг/см\u00B2'},
+                {'id': 'Тип стали', 'var': self.type_steel_element, 'unit': '-'}]
 
-        elif profile == "Швеллер":
+        elif sketch == "Швеллер":
             data = [
                 {'id': 'Способ закрепления', 'var': fixation, 'unit': '-'},
                 {'id': 'Усилие', 'var': type_loading, 'unit': '-'},
@@ -155,7 +145,7 @@ class SteelStrength:
                 {'id': 'Длина', 'var': self.len_elem, 'unit': 'мм'},
                 {'id': 'Приведенная толщина\nметалла', 'var': ptm, 'unit': 'мм'},
                 {'id': 'Количество сторон обогрева',
-                    'var': self.num_sides_heated, 'unit': 'шт'},
+                    'var': num_sides_heated, 'unit': 'шт'},
                 {'id': 'Тип стали', 'var': self.type_steel_element, 'unit': '-'},
                 {'id': 'Сечение', 'var': self.name_profile, 'unit': '-'},
                 {'id': 'Сортамент', 'var': self.sketch, 'unit': '-'},
@@ -176,7 +166,7 @@ class SteelStrength:
             "right": 0.970,  # 0.970
             "top": 0.900  # 0.900
         }
-        fig = plt.figure(figsize=(w / px, h / px), dpi=200)
+        fig = plt.figure(figsize=(w / px, h / px), dpi=300)
         fig.subplots_adjust(**margins)
         ax = fig.add_subplot()
 
@@ -232,52 +222,79 @@ class SteelStrength:
                      loc='left', fontsize=12, weight='bold')
         ax.axis('off')
 
-        directory = get_temp_folder()
-        name_plot = "".join(
-            ['fig_init_data_strength_', str(self.chat_id), '.png'])
-        name_dir = '/'.join([directory, name_plot])
-
-        fig.savefig(name_dir, format='png')
+        buffer = io.BytesIO()
+        fig.savefig(buffer, format='png')
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
         plt.cla()
         plt.close(fig)
 
-        return name_dir
+        return image_png
+
+    def get_list_num_profile(self):
+        profile = self.num_profile
+        sketch = self.sketch
+        gost = self.reg_document
+        if sketch == "Двутавр":
+            with open(file="app\infrastructure\data_base\db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
+                db_ibeam = json.load(file_op)
+
+        list_num_profile = list(db_ibeam[sketch][gost].keys())
+        log.info(
+            f"Количесто номеров профилей: {len(db_ibeam[sketch][gost].keys())}")
+        return list_num_profile
+
+    def get_effective_length(self):
+        effective_length = self.len_elem
+        if self.fixation == 'console':
+            effective_length = self.len_elem * 2
+        elif self.fixation == 'hinge-hinge':
+            effective_length = self.len_elem * 1
+        elif self.fixation == 'sealing-sealing':
+            effective_length = self.len_elem * 0.5
+        elif self.fixation == 'seal-hinge':
+            effective_length = self.len_elem * 0.7
+        log.info(f"Эффективная длина элемента: {effective_length} мм")
+        return effective_length
 
     def get_sectional_area(self):
         """Опеределение площади сечения элемента в мм2"""
-        profile = self.name_profile
+        profile = self.num_profile
         sketch = self.sketch
         gost = self.reg_document
-        if profile == "Двутавр":
+        sec_area_cm2 = None
+        if sketch == "Двутавр":
             with open(file="app\infrastructure\data_base\db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
-                sec_area_cm2 = db_steel_in[profile][gost][sketch]['a_cm2']
-        elif profile == "Швеллер":
+                sec_area_cm2 = db_steel_in[sketch][gost][profile]['a_cm2']
+        elif sketch == "Швеллер":
             with open(file="db_steel_channel.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
-                sec_area_cm2 = db_steel_in[profile][gost][sketch]['a_cm2']
+                sec_area_cm2 = db_steel_in[sketch][gost][profile]['a_cm2']
         sectional_area = float(sec_area_cm2) * 100  # мм2
+        log.info(f"Площадь сечения: {sectional_area} мм2")
         return sectional_area
 
     def get_perimeter_section(self):
-        num_sides_heated = self.num_sides_heated
-        profile = self.name_profile
+        num_sides_heated = float(self.i18n.get(self.num_sides_heated))
+        profile = self.num_profile
         sketch = self.sketch
         gost = self.reg_document
-
-        if profile == "Двутавр":
+        perimeter_section = None
+        if sketch == "Двутавр":
             with open(file="app\infrastructure\data_base\db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
-                h_mm = db_steel_in[profile][gost][sketch]["h_mm"]
-                b_mm = db_steel_in[profile][gost][sketch]["b_mm"]
-                s_mm = db_steel_in[profile][gost][sketch]["s_mm"]
+                h_mm = db_steel_in[sketch][gost][profile]["h_mm"]
+                b_mm = db_steel_in[sketch][gost][profile]["b_mm"]
+                s_mm = db_steel_in[sketch][gost][profile]["s_mm"]
 
-        elif profile == "Швеллер":
+        elif sketch == "Швеллер":
             with open(file="db_steel_channel.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
-                h_mm = db_steel_in[profile][gost][sketch]["h_mm"]
+                h_mm = db_steel_in[sketch][gost][profile]["h_mm"]
 
-        if profile == "Двутавр":
+        if sketch == "Двутавр":
             if num_sides_heated == 3:
                 perimeter_section = 2 * \
                     float(h_mm) + 3 * float(b_mm) - 2 * float(s_mm)
@@ -285,147 +302,234 @@ class SteelStrength:
                 perimeter_section = 2 * \
                     float(h_mm) + 4 * float(b_mm) - 2 * float(s_mm)
 
-        elif profile == "Швеллер":
+        elif sketch == "Швеллер":
             if num_sides_heated == 3:
                 perimeter_section = 2 * \
                     float(h_mm) + 3 * float(b_mm) - 2 * float(s_mm)
             else:
                 perimeter_section = 2 * \
                     float(h_mm) + 4 * float(b_mm) - 2 * float(s_mm)
-
+        log.info(
+            f"Периметр сечения: {perimeter_section} мм")
         return perimeter_section
 
     def get_moment_section_resistance(self):
         """момент сопротивления сечения в направлении оси приложния усилия, W(x,y), см3"""
-        profile = self.name_profile
+        profile = self.num_profile
         sketch = self.sketch
         gost = self.reg_document
-
-        if profile == "Двутавр":
+        moment_section_resistance = None
+        if sketch == "Двутавр":
             with open(file="app\infrastructure\data_base\db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
-                w_x_cm3 = db_steel_in[profile][gost][sketch]['w_x_cm3']
-                w_y_cm3 = db_steel_in[profile][gost][sketch]['w_y_cm3']
+                w_x_cm3 = db_steel_in[sketch][gost][profile]['w_x_cm3']
+                w_y_cm3 = db_steel_in[sketch][gost][profile]['w_y_cm3']
             moment_section_resistance = min(w_x_cm3, w_y_cm3)
 
-        elif profile == "Швеллер":
+        # elif profile == "Швеллер":
+        #     with open(file="db_steel_channel.json", mode="r", encoding='utf-8') as file_op:
+        #         db_steel_in = json.load(file_op)
+        #         sec_area_cm2 = db_steel_in[profile][gost][sketch]['a_cm2']
+        log.info(
+            f"Момент сопротивления сечения: {moment_section_resistance} см3")
+        return moment_section_resistance
+
+    def get_moment_section_of_inertia(self):
+        """Момент инерции сечения, J см4"""
+        profile = self.num_profile
+        sketch = self.sketch
+        gost = self.reg_document
+        moment_section_of_inertia = None
+        if sketch == "Двутавр":
+            with open(file="app\infrastructure\data_base\db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
+                db_steel_in = json.load(file_op)
+                i_x_cm4 = db_steel_in[sketch][gost][profile]['i_x_cm4']
+                i_y_cm4 = db_steel_in[sketch][gost][profile]['i_y_cm4']
+            moment_section_of_inertia = min(i_x_cm4, i_y_cm4)
+
+        elif sketch == "Швеллер":
             with open(file="db_steel_channel.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
-                sec_area_cm2 = db_steel_in[profile][gost][sketch]['a_cm2']
-
-        return moment_section_resistance
+                i_x_cm4 = db_steel_in[sketch][gost][profile]['i_x_cm4']
+                i_y_cm4 = db_steel_in[sketch][gost][profile]['i_y_cm4']
+            moment_section_of_inertia = min(i_x_cm4, i_y_cm4)
+        log.info(
+            f"Момент инерции сечения: {moment_section_of_inertia} см4")
+        return moment_section_of_inertia
 
     def get_reduced_thickness(self):
         sectional_area = self.get_sectional_area()
         perimeter_section = self.get_perimeter_section()
         ptm = sectional_area/perimeter_section
+
+        with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+            init_thermal_in = json.load(file_op)
+            init_thermal_in[self.chat_id]["ptm"] = ptm
+        with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
+            json.dump(init_thermal_in, file_w, ensure_ascii=False, indent=4)
+
+        log.info(f"Приведенная толщина металла: {ptm} мм")
+
         return ptm
 
-    def get_norm_load(self):
-        norm_load = self.n_load * self.a_load
+    def get_loading(self):
+        loading = float(self.n_load)  # кг
+        log.info(f"Усилие от нагрузки: {loading} кг")
+        return loading
 
-        if self.loading_method == 'distributed_load_steel':
-            loading_method = 'Распределенная\nнагрузка'
+    def get_moment_load(self):
+        a_load = float(self.len_elem) * 0.1  # см
+        len_elem = float(self.len_elem) * 0.1  # см
+        n_load = float(self.n_load)/100  # кг/см
+        moment_load = None
 
-            if self.fixation == 'beams_sealing_both_ends':
-                fixation = 'Защемление\nпо двум концам'
-                norm_load = (((self.n_load)/100) *
-                             ((self.len_elem*0.1) ** 2)) / 12
-            elif self.fixation == 'beams_sealing_one_end_second_free_dist_loading':
-                fixation = 'Защемление\nодного конца\nдругой свободен\nс нагрузкой'
-                norm_load = self.n_load * (self.len_elem / 2)
-            elif self.fixation == 'beams_sealing_one_end_second_free_dist_a_load':
-                fixation = 'Защемление\nодного конца\nдругой свободен\nс нагрузкой на расстоянии'
-                norm_load = self.n_load * self.a_load
-            elif self.fixation == 'cantilever_beams_sealing_one_end':
-                fixation = 'Консоль'
-                norm_load = self.n_load * self.a_load
+        if self.loading_method == 'distributed_load_steel':  # Распределенная
+            if self.fixation == 'sealing-sealing':
+                moment_load = (n_load * (len_elem ** 2)) / 12
+            elif self.fixation == 'seal-hinge':
+                moment_load = (n_load * (len_elem ** 2)) / 8
+            elif self.fixation == 'hinge-hinge':
+                moment_load = (n_load * (len_elem ** 2)) / 8
+            elif self.fixation == 'console':
+                moment_load = (n_load * (len_elem ** 2)) / 2
 
         elif self.loading_method == 'concentrated_load_steel':
-            loading_method = 'Сосредоточенная\nнагрузка'
+            if self.fixation == 'sealing-sealing':
+                moment_load = (n_load * len_elem) / 8
+            elif self.fixation == 'seal-hinge':
+                moment_load = (3 * n_load * len_elem) / 16
+            elif self.fixation == 'hinge-hinge':
+                moment_load = (n_load * len_elem) / 4
+            elif self.fixation == 'console':
+                moment_load = n_load * 100 * a_load
 
-            if self.fixation == 'beams_sealing_both_ends':
-                fixation = 'Защемление\nпо двум концам'
-                norm_load = self.n_load * self.a_load
-            elif self.fixation == 'beams_sealing_one_end_second_free_dist_loading':
-                fixation = 'Защемление\nодного конца\nдругой свободен\nс нагрузкой'
-                norm_load = self.n_load * (self.len_elem / 2)
-            elif self.fixation == 'beams_sealing_one_end_second_free_dist_a_load':
-                fixation = 'Защемление\nодного конца\nдругой свободен\nс нагрузкой на расстоянии'
-                norm_load = self.n_load * self.a_load
-            elif self.fixation == 'cantilever_beams_sealing_one_end':
-                fixation = 'Консоль'
-                norm_load = self.n_load * self.a_load
-        print(f"Nn или Mn = {norm_load}")
-        return norm_load
+        log.info(f"Изгибающий момент: {moment_load} кг*см")
+        return moment_load
 
     def get_coef_strength(self):
         with open('app\infrastructure\data_base\db_steel_property.json', encoding='utf-8') as file_op:
             property_steel_in = json.load(file_op)
         # kg_cm2
-        r_norm = property_steel_in[self.type_steel_element]["r_norm_kg_cm2"]
+        r_norm = float(
+            property_steel_in[self.type_steel_element]["r_norm_kg_cm2"])
+        log.info(
+            f"Начальное нормативное сопротивление металла: {r_norm} kg/cm2")
 
-        sectional_area = self.get_sectional_area()
-        n_load = self.get_norm_load()
-
-        j_min = 1               # наименьший момент инерции сечения элемента, см4;
-
-        # выбор формулы для расчета коэффициента снижения прочности
         if self.type_loading == 'stretching_element':
-            type_loading = 'Растяжение'
-            # Температурный коэффициент снижения предела текучести стали при растяжении
+            sectional_area = self.get_sectional_area() * 0.01
+            n_load = float(self.get_loading())
             gamma = n_load / (sectional_area * r_norm)
+            log.info(
+                f"Коэффициент снижения предела текучести стали при растяжении: {gamma:.3f}")
+            return gamma
 
         elif self.type_loading == 'compression_element':
-            type_loading = 'Сжатие'
-
-            # Температурный коэффициент снижения предела текучести стали при сжатии
+            sectional_area = self.get_sectional_area() * 0.01
+            # наименьший момент инерции сечения элемента, см4
+            j_min = float(self.get_moment_section_of_inertia())
+            # расчетная эффективная длина элемента, см
+            l_eff = float(self.get_effective_length()) * 0.1
+            n_load = float(self.get_loading())
             gamma_t = n_load / (sectional_area * r_norm)
-            # Температурный коэффициент снижения модуля упругости стали при сжатии
-            if self.fixation == 'beams_sealing_both_ends':
-                fixation = 'Защемление\nпо двум концам'
-                mu = 0.5
-            l_eff = mu * self.len_elem   # расчетная эффективная длина элемента, см
+            log.info(
+                f"Коэффициент снижения предела текучести стали при сжатии: {gamma_t:.3f} при нагрузке {n_load:.1f}")
+            gamma_elasticity = (n_load * (l_eff ** 2)) / \
+                ((3.14159**2) * self.e_n_kg_cm2 * j_min)
+            # gamma = min[gamma_t, gamma_elasticity]
+            log.info(
+                f"Коэффициент снижения модуля упругости стали при сжатии: {gamma_elasticity:.3f} при j_min {j_min:.2f} и l_eff {l_eff:.2f}")
+            return gamma_t, gamma_elasticity
 
-            gamma_elasticity = (n_load * l_eff ** 2) / \
-                (3.14159**2 * self.e_n * j_min)
-            gamma = min[gamma_t, gamma_elasticity]
-
-        elif self.type_loading == 'bend':
-            type_loading = 'Изгиб'
-            # Температурный коэффициент снижения предела текучести стали при изгибе
-            moment_section_resistance = self.get_moment_section_resistance()
-            gamma = float(n_load) / \
-                (float(moment_section_resistance) * float(r_norm))
-
-        print(gamma)
-        return gamma
+        elif self.type_loading == 'bend_element':
+            m_load = float(self.get_moment_load())
+            moment_section_resistance = float(
+                self.get_moment_section_resistance())
+            gamma = m_load / (moment_section_resistance * r_norm)
+            log.info(
+                f"Коэффициент снижения предела текучести стали при изгибе: {gamma:.3f}")
+            return gamma
 
     def get_crit_temp_steel(self):
-        gamma = self.get_coef_strength()
+
         with open('app\infrastructure\data_base\db_grades_steel.json', encoding='utf-8') as file_op:
             prop_steel_in = json.load(file_op)
             temp = prop_steel_in[self.type_steel_element]["heating_temperature"]
             coef = prop_steel_in[self.type_steel_element]["coeff_reduction_of_yield_strength"]
-        if gamma <= coef[-1]:
-            t_critic = temp[-1]
-        else:
-            temp_correl = interp1d(coef, temp, kind='slinear',
-                                   bounds_error=False, fill_value=0)
-            t_critic = float(temp_correl(gamma))
+            coef_elast = prop_steel_in[self.type_steel_element]["coeff_module_elasticity"]
+
+        if self.type_loading == 'compression_element':
+            gamma_t, gamma_elasticity = self.get_coef_strength()
+
+            if gamma_t <= coef[-1]:
+                t_critic_yt = temp[-1]
+            elif gamma_t >= coef[0]:
+                t_critic_yt = temp[0]
+            else:
+                temp_cor_yt = interp1d(coef, temp, kind='slinear',
+                                       bounds_error=False, fill_value=0)
+                t_critic_yt = float(temp_cor_yt(gamma_t))
+            log.info(
+                f"Критическая температура при сжатии от yt={gamma_t:.3f}: {t_critic_yt:.3f} С")
+
+            if gamma_elasticity <= coef_elast[-1]:
+                t_critic_ye = temp[-1]
+            elif gamma_elasticity >= coef_elast[0]:
+                t_critic_ye = temp[0]
+            else:
+                temp_cor_ye = interp1d(coef_elast, temp, kind='slinear',
+                                       bounds_error=False, fill_value=0)
+                t_critic_ye = float(temp_cor_ye(gamma_elasticity))
+
+            t_critic = t_critic_yt
+
+            log.info(
+                f"Критическая температура при сжатии от ye={gamma_elasticity:.3f}: {t_critic_ye:.3f} С")
+
+            log.info(f"Критическая температура при сжатии: {t_critic:.3f} С")
+
+        elif self.type_loading == 'stretching_element':
+            gamma = self.get_coef_strength()
+            if gamma <= coef[-1]:
+                t_critic = temp[-1]
+            elif gamma >= coef[0]:
+                t_critic = temp[0]
+            else:
+                temp_correl = interp1d(coef, temp, kind='slinear',
+                                       bounds_error=False, fill_value=0)
+                t_critic = float(temp_correl(gamma))
+            log.info(
+                f"Критическая температура при растяжении: {t_critic:.3f} С")
+
+        elif self.type_loading == 'bend_element':
+            gamma = self.get_coef_strength()
+            if gamma <= coef[-1]:
+                t_critic = temp[-1]
+            elif gamma >= coef[0]:
+                t_critic = temp[0]
+            else:
+                temp_correl = interp1d(coef, temp, kind='slinear',
+                                       bounds_error=False, fill_value=0)
+                t_critic = float(temp_correl(gamma))
+            log.info(f"Критическая температура при изгибе: {t_critic:.3f} С")
+
+        with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+            init_thermal_in = json.load(file_op)
+            init_thermal_in[self.chat_id]["t_critic_C"] = t_critic
+        with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
+            json.dump(init_thermal_in, file_w, ensure_ascii=False, indent=4)
 
         return t_critic
 
     def get_data_steel_strength(self):
         # Добавляем вид профиля "Двутавр", "Швеллер", "Уголок", "Профиль"
-        profile = self.name_profile
+        profile = self.num_profile
         # Section = section  # "RECTANGLE"
-        name_profile = self.sketch
+        sketch = self.sketch
         gost = self.reg_document                     # Добавляем наименование документа
 
-        if profile == "Двутавр":
+        if sketch == "Двутавр":
             Name_File = 'db_steel_ibeam.json'
-        elif profile == "Швеллер":
+        elif sketch == "Швеллер":
             Name_File = 'db_steel_chanell.json'
 
         table_title = [
@@ -464,9 +568,11 @@ class SteelStrength:
         perimeter = self.get_perimeter_section()
         len_element = self.len_elem
         surface_area = perimeter * len_element
+        log.info(f"Площадь поверхности элемента: {surface_area} м2")
         return surface_area
 
     def get_output_strength(self):
+        log.info("Экспорт данных прочностного расчета")
         """Функция возвращает данные для формирования таблицы csv при экспорте"""
 
         table_title = [
@@ -494,6 +600,7 @@ class SteelStrength:
 class SteelFR:
     def __init__(
             self,
+            i18n: TranslatorRunner,
             chat_id=0,
             ptm=4.8,
             mode='Стандартный',
@@ -507,7 +614,7 @@ class SteelFR:
             heat_capacity=310.0,
             heat_capacity_change=0.469,
     ):
-
+        self.i18n = i18n
         self.chat_id = chat_id
         self.ptm = float(ptm)
         self.mode = mode
@@ -523,6 +630,7 @@ class SteelFR:
         self.heat_capacity_change = float(heat_capacity_change)
 
     def get_initial_data_thermal(self):
+        log.info("Исходные данные для теплотехнического расчета")
         if self.mode == "Углеводородный":
             a_convection = 50
         else:
@@ -539,16 +647,16 @@ class SteelFR:
             "right": 0.970,  # 0.970
             "top": 0.900  # 0.900
         }
-        fig = plt.figure(figsize=(w / px, h / px), dpi=200)
+        fig = plt.figure(figsize=(w / px, h / px), dpi=300)
         fig.subplots_adjust(**margins)
         ax = fig.add_subplot()
 
         data = [
 
             {'id': 'Коэффициент изм.\nтеплоемкости стали',
-                'var': self.heat_capacity_change, 'unit': 'Дж/кг\u00D7град\u00B2'},
+                'var': self.heat_capacity_change, 'unit': 'Дж/кг\u00D7К\u00B2'},
             {'id': 'Теплоемкость стали', 'var': self.heat_capacity,
-                'unit': 'Дж/кг\u00D7град'},
+                'unit': 'Дж/кг\u00D7К'},
             {'id': 'Степень черноты стали, Sст', 'var': self.s_1, 'unit': '-'},
             {'id': 'Плотность стали, \u03C1',
                 'var': self.density_steel, 'unit': 'кг/м\u00B3'},
@@ -618,18 +726,26 @@ class SteelFR:
                      loc='left', fontsize=12, weight='bold')
         ax.axis('off')
 
-        directory = get_temp_folder(
-            fold_name='temp_pic')
-        name_plot = f'fig_init_data_thermal_{str(self.chat_id)}.png'
-        # "".join(
-        # ['fig_init_data_thermal_', str(self.chat_id), '.png'])
-        name_dir = '/'.join([directory, name_plot])
+        # directory = get_temp_folder(
+        #     fold_name='temp_pic')
+        # name_plot = f'fig_init_data_thermal_{str(self.chat_id)}.png'
+        # name_dir = '/'.join([directory, name_plot])
+        # fig.savefig(name_dir, format='png')
+        # plt.cla()
+        # plt.close(fig)
 
-        fig.savefig(name_dir, format='png')
+        buffer = io.BytesIO()
+        fig.savefig(buffer, format='png')
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        # # buffer.close()
+        # # name_dir = base64.b64encode(image_png)
+        # # name_dir = name_dir.decode('utf-8')
+        # print(type(image_png))
+        buffer.close()
         plt.cla()
         plt.close(fig)
-
-        return name_dir
+        return image_png
 
     def get_fire_mode(self):
         """ функция возвращает значения изменения температуры от времени """
@@ -660,9 +776,7 @@ class SteelFR:
         return Tm
 
     def get_steel_heating(self):
-
-        logger.info("Steel heating analysis requested")
-
+        log.info("Прогрев элемента конструкции по уравнению Яковлева А.И.")
         '''Прогрев элемента конструкции по уравнению Яковлева А.И. при тепловом воздействии по ГОСТ 30247.0 и ГОСТ Р ЕН 1363-2'''
         # приведенная степень черноты
         if self.mode == "Углеводородный":
@@ -708,8 +822,6 @@ class SteelFR:
         return temperature_element
 
     def get_steel_fsr(self):
-        logger.info("Steel fsr analysis requested")
-
         Tst = self.get_steel_heating()
         time = [0]
         x_max = self.x_max
@@ -724,11 +836,11 @@ class SteelFR:
 
         # Определение времени прогрева от температуры
         time_fsr = float(t_fsr(self.t_critic))/60
-
+        log.info(f"Предел огнестойкости стального элемента: {time_fsr} мин")
         return time_fsr
 
     def get_plot_steel(self):
-        logger.info("Steel heating plot requested")
+        log.info("График прогрева элемента конструкции")
         # размеры рисунка в дюймах
         inch = 2.54  # 1 дюйм = 2.54 см = 96.358115 pixel
         px = 96.358115
@@ -828,22 +940,39 @@ class SteelFR:
                 linestyle=':',
                 linewidth=0.250)
 
-        directory = get_temp_folder(fold_name='temp_pic')
-        name_plot = "".join(['fig_steel_fr_', str(self.chat_id), '.png'])
-        name_dir = '/'.join([directory, name_plot])
+        # directory = get_temp_folder(fold_name='temp_pic')
+        # name_plot = "".join(['fig_steel_fr_', str(self.chat_id), '.png'])
+        # name_dir = '/'.join([directory, name_plot])
 
-        fig.savefig(name_dir, format='png', transparent=True)
+        # fig.savefig(name_dir, format='png', transparent=True)
+        # plt.cla()
+        # plt.close(fig)
+
+        buffer = io.BytesIO()
+        fig.savefig(buffer, format='png')
+        buffer.seek(0)
+        plot_thermal_png = buffer.getvalue()
+        buffer.close()
         plt.cla()
         plt.close(fig)
-
-        return name_dir
+        return plot_thermal_png
 
     def get_data_steel_heating(self):
+        log.info("Экспорт данных теплотехнического расчета")
         table_title = [
-            ["Данные прогрева незащищенной стальной контрукции"], [""], [f"Режим пожара: {self.mode}"], [f"ПТМ: {round(self.ptm, 2)}"], [""]]
+            ["Данные прогрева незащищенной стальной контрукции"],
+            [""],
+            [f"Режим пожара: {self.mode}"],
+            [f"ПТМ: {round(self.ptm, 2)}"],
+            [""]]
+
+        table_note = [
+            ["ПТМ - приведенная толщина метала, мм"],
+            ["Тв - температура среды"],
+            ["Тст - температура элемента"],
+            [""]]
+
         data_title = [["Время, с", "Тв, С", "Тст, С", ]]
-        table_note = [[""], ["ПТМ - приведенная толщина метала, мм"], ["Тв - температура среды"],
-                      ["Тст - температура элемента"]]
 
         Tm = self.get_fire_mode()
         Tst = self.get_steel_heating()
@@ -852,6 +981,6 @@ class SteelFR:
         for i in range(self.x_min, self.x_max, 1):
             data_profile.append(
                 [i, Tm[i], Tst[i],])
+        data = table_title + table_note + data_title + data_profile
 
-        data = table_title + data_title + data_profile + table_note
         return data

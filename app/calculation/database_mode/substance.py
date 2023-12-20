@@ -1,5 +1,8 @@
 import logging
 # from re import search
+import io
+import re
+import json
 
 from fluentogram import TranslatorRunner
 
@@ -14,8 +17,6 @@ import matplotlib.patches as patches
 
 from scipy.interpolate import interp1d
 
-import re
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -184,16 +185,25 @@ class SubstanceDB:
             font=dict(size=14, color='white'),
             paper_bgcolor='rgba(173, 157, 141, 0.70)')
 
-        name_fig = 'fig_sankey_'
+        # name_fig = 'fig_sankey_'
 
-        directory = get_temp_folder(fold_name='temp_pic')
-        name_plot = "".join([name_fig, str(self.chat_id), '.png'])
-        name_dir = '/'.join([directory, name_plot])
+        # directory = get_temp_folder(fold_name='temp_pic')
+        # name_plot = "".join([name_fig, str(self.chat_id), '.png'])
+        # name_dir = '/'.join([directory, name_plot])
 
-        fig.write_image(name_dir, format='png', width=500,
+        buffer = io.BytesIO()
+
+        fig.write_image(buffer, format='png', width=500,
                         height=500, scale=1, engine='kaleido')
 
-        return name_dir
+        # fig.savefig(buffer, format='png')
+        buffer.seek(0)
+        fig_sankey = buffer.getvalue()
+        buffer.close()
+        # plt.cla()
+        # plt.close(fig)
+
+        return fig_sankey
 
     def get_rus_alphabet(self):
         list_sub = self.get_list_substances()

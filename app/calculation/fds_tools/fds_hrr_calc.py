@@ -1,0 +1,129 @@
+import matplotlib.pyplot as plt
+import json
+
+# HRRPUA (Heat Release Rate per Unit Area).
+
+# delta_hc = 48000  # теплота сгорания кДж/кг
+# area = 10  # площадь горения м2
+
+# HRRPUA = delta_hc * mi  # Максимальная удельная скорость тепловыделения, которую необходимо задать в поверхности типа «горелка»
+# Q1(t) = 1  # зависимость номинальной (соответствующей полному сгоранию) мощности тепловыделения от времени.
+# Q_i = Q1(t)/area  # Удельная мощность тепловыделения, задается в исходных данных параметром HRRPUA.
+# m_i(t) = Qi/delta_hc  # скорость выгорания
+file_name_dict = r'D:\YandexDisk\Python_МетодМатериалы\db_fire_type.json'
+
+
+class FireTools:
+    def __init__(self):
+        self.name_flammable_load: str
+        self.min_t: int = 0
+        self.max_t: int = 180
+        self.temperature_air: float = 293.0  # К
+        self.__density_air = 1.204  # кг/м3
+        self.__specific_heat_of_gas = 1.005  # кДж/кг*К
+        self.__acceleration_of_gravity = 9.81  # м/с2
+
+    def get_hrr_result(self):
+        q_f = 650  # МДж/м2 Функциональная пожарная нагрузка
+        q_n = 15.8  # МДж/кг Низшая теплота сгорания пожарной нагрузки
+        psi_spec = 0.015  # кг/(м2*с) Удельная массовая скорость выгорания
+
+        with open(file_name_dict, encoding='utf-8') as file_op:
+            name_dict_in = json.load(file_op)
+        name_type = "Wardrobe_5-FASTLite"  # Fire Type
+        # fire_type = name_dict_in[name_type]
+        num_dive = 200  # Divisions in Graph
+        t_0 = name_dict_in[name_type]['t_0']
+        t_l0 = name_dict_in[name_type]['t_l0']
+        t_d = name_dict_in[name_type]['t_d']
+        t_end = name_dict_in[name_type]['t_end']
+        Q_dotmax = name_dict_in[name_type]['Q_dotmax']
+        t_g = name_dict_in[name_type]['t_g']
+        alpha_g = name_dict_in[name_type]['alpha_g']
+        alpha_d = name_dict_in[name_type]['alpha_d']
+
+        burnout_rate_of_the_combustible_load = 1
+        # Время, при котором в центре пожара окажется зона выгорания
+        t_hol = q_f / (q_n * psi_spec)
+        psi = psi_spec * area_fire  # скорость выгорания горючей нагрузки
+        eta = 0.93                  # коэффициент полноты горения
+        lower_heat_comb = self.get_lower_heat_of_combustion()
+        mass_burn_rate = self.get_specific_mass_burnout_rate()
+        fire_area = self.get_area_of_fire()
+
+        hrr_fire = eta * lower_heat_comb * psi
+
+        return hrr_fire
+
+    def get_functional_fire_load(self):
+        functional_fire_load = 650  # МДж/м2 Функциональная пожарная нагрузка
+        return functional_fire_load
+
+    def get_placement_area(self):
+        # м2 Площадь размещения ГН (или помещения очага пожара)
+        placement_area = 1
+        return placement_area
+
+    def get_lower_heat_of_combustion(self):
+        lower_heat_of_combustion = 15.8  # МДж/кг Низшая теплота сгорания пожарной нагрузки
+        return lower_heat_of_combustion
+
+    def get_specific_mass_burnout_rate(self):
+        # кг/(м2*с) Удельная массовая скорость выгорания
+        specific_mass_burnout_rate = 0.015
+        return specific_mass_burnout_rate
+
+    def get_linear_flame_propagation_velocity(self):
+        # м/с Линейная скорость распространения пламени
+        linear_flame_propagation_velocity = 0.0055
+        return linear_flame_propagation_velocity
+
+    def get_area_of_fire(self):
+        linear_vel = self.get_linear_flame_propagation_velocity()
+        area_of_the_fire = []
+        for t in range(self.min_t, self.max_t):
+            area_of_the_fire.append(3.14 * linear_vel ** 2 * t ** 2)
+        return area_of_the_fire
+
+    def get_burn_out_rate_of_flammable_load(self):
+        burn_out_rate_of_flammable_load = 1
+        return burn_out_rate_of_flammable_load
+
+    def get_plot_fire_mod(self):
+        graphic_fire = 1
+        data_plot = self.get_area_of_fire()
+        x_axes = range(self.min_t, self.max_t)
+        y_axes = data_plot
+        # print(data_plot)
+        plt.plot(x_axes, y_axes, "--")
+        plt.xlabel("Время, мин")
+        plt.ylabel("Мощность пожара, кВт")
+        plt.xlim(xmax=200)
+        plt.ylim(ymax=5)
+        plt.grid()
+        plt.show()
+        return graphic_fire
+
+    def get_charact_diameter_of_fire(self):
+        max_HRR = 675  # кВт
+        charact_diameter_of_fire = (max_HRR/(self.__density_air * self.__specific_heat_of_gas *
+                                    self.temperature_air * (self.__acceleration_of_gravity ** 0.5))) ** (2/5)
+        return charact_diameter_of_fire
+
+    def get_size_of_cubic_grid_cell(self):
+        above_d = self.get_charact_diameter_of_fire()
+        norm_grid_multiplier = 5
+        size_of_cubic_grid_cell = above_d / norm_grid_multiplier
+
+        return size_of_cubic_grid_cell
+
+
+fire_mod = FireTools()
+area_fire = fire_mod.get_area_of_fire()
+
+above_d = fire_mod.get_charact_diameter_of_fire()
+size_cell = fire_mod.get_size_of_cubic_grid_cell()
+plot_fire = fire_mod.get_plot_fire_mod()
+
+print(f'D* = {above_d}')
+print(f'size_cell = {size_cell}')

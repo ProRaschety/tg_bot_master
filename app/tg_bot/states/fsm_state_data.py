@@ -26,6 +26,10 @@ class FSMSteelForm(StatesGroup):
     s_0_edit_state = State()  # Состояние редактирвания Степень черноты среды, S\u2080
 
     len_elem_edit_state = State()  # Состояние редактирвания длины элемеента конструкции
+    # Состояние редактирвания нагрузки на элемеент конструкции
+    n_load_edit_state = State()
+
+    num_profile_inline_search_state = State()
 
 
 class FSMWoodForm(StatesGroup):
@@ -42,3 +46,4 @@ class FSMSubstanceForm(StatesGroup):
 
     database_edit_state = State()  # Состояние выбора вещества из базы данных
     database_search_state = State()  # Состояние поиска веществ в базе данных
+    database_inline_state = State()  # Состояние поиска веществ в инлайн-режиме

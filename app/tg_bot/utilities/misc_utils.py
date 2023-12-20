@@ -3,6 +3,7 @@ import logging
 import os
 import csv
 import io
+import pandas as pd
 
 
 def get_temp_folder(dir_name='temp_files', fold_name='temp'):
@@ -51,18 +52,25 @@ def get_txt_file(data, name_file):
     pass
 
 
-def get_csv_bt_file(data, name_file):
-    # file = io.BytesIO()
-    file = io.FileIO(file=data)
-    # file = io.StringIO()
+def get_csv_bt_file(data):
+    output = io.StringIO()
+    with output as file_w:
+        writer = csv.writer(file_w, dialect='excel', delimiter=';',
+                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer.writerows(data)
+        bite_file = output.getvalue().encode("ANSI")
+    return bite_file
 
-    # file = str(name_file)
-    try:
-        with open(file, 'w', newline='') as file_w:
-            csv_writer = csv.writer(
-                file_w, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            bite_file = csv_writer.writerows(data)
-    except csv.Error:
-        print(f"Ошибка в CSV-файле на строке {reader.line_num}: {csv.Error}")
 
+def get_xlsx_bt_file(data):
+    writer = pd.ExcelWriter('simple-report.xlsx', engine='xlsxwriter')
+    df.to_excel(writer, index=False)
+    df_footer.to_excel(writer, startrow=6, index=False)
+    writer.save()
+    output = io.StringIO()
+    with output as file_w:
+        writer = csv.writer(file_w, dialect='excel', delimiter=';',
+                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer.writerows(data)
+        bite_file = output.getvalue().encode("ANSI")
     return bite_file

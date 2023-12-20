@@ -1,0 +1,47 @@
+{
+    "793011788": {
+        "density_liq": 840.0,
+        "volume_vessel": 5000.0,
+        "height_vessel": 12.0,
+        "temperature_liquid": 24.0,
+        "fill_factor": 1.0,
+        "hole_diameter": 0.1,
+        "hole_area": 0.0079,
+        "initial_mass": 4200000.0,
+        "initial_mass_flow": 63.13,
+        "initial_volume_flow": 0.075,
+        "initial_pressure_in_vessel": 200209.8,
+        "initial_height_liquid": 12.0,
+        "vessel_diameter": 23.03
+    },
+    "6576326588": {
+        "density_liq": 730.0,
+        "volume_vessel": 5000.0,
+        "height_vessel": 12.0,
+        "temperature_liquid": 25.0,
+        "fill_factor": 0.85,
+        "hole_diameter": 0.1,
+        "hole_area": 0.0079,
+        "initial_mass": 3102500.0,
+        "initial_mass_flow": 50.581,
+        "initial_volume_flow": 0.069,
+        "initial_pressure_in_vessel": 174370.3,
+        "initial_height_liquid": 10.2,
+        "vessel_diameter": 23.03
+    },
+    "5246272860": {
+        "density_liq": 123.0,
+        "volume_vessel": 5977.0,
+        "height_vessel": 15,
+        "temperature_liquid": 20,
+        "fill_factor": 0.62,
+        "hole_diameter": 0.1,
+        "hole_area": 0.1,
+        "initial_mass": 0.0,
+        "initial_mass_flow": 0.0,
+        "initial_volume_flow": 0.0,
+        "initial_pressure_in_vessel": 0,
+        "initial_height_liquid": 1,
+        "vessel_diameter": 1
+    }
+}
