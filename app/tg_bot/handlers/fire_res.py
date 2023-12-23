@@ -37,12 +37,13 @@ async def fire_resistance_call(callback_data: CallbackQuery, bot: Bot, i18n: Tra
         action=ChatAction.TYPING)
 
     text = i18n.fire_resistance.text()
-    with open(file="app/infrastructure/data_base/db_task_photo.json", mode="r", encoding='utf-8') as file_op:
-        db_steel_photo_in = json.load(file_op)
-        steel_photo_id = db_steel_photo_in["fire_resistance"][0]["steel_photo_id"]
+    file_path = 'temp_files/temp/fsr_logo.png'
+    # with open(file="app/infrastructure/data_base/db_task_photo.json", mode="r", encoding='utf-8') as file_op:
+    #     db_steel_photo_in = json.load(file_op)
+    #     steel_photo_id = db_steel_photo_in["fire_resistance"][0]["steel_photo_id"]
 
     await callback_data.message.answer_photo(
-        photo=steel_photo_id,
+        photo=FSInputFile(path=file_path),
         caption=text,
         has_spoiler=False,
         reply_markup=get_inline_cd_kb(1, 'steel_element', 'wood_element', 'concrete_element', 'general_menu', i18n=i18n))
