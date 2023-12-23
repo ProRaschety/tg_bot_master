@@ -17,8 +17,6 @@ from fluentogram import TranslatorRunner
 
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
 from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file
-from app.tg_bot.states.fsm_state_data import FSMSteelForm
-from app.calculation.fire_resistance.steel_calculation import SteelFR, SteelStrength
 
 
 logger = logging.getLogger(__name__)

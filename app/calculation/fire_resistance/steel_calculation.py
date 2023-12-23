@@ -16,25 +16,263 @@ from scipy.interpolate import interp1d
 log = logging.getLogger(__name__)
 
 
-class SteelStrength:
+class SteelFireProtection:
 
-    def __init__(self,
-                 i18n: TranslatorRunner,
-                 chat_id=None):
-        #  name_profile,
-        #  sketch,
-        #  reg_document,
-        #  num_sides_heated='num_sides_heated_four',
-        #  fixation='console',
-        #  n_load=1,
-        #  type_loading='stretching_element',
-        #  loading_method='distributed_load_steel',
-        #  len_elem=1,
-        #  type_steel_element="C235",
-        #  quan_elem=1):
+    def __init__(self, i18n: TranslatorRunner, chat_id=None):
         self.i18n = i18n
         self.chat_id = chat_id
+        self.creat_init_data_table()
 
+    def creat_init_data_table(self):
+        chat_id = self.chat_id
+        with open('app\infrastructure\init_data\init_data_protection_steel.json', encoding='utf-8') as file_op:
+            init_protection_in = json.load(file_op)
+            if chat_id not in init_protection_in:
+                init_protection_in[chat_id] = []
+                with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                    json.dump(init_protection_in, file_w,
+                              ensure_ascii=False, indent=4)
+
+    def get_init_data_table(self) -> list:
+        chat_id = self.chat_id
+        with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
+            init_strenght_out = json.load(file_op)
+            num_profile = init_strenght_out[chat_id]["num_profile"]
+            ptm = init_strenght_out[chat_id]["ptm"]
+            num_sides_heated = self.i18n.get(
+                init_strenght_out[chat_id]["num_sides_heated"])
+            len_elem = init_strenght_out[chat_id]["len_elem"]
+            fixation = init_strenght_out[chat_id]["fixation"]
+            type_loading = init_strenght_out[chat_id]["type_loading"]
+            n_load = init_strenght_out[chat_id]["n_load"]
+            type_steel_element = init_strenght_out[chat_id]["type_steel_element"]
+            loading_method = init_strenght_out[chat_id]["loading_method"]
+
+        with open('app\infrastructure\init_data\init_data_protection_steel.json', encoding='utf-8') as file_op:
+            init_protection_in = json.load(file_op)
+            num_elem = len(init_protection_in[chat_id]) + 1
+            log.info(f"Количество элементов в таблице: {num_elem}")
+
+            init_protection_in[chat_id].append(
+                {'id': num_elem,
+                 'num_profile': num_profile,
+                 'type_steel_element': type_steel_element,
+                 'num_sides_heated': num_sides_heated,
+                 'ptm': ptm,
+                 'len_elem': len_elem,
+                 'area_surface_elem_m2': '-',
+                 'n_load': n_load,
+                 't_critic_C': '-',
+                 'time_fsr': '-'})
+            with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                json.dump(init_protection_in, file_w,
+                          ensure_ascii=False, indent=4)
+
+        data_table = init_protection_in[chat_id]
+        # log.info(f"Данные для таблицы: {data_table}")
+        # with open('app\infrastructure\init_data\init_data_protection_steel.json', encoding='utf-8') as file_op:
+        #     init_protection_in = json.load(file_op)
+        # num_elem = len(init_protection_in)
+        # print(num_elem)
+
+        # data_table = []
+        # for row in np.arange(1, 6):
+        #     data_table.append({
+        #         'id': row,
+        #         'num_profile': num_profile,
+        #         'type_steel_element': type_steel_element,
+        #         'num_sides_heated': num_sides_heated,
+        #         'ptm': ptm,
+        #         'len_elem': '-',
+        #         'area_surface_elem_m2': '-',
+        #         'n_load': '-',
+        #         't_critic_C': '-',
+        #         'time_fsr': '-'})
+
+        return data_table
+
+    def get_initial_data_protection(self, data):
+        log.info("Исходные данные для пакетного расчета")
+        # data = self.get_init_data_table()
+        rows = len(data)
+        cols = len(list(data[0]))
+        label_key = list(data[0])
+        # log.info(f'{list(data[0])}')
+        title_colm = ['№ п/п',
+                      'Сортамент',
+                      'Тип стали',
+                      'Стороны\nобогрева',
+                      'ПТМ, мм',
+                      'Длина, мм',
+                      'Поверхность\nэлемента, м\u00B2',
+                      'Нагрузка, кг',
+                      'Ткр, С',
+                      'Rсобств, мин']
+
+        # label_key = ['id',
+        #              'num_profile',
+        #              'type_steel_element',
+        #              'num_sides_heated',
+        #              'ptm',
+        #              'len_elem',
+        #              'area_surface_elem_m2',
+        #              'n_load',
+        #              't_critic_C',
+        #              'time_fsr']
+
+        # размеры рисунка в дюймах
+        # 1 дюйм = 2.54 см = 96.358115 pixel
+        px = 96.358115
+        w = 1200 * (cols/10)  # px
+        h = 600 * (rows/10)  # px
+        if w > 1200:
+            w = 1200
+        elif w < 400:
+            w = 400
+
+        if h > 1200:
+            h = 1100
+        elif h < 150:
+            h = 150
+
+        log.info(f"ширина таблицы (w)={w}, высота таблицы (h)={h}")
+
+        max_x = cols
+        coef_colm = max_x / cols
+
+        # Создание объекта Figure
+        margins = {
+            "left": 0.030,  # 0.030
+            "bottom": 0.030,  # 0.030
+            "right": 0.970,  # 0.970
+            "top": 0.900  # 0.900
+        }
+        fig = plt.figure(figsize=(w / px, h / px), dpi=350)
+        fig.subplots_adjust(**margins)
+        ax = fig.add_subplot()
+
+        ax.set_xlim(0.0, max_x*0.95)
+        ax.set_ylim(-.5, rows*1.025)
+
+        # добавить заголовки столбцов на высоте y=..., чтобы уменьшить пространство до первой строки данных
+        ft_title_size = {'fontname': 'Arial', 'fontsize': 10}
+
+        hor_up_line = rows-0.35
+        for colm in range(0, cols):
+            ha = 'center'
+            weight = 'bold'
+            if colm == 0:
+                ha = 'left'
+            ax.text(x=colm*coef_colm, y=hor_up_line,
+                    s=title_colm[colm], weight=weight, ha=ha, **ft_title_size)
+
+        # добавить основной разделитель заголовка
+        ax.plot([0, cols], [rows-0.5, rows-0.5], lw='2', c='black')
+        # ax.plot([0, cols + .5], [- 0.5, - 0.5], lw='2', c='black')
+
+        # линия сетки
+        for row in range(rows):
+            ax.plot([0, cols], [row - .5, row - .5],
+                    ls=':', lw='.8', c='grey')
+
+        # заполнение таблицы данных
+        ft_size = {'fontname': 'Arial', 'fontsize': 12}
+
+        data = data[::-1]
+        for row in np.arange(rows):
+            for colm in np.arange(cols):
+                d = data[row]
+                ha = 'center'
+                va = 'center'
+                weight = 'bold'
+                if colm == 0:
+                    ha = 'left'
+                ax.text(x=colm*coef_colm, y=row,
+                        s=d[label_key[colm]], va=va, ha=ha, **ft_size)
+
+        # выделите столбец, используя прямоугольную заплатку
+        # rect = patches.Rectangle((2.0, -0.5),  # нижняя левая начальная позиция (x,y)
+        #                          width=1,
+        #                          height=hor_up_line+0.95,
+        #                          ec='none',
+        #                          fc='grey',
+        #                          alpha=.2,
+        #                          zorder=-1)
+        # ax.add_patch(rect)
+
+        ax.set_title(label='Ведомость огнестойкости стальных элементов',
+                     loc='left', fontsize=12, weight='bold')
+        ax.axis('off')
+
+        buffer = io.BytesIO()
+        fig.savefig(buffer, format='png')
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
+        plt.cla()
+        plt.close(fig)
+
+        return image_png
+
+    def clear_table_protection(self):
+        chat_id = self.chat_id
+        with open('app\infrastructure\init_data\init_data_protection_steel.json', encoding='utf-8') as file_op:
+            init_protection_in = json.load(file_op)
+            if chat_id in init_protection_in:
+                init_protection_in[chat_id] = []
+                with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                    json.dump(init_protection_in, file_w,
+                              ensure_ascii=False, indent=4)
+
+        with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
+            init_strenght_out = json.load(file_op)
+            num_profile = init_strenght_out[chat_id]["num_profile"]
+            ptm = init_strenght_out[chat_id]["ptm"]
+            num_sides_heated = init_strenght_out[chat_id]["num_sides_heated"]
+            len_elem = init_strenght_out[chat_id]["len_elem"]
+            fixation = init_strenght_out[chat_id]["fixation"]
+            type_loading = init_strenght_out[chat_id]["type_loading"]
+            n_load = init_strenght_out[chat_id]["n_load"]
+            type_steel_element = init_strenght_out[chat_id]["type_steel_element"]
+            loading_method = init_strenght_out[chat_id]["loading_method"]
+
+        num_sides_heated = self.i18n.get(num_sides_heated)
+        data_table = [{'id': 1,
+                       'num_profile': num_profile,
+                       'type_steel_element': type_steel_element,
+                       'num_sides_heated': num_sides_heated,
+                       'ptm': ptm,
+                       'len_elem': '-',
+                       'area_surface_elem_m2': '-',
+                       'n_load': '-',
+                       't_critic_C': '-',
+                       'time_fsr': '-'}]
+        # for row in np.arange(1, 2):
+        # data_table.append({
+        #     'id': row,
+        #     'num_profile': num_profile,
+        #     'type_steel_element': type_steel_element,
+        #     'num_sides_heated': num_sides_heated,
+        #     'ptm': ptm,
+        #     'len_elem': '-',
+        #     'area_surface_elem_m2': '-',
+        #     'n_load': '-',
+        #     't_critic_C': '-',
+        #     'time_fsr': '-'})
+
+        return data_table
+
+
+class SteelFireStrength:
+
+    def __init__(self, i18n: TranslatorRunner, chat_id=None):
+        self.i18n = i18n
+        self.chat_id = chat_id
+        self.get_init_data()
+
+    def get_init_data(self):
+        """Функция возвращает параметры исходных данных для контруктора"""
+        chat_id = self.chat_id
         with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
             init_strenght_out = json.load(file_op)
             num_profile = init_strenght_out[chat_id]["num_profile"]
@@ -58,7 +296,7 @@ class SteelStrength:
         self.n_load: float = float(n_load)
         # 'stretching_element', 'compression_element', 'bend_element' = растяжение, сжатие, изгиб
         self.type_loading: str = type_loading
-        self.e_n_kg_cm2: float = 2_100_000  # начальный модуль упругости металла, кг/см2
+        self.e_n_kg_cm2: float = 2_100_000
         self.quan_elem: int = 1
         self.type_steel_element: str = type_steel_element
 
@@ -67,37 +305,7 @@ class SteelStrength:
         else:
             self.loading_method: str = loading_method
 
-    def get_init_data_steel(self):
-        """Функция возвращает список строк для заполнения таблицы исходных данных"""
-
-        profile = self.name_profile
-
-        if profile == "Двутавр":
-            data = [
-                {'id': 'Способ закрепления', 'var': self.fixation, 'unit': '\u00B0С'},
-                {'id': 'Приведенная толщина\nметалла', 'var': ptm, 'unit': 'мм'},
-                {'id': 'Нагрузка', 'var': self.sketch, 'unit': 'кг'},
-                {'id': 'Количество сторон обогрева',
-                    'var': num_sides_heated, 'unit': 'шт'},
-                {'id': 'Длина', 'var': len_elem, 'unit': 'м'},
-                {'id': 'Профиль по ГОСТ', 'var': reg_document, 'unit': '-'},
-                {'id': 'Сечение', 'var': sketch, 'unit': '-'},
-                {'id': 'Сортамент', 'var': self.name_profile, 'unit': '-'}]
-
-        elif profile == "Швеллер":
-            data = [
-                {'id': 'Способ закрепления', 'var': self.fixation, 'unit': '\u00B0С'},
-                {'id': 'Приведенная толщина\nметалла', 'var': ptm, 'unit': 'мм'},
-                {'id': 'Нагрузка', 'var': self.sketch, 'unit': 'кг'},
-                {'id': 'Количество сторон обогрева',
-                    'var': self.sketch, 'unit': 'шт'},
-                {'id': 'Длина', 'var': self.sketch, 'unit': 'м'},
-                {'id': 'Профиль по ГОСТ', 'var': reg_document, 'unit': '-'},
-                {'id': 'Сечение', 'var': self.sketch, 'unit': '-'},
-                {'id': 'Сортамент', 'var': self.name_profile, 'unit': '-'}]
-        return data
-
-    def get_initial_data_strength(self):
+    def get_init_data_table(self):
         log.info("Исходные данные для прочностного расчета")
         with open('app\infrastructure\data_base\db_steel_property.json', encoding='utf-8') as file_op:
             property_steel_in = json.load(file_op)
@@ -150,7 +358,10 @@ class SteelStrength:
                 {'id': 'Сечение', 'var': self.name_profile, 'unit': '-'},
                 {'id': 'Сортамент', 'var': self.sketch, 'unit': '-'},
                 {'id': 'Профиль по ГОСТ', 'var': self.reg_document, 'unit': '-'}]
+        return data
 
+    def get_initial_data_strength(self):
+        data = self.get_init_data_table()
         rows = len(data)
         cols = len(list(data[0]))
 
@@ -409,7 +620,6 @@ class SteelStrength:
     def get_coef_strength(self):
         with open('app\infrastructure\data_base\db_steel_property.json', encoding='utf-8') as file_op:
             property_steel_in = json.load(file_op)
-        # kg_cm2
         r_norm = float(
             property_steel_in[self.type_steel_element]["r_norm_kg_cm2"])
         log.info(
@@ -435,7 +645,6 @@ class SteelStrength:
                 f"Коэффициент снижения предела текучести стали при сжатии: {gamma_t:.3f} при нагрузке {n_load:.1f}")
             gamma_elasticity = (n_load * (l_eff ** 2)) / \
                 ((3.14159**2) * self.e_n_kg_cm2 * j_min)
-            # gamma = min[gamma_t, gamma_elasticity]
             log.info(
                 f"Коэффициент снижения модуля упругости стали при сжатии: {gamma_elasticity:.3f} при j_min {j_min:.2f} и l_eff {l_eff:.2f}")
             return gamma_t, gamma_elasticity
@@ -456,31 +665,37 @@ class SteelStrength:
             temp = prop_steel_in[self.type_steel_element]["heating_temperature"]
             coef = prop_steel_in[self.type_steel_element]["coeff_reduction_of_yield_strength"]
             coef_elast = prop_steel_in[self.type_steel_element]["coeff_module_elasticity"]
-
+        t_critic_list = []
         if self.type_loading == 'compression_element':
             gamma_t, gamma_elasticity = self.get_coef_strength()
 
             if gamma_t <= coef[-1]:
                 t_critic_yt = temp[-1]
+                t_critic_list.append(t_critic_yt)
             elif gamma_t >= coef[0]:
                 t_critic_yt = temp[0]
+                t_critic_list.append(t_critic_yt)
             else:
                 temp_cor_yt = interp1d(coef, temp, kind='slinear',
                                        bounds_error=False, fill_value=0)
                 t_critic_yt = float(temp_cor_yt(gamma_t))
+                t_critic_list.append(t_critic_yt)
             log.info(
                 f"Критическая температура при сжатии от yt={gamma_t:.3f}: {t_critic_yt:.3f} С")
 
             if gamma_elasticity <= coef_elast[-1]:
                 t_critic_ye = temp[-1]
+                t_critic_list.append(t_critic_ye)
             elif gamma_elasticity >= coef_elast[0]:
                 t_critic_ye = temp[0]
+                t_critic_list.append(t_critic_ye)
             else:
                 temp_cor_ye = interp1d(coef_elast, temp, kind='slinear',
                                        bounds_error=False, fill_value=0)
                 t_critic_ye = float(temp_cor_ye(gamma_elasticity))
-
-            t_critic = t_critic_yt
+                t_critic_list.append(t_critic_ye)
+            t_critic_list.sort()
+            t_critic = t_critic_list.copy()[0]
 
             log.info(
                 f"Критическая температура при сжатии от ye={gamma_elasticity:.3f}: {t_critic_ye:.3f} С")
@@ -597,7 +812,7 @@ class SteelStrength:
         return data
 
 
-class SteelFR:
+class SteelFireResistance:
     def __init__(
             self,
             i18n: TranslatorRunner,

@@ -18,6 +18,7 @@ user_router = Router()
 
 @user_router.message(CommandStart())
 async def process_start_command(message: Message, state: FSMContext, i18n: TranslatorRunner) -> None:
+
     await message.answer(text=i18n.start.menu(), reply_markup=get_inline_cd_kb(1,
                                                                                'calculators',
                                                                                'fire_resistance',

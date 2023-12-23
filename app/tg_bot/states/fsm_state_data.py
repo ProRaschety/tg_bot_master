@@ -31,6 +31,8 @@ class FSMSteelForm(StatesGroup):
 
     num_profile_inline_search_state = State()
 
+    add_steel_element_state = State()
+
 
 class FSMWoodForm(StatesGroup):
 

@@ -1,0 +1,76 @@
+{
+    "793011788": [
+        {
+            "id": 1,
+            "num_profile": "15К4",
+            "type_steel_element": "C235",
+            "num_sides_heated": "3",
+            "ptm": 3.94,
+            "len_elem": 5000.0,
+            "area_surface_elem_m2": "-",
+            "n_load": "19000",
+            "t_critic_C": "-",
+            "time_fsr": "-"
+        },
+        {
+            "id": 2,
+            "num_profile": "20Б0",
+            "type_steel_element": "C235",
+            "num_sides_heated": "3",
+            "ptm": 3.94,
+            "len_elem": 5000.0,
+            "area_surface_elem_m2": "-",
+            "n_load": "19000",
+            "t_critic_C": "-",
+            "time_fsr": "-"
+        },
+        {
+            "id": 3,
+            "num_profile": "10Б1",
+            "type_steel_element": "C235",
+            "num_sides_heated": "3",
+            "ptm": 3.94,
+            "len_elem": 5000.0,
+            "area_surface_elem_m2": "-",
+            "n_load": "19000",
+            "t_critic_C": "-",
+            "time_fsr": "-"
+        },
+        {
+            "id": 4,
+            "num_profile": "15К4",
+            "type_steel_element": "C235",
+            "num_sides_heated": "3",
+            "ptm": 3.94,
+            "len_elem": 5000.0,
+            "area_surface_elem_m2": "-",
+            "n_load": "19000",
+            "t_critic_C": "-",
+            "time_fsr": "-"
+        },
+        {
+            "id": 5,
+            "num_profile": "15К4",
+            "type_steel_element": "C235",
+            "num_sides_heated": "3",
+            "ptm": 3.94,
+            "len_elem": 5000.0,
+            "area_surface_elem_m2": "-",
+            "n_load": "19000",
+            "t_critic_C": "-",
+            "time_fsr": "-"
+        },
+        {
+            "id": 6,
+            "num_profile": "15К4",
+            "type_steel_element": "C235",
+            "num_sides_heated": "3",
+            "ptm": 3.94,
+            "len_elem": 5000.0,
+            "area_surface_elem_m2": "-",
+            "n_load": "19000",
+            "t_critic_C": "-",
+            "time_fsr": "-"
+        }
+    ]
+}
