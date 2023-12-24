@@ -34,12 +34,10 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, i18n: Trans
         action=ChatAction.TYPING)
 
     text = i18n.fire_category.text()
-    with open(file="app/infrastructure/data_base/db_task_photo.json", mode="r", encoding='utf-8') as file_op:
-        db_steel_photo_in = json.load(file_op)
-        steel_photo_id = db_steel_photo_in["fire_resistance"][0]["steel_photo_id"]
-
+    file_pic = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await callback_data.message.answer_photo(
-        photo=steel_photo_id,
+        photo=BufferedInputFile(
+            file=file_pic, filename="pic_filling.png"),
         caption=text,
         has_spoiler=False,
         reply_markup=get_inline_cd_kb(1, 'category_build', 'category_room', 'category_outdoor_installation', 'general_menu', i18n=i18n))

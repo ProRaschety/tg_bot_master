@@ -5,6 +5,8 @@ import csv
 import io
 import pandas as pd
 
+log = logging.getLogger(__name__)
+
 
 def get_temp_folder(dir_name='temp_files', fold_name='temp'):
     """
@@ -74,3 +76,15 @@ def get_xlsx_bt_file(data):
         writer.writerows(data)
         bite_file = output.getvalue().encode("ANSI")
     return bite_file
+
+
+def get_picture_filling(file_path):
+    buffer = io.BytesIO()
+    file = file_path
+    with open(file, 'rb') as f:
+        file_r = f.read()
+        buffer.write(file_r)
+    buffer.seek(0)
+    bite_pic = buffer.getvalue()
+    buffer.close()
+    return bite_pic
