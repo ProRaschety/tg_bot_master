@@ -109,7 +109,7 @@ async def steel_element_call(callback: CallbackQuery, bot: Bot, i18n: Translator
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_protection',  'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))  # 'fire_protection',
     await callback.answer('')
 
 
@@ -683,12 +683,14 @@ async def n_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 async def sides_heated_edit_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
     chat_id = callback.message.chat.id
     text = i18n.num_sides_heated.text()
-
-    await bot.edit_message_caption(
+    media = get_picture_filling(
+        file_path='temp_files/temp/fsr_num_sides_ibeam.png')
+    await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        caption=text,
-        reply_markup=get_inline_cd_kb(2, 'num_sides_heated_three', 'num_sides_heated_four', 'stop_edit_strength', i18n=i18n))
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="sides_ibeam"), caption=text),
+        reply_markup=get_inline_cd_kb(2, 'num_sides_heated_four', 'num_sides_heated_three',  'stop_edit_strength', i18n=i18n))
     await callback.answer('')
 
 

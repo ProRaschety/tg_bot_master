@@ -4,7 +4,7 @@
         "user_first_name": "Равшан",
         "user_last_name": "Ибатулин",
         "mode": "Стандартный",
-        "ptm": 3.8480077120822624,
+        "ptm": 3.3571628819736477,
         "t_critic_C": 473.5100311510852,
         "a_convection": 29,
         "s_0": 0.85,
@@ -14,7 +14,7 @@
         "density_steel": 7800,
         "heat_capacity": 310,
         "heat_capacity_change": 0.469,
-        "time_fsr": 7.3977687495629745
+        "time_fsr": 6.8684637003024305
     },
     "6576326588": {
         "user_name": "None",

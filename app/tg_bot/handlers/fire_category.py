@@ -16,7 +16,7 @@ from aiogram.enums import ChatAction
 from fluentogram import TranslatorRunner
 
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
-from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file
+from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling
 
 
 logger = logging.getLogger(__name__)

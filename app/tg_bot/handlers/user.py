@@ -20,7 +20,7 @@ user_router = Router()
 async def process_start_command(message: Message, state: FSMContext, i18n: TranslatorRunner) -> None:
 
     await message.answer(text=i18n.start.menu(), reply_markup=get_inline_cd_kb(1,
-                                                                               'calculators',
+                                                                               #    'calculators',
                                                                                'fire_resistance',
                                                                                'fire_risks',
                                                                                'fire_category',
@@ -65,7 +65,7 @@ async def process_get_admin_contacts(message: Message, i18n: TranslatorRunner) -
 async def general_menu_call(callback_data: CallbackQuery, state: FSMContext, i18n: TranslatorRunner) -> None:
     await callback_data.message.answer(text=i18n.general_menu.text(),
                                        reply_markup=get_inline_cd_kb(1,
-                                                                     'calculators',
+                                                                     #  'calculators',
                                                                      'fire_resistance',
                                                                      'fire_risks',
                                                                      'fire_category',

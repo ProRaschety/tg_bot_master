@@ -149,11 +149,12 @@ class ProbabilityDefeat:
     """
     OVERPRESSURE Fatality Probit Models
 
-    TNO Lung hemorrhage requires the person's mass, so we don't calculate it
+    TNO Легочное кровотечение требует массы человека, поэтому мы ее не рассчитываем.
 
-    TNO whole body impact model produces lower probabilities than head
-    impact model, which means head impact fatalities will dominate whole
-    body impact fatalities. So we don't include TNO whole body fatalities.
+     Модель удара всего тела TNO дает меньшие вероятности, чем модель удара головой,
+     что означает, что количество смертельных исходов при ударе головой
+     будет преобладать над числом погибших при ударе всего тела.
+     Поэтому мы не учитываем смертельные случаи всего тела TNO.
     """
 
     def compute_overpressure_fatality_prob(self, model_ref, overp, impulse=None, mean=5):
