@@ -1,13 +1,19 @@
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.redis import Redis, RedisStorage
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
 
 from fluent_compiler.bundle import FluentBundle
 from fluentogram import FluentTranslator, TranslatorHub
 
+from app.infrastructure.database.utils.connect_to_pg import get_pg_pool
+from app.tg_bot.utilities.i18n import create_translator_hub
+from app.infrastructure.database.utils.create_tables import create_tables
 from app.tg_bot.config.config import Config, load_config
+from app.infrastructure.cash.utils.connect_to_redis import get_redis_storage
+from app.tg_bot.middlewares.database import DataBaseMiddleware
 from app.tg_bot.middlewares.i18n import TranslatorRunnerMiddleware
 from app.tg_bot.set_menu import set_main_menu
 from app.tg_bot.handlers.admin import admin_router
@@ -18,7 +24,8 @@ from app.tg_bot.handlers.fire_category import fire_category_router
 from app.tg_bot.handlers.data_base_req import data_base_req_router
 from app.tg_bot.handlers.other import other_router
 
-storage = MemoryStorage()  # для хранения вводимой информации в оперативной памяти
+
+# storage = MemoryStorage()  # для хранения вводимой информации в оперативной памяти
 
 log = logging.getLogger(__name__)
 
@@ -29,40 +36,32 @@ async def main():
 
     config: Config = load_config()
 
+    storage: RedisStorage = get_redis_storage(db=config.redis.database,
+                                              host=config.redis.host,
+                                              port=config.redis.port,
+                                              username=config.redis.username,
+                                              password=config.redis.password)
+
     bot = Bot(token=config.tg_bot.token,
               parse_mode=ParseMode.HTML)
     dp = Dispatcher(storage=storage)
 
-    translator_hub = TranslatorHub(
-        {
-            "ru": ("ru", "en"),
-            "en": ("ru", "en")
-        },
-        [
-            FluentTranslator(
-                locale="ru",
-                translator=FluentBundle.from_files(
-                    locale="ru-RU",
-                    filenames=["locales/ru/user.ftl",
-                               "locales/ru/fire_resistance.ftl",
-                               "locales/ru/fire_risk.ftl",
-                               "locales/ru/fire_category.ftl",
-                               "locales/ru/admin.ftl",
-                               "locales/ru/data_base_subs.ftl",
-                               "locales/ru/other.ftl"])),
-            FluentTranslator(
-                locale="en",
-                translator=FluentBundle.from_files(
-                    locale="en-US",
-                    filenames=["locales/en/user.ftl",
-                               "locales/ru/fire_resistance.ftl",
-                               "locales/ru/fire_risk.ftl",
-                               "locales/ru/fire_category.ftl",
-                               "locales/ru/admin.ftl",
-                               "locales/ru/data_base_subs.ftl",
-                               "locales/ru/other.ftl"]))
-        ],
+    translator_hub: TranslatorHub = create_translator_hub()
+
+    db_pool = await get_pg_pool(
+        db_name=config.pg.db_name,
+        host=config.pg.host,
+        port=config.pg.port,
+        user=config.pg.username,
+        password=config.pg.password
     )
+
+    async with db_pool.acquire() as connect:
+        try:
+            await create_tables(connect)
+        except Exception as e:
+            log.exception(e)
+            await db_pool.close()
 
     log.debug('Include routers')
 
@@ -75,9 +74,10 @@ async def main():
     dp.include_router(data_base_req_router)
     dp.include_router(other_router)
 
+    dp.update.middleware(DataBaseMiddleware())
     dp.update.middleware(TranslatorRunnerMiddleware())
 
     # пропускаем накопившиеся апдейты, настраиваем Меню и запускаем polling
     await bot.delete_webhook(drop_pending_updates=True)
     await set_main_menu(bot)
-    await dp.start_polling(bot, _translator_hub=translator_hub)
+    await dp.start_polling(bot, _translator_hub=translator_hub, _db_pool=db_pool)

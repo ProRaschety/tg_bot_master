@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  redis:
+    image: redis:latest
+    command:
+      - redis-server
+    env_file:
+      - .env
+    restart: on-failure
+    ports:
+      - "6379:6379"
+  postgres:
+    image: postgres
+    env_file:
+      - .env
+    restart: on-failure
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - "hostPath:containerPath:ro"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - redis_data:/data

@@ -1,6 +1,8 @@
 import math
 import json
 
+from scipy import constants as const
+
 
 class OutFlowGas:
     pass

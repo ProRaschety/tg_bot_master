@@ -45,7 +45,7 @@ async def process_get_data_base(message: Message, bot: Bot, state: FSMContext, i
             file=fig_sankey, filename="fig_sankey"),
         caption=text,
         has_spoiler=False,
-        reply_markup=get_inline_cd_kb(4,
+        reply_markup=get_inline_cd_kb(2,
                                       'one_nine',
                                       'EN_alphabet',
                                       'alfa_omega',

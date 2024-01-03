@@ -3,7 +3,7 @@
         "user_name": "r_kamalovich",
         "user_first_name": "Равшан",
         "user_last_name": "Ибатулин",
-        "num_profile": "18Б2",
+        "num_profile": "20Б0",
         "sketch": "Двутавр",
         "reg_document": "ГОСТ Р 57837",
         "num_sides_heated": "num_sides_heated_four",
@@ -14,10 +14,10 @@
         "loading_method": "distributed_load_steel",
         "ptm": 3.94,
         "e_n_kg_cm2": 2100000.0,
-        "n_load": "2000",
-        "type_steel_element": "C235",
+        "n_load": 8,
+        "type_steel_element": "C255",
         "quan_elem": 1,
-        "t_critic_C": 473.5100311510852
+        "t_critic_C": 700
     },
     "6576326588": {
         "user_name": "None",

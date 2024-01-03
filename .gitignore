@@ -3,5 +3,6 @@ venv/
 .idea/
 __pycache__/
 .DS_Store
-
+log_file.txt
 tests.py
+docker-compose.yml

@@ -1,4 +1,5 @@
 import logging
+
 import numpy as np
 import math as m
 
@@ -6,7 +7,7 @@ log = logging.getLogger(__name__)
 
 
 def calc_characteristic_diameter(area):
-    return m.sqrt((4 * area) / 3.14159)
+    return m.sqrt((4 * area) / m.pi)
 
 
 def calc_reynolds_number(diameter, velocity, kinematic_viscosity=1.62 * 10 ** -5):

@@ -14,7 +14,7 @@ from aiogram.utils.chat_action import ChatActionSender
 from aiogram.enums import ChatAction
 
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
-from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling
+from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_dict
 from app.tg_bot.states.fsm_state_data import FSMSteelForm
 from app.calculation.fire_resistance.steel_calculation import SteelFireResistance, SteelFireStrength, SteelFireProtection
 
@@ -22,7 +22,6 @@ logging.getLogger('matplotlib.font_manager').disabled = True
 log = logging.getLogger(__name__)
 # log = logging.getLogger('matplotlib').setLevel(logging.ERROR)
 # log = logging.getLogger('PIL.PngImagePlugin').setLevel(logging.ERROR)
-
 
 fire_res_router = Router()
 
@@ -96,7 +95,7 @@ async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_protection',  'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))
     await callback.answer('')
 
 
@@ -260,62 +259,24 @@ async def add_steel_element_state_input(message: Message, bot: Bot, state: FSMCo
 
 
 @fire_res_router.callback_query(F.data.in_(['strength_calculation', 'back_strength_element']))
-async def strength_calculation_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def strength_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext,  i18n: TranslatorRunner) -> None:
     text = i18n.initial_data_steel.text()
-    chat_id = str(callback.message.chat.id)
-
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_in = json.load(file_op)
-        if chat_id not in init_strenght_in:
-            init_strenght_in[chat_id] = {"num_profile": "20Б1",
-                                         "sketch": "Двутавр",
-                                         "reg_document": "ГОСТ Р 57837",
-                                         "num_sides_heated": "num_sides_heated_four",
-                                         "len_elem": 5000.0,
-                                         "fixation": 'sealing-sealing',
-                                         "type_loading": "bend_element",
-                                         "type_element": "Балка",
-                                         "loading_method": 'distributed_load_steel',
-                                         "ptm": 3.94,
-                                         "e_n_kg_cm2": 2100000.0,
-                                         "n_load": 1000.0,
-                                         "type_steel_element": "C235",
-                                         "quan_elem": 1,
-                                         "t_critic_C": 500.0
-                                         }
-
-        with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-            json.dump(init_strenght_in, file_w,
-                      ensure_ascii=False, indent=4)
-
-    # with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-    #     init_strenght_in = json.load(file_op)
-
-    #     name_profile = init_strenght_in[chat_id]["name_profile"]
-    #     sketch = init_strenght_in[chat_id]["sketch"]
-    #     reg_document = init_strenght_in[chat_id]["reg_document"]
-    #     num_sides_heated = init_strenght_in[chat_id]["num_sides_heated"]
-    #     len_elem = init_strenght_in[chat_id]["len_elem"]
-    #     fixation = init_strenght_in[chat_id]["fixation"]
-    #     type_loading = init_strenght_in[chat_id]["type_loading"]
-    #     n_load = init_strenght_in[chat_id]["n_load"]
-    #     type_steel_element = init_strenght_in[chat_id]["type_steel_element"]
-    #     loading_method = init_strenght_in[chat_id]["loading_method"]
-
-    # strength_calculation = SteelStrength(i18n=i18n, chat_id=chat_id,
-    #                                      name_profile=name_profile,
-    #                                      sketch=sketch,
-    #                                      reg_document=reg_document,
-    #                                      num_sides_heated=num_sides_heated,
-    #                                      fixation=fixation,
-    #                                      type_loading=type_loading,
-    #                                      len_elem=len_elem,
-    #                                      n_load=n_load,
-    #                                      type_steel_element=type_steel_element,
-    #                                      loading_method=loading_method)
-    strength_calculation = SteelFireStrength(i18n=i18n, chat_id=chat_id)
+    data = await state.get_data()
+    data.setdefault("num_profile", "20Б1"),
+    data.setdefault("sketch", "Двутавр"),
+    data.setdefault("reg_document", "ГОСТ Р 57837"),
+    data.setdefault("num_sides_heated", "num_sides_heated_four"),
+    data.setdefault("len_elem", "5000.0"),
+    data.setdefault("fixation", "sealing-sealing"),
+    data.setdefault("type_loading", "bend_element"),
+    data.setdefault("loading_method", "distributed_load_steel"),
+    data.setdefault("ptm", "3.94"),
+    data.setdefault("n_load", "1000.0"),
+    data.setdefault("type_steel_element", "C235"),
+    data.setdefault("t_critic_C", "500.0")
+    strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     image_png = strength_calculation.get_initial_data_strength()
-
+    await state.update_data(data)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -330,43 +291,11 @@ async def strength_calculation_call(callback: CallbackQuery, bot: Bot, i18n: Tra
 
 @fire_res_router.callback_query(F.data.in_(['run_strength_steel']))
 async def run_strength_steel_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_out = json.load(file_op)
-    #     name_profile = init_strenght_out[chat_id]["name_profile"]
-    #     sketch = init_strenght_out[chat_id]["sketch"]
-    #     reg_document = init_strenght_out[chat_id]["reg_document"]
-    #     num_sides_heated = init_strenght_out[chat_id]["num_sides_heated"]
-    #     len_elem = init_strenght_out[chat_id]["len_elem"]
-    #     fixation = init_strenght_out[chat_id]["fixation"]
-        type_loading = init_strenght_out[chat_id]["type_loading"]
-    #     n_load = init_strenght_out[chat_id]["n_load"]
-    #     type_steel_element = init_strenght_out[chat_id]["type_steel_element"]
-    #     loading_method = init_strenght_out[chat_id]["loading_method"]
-
-    # strength_calculation = SteelStrength(i18n=i18n, chat_id=chat_id,
-    #                                      name_profile=name_profile,
-    #                                      sketch=sketch,
-    #                                      reg_document=reg_document,
-    #                                      num_sides_heated=num_sides_heated,
-    #                                      fixation=fixation,
-    #                                      type_loading=type_loading,
-    #                                      len_elem=len_elem,
-    #                                      n_load=n_load,
-    #                                      type_steel_element=type_steel_element,
-    #                                      loading_method=loading_method)
-
-    strength_calculation = SteelFireStrength(i18n=i18n, chat_id=chat_id)
+    data = await state.get_data()
+    strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     image_png = strength_calculation.get_initial_data_strength()
-
     t_critic_C = strength_calculation.get_crit_temp_steel()
-
-    init_strenght_out[chat_id]["t_critic_C"] = t_critic_C
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_strenght_out, file_w,
-                  ensure_ascii=False, indent=4)
-
+    type_loading = data.get('type_loading', 'compression_element')
     if type_loading == 'compression_element':
         gamma_t, gamma_elasticity = strength_calculation.get_coef_strength()
         text = i18n.compression_element_result.text(
@@ -375,14 +304,13 @@ async def run_strength_steel_call(callback: CallbackQuery, state: FSMContext, bo
         gamma = strength_calculation.get_coef_strength()
         text = i18n.stretch_or_bend_element_result.text(
             gamma=gamma, t_critic=round(t_critic_C, 1))
-
+    await state.update_data(t_critic_C=t_critic_C)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=image_png, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'thermal_calculation', 'protocol_strength', 'back_strength_element', 'back_type_calc', i18n=i18n))
-
     await callback.answer('')
 
 
@@ -399,8 +327,6 @@ async def protocol_strength_call(callback: CallbackQuery, bot: Bot, i18n: Transl
 
 @fire_res_router.callback_query(F.data.in_(['edit_init_data_strength', 'stop_edit_strength']))
 async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
-
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -421,61 +347,42 @@ async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, i18n: 
 async def num_profile_inline_search_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     chat_id = str(callback.message.chat.id)
     message_id = callback.message.message_id
-
-    id_data = await state.get_data()
-    id_data = await state.update_data(chat_id=chat_id, message_id=message_id)
-
+    await state.update_data(chat_id=chat_id, message_id=message_id)
     text = i18n.num_profile_inline_search.text()
-
     markup = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
         text="Найти профиль", switch_inline_query_current_chat="")]])
-
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=markup)
-
     await state.set_state(FSMSteelForm.num_profile_inline_search_state)
 
 
 @fire_res_router.inline_query(StateFilter(FSMSteelForm.num_profile_inline_search_state))
 async def show_num_profile(inline_query: InlineQuery, state: FSMContext, i18n: TranslatorRunner):
-    id_data = await state.get_data()
-    chat_id = id_data.get('chat_id')
-    q_keys = SteelFireStrength(i18n=i18n, chat_id=chat_id)
+    data = await state.get_data()
+    q_keys = SteelFireStrength(i18n=i18n, data=data)
     list_sub = q_keys.get_list_num_profile()
-
     results = []
     for name in list_sub:
         if inline_query.query in str(name):
             results.append(InlineQueryResultArticle(id=str(name), title=f'{name}',
                                                     input_message_content=InputTextMessageContent(message_text=f'{name}')))
-
-    await inline_query.answer(results=results[:20], cache_time=0, is_personal=True)
+    await inline_query.answer(results=results[:30], cache_time=0, is_personal=True)
 
 
 @fire_res_router.message(StateFilter(FSMSteelForm.num_profile_inline_search_state))
 async def num_profile_inline_search_input(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(message.chat.id)
-    id_data = await state.get_data()
-    message_id = id_data.get('message_id')
-    log.info(
-        f"Номер сообщения: {message_id}")
-    num_profile_search = message.text
-
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_out = json.load(file_op)
-    init_strenght_out[chat_id]["num_profile"] = num_profile_search
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_strenght_out, file_w,
-                  ensure_ascii=False, indent=4)
-
-    strength_calculation = SteelFireStrength(i18n=i18n, chat_id=chat_id)
+    await state.update_data(num_profile=message.text)
+    data = await state.get_data()
+    message_id = data.get('message_id')
+    strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     image_png = strength_calculation.get_initial_data_strength()
+
     text = i18n.initial_data_steel.text()
     await message.delete()
-    await state.clear()
+    await state.set_state(state=None)
     await bot.edit_message_media(
         chat_id=message.chat.id,
         message_id=message_id,
@@ -495,29 +402,20 @@ async def num_profile_inline_search_input(message: Message, bot: Bot, state: FSM
 
 @fire_res_router.callback_query(F.data == 'loads_steel_edit')
 async def loads_steel_edit_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_in = json.load(file_op)
-        n_load = init_strenght_in[chat_id]['n_load']
-
-    text = i18n.loads_steel_edit.text(n_load=n_load)
-
+    data = await state.get_data()
+    text = i18n.loads_steel_edit.text(n_load=data.get('n_load'))
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
-
     await state.set_state(FSMSteelForm.n_load_edit_state)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.n_load_edit_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
 async def n_load_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
     n_load_data = await state.get_data()
-
     call_data = callback.data
     if call_data == "one":
         call_data = 1
@@ -541,28 +439,20 @@ async def n_load_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         call_data = 0
 
     if call_data != 'clear':
-        if n_load_data.get('n_load_key') == None:
-            await state.update_data(n_load_key="")
+        if n_load_data.get('n_load') == None:
+            await state.update_data(n_load="")
             n_load_data = await state.get_data()
-            await state.update_data(n_load_key=call_data)
+            await state.update_data(n_load=call_data)
             n_load_data = await state.get_data()
-            n_load_edit = n_load_data.get('n_load_key', 3600)
+            n_load_edit = n_load_data.get('n_load', 3600)
             text = i18n.loads_steel_edit.text(n_load=n_load_edit)
         else:
-            n_load_1 = n_load_data.get('n_load_key')
+            n_load_1 = n_load_data.get('n_load')
             n_load_sum = str(n_load_1) + str(call_data)
-            await state.update_data(n_load_key=n_load_sum)
+            await state.update_data(n_load=n_load_sum)
             n_load_data = await state.get_data()
-            n_load_edit = n_load_data.get('n_load_key', 3600)
+            n_load_edit = n_load_data.get('n_load', 3600)
             text = i18n.loads_steel_edit.text(n_load=n_load_edit)
-
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_in = json.load(file_op)
-    init_strenght_in[chat_id]['n_load'] = n_load_edit
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_strenght_in, file_w,
-                  ensure_ascii=False, indent=4)
-
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -572,26 +462,26 @@ async def n_load_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCont
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.n_load_edit_state), F.data.in_(['point']))
 async def n_load_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
     n_load_data = await state.get_data()
-
     call_data = callback.data
     if call_data == "point":
         call_data = '.'
 
-    if n_load_data.get('n_load_key') == None:
-        await state.update_data(n_load_key="")
+    if n_load_data.get('n_load') == None:
+        await state.update_data(n_load="")
         n_load_data = await state.get_data()
-        await state.update_data(n_load_key=call_data)
+        await state.update_data(n_load=call_data)
         n_load_data = await state.get_data()
-        n_load_edit = n_load_data.get('n_load_key', 3600)
+        n_load_edit = n_load_data.get('n_load', 3600)
+        await state.update_data(n_load=n_load_edit)
         text = i18n.loads_steel_edit.text(n_load=n_load_edit)
     else:
-        n_load_1 = n_load_data.get('n_load_key')
+        n_load_1 = n_load_data.get('n_load')
         n_load_sum = str(n_load_1) + str(call_data)
-        await state.update_data(n_load_key=n_load_sum)
+        await state.update_data(n_load=n_load_sum)
         n_load_data = await state.get_data()
-        n_load_edit = n_load_data.get('n_load_key', 3600)
+        n_load_edit = n_load_data.get('n_load', 3600)
+        await state.update_data(n_load=n_load_edit)
         text = i18n.loads_steel_edit.text(n_load=n_load_edit)
 
     await bot.edit_message_caption(
@@ -603,15 +493,10 @@ async def n_load_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.n_load_edit_state), F.data.in_(['clear']))
 async def n_load_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    call_data = callback.data
+    await state.update_data(n_load="")
     n_load_data = await state.get_data()
-
-    await state.update_data(n_load_key="")
-    n_load_data = await state.get_data()
-    n_load_edit = n_load_data.get('n_load_key', 3600)
+    n_load_edit = n_load_data.get('n_load', 3600)
     text = i18n.loads_steel_edit.text(n_load=n_load_edit)
-
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -622,44 +507,9 @@ async def n_load_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.n_load_edit_state), F.data.in_(['ready']))
 async def n_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    # call_data = callback.data
-    # n_load_data = await state.get_data()
-    # n_load = n_load_data.get('n_load_key', 3600)
-
-    # with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-    #     init_strenght_in = json.load(file_op)
-    #     name_profile = init_strenght_in[chat_id]["name_profile"]
-    #     sketch = init_strenght_in[chat_id]["sketch"]
-    #     reg_document = init_strenght_in[chat_id]["reg_document"]
-    #     num_sides_heated = init_strenght_in[chat_id]["num_sides_heated"]
-    #     fixation = init_strenght_in[chat_id]["fixation"]
-    #     type_loading = init_strenght_in[chat_id]["type_loading"]
-    #     len_elem = init_strenght_in[chat_id]["len_elem"]
-    #     type_steel_element = init_strenght_in[chat_id]["type_steel_element"]
-    #     loading_method = init_strenght_in[chat_id]["loading_method"]
-    #     n_load = init_strenght_in[chat_id]["n_load"]
-
-    # strength_calculation = SteelStrength(i18n=i18n, chat_id=chat_id,
-    #                                      name_profile=name_profile,
-    #                                      sketch=sketch,
-    #                                      reg_document=reg_document,
-    #                                      num_sides_heated=num_sides_heated,
-    #                                      fixation=fixation,
-    #                                      type_loading=type_loading,
-    #                                      len_elem=len_elem,
-    #                                      n_load=n_load,
-    #                                      type_steel_element=type_steel_element,
-    #                                      loading_method=loading_method)
-    strength_calculation = SteelFireStrength(i18n=i18n, chat_id=chat_id)
+    data = await state.get_data()
+    strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     image_png = strength_calculation.get_initial_data_strength()
-
-    # init_strenght_in[chat_id]['n_load'] = n_load
-
-    # with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-    #     json.dump(init_strenght_in, file_w,
-    #               ensure_ascii=False, indent=4)
-
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -668,6 +518,7 @@ async def n_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
             file=image_png, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
+                                      'num_profile',
                                       'sides_heated',
                                       'len_elem_edit',
                                       'type_of_load_edit',
@@ -675,13 +526,12 @@ async def n_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
                                       'type_loading_element',
                                       'fixation_steel',
                                       'back_strength_element', i18n=i18n))
-    await state.clear()
+    await state.set_state(state=None)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 'sides_heated')
-async def sides_heated_edit_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
+async def sides_heated_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.num_sides_heated.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fsr_num_sides_ibeam.png')
@@ -695,40 +545,11 @@ async def sides_heated_edit_call(callback: CallbackQuery, bot: Bot, i18n: Transl
 
 
 @fire_res_router.callback_query(F.data.in_(['num_sides_heated_two', 'num_sides_heated_three', 'num_sides_heated_four']))
-async def type_of_load_edit_in_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    call_data = callback.data
-
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_out = json.load(file_op)
-    init_strenght_out[chat_id]["num_sides_heated"] = call_data
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_strenght_out, file_w,
-                  ensure_ascii=False, indent=4)
-    #     name_profile = init_strenght_out[chat_id]["name_profile"]
-    #     sketch = init_strenght_out[chat_id]["sketch"]
-    #     reg_document = init_strenght_out[chat_id]["reg_document"]
-    #     len_elem = init_strenght_out[chat_id]["len_elem"]
-    #     fixation = init_strenght_out[chat_id]["fixation"]
-    #     type_loading = init_strenght_out[chat_id]["type_loading"]
-    #     n_load = init_strenght_out[chat_id]["n_load"]
-    #     type_steel_element = init_strenght_out[chat_id]["type_steel_element"]
-    #     loading_method = init_strenght_out[chat_id]["loading_method"]
-
-    # strength_calculation = SteelStrength(i18n=i18n, chat_id=chat_id,
-    #                                      name_profile=name_profile,
-    #                                      sketch=sketch,
-    #                                      reg_document=reg_document,
-    #                                      fixation=fixation,
-    #                                      type_loading=type_loading,
-    #                                      len_elem=len_elem,
-    #                                      n_load=n_load,
-    #                                      type_steel_element=type_steel_element,
-    #                                      loading_method=loading_method,
-    #                                      num_sides_heated=call_data)
-    strength_calculation = SteelFireStrength(i18n=i18n, chat_id=chat_id)
+async def type_of_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await state.update_data(num_sides_heated=callback.data)
+    data = await state.get_data()
+    strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     image_png = strength_calculation.get_initial_data_strength()
-
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -737,6 +558,7 @@ async def type_of_load_edit_in_call(callback: CallbackQuery, state: FSMContext, 
             file=image_png, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
+                                      'num_profile',
                                       'sides_heated',
                                       'len_elem_edit',
                                       'type_of_load_edit',
@@ -749,11 +571,8 @@ async def type_of_load_edit_in_call(callback: CallbackQuery, state: FSMContext, 
 
 @fire_res_router.callback_query(F.data == 'len_elem_edit')
 async def len_elem_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_in = json.load(file_op)
-        len_elem = init_strenght_in[chat_id]['len_elem']
-    text = i18n.len_elem_edit.text(len_elem=len_elem)
+    data = await state.get_data()
+    text = i18n.len_elem_edit.text(len_elem=data.get('len_elem'))
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -765,7 +584,6 @@ async def len_elem_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
 async def len_elem_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
     len_elem_data = await state.get_data()
 
     call_data = callback.data
@@ -791,28 +609,22 @@ async def len_elem_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         call_data = 0
 
     if call_data != 'clear':
-        if len_elem_data.get('len_elem_key') == None:
-            await state.update_data(len_elem_key="")
+        if len_elem_data.get('len_elem') == None:
+            await state.update_data(len_elem="")
             len_elem_data = await state.get_data()
-            await state.update_data(len_elem_key=call_data)
+            await state.update_data(len_elem=call_data)
             len_elem_data = await state.get_data()
-            len_elem_edit = len_elem_data.get('len_elem_key', 1000)
+            len_elem_edit = len_elem_data.get('len_elem', 1000)
+
             text = i18n.len_elem_edit.text(len_elem=len_elem_edit)
         else:
-            len_elem_1 = len_elem_data.get('len_elem_key')
+            len_elem_1 = len_elem_data.get('len_elem')
             len_elem_sum = str(len_elem_1) + str(call_data)
-            await state.update_data(len_elem_key=len_elem_sum)
+            await state.update_data(len_elem=len_elem_sum)
             len_elem_data = await state.get_data()
-            len_elem_edit = len_elem_data.get('len_elem_key', 1000)
+            len_elem_edit = len_elem_data.get('len_elem', 1000)
+
             text = i18n.len_elem_edit.text(len_elem=len_elem_edit)
-
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_in = json.load(file_op)
-    init_strenght_in[chat_id]['len_elem'] = len_elem_edit
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_strenght_in, file_w,
-                  ensure_ascii=False, indent=4)
-
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -822,26 +634,25 @@ async def len_elem_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['point']))
 async def len_elem_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
     len_elem_data = await state.get_data()
 
     call_data = callback.data
     if call_data == "point":
         call_data = '.'
 
-    if len_elem_data.get('len_elem_key') == None:
-        await state.update_data(len_elem_key="")
+    if len_elem_data.get('len_elem') == None:
+        await state.update_data(len_elem="")
         len_elem_data = await state.get_data()
-        await state.update_data(len_elem_key=call_data)
+        await state.update_data(len_elem=call_data)
         len_elem_data = await state.get_data()
-        len_elem_edit = len_elem_data.get('len_elem_key', 3600)
+        len_elem_edit = len_elem_data.get('len_elem', 3600)
         text = i18n.len_elem_edit.text(len_elem=len_elem_edit)
     else:
-        len_elem_1 = len_elem_data.get('len_elem_key')
+        len_elem_1 = len_elem_data.get('len_elem')
         len_elem_sum = str(len_elem_1) + str(call_data)
-        await state.update_data(len_elem_key=len_elem_sum)
+        await state.update_data(len_elem=len_elem_sum)
         len_elem_data = await state.get_data()
-        len_elem_edit = len_elem_data.get('len_elem_key', 3600)
+        len_elem_edit = len_elem_data.get('len_elem', 3600)
         text = i18n.len_elem_edit.text(len_elem=len_elem_edit)
 
     await bot.edit_message_caption(
@@ -853,15 +664,12 @@ async def len_elem_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['clear']))
 async def len_elem_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
     call_data = callback.data
     len_elem_data = await state.get_data()
-
-    await state.update_data(len_elem_key="")
+    await state.update_data(len_elem="")
     len_elem_data = await state.get_data()
-    len_elem_edit = len_elem_data.get('len_elem_key', 1000)
+    len_elem_edit = len_elem_data.get('len_elem', 1000)
     text = i18n.len_elem_edit.text(len_elem=len_elem_edit)
-
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -872,8 +680,8 @@ async def len_elem_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSM
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['ready']))
 async def len_elem_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    strength_calculation = SteelFireStrength(i18n=i18n, chat_id=chat_id)
+    data = await state.get_data()
+    strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     image_png = strength_calculation.get_initial_data_strength()
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
@@ -883,6 +691,7 @@ async def len_elem_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
             file=image_png, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
+                                      'num_profile',
                                       'sides_heated',
                                       'len_elem_edit',
                                       'type_of_load_edit',
@@ -890,13 +699,12 @@ async def len_elem_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
                                       'type_loading_element',
                                       'fixation_steel',
                                       'back_strength_element', i18n=i18n))
-    await state.clear()
+    await state.set_state(state=None)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 'type_of_load_edit')
-async def type_of_load_edit_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
+async def type_of_load_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.type_of_load_edit.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -907,16 +715,10 @@ async def type_of_load_edit_call(callback: CallbackQuery, bot: Bot, i18n: Transl
 
 
 @fire_res_router.callback_query(F.data.in_(['distributed_load_steel', 'concentrated_load_steel']))
-async def type_of_load_edit_in_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    call_data = callback.data
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_out = json.load(file_op)
-    init_strenght_out[chat_id]["loading_method"] = call_data
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_strenght_out, file_w,
-                  ensure_ascii=False, indent=4)
-    strength_calculation = SteelFireStrength(i18n=i18n, chat_id=chat_id)
+async def type_of_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await state.update_data(loading_method=callback.data)
+    data = await state.get_data()
+    strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     image_png = strength_calculation.get_initial_data_strength()
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
@@ -926,6 +728,7 @@ async def type_of_load_edit_in_call(callback: CallbackQuery, state: FSMContext, 
             file=image_png, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
+                                      'num_profile',
                                       'sides_heated',
                                       'len_elem_edit',
                                       'type_of_load_edit',
@@ -937,8 +740,7 @@ async def type_of_load_edit_in_call(callback: CallbackQuery, state: FSMContext, 
 
 
 @fire_res_router.callback_query(F.data == 'fixation_steel')
-async def fixation_steel_edit_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
+async def fixation_steel_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.consolidation_steel.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -949,39 +751,11 @@ async def fixation_steel_edit_call(callback: CallbackQuery, bot: Bot, i18n: Tran
 
 
 @fire_res_router.callback_query(F.data.in_(['hinge-hinge', 'sealing-sealing', 'seal-hinge', 'console']))
-async def fixation_steel_edit_in_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    call_data = callback.data
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_out = json.load(file_op)
-    init_strenght_out[chat_id]["fixation"] = call_data
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_strenght_out, file_w,
-                  ensure_ascii=False, indent=4)
-    #     name_profile = init_strenght_out[chat_id]["name_profile"]
-    #     sketch = init_strenght_out[chat_id]["sketch"]
-    #     reg_document = init_strenght_out[chat_id]["reg_document"]
-    #     num_sides_heated = init_strenght_out[chat_id]["num_sides_heated"]
-    #     len_elem = init_strenght_out[chat_id]["len_elem"]
-    #     type_loading = init_strenght_out[chat_id]["type_loading"]
-    #     n_load = init_strenght_out[chat_id]["n_load"]
-    #     type_steel_element = init_strenght_out[chat_id]["type_steel_element"]
-    #     loading_method = init_strenght_out[chat_id]["loading_method"]
-
-    # strength_calculation = SteelStrength(i18n=i18n, chat_id=chat_id,
-    #                                      name_profile=name_profile,
-    #                                      sketch=sketch,
-    #                                      reg_document=reg_document,
-    #                                      num_sides_heated=num_sides_heated,
-    #                                      type_loading=type_loading,
-    #                                      len_elem=len_elem,
-    #                                      n_load=n_load,
-    #                                      type_steel_element=type_steel_element,
-    #                                      loading_method=loading_method,
-    #                                      fixation=call_data)
-    strength_calculation = SteelFireStrength(i18n=i18n, chat_id=chat_id)
+async def fixation_steel_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await state.update_data(fixation=callback.data)
+    data = await state.get_data()
+    strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     image_png = strength_calculation.get_initial_data_strength()
-
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -990,6 +764,7 @@ async def fixation_steel_edit_in_call(callback: CallbackQuery, state: FSMContext
             file=image_png, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
+                                      'num_profile',
                                       'sides_heated',
                                       'len_elem_edit',
                                       'type_of_load_edit',
@@ -1001,10 +776,8 @@ async def fixation_steel_edit_in_call(callback: CallbackQuery, state: FSMContext
 
 
 @fire_res_router.callback_query(F.data == 'type_steel_element_edit')
-async def type_steel_element_edit_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
+async def type_steel_element_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.type_steel_element_edit.text()
-
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -1016,40 +789,12 @@ async def type_steel_element_edit_call(callback: CallbackQuery, bot: Bot, i18n: 
 @fire_res_router.callback_query(F.data.in_(['C235', 'C245', 'C255', 'C345',
                                             'C355', 'C375', 'C390', 'C440',
                                             'C550', 'C590', 'C355P', 'C390P']))
-async def type_steel_element_in_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
+async def type_steel_element_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = i18n.get(callback.data)
-
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_out = json.load(file_op)
-    init_strenght_out[chat_id]["type_steel_element"] = call_data
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_strenght_out, file_w,
-                  ensure_ascii=False, indent=4)
-    #     name_profile = init_strenght_out[chat_id]["name_profile"]
-    #     sketch = init_strenght_out[chat_id]["sketch"]
-    #     reg_document = init_strenght_out[chat_id]["reg_document"]
-    #     num_sides_heated = init_strenght_out[chat_id]["num_sides_heated"]
-    #     len_elem = init_strenght_out[chat_id]["len_elem"]
-    #     fixation = init_strenght_out[chat_id]["fixation"]
-    #     type_loading = init_strenght_out[chat_id]["type_loading"]
-    #     n_load = init_strenght_out[chat_id]["n_load"]
-    #     loading_method = init_strenght_out[chat_id]["loading_method"]
-
-    # strength_calculation = SteelStrength(i18n=i18n, chat_id=chat_id,
-    #                                      name_profile=name_profile,
-    #                                      sketch=sketch,
-    #                                      reg_document=reg_document,
-    #                                      num_sides_heated=num_sides_heated,
-    #                                      fixation=fixation,
-    #                                      type_loading=type_loading,
-    #                                      len_elem=len_elem,
-    #                                      n_load=n_load,
-    #                                      loading_method=loading_method,
-    #                                      type_steel_element=call_data)
-    strength_calculation = SteelFireStrength(i18n=i18n, chat_id=chat_id)
+    await state.update_data(type_steel_element=call_data)
+    data = await state.get_data()
+    strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     image_png = strength_calculation.get_initial_data_strength()
-
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -1058,6 +803,7 @@ async def type_steel_element_in_call(callback: CallbackQuery, state: FSMContext,
             file=image_png, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
+                                      'num_profile',
                                       'sides_heated',
                                       'len_elem_edit',
                                       'type_of_load_edit',
@@ -1068,8 +814,55 @@ async def type_steel_element_in_call(callback: CallbackQuery, state: FSMContext,
     await callback.answer('')
 
 
+@fire_res_router.callback_query(F.data == 'type_loading_element')
+async def type_loading_element_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    text = i18n.type_loading_element.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1, 'stretching_element', 'compression_element', 'bend_element', 'stop_edit_strength', i18n=i18n))
+    await callback.answer('')
+
+
+@fire_res_router.callback_query(F.data.in_(['stretching_element', 'compression_element', 'bend_element']))
+async def stretching_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await state.update_data(type_loading=callback.data)
+    data = await state.get_data()
+    strength_calculation = SteelFireStrength(i18n=i18n, data=data)
+    image_png = strength_calculation.get_initial_data_strength()
+    text = i18n.initial_data_steel.text()
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=image_png, filename="initial_data"), caption=text),
+        reply_markup=get_inline_cd_kb(1,
+                                      'type_steel_element_edit',
+                                      'num_profile',
+                                      'sides_heated',
+                                      'len_elem_edit',
+                                      'type_of_load_edit',
+                                      'loads_steel_edit',
+                                      'type_loading_element',
+                                      'fixation_steel',
+                                      'back_strength_element', i18n=i18n))
+    await callback.answer('')
+
+
+@fire_res_router.callback_query(F.data.in_(['export_data_strength']))
+async def export_data_strength_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    text = i18n.export_data_strength.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1, 'back_strength_element', 'back_type_calc', i18n=i18n))
+    await callback.answer('')
+
+
 @fire_res_router.callback_query(F.data == 'ibeam_element')
-async def ibeam_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def ibeam_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     # хендлер возвращает картинку с исходными данными для прочностного расчета для двутавра №20
     chat_id = str(callback.message.chat.id)
     text = i18n.initial_data_steel.text()
@@ -1088,7 +881,7 @@ async def ibeam_element_call(callback: CallbackQuery, bot: Bot, i18n: Translator
 
 
 @fire_res_router.callback_query(F.data == 'channel_element')
-async def channel_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def channel_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     # хендлер возвращает картинку с исходными данными для прочностного расчета для двутавра №20
     text = i18n.initial_data_steel.text()
     with open(file="app/infrastructure/data_base/db_task_photo.json", mode="r", encoding='utf-8') as file_op:
@@ -1101,115 +894,6 @@ async def channel_element_call(callback: CallbackQuery, bot: Bot, i18n: Translat
         reply_markup=get_inline_cd_kb(2,
                                       'back_strength_element', i18n=i18n))
     await callback.answer('')
-
-
-@fire_res_router.callback_query(F.data == 'type_loading_element')
-async def type_loading_element_edit_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
-    text = i18n.type_loading_element.text()
-    await bot.edit_message_caption(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        caption=text,
-        reply_markup=get_inline_cd_kb(1, 'stretching_element', 'compression_element', 'bend_element', 'stop_edit_strength', i18n=i18n))
-    await callback.answer('')
-
-
-@fire_res_router.callback_query(F.data.in_(['stretching_element', 'compression_element', 'bend_element']))
-async def stretching_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    call_data = callback.data
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', encoding='utf-8') as file_op:
-        init_strenght_out = json.load(file_op)
-    init_strenght_out[chat_id]["type_loading"] = call_data
-    with open('app\infrastructure\init_data\init_data_strenght_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_strenght_out, file_w,
-                  ensure_ascii=False, indent=4)
-    #     name_profile = init_strenght_out[chat_id]["name_profile"]
-    #     sketch = init_strenght_out[chat_id]["sketch"]
-    #     reg_document = init_strenght_out[chat_id]["reg_document"]
-    #     num_sides_heated = init_strenght_out[chat_id]["num_sides_heated"]
-    #     len_elem = init_strenght_out[chat_id]["len_elem"]
-    #     n_load = init_strenght_out[chat_id]["n_load"]
-    #     type_steel_element = init_strenght_out[chat_id]["type_steel_element"]
-    #     loading_method = init_strenght_out[chat_id]["loading_method"]
-    #     fixation = init_strenght_out[chat_id]["fixation"]
-
-    # strength_calculation = SteelStrength(i18n=i18n, chat_id=chat_id,
-    #                                      name_profile=name_profile,
-    #                                      sketch=sketch,
-    #                                      reg_document=reg_document,
-    #                                      num_sides_heated=num_sides_heated,
-    #                                      type_loading=call_data,
-    #                                      len_elem=len_elem,
-    #                                      n_load=n_load,
-    #                                      type_steel_element=type_steel_element,
-    #                                      loading_method=loading_method,
-    #                                      fixation=fixation)
-
-    strength_calculation = SteelFireStrength(i18n=i18n, chat_id=chat_id)
-    image_png = strength_calculation.get_initial_data_strength()
-    text = i18n.initial_data_steel.text()
-    await bot.edit_message_media(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
-        reply_markup=get_inline_cd_kb(1,
-                                      'type_steel_element_edit',
-                                      'sides_heated',
-                                      'len_elem_edit',
-                                      'type_of_load_edit',
-                                      'loads_steel_edit',
-                                      'type_loading_element',
-                                      'fixation_steel',
-                                      'back_strength_element', i18n=i18n))
-    await callback.answer('')
-
-
-@fire_res_router.callback_query(F.data.in_(['export_data_strength']))
-async def export_data_strength_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
-    text = i18n.export_data_strength.text()
-
-    await bot.edit_message_caption(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        caption=text,
-        reply_markup=get_inline_cd_kb(1, 'back_strength_element', 'back_type_calc', i18n=i18n))
-    await callback.answer('')
-# @fire_res_router.callback_query(F.data == 'export_data_strength')
-# async def export_data_strength_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-#     # chat_id = str(callback.message.chat.id)
-#     # await callback.message.bot.send_chat_action(
-#     #     chat_id=callback.message.chat.id,
-#     #     action=ChatAction.UPLOAD_DOCUMENT)
-#     # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-#     #     init_thermal_in = json.load(file_op)
-#     #     mode = init_thermal_in[chat_id]["mode"]
-#     #     ptm = init_thermal_in[chat_id]["ptm"]
-#     #     t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
-#     #     s_0 = init_thermal_in[chat_id]["s_0"]
-#     #     s_1 = init_thermal_in[chat_id]["s_1"]
-#     #     T_0 = init_thermal_in[chat_id]["T_0"]
-#     #     a_convection = init_thermal_in[chat_id]["a_convection"]
-#     #     density_steel = init_thermal_in[chat_id]["density_steel"]
-#     #     heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
-#     #     heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
-
-#     # t_res = SteelFireResistance(chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
-#     #                 density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
-#     # text = i18n.export_data_steel.text()
-#     # data = t_res.get_data_steel_heating()
-#     # file_csv = get_csv_bt_file(data=data)
-
-#     # await bot.edit_message_media(
-#     #     chat_id=callback.message.chat.id,
-#     #     message_id=callback.message.message_id,
-#     #     media=InputMediaDocument(media=BufferedInputFile(
-#     #         file=file_csv, filename="data_thermal.csv"), caption=text),
-#     #     reply_markup=get_inline_cd_kb(1, 'plot_thermal', 'protocol_thermal', 'forward_type_calc', i18n=i18n))
-#     await callback.answer('')
 
 
 """
@@ -1226,46 +910,61 @@ async def export_data_strength_call(callback: CallbackQuery, bot: Bot, i18n: Tra
 
 @fire_res_router.callback_query(F.data.in_(['thermal_calculation', 'forward_type_calc']))
 async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    user_name = str(callback.message.chat.username)
-    user_first_name = str(callback.message.chat.first_name)
-    user_last_name = str(callback.message.chat.last_name)
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        init_thermal_in = json.load(file_op)
-        if chat_id not in init_thermal_in:
-            init_thermal_in[chat_id] = {"user_name": user_name,
-                                        "user_first_name": user_first_name,
-                                        "user_last_name": user_last_name,
-                                        "mode": "Стандартный",
-                                        "ptm": 4.8,
-                                        "t_critic_C": 500,
-                                        "a_convection": 29,
-                                        "s_0": 0.850,
-                                        "s_1": 0.625,
-                                        "T_0": 293,
-                                        "xmax": 90,
-                                        "density_steel": 7800,
-                                        "heat_capacity": 310,
-                                        "heat_capacity_change": 0.469,
-                                        "time_fsr": 0}
-            with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
-                json.dump(init_thermal_in, file_w,
-                          ensure_ascii=False, indent=4)
-        mode = init_thermal_in[chat_id]["mode"]
-        ptm = init_thermal_in[chat_id]["ptm"]
-        s_0 = init_thermal_in[chat_id]["s_0"]
-        s_1 = init_thermal_in[chat_id]["s_1"]
-        T_0 = init_thermal_in[chat_id]["T_0"]
-        a_convection = init_thermal_in[chat_id]["a_convection"]
-        density_steel = init_thermal_in[chat_id]["density_steel"]
-        heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
-        heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
-        t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
+    data = await state.get_data()
+    data.setdefault("mode", "Стандартный"),
+    data.setdefault("s_0", "0.85"),
+    data.setdefault("s_1", "0.625"),
+    data.setdefault("T_0", "293.0"),
+    # data.setdefault("xmax", "90"),
+    data.setdefault("a_convection", "29.0"),
+    data.setdefault("density_steel", "7800.0"),
+    data.setdefault("heat_capacity", "310.0"),
+    data.setdefault("ptm", "3.94"),
+    data.setdefault("heat_capacity_change", "0.469"),
+    data.setdefault("t_critic_C", "500.0")
+
+    # chat_id = str(callback.message.chat.id)
+    # user_name = str(callback.message.chat.username)
+    # user_first_name = str(callback.message.chat.first_name)
+    # user_last_name = str(callback.message.chat.last_name)
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+    #     init_thermal_in = json.load(file_op)
+    #     if chat_id not in init_thermal_in:
+    #         init_thermal_in[chat_id] = {"user_name": user_name,
+    #                                     "user_first_name": user_first_name,
+    #                                     "user_last_name": user_last_name,
+    #                                     "mode": "Стандартный",
+    #                                     "ptm": 4.8,
+    #                                     "t_critic_C": 500,
+    #                                     "a_convection": 29,
+    #                                     "s_0": 0.850,
+    #                                     "s_1": 0.625,
+    #                                     "T_0": 293,
+    #                                     "xmax": 90,
+    #                                     "density_steel": 7800,
+    #                                     "heat_capacity": 310,
+    #                                     "heat_capacity_change": 0.469,
+    #                                     "time_fsr": 0}
+    #         with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
+    #             json.dump(init_thermal_in, file_w,
+    #                       ensure_ascii=False, indent=4)
+    #     mode = init_thermal_in[chat_id]["mode"]
+    #     ptm = init_thermal_in[chat_id]["ptm"]
+    #     s_0 = init_thermal_in[chat_id]["s_0"]
+    #     s_1 = init_thermal_in[chat_id]["s_1"]
+    #     T_0 = init_thermal_in[chat_id]["T_0"]
+    #     a_convection = init_thermal_in[chat_id]["a_convection"]
+    #     density_steel = init_thermal_in[chat_id]["density_steel"]
+    #     heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
+    #     heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
+    #     t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
 
     text = i18n.initial_data_steel.text()
-    t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
-                                density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
+    t_res = SteelFireResistance(i18n=i18n, data=data)
+    # t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
+    #                             density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
     image_png = t_res.get_initial_data_thermal()
+    await state.update_data(data)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -1277,37 +976,39 @@ async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSM
 
 @fire_res_router.callback_query(F.data.in_(['run_thermal_steel', 'plot_thermal']))
 async def run_thermal_calculation_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        init_thermal_in = json.load(file_op)
-        mode = init_thermal_in[chat_id]["mode"]
-        ptm = init_thermal_in[chat_id]["ptm"]
-        t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
-        s_0 = init_thermal_in[chat_id]["s_0"]
-        s_1 = init_thermal_in[chat_id]["s_1"]
-        T_0 = init_thermal_in[chat_id]["T_0"]
-        a_convection = init_thermal_in[chat_id]["a_convection"]
-        density_steel = init_thermal_in[chat_id]["density_steel"]
-        heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
-        heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
+    data = await state.get_data()
+    t_res = SteelFireResistance(i18n=i18n, data=data)
+    # chat_id = str(callback.message.chat.id)
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+    #     init_thermal_in = json.load(file_op)
+    #     mode = init_thermal_in[chat_id]["mode"]
+    #     ptm = init_thermal_in[chat_id]["ptm"]
+    #     t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
+    #     s_0 = init_thermal_in[chat_id]["s_0"]
+    #     s_1 = init_thermal_in[chat_id]["s_1"]
+    #     T_0 = init_thermal_in[chat_id]["T_0"]
+    #     a_convection = init_thermal_in[chat_id]["a_convection"]
+    #     density_steel = init_thermal_in[chat_id]["density_steel"]
+    #     heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
+    #     heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
 
-    t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
-                                density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
-
+    # t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
+    #                             density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
     plot_thermal_png = t_res.get_plot_steel()
     time_fsr = t_res.get_steel_fsr()
-    init_thermal_in[chat_id]["time_fsr"] = time_fsr
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_thermal_in, file_w,
-                  ensure_ascii=False, indent=4)
+    # init_thermal_in[chat_id]["time_fsr"] = time_fsr
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
+    #     json.dump(init_thermal_in, file_w,
+    #               ensure_ascii=False, indent=4)
     text = i18n.thermal_calculation.text(time_fsr=round(time_fsr, 2))
+    await state.update_data(time_fsr=time_fsr)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=plot_thermal_png, filename="plot_thermal_png"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'protocol_thermal', 'export_data_steel',  'forward_type_calc', 'back_type_calc', i18n=i18n))
-    await state.clear()
+    await state.set_state(state=None)
     await callback.answer('')
 
 
@@ -1317,14 +1018,12 @@ async def stop_edit_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: 
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(1, 'run_thermal_steel', 'edit_init_data_thermal', 'back_type_calc', i18n=i18n))
-    await state.clear()
+    await state.set_state(state=None)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 'back_thermal_calc')
 async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
-
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -1333,9 +1032,7 @@ async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 
 @fire_res_router.callback_query(F.data == 'edit_init_data_thermal')
-async def edit_init_data_thermal_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
-
+async def edit_init_data_thermal_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -1345,8 +1042,6 @@ async def edit_init_data_thermal_call(callback: CallbackQuery, bot: Bot, i18n: T
 
 @fire_res_router.callback_query(F.data == 'mode_edit')
 async def mode_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
-
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -1357,13 +1052,13 @@ async def mode_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
 
 @fire_res_router.callback_query(F.data == 'ptm_edit')
 async def ptm_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        init_thermal_in = json.load(file_op)
-        ptm = init_thermal_in[chat_id]['ptm']
-
-    text = i18n.ptm_edit.text(ptm=round(ptm, 2))
+    # chat_id = str(callback.message.chat.id)
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+    #     init_thermal_in = json.load(file_op)
+    #     ptm = init_thermal_in[chat_id]['ptm']
+    data = await state.get_data()
+    ptm = data.get("ptm", 4.8)
+    text = i18n.ptm_edit.text(ptm=round(float(ptm), 2))
 
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -1377,7 +1072,7 @@ async def ptm_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.ptm_edit_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
 async def ptm_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
+    # chat_id = str(callback.message.chat.id)
     ptm_data = await state.get_data()
 
     call_data = callback.data
@@ -1403,26 +1098,26 @@ async def ptm_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext
         call_data = 0
 
     if call_data != 'clear':
-        if ptm_data.get('ptm_key') == None:
-            await state.update_data(ptm_key="")
+        if ptm_data.get('ptm') == None:
+            await state.update_data(ptm="")
             ptm_data = await state.get_data()
-            await state.update_data(ptm_key=call_data)
+            await state.update_data(ptm=call_data)
             ptm_data = await state.get_data()
-            ptm_edit = ptm_data.get('ptm_key', 4.8)
+            ptm_edit = ptm_data.get('ptm', 4.8)
             text = i18n.ptm_edit.text(ptm=ptm_edit)
         else:
-            ptm_1 = ptm_data.get('ptm_key')
+            ptm_1 = ptm_data.get('ptm')
             ptm_sum = str(ptm_1) + str(call_data)
-            await state.update_data(ptm_key=ptm_sum)
+            await state.update_data(ptm=ptm_sum)
             ptm_data = await state.get_data()
-            ptm_edit = ptm_data.get('ptm_key', 4.8)
+            ptm_edit = ptm_data.get('ptm', 4.8)
             text = i18n.ptm_edit.text(ptm=ptm_edit)
 
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        init_thermal_in = json.load(file_op)
-    init_thermal_in[chat_id]['ptm'] = ptm_edit
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_thermal_in, file_w, ensure_ascii=False, indent=4)
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+    #     init_thermal_in = json.load(file_op)
+    # init_thermal_in[chat_id]['ptm'] = ptm_edit
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
+    #     json.dump(init_thermal_in, file_w, ensure_ascii=False, indent=4)
 
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -1433,26 +1128,26 @@ async def ptm_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.ptm_edit_state), F.data.in_(['point']))
 async def ptm_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
+    # chat_id = str(callback.message.chat.id)
     ptm_data = await state.get_data()
 
     call_data = callback.data
     if call_data == "point":
         call_data = '.'
 
-    if ptm_data.get('ptm_key') == None:
-        await state.update_data(ptm_key="")
+    if ptm_data.get('ptm') == None:
+        await state.update_data(ptm="")
         ptm_data = await state.get_data()
-        await state.update_data(ptm_key=call_data)
+        await state.update_data(ptm=call_data)
         ptm_data = await state.get_data()
-        ptm_edit = ptm_data.get('ptm_key', 4.8)
+        ptm_edit = ptm_data.get('ptm', 4.8)
         text = i18n.ptm_edit.text(ptm=ptm_edit)
     else:
-        ptm_1 = ptm_data.get('ptm_key')
+        ptm_1 = ptm_data.get('ptm')
         ptm_sum = str(ptm_1) + str(call_data)
-        await state.update_data(ptm_key=ptm_sum)
+        await state.update_data(ptm=ptm_sum)
         ptm_data = await state.get_data()
-        ptm_edit = ptm_data.get('ptm_key', 4.8)
+        ptm_edit = ptm_data.get('ptm', 4.8)
         text = i18n.ptm_edit.text(ptm=ptm_edit)
 
     await bot.edit_message_caption(
@@ -1464,13 +1159,13 @@ async def ptm_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.ptm_edit_state), F.data.in_(['clear']))
 async def ptm_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    call_data = callback.data
+    # chat_id = str(callback.message.chat.id)
+    # call_data = callback.data
     ptm_data = await state.get_data()
 
-    await state.update_data(ptm_key="")
+    await state.update_data(ptm="")
     ptm_data = await state.get_data()
-    ptm_edit = ptm_data.get('ptm_key', 4.8)
+    ptm_edit = ptm_data.get('ptm', 4.8)
     text = i18n.ptm_edit.text(ptm=ptm_edit)
 
     await bot.edit_message_caption(
@@ -1483,22 +1178,23 @@ async def ptm_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.ptm_edit_state), F.data.in_(['ready']))
 async def ptm_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        init_thermal_in = json.load(file_op)
-        ptm = init_thermal_in[chat_id]["ptm"]
-        mode = init_thermal_in[chat_id]["mode"]
-        t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
-        s_0 = init_thermal_in[chat_id]["s_0"]
-        s_1 = init_thermal_in[chat_id]["s_1"]
-        T_0 = init_thermal_in[chat_id]["T_0"]
-        a_convection = init_thermal_in[chat_id]["a_convection"]
-        density_steel = init_thermal_in[chat_id]["density_steel"]
-        heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
-        heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
-
-    t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
-                                density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
+    data = await state.get_data()
+    # chat_id = str(callback.message.chat.id)
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+    #     init_thermal_in = json.load(file_op)
+    #     ptm = init_thermal_in[chat_id]["ptm"]
+    #     mode = init_thermal_in[chat_id]["mode"]
+    #     t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
+    #     s_0 = init_thermal_in[chat_id]["s_0"]
+    #     s_1 = init_thermal_in[chat_id]["s_1"]
+    #     T_0 = init_thermal_in[chat_id]["T_0"]
+    #     a_convection = init_thermal_in[chat_id]["a_convection"]
+    #     density_steel = init_thermal_in[chat_id]["density_steel"]
+    #     heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
+    #     heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
+    t_res = SteelFireResistance(i18n=i18n, data=data)
+    # t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
+    #                             density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
     text = i18n.initial_data_steel.text()
     image_png = t_res.get_initial_data_thermal()
     await bot.edit_message_media(
@@ -1507,16 +1203,18 @@ async def ptm_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=image_png, filename="initial_data_thermal"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', 'back_thermal_calc', i18n=i18n))
-    await state.clear()
+    await state.set_state(state=None)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 't_critic_edit')
 async def t_critic_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        init_thermal_in = json.load(file_op)
-        t_critic_C = init_thermal_in[chat_id]['t_critic_C']
+    data = await state.get_data()
+    # chat_id = str(callback.message.chat.id)
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+    #     init_thermal_in = json.load(file_op)
+    #     t_critic_C = init_thermal_in[chat_id]['t_critic_C']
+    t_critic_C = data.get("t_critic_C", 500.0)
     text = i18n.t_critic_edit.text(t_critic=round(float(t_critic_C), 1))
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -1529,10 +1227,8 @@ async def t_critic_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.t_critic_edit_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear']))
 async def t_critic_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-
+    # chat_id = str(callback.message.chat.id)
     t_data = await state.get_data()
-
     call_data = callback.data
     if call_data == "one":
         call_data = 1
@@ -1558,31 +1254,31 @@ async def t_critic_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         call_data = "."
 
     if call_data != 'clear':
-        if t_data.get('t_key') == None:
-            await state.update_data(t_key="")
+        if t_data.get('t_critic_C') == None:
+            await state.update_data(t_critic_C="")
             t_data = await state.get_data()
-            await state.update_data(t_key=call_data)
+            await state.update_data(t_critic_C=call_data)
             t_data = await state.get_data()
-            t_edit = t_data.get('t_key', 500)
+            t_edit = t_data.get('t_critic_C', 500)
             text = i18n.t_critic_edit.text(t_critic=t_edit)
         else:
-            t_1 = t_data.get('t_key')
+            t_1 = t_data.get('t_critic_C')
             t_sum = str(t_1) + str(call_data)
-            await state.update_data(t_key=t_sum)
+            await state.update_data(t_critic_C=t_sum)
             t_data = await state.get_data()
-            t_edit = t_data.get('t_key', 500)
+            t_edit = t_data.get('t_critic_C', 500)
             text = i18n.t_critic_edit.text(t_critic=t_edit)
     elif call_data == "clear":
-        await state.update_data(t_key="")
+        await state.update_data(t_critic_C="")
         t_data = await state.get_data()
-        t_edit = t_data.get('t_key', 500)
+        t_edit = t_data.get('t_critic_C', 500)
         text = i18n.t_critic_edit.text(t_critic=t_edit)
 
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        init_thermal_in = json.load(file_op)
-    init_thermal_in[chat_id]['t_critic_C'] = t_edit
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_thermal_in, file_w, ensure_ascii=False, indent=4)
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+    #     init_thermal_in = json.load(file_op)
+    # init_thermal_in[chat_id]['t_critic_C'] = t_edit
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
+    #     json.dump(init_thermal_in, file_w, ensure_ascii=False, indent=4)
 
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -1594,24 +1290,24 @@ async def t_critic_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.t_critic_edit_state), F.data.in_(['ready']))
 async def t_critic_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        init_thermal_in = json.load(file_op)
-        ptm = init_thermal_in[chat_id]["ptm"]
-        mode = init_thermal_in[chat_id]["mode"]
-        t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
-        s_0 = init_thermal_in[chat_id]["s_0"]
-        s_1 = init_thermal_in[chat_id]["s_1"]
-        T_0 = init_thermal_in[chat_id]["T_0"]
-        a_convection = init_thermal_in[chat_id]["a_convection"]
-        density_steel = init_thermal_in[chat_id]["density_steel"]
-        heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
-        heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
-
-    t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
-                                density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
+    data = await state.get_data()
+    t_res = SteelFireResistance(i18n=i18n, data=data)
+    # chat_id = str(callback.message.chat.id)
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+    #     init_thermal_in = json.load(file_op)
+    #     ptm = init_thermal_in[chat_id]["ptm"]
+    #     mode = init_thermal_in[chat_id]["mode"]
+    #     t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
+    #     s_0 = init_thermal_in[chat_id]["s_0"]
+    #     s_1 = init_thermal_in[chat_id]["s_1"]
+    #     T_0 = init_thermal_in[chat_id]["T_0"]
+    #     a_convection = init_thermal_in[chat_id]["a_convection"]
+    #     density_steel = init_thermal_in[chat_id]["density_steel"]
+    #     heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
+    #     heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
+    # t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
+    #                             density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
     text = i18n.initial_data_steel.text()
-
     image_png = t_res.get_initial_data_thermal()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -1619,34 +1315,37 @@ async def t_critic_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         media=InputMediaPhoto(media=BufferedInputFile(
             file=image_png, filename="initial_data_thermal"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', 'back_thermal_calc', i18n=i18n))
-    await state.clear()
+    await state.set_state(state=None)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.mode_edit_state), F.data.in_(['mode_standard', 'mode_hydrocarbon', 'mode_external', 'mode_smoldering']))
 async def mode_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    mode = str(i18n.get(callback.data))
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        init_thermal_in = json.load(file_op)
-        init_thermal_in[chat_id]['mode'] = mode
-        ptm = init_thermal_in[chat_id]['ptm']
-        t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
-        s_0 = init_thermal_in[chat_id]["s_0"]
-        s_1 = init_thermal_in[chat_id]["s_1"]
-        T_0 = init_thermal_in[chat_id]["T_0"]
-        a_convection = init_thermal_in[chat_id]["a_convection"]
-        density_steel = init_thermal_in[chat_id]["density_steel"]
-        heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
-        heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
+    await state.update_data(mode=str(i18n.get(callback.data)))
+    data = await state.get_data()
+    t_res = SteelFireResistance(i18n=i18n, data=data)
 
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
-        json.dump(init_thermal_in, file_w, ensure_ascii=False, indent=4)
+    # chat_id = str(callback.message.chat.id)
+    # mode = str(i18n.get(callback.data))
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+    #     init_thermal_in = json.load(file_op)
+    #     init_thermal_in[chat_id]['mode'] = mode
+    #     ptm = init_thermal_in[chat_id]['ptm']
+    #     t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
+    #     s_0 = init_thermal_in[chat_id]["s_0"]
+    #     s_1 = init_thermal_in[chat_id]["s_1"]
+    #     T_0 = init_thermal_in[chat_id]["T_0"]
+    #     a_convection = init_thermal_in[chat_id]["a_convection"]
+    #     density_steel = init_thermal_in[chat_id]["density_steel"]
+    #     heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
+    #     heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
 
-    t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
-                                density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
+    #     json.dump(init_thermal_in, file_w, ensure_ascii=False, indent=4)
+
+    # t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
+    #                             density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
     text = i18n.edit_init_data_thermal.text()
-
     image_png = t_res.get_initial_data_thermal()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -1654,12 +1353,12 @@ async def mode_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
         media=InputMediaPhoto(media=BufferedInputFile(
             file=image_png, filename="initial_data_thermal"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', 'back_thermal_calc', i18n=i18n))
-    await state.clear()
+    await state.set_state(state=None)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 'protocol_thermal')
-async def protocol_thermal_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def protocol_thermal_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.protocol_thermal.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -1670,26 +1369,31 @@ async def protocol_thermal_call(callback: CallbackQuery, bot: Bot, i18n: Transla
 
 
 @fire_res_router.callback_query(F.data == 'export_data_steel')
-async def export_data_steel_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    chat_id = str(callback.message.chat.id)
-    with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        init_thermal_in = json.load(file_op)
-        mode = init_thermal_in[chat_id]["mode"]
-        ptm = init_thermal_in[chat_id]["ptm"]
-        t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
-        s_0 = init_thermal_in[chat_id]["s_0"]
-        s_1 = init_thermal_in[chat_id]["s_1"]
-        T_0 = init_thermal_in[chat_id]["T_0"]
-        a_convection = init_thermal_in[chat_id]["a_convection"]
-        density_steel = init_thermal_in[chat_id]["density_steel"]
-        heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
-        heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
+async def export_data_steel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    data = await state.get_data()
+    t_res = SteelFireResistance(i18n=i18n, data=data)
 
-    t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
-                                density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
+    # chat_id = str(callback.message.chat.id)
+    # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+    #     init_thermal_in = json.load(file_op)
+    #     mode = init_thermal_in[chat_id]["mode"]
+    #     ptm = init_thermal_in[chat_id]["ptm"]
+    #     t_critic_C = init_thermal_in[chat_id]["t_critic_C"]
+    #     s_0 = init_thermal_in[chat_id]["s_0"]
+    #     s_1 = init_thermal_in[chat_id]["s_1"]
+    #     T_0 = init_thermal_in[chat_id]["T_0"]
+    #     a_convection = init_thermal_in[chat_id]["a_convection"]
+    #     density_steel = init_thermal_in[chat_id]["density_steel"]
+    #     heat_capacity = init_thermal_in[chat_id]["heat_capacity"]
+    #     heat_capacity_change = init_thermal_in[chat_id]["heat_capacity_change"]
+
+    # t_res = SteelFireResistance(i18n=i18n, chat_id=chat_id, mode=mode, ptm=ptm, t_critic=t_critic_C, s_0=s_0, s_1=s_1, T_0=T_0, a_convection=a_convection,
+    #                             density_steel=density_steel, heat_capacity=heat_capacity, heat_capacity_change=heat_capacity_change)
+
     text = i18n.export_data_steel.text()
-    data = t_res.get_data_steel_heating()
-    file_csv = get_csv_bt_file(data=data)
+
+    data_exp = t_res.get_data_steel_heating()
+    file_csv = get_csv_bt_file(data=data_exp)
 
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,

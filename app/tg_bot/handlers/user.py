@@ -1,6 +1,6 @@
 import logging
 
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state, State, StatesGroup
@@ -8,6 +8,8 @@ from aiogram.types import CallbackQuery, Message
 
 from fluentogram import TranslatorRunner
 
+from app.infrastructure.database.database.db import DB
+from app.tg_bot.utilities.check_sub_admin import check_sub_admin
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
 
 
@@ -17,8 +19,12 @@ user_router = Router()
 
 
 @user_router.message(CommandStart())
-async def process_start_command(message: Message, state: FSMContext, i18n: TranslatorRunner) -> None:
-
+async def process_start_command(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, db: DB) -> None:
+    user_id = message.chat.id
+    if await check_sub_admin(bot=bot, user_id=user_id):
+        await db.users.add(user_id=user_id, language=message.from_user.language_code, is_admin=True)
+    else:
+        await db.users.add(user_id=user_id, language=message.from_user.language_code)
     await message.answer(text=i18n.start.menu(), reply_markup=get_inline_cd_kb(1,
                                                                                #    'calculators',
                                                                                'fire_resistance',

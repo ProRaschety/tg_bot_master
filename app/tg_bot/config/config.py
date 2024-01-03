@@ -10,17 +10,30 @@ class TgBot:
 
 
 @dataclass
-class Database:
+class PostgresConfig:
     db_name: str
-    db_host: str
-    db_port: int
-    db_user: str
-    db_password: str
+    host: str
+    port: int
+    username: str
+    password: str
+
+
+@dataclass
+class RedisConfig:
+    database: int
+    host: str
+    port: int
+    username: str
+    password: str
+    state_ttl: int
+    data_ttl: int
 
 
 @dataclass
 class Config:
     tg_bot: TgBot
+    pg: PostgresConfig
+    redis: RedisConfig
 
 
 def load_config(path: str | None = None) -> Config:
@@ -31,5 +44,21 @@ def load_config(path: str | None = None) -> Config:
             token=env('BOT_TOKEN'),
             admin_ids=list(map(int, env.list('ADMIN_IDS'))),
             channel_ids=list(map(int, env.list('CHANNEL_IDS')))
+        ),
+        pg=PostgresConfig(
+            db_name=env('POSTGRES_NAME'),
+            host=env('POSTGRES_HOST'),
+            port=env('POSTGRES_PORT'),
+            username=env('POSTGRES_USER'),
+            password=env('POSTGRES_PASSWORD')
+        ),
+        redis=RedisConfig(
+            database=env('REDIS_DATABASE'),
+            host=env('REDIS_HOST'),
+            port=env('REDIS_PORT'),
+            username=env('REDIS_USERNAME'),
+            password=env('REDIS_PASSWORD'),
+            state_ttl=env('REDIS_TTL_STATE'),
+            data_ttl=env('REDIS_TTL_DATA'),
         )
     )

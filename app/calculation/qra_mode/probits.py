@@ -7,25 +7,19 @@ class ProbabilityDefeat:
     def __init__(self):
         self.distance: float = 30
 
-    def get_probit_overpressure_mix(self):
-        pass
-
-    def calculate_fatality_probability(self, probit_value, normal_distribution_mean=5):
+    def calc_fatality_probability(probit_value: int | float = 0, normal_distribution_mean=5) -> float:
         """
-        Calculate probability of fatality from probit value
-
-        Parameters
+        Вычисляет вероятность летального исхода по значению пробита
+        Параметры
         ----------
         probit_value : float
-            Value from probit model
-        normal_distribution_mean : int
-            Default value of 5 avoids negative values, consistent with published models
-
-        Returns
+            Значение из модели probit
+        normal_distribution_mean: int
+            Значение по умолчанию, равное 5, позволяет избежать отрицательных значений в соответствии с опубликованными моделями
+        Возвращается
         -------
-        prob : float
-            Probability of fatality
-
+        prob: плавающий
+        Вероятность летального исхода
         """
         return norm.cdf(probit_value, loc=normal_distribution_mean)
 
@@ -62,7 +56,7 @@ class ProbabilityDefeat:
         else:
             probit_value = probit_model(thermal_dose)
 
-        return calculate_fatality_probability(probit_value, mean)
+        return calc_fatality_probability(probit_value, mean)
 
     def calculate_thermal_dose(self, heat_flux, exposure_time):
         """
@@ -189,7 +183,7 @@ class ProbabilityDefeat:
             else:
                 probit_value = probit_model(overp=overp, impulse=impulse)
 
-        return calculate_fatality_probability(probit_value, mean)
+        return calc_fatality_probability(probit_value, mean)
 
     def overp_eisenberg(self, overp):
         """
@@ -363,3 +357,6 @@ class ProbabilityDefeat:
                 "Probit overpressure model name {} not recognized".format(cleaned))
 
         return model_id
+
+    def get_probit_overpressure_mix(self):
+        pass

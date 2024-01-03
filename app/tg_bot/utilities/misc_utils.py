@@ -88,3 +88,8 @@ def get_picture_filling(file_path):
     bite_pic = buffer.getvalue()
     buffer.close()
     return bite_pic
+
+
+def get_dict(list_: list):
+    first, *rest = list_
+    return {first: get_dict(rest)} if rest else first
