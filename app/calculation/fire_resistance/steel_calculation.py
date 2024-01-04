@@ -338,15 +338,7 @@ class SteelFireStrength:
         sectional_area = self.get_sectional_area()
         perimeter_section = self.get_perimeter_section()
         ptm = sectional_area/perimeter_section
-
-        # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
-        #     init_thermal_in = json.load(file_op)
-        #     init_thermal_in[self.chat_id]["ptm"] = ptm
-        # with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
-        #     json.dump(init_thermal_in, file_w, ensure_ascii=False, indent=4)
-
         log.info(f"Приведенная толщина металла: {ptm} мм")
-
         return ptm
 
     def get_loading(self):
@@ -735,7 +727,7 @@ class SteelFireResistance:
         return image_png
 
     def get_fire_mode(self):
-        """ функция возвращает значения изменения температуры от времени """
+        """Функция возвращает значения изменения температуры от времени"""
         x_max = self.x_max
         if self.t_critic > 750.0 or self.mode == 'Тлеющий':
             x_max = 150 * 60
