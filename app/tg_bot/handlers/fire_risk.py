@@ -114,6 +114,7 @@ async def fire_risks_calculator_call(callback: CallbackQuery, bot: Bot, state: F
 @fire_risk_router.callback_query(F.data == 'public')
 async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.public.text()
+
     media = get_picture_filling(
         file_path='temp_files/temp/fire_risk_logo.png')
     await bot.edit_message_media(
@@ -128,6 +129,7 @@ async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n
 @fire_risk_router.callback_query(F.data == 'industrial')
 async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.industrial.text()
+
     media = get_picture_filling(
         file_path='temp_files/temp/fire_risk_logo.png')
     await bot.edit_message_media(

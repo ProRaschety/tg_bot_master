@@ -15,12 +15,13 @@ log = logging.getLogger(__name__)
 
 
 class FuelProperties:
-    """Свойства веществ из справочных данных"""
+    """Свойства вещества из справочных данных"""
 
     def __init__(self):
         self.temperature_celsius: int | float = Const
         self.temperature_kelvin: int | float = const.zero_Celsius + self.temperature_celsius
         self.pressure_ambient: int | float = const.atm
+        self.type_sub = sub_dict.get("substance_type")[-1]
 
     def get_property_species(self, name_sub: str = '') -> dict:
         try:
@@ -28,7 +29,6 @@ class FuelProperties:
                 combustible_liquid = json.load(file_db_liq)
             sub_dict = combustible_liquid.get(name_sub, None)
             log.info(f"Свойства вещества: {name_sub} {sub_dict.keys()}")
-
         except:
             log.info(f"Вещество [{name_sub}] отсутствует в базе")
 
@@ -41,9 +41,7 @@ class FuelProperties:
                             "exp_pres_max_kPa": sub_dict.get("pressure_expl_max")[-1],
                             "const_ant_a": sub_dict.get("const_ant_a")[-1],
                             "const_ant_b": sub_dict.get("const_ant_b")[-1],
-                            "const_ant_ca": sub_dict.get("const_ant_ca")[-1],
-                            }
-
+                            "const_ant_ca": sub_dict.get("const_ant_ca")[-1], }
         return property_species
 
 
@@ -51,7 +49,7 @@ class FuelParameters(FuelProperties):
     """Параметры веществ в оборудовании и окружающей среде"""
 
     def __init__(self):
-        super().__init__()
+        super().__init__(self)
         self.sub_property = self.get_property_species(name_sub=name_sub)
 
     def calc_stoichiometric_concentration(self):
@@ -62,9 +60,8 @@ class FuelParameters(FuelProperties):
         betta = nC + ((nH - nX) / 4) - (nO/2)
         return 100 / (1 + 4.84 * betta)
 
-    def calc_density_gas(self, temperature_gas: int | float = 333) -> float:
+    def calc_density_gas(self, temperature_gas: int | float = 333, molar_mass: int | float = 0) -> float:
         """Возвращает значение плотности газовой фазы вещества при заданной температуре"""
-        molar_mass = self.sub_property.get("molar_mass", None)
         temperature_gas_C = temperature_gas - 273
         density_gas = molar_mass / (22.413 * (1 + 0.00367 * temperature_gas_C))
         log.info(f"Плотность газа,кг/м3: {density_gas:.2f}")
@@ -86,12 +83,9 @@ class FuelParameters(FuelProperties):
             f"При температуре: {temp_air} и скорости: {velocity_air_flow}, eta: {coefficient_eta[-1][-1]:.2f}")
         return coefficient_eta[-1][-1]
 
-    def calc_evaporation_intencity_liquid(self, coefficient_eta: int | float = 0, saturated_vapor_pressure: int | float = 0) -> float:
+    def calc_evaporation_intencity_liquid(self, coefficient_eta: int | float = 0, molar_mass: int | float = 0, saturated_vapor_pressure: int | float = 0) -> float:
         """Возвращает интенсивность испарения паров жидкости"""
-        evaporation_intencity = 10 ** -6 * coefficient_eta * \
-            m.sqrt(self.sub_property.get("molar_mass", None)) * \
-            saturated_vapor_pressure
-        return evaporation_intencity
+        return 10 ** -6 * coefficient_eta * m.sqrt(molar_mass) * saturated_vapor_pressure
 
     def calc_evaporation_mass(self, evaporation_intencity, area_evap: float = 10, time_evap: int | float = 3600, vent_multiplicity: int | float = 0) -> float:
         # evaporation_intencity = self.calc_evaporation_intencity_liquid()
@@ -103,34 +97,68 @@ class FuelParameters(FuelProperties):
             evaporation_mass = evaporation_mass
         return evaporation_mass
 
-    def calc_saturated_vapor_pressure(self, temperature: int | float = None) -> float:
+    def calc_saturated_vapor_pressure(self, temperature: int | float = None, const_ant_a:int | float = None,const_ant_b:int | float = None,const_ant_ca:int | float = None,) -> float:
         """Возвращает давление насыщенных паров в кПа при заданной температуре в С"""
-        a = self.sub_property.get("const_ant_a", 0)
-        b = self.sub_property.get("const_ant_b", 0)
-        ca = self.sub_property.get("const_ant_ca", 0)
         if temperature == None:
             temp = self.temperature_celsius
         else:
             temp = temperature
-        return 10 ** (a - (b / (temp + ca)))
 
-    def calc_concentration_saturated_vapors_at_temperature(self):
-        """Возвращает концентрацию насыщенного пара при температуре С"""
+        return 10 ** (const_ant_a - (const_ant_b / (temp + const_ant_ca)))
+
+    def calc_concentration_saturated_vapors_at_temperature(self) -> float:
+        """Возвращает концентрацию насыщенного пара при температуре в С"""
         pressure_atm = self.pressure_ambient * 0.001  # kPa
         pressure_s = self.calc_saturated_vapor_pressure()  # kPa
         return 100 * (self.calc_saturated_vapor_pressure() / pressure_atm)
 
-    def get_allowed_concentr_variations(self):
+    def get_allowed_concentr_variations(self) -> float:
         # определяется по табл. Д.1 СП 12
         return 0.05
 
-    def calc_pre_exponential_factor(self):
+    def calc_reduced_mass(self,
+                            type_substance: str = None,
+                            specific_heat_combustion: float,
+                            coefficient_part_combustion: float,
+                            fuel_mass: float) -> float:
+        const_H = 4_520_000  # J/kg
+        if type_substance != "ГП":
+            reduced_mass = (specific_heat_combustion/const_H) * coefficient_part_combustion * fuel_mass
+        else:
+            reduced_mass = (fuel_mass * coefficient_part_combustion * specific_heat_combustion) / const_H
+
+        return reduced_mass
+
+    def calc_pre_exponential_factor(self) -> float:
         velocity_air = 0
         mass_vap = 0
         allowed_concentr_variations = 0
         pre_exponential_factor = 0
+        return pre_exponential_factor
 
-    def calc_coef_z(self):
+    def get_coef_part_comb_inopen(self,
+                                  type_substance: str = None,
+                                  temperature_flash: int | float = None,
+                                  temperature_substance: int | float = None,
+                                  aerosol_formation: bool = False) -> float:
+        """"Возвращает значение коэффициента Z участия горючих газов и паров в горении (при отсутствии аргументов - Водород)"""
+        if type_substance == "ГГ":
+            coef_part_comb = 0.5
+        elif type_substance == "ГП":
+            coef_part_comb = 0.1
+        elif type_substance == ("ГЖ" or "ЛВЖ") and (temperature_substance >= temperature_flash):
+            coef_part_comb = 0.3
+        elif type_substance == ("ГЖ" or "ЛВЖ") and (temperature_substance < temperature_flash) and (aerosol_formation == True):
+            coef_part_comb = 0.3
+        elif type_substance == ("ГЖ" or "ЛВЖ") and (temperature_substance < temperature_flash) and (aerosol_formation == False):
+            coef_part_comb = 0.3
+        else:
+            coef_part_comb = 1.0
+
+        return coef_part_comb
+
+    def calc_coef_part_comb_inclosed(self) -> float:
+        """Расчет по приложению Д. СП12"""
         h_space = 0
         w_space = 0
         l_space = 0
@@ -139,6 +167,8 @@ class FuelParameters(FuelProperties):
         x_LCL = 0
         y_LCL = 0
         z_LCL = 0
+        coef_part_comb = 0.1
+        return coef_part_comb
 
     def calc_time_continuance_evaporation(self):
         pass
@@ -165,55 +195,6 @@ class FlowParameters(Equipment, FuelParameters):
     def calc_expense_liq_vapour(self, area: int | float):
         """Возвращает расход паров при испарении с открытой поверхности жидкости"""
         return area * self.calc_evaporation_intencity_liquid()
-
-    def calc_(self):
-        pass
-
-
-class AccidentParameters(FlowParameters):
-    def __init__(self):
-        super().__init__()
-
-    def calc_radius_LCl(self):
-        pass
-
-    def calc_overpres_inclosed(name_sub: str,
-                               evaporation_intencity: int | float,
-                               area_evap: int | float,
-                               mass: int | float,
-                               vol: int | float,
-                               temp: int | float,
-                               time_evap: int | float = 3600,
-                               vent_multiplicity: int | float = 0) -> float:
-        """Вычисляет значение избыточного давления при сгорании паров горючих веществ"""
-        sub = FuelParameters()
-        type_sub = sub.sub_property.get("type_sub", None)
-        if name_sub == "Водород":
-            coef_z = 1
-        elif type_sub == "ГГ":
-            coef_z = 0.5
-        elif type_sub == "ГЖ" or "ЛВЖ":
-            coef_z = 0.0648
-        else:
-            coef_z = 0
-        m_vap = sub.calc_evaporation_mass(time_evap=time_evap,
-                                          vent_multiplicity=vent_multiplicity,
-                                          evaporation_intencity=evaporation_intencity,
-                                          area_evap=area_evap)
-        log.info(f"Масса паров,кг: {m_vap:.2f}")
-        vol_free = vol
-        exp_pres_max = sub.sub_property.get("exp_pres_max_kPa", 900)
-        pres_atm = 101.325  # кПа
-        coef_kn = 3
-        density_vap = sub.calc_density_gas(temperature_gas=temp + 273)
-        stoichiometric_concentration = sub.calc_stoichiometric_concentration()
-        overpres_inclosed = (exp_pres_max - pres_atm) * ((m_vap * coef_z) / (vol_free * density_vap)) * (100 / stoichiometric_concentration) * (
-            1 / coef_kn)
-        return overpres_inclosed
-
-    def calc_overpres_inopen(self) -> float:
-        overpres_inopen = 1
-        return overpres_inopen
 
     def calc_(self):
         pass

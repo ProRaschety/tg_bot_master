@@ -1,9 +1,11 @@
 import logging
 import io
-from pathlib import Path
 import json
+
+from pathlib import Path
 from datetime import datetime
 from fluentogram import TranslatorRunner
+
 from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -13,15 +15,20 @@ from aiogram.types import CallbackQuery, Message, BufferedInputFile, FSInputFile
 from aiogram.utils.chat_action import ChatActionSender
 from aiogram.enums import ChatAction
 
+from app.tg_bot.filters.filter_role import IsComrade
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
-from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_dict
+from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_initial_data_table
 from app.tg_bot.states.fsm_state_data import FSMSteelForm
 from app.calculation.fire_resistance.steel_calculation import SteelFireResistance, SteelFireStrength, SteelFireProtection
+
 
 logging.getLogger('matplotlib.font_manager').disabled = True
 log = logging.getLogger(__name__)
 
+
 fire_res_router = Router()
+fire_res_router.message.filter(IsComrade())
+fire_res_router.callback_query.filter(IsComrade())
 
 
 @fire_res_router.callback_query(F.data == 'fire_resistance')
@@ -64,7 +71,7 @@ async def back_type_calc_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_protection',  'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))
     await state.clear()
     await callback.answer('')
 
@@ -78,7 +85,7 @@ async def back_type_calc_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_protection',  'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))
 
     await callback.answer('')
 
@@ -247,6 +254,9 @@ async def add_steel_element_state_input(message: Message, bot: Bot, state: FSMCo
 
 """
 
+STRENGTH_CALC_KB = ['edit_init_data_strength',
+                    'run_strength_steel', 'back_type_calc']
+
 
 @fire_res_router.callback_query(F.data.in_(['strength_calculation', 'back_strength_element']))
 async def strength_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext,  i18n: TranslatorRunner) -> None:
@@ -265,17 +275,16 @@ async def strength_calculation_call(callback: CallbackQuery, bot: Bot, state: FS
     data.setdefault("type_steel_element", "C235"),
     data.setdefault("t_critic_C", "500.0")
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    image_png = strength_calculation.get_initial_data_strength()
+    data_out, label = strength_calculation.get_init_data_table()
+    media = get_initial_data_table(data=data_out, label=label)
     await state.update_data(data)
+    # log.info(f'DataRedis_Strenght: {data}')
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
-        reply_markup=get_inline_cd_kb(1,
-                                      'edit_init_data_strength',
-                                      'run_strength_steel',
-                                      'back_type_calc', i18n=i18n))
+            file=media, filename="initial_data"), caption=text),
+        reply_markup=get_inline_cd_kb(1, *STRENGTH_CALC_KB, i18n=i18n))
     await callback.answer('')
 
 
@@ -283,7 +292,8 @@ async def strength_calculation_call(callback: CallbackQuery, bot: Bot, state: FS
 async def run_strength_steel_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    image_png = strength_calculation.get_initial_data_strength()
+    data_out, label = strength_calculation.get_init_data_table()
+    media = get_initial_data_table(data=data_out, label=label)
     t_critic_C = strength_calculation.get_crit_temp_steel()
     type_loading = data.get('type_loading', 'compression_element')
     if type_loading == 'compression_element':
@@ -299,7 +309,7 @@ async def run_strength_steel_call(callback: CallbackQuery, state: FSMContext, bo
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
+            file=media, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'thermal_calculation', 'protocol_strength', 'back_strength_element', 'back_type_calc', i18n=i18n))
     await callback.answer('')
 
@@ -340,7 +350,7 @@ async def num_profile_inline_search_call(callback: CallbackQuery, bot: Bot, stat
     await state.update_data(chat_id=chat_id, message_id=message_id)
     text = i18n.num_profile_inline_search.text()
     markup = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
-        text="Найти профиль", switch_inline_query_current_chat="")]])
+        text="Выбрать профиль 🔎", switch_inline_query_current_chat="")]])
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -359,7 +369,7 @@ async def show_num_profile(inline_query: InlineQuery, state: FSMContext, i18n: T
         if inline_query.query in str(name):
             results.append(InlineQueryResultArticle(id=str(name), title=f'{name}',
                                                     input_message_content=InputTextMessageContent(message_text=f'{name}')))
-    await inline_query.answer(results=results[:30], cache_time=0, is_personal=True)
+    await inline_query.answer(results=results[:50], cache_time=0, is_personal=True)
 
 
 @fire_res_router.message(StateFilter(FSMSteelForm.num_profile_inline_search_state))
@@ -368,7 +378,8 @@ async def num_profile_inline_search_input(message: Message, bot: Bot, state: FSM
     data = await state.get_data()
     message_id = data.get('message_id')
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    image_png = strength_calculation.get_initial_data_strength()
+    data_out, label = strength_calculation.get_init_data_table()
+    media = get_initial_data_table(data=data_out, label=label)
     ptm = strength_calculation.get_reduced_thickness()
     await state.update_data(ptm=ptm)
     text = i18n.initial_data_steel.text()
@@ -378,7 +389,7 @@ async def num_profile_inline_search_input(message: Message, bot: Bot, state: FSM
         chat_id=message.chat.id,
         message_id=message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
+            file=media, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
                                       'num_profile',
@@ -500,13 +511,15 @@ async def n_load_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 async def n_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    image_png = strength_calculation.get_initial_data_strength()
+    data_out, label = strength_calculation.get_init_data_table()
+    media = get_initial_data_table(data=data_out, label=label)
+    # image_png = strength_calculation.get_initial_data_strength()
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
+            file=media, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
                                       'num_profile',
@@ -540,13 +553,16 @@ async def type_of_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FS
     await state.update_data(num_sides_heated=callback.data)
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    image_png = strength_calculation.get_initial_data_strength()
+    ptm = str(strength_calculation.get_reduced_thickness())
+    data_out, label = strength_calculation.get_init_data_table()
+    media = get_initial_data_table(data=data_out, label=label)
     text = i18n.initial_data_steel.text()
+    await state.update_data(ptm=ptm)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
+            file=media, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
                                       'num_profile',
@@ -673,13 +689,15 @@ async def len_elem_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSM
 async def len_elem_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    image_png = strength_calculation.get_initial_data_strength()
+    data_out, label = strength_calculation.get_init_data_table()
+    media = get_initial_data_table(data=data_out, label=label)
+    # image_png = strength_calculation.get_initial_data_strength()
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
+            file=media, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
                                       'num_profile',
@@ -710,13 +728,15 @@ async def type_of_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FS
     await state.update_data(loading_method=callback.data)
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    image_png = strength_calculation.get_initial_data_strength()
+    data_out, label = strength_calculation.get_init_data_table()
+    # media = get_initial_data_table(data=data_out, label=label)
+    # image_png = strength_calculation.get_initial_data_strength()
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
+            file=media, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
                                       'num_profile',
@@ -746,13 +766,15 @@ async def fixation_steel_edit_in_call(callback: CallbackQuery, bot: Bot, state: 
     await state.update_data(fixation=callback.data)
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    image_png = strength_calculation.get_initial_data_strength()
+    data_out, label = strength_calculation.get_init_data_table()
+    media = get_initial_data_table(data=data_out, label=label)
+    # image_png = strength_calculation.get_initial_data_strength()
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
+            file=media, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
                                       'num_profile',
@@ -785,13 +807,15 @@ async def type_steel_element_in_call(callback: CallbackQuery, bot: Bot, state: F
     await state.update_data(type_steel_element=call_data)
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    image_png = strength_calculation.get_initial_data_strength()
+    data_out, label = strength_calculation.get_init_data_table()
+    media = get_initial_data_table(data=data_out, label=label)
+    # image_png = strength_calculation.get_initial_data_strength()
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
+            file=media, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
                                       'num_profile',
@@ -821,13 +845,15 @@ async def stretching_element_call(callback: CallbackQuery, bot: Bot, state: FSMC
     await state.update_data(type_loading=callback.data)
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    image_png = strength_calculation.get_initial_data_strength()
+    data_out, label = strength_calculation.get_init_data_table()
+    media = get_initial_data_table(data=data_out, label=label)
+    # image_png = strength_calculation.get_initial_data_strength()
     text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data"), caption=text),
+            file=media, filename="initial_data"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'type_steel_element_edit',
                                       'num_profile',
@@ -894,6 +920,9 @@ async def channel_element_call(callback: CallbackQuery, bot: Bot, state: FSMCont
 
 """
 
+THERMAL_CALC_KB = ['edit_init_data_thermal',
+                   'run_thermal_steel', 'back_type_calc']
+
 
 @fire_res_router.callback_query(F.data.in_(['thermal_calculation', 'forward_type_calc']))
 async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
@@ -910,14 +939,16 @@ async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSM
     data.setdefault("t_critic_C", "500.0")
     text = i18n.initial_data_steel.text()
     t_res = SteelFireResistance(i18n=i18n, data=data)
-    image_png = t_res.get_initial_data_thermal()
+    data_out, label = t_res.get_initial_data_thermal()
+    media = get_initial_data_table(data=data_out, label=label)
     await state.update_data(data)
+    # log.info(f'DataRedis_Thermal: {data}')
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data_thermal"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_init_data_thermal', 'run_thermal_steel', 'back_type_calc', i18n=i18n))
+            file=media, filename="initial_data_thermal"), caption=text),
+        reply_markup=get_inline_cd_kb(1, *THERMAL_CALC_KB, i18n=i18n))
     await callback.answer('')
 
 
@@ -944,7 +975,7 @@ async def stop_edit_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: 
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, 'run_thermal_steel', 'edit_init_data_thermal', 'back_type_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, *THERMAL_CALC_KB, i18n=i18n))
     await state.set_state(state=None)
     await callback.answer('')
 
@@ -954,7 +985,7 @@ async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMCo
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, 'edit_init_data_thermal', 'run_thermal_steel', 'back_type_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,  *THERMAL_CALC_KB, i18n=i18n))
     await callback.answer('')
 
 
@@ -1085,12 +1116,14 @@ async def ptm_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
     data = await state.get_data()
     t_res = SteelFireResistance(i18n=i18n, data=data)
     text = i18n.initial_data_steel.text()
-    image_png = t_res.get_initial_data_thermal()
+    data_out, label = t_res.get_initial_data_thermal()
+    media = get_initial_data_table(data=data_out, label=label)
+    # image_png = t_res.get_initial_data_thermal()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data_thermal"), caption=text),
+            file=media, filename="initial_data_thermal"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', 'back_thermal_calc', i18n=i18n))
     await state.set_state(state=None)
     await callback.answer('')
@@ -1170,12 +1203,14 @@ async def t_critic_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
     data = await state.get_data()
     t_res = SteelFireResistance(i18n=i18n, data=data)
     text = i18n.initial_data_steel.text()
-    image_png = t_res.get_initial_data_thermal()
+    data_out, label = t_res.get_initial_data_thermal()
+    media = get_initial_data_table(data=data_out, label=label)
+    # image_png = t_res.get_initial_data_thermal()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data_thermal"), caption=text),
+            file=media, filename="initial_data_thermal"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', 'back_thermal_calc', i18n=i18n))
     await state.set_state(state=None)
     await callback.answer('')
@@ -1185,13 +1220,16 @@ async def t_critic_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
 async def mode_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     await state.update_data(mode=str(i18n.get(callback.data)))
     data = await state.get_data()
+    text = i18n.initial_data_steel.text()
     t_res = SteelFireResistance(i18n=i18n, data=data)
-    image_png = t_res.get_initial_data_thermal()
+    data_out, label = t_res.get_initial_data_thermal()
+    media = get_initial_data_table(data=data_out, label=label)
+    # image_png = t_res.get_initial_data_thermal()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
-            file=image_png, filename="initial_data_thermal"), caption=text),
+            file=media, filename="initial_data_thermal"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', 'back_thermal_calc', i18n=i18n))
     await state.set_state(state=None)
     await callback.answer('')

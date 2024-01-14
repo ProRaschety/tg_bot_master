@@ -12,7 +12,7 @@ class DataBaseMiddleware(BaseMiddleware):
         self,
         handler: Callable[[Update, dict[str, any]], Awaitable[None]],
         event: Update,
-        data: dict[str, any]
+        data: dict[str, any],
     ) -> any:
         pool: Pool = data.get('_db_pool')
 

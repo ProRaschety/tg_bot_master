@@ -1,10 +1,13 @@
 import logging
 
+from fluentogram import TranslatorRunner
+
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from fluentogram import TranslatorRunner
+from app.tg_bot.models.role import UserRole
+
 
 logger = logging.getLogger(__name__)
 
@@ -42,13 +45,22 @@ def get_inline_cd_kb(width: int,
 
 
 def get_inline_url_kb(width: int,
+                      *args: str,
                       i18n: TranslatorRunner,
+                      param_back: bool | None = False,
+                      back_data: str | None = None,
                       **kwargs: str) -> InlineKeyboardMarkup:
     # Инициализируем билдер
     kb_builder = InlineKeyboardBuilder()
 
     # Инициализируем список для кнопок
     buttons: list[InlineKeyboardButton] = []
+    # Заполняем список кнопками из аргументов args и kwargs
+    if args:
+        for button in args:
+            buttons.append(InlineKeyboardButton(
+                text=i18n.get(button),
+                callback_data=button))
 
     # Заполняем список кнопками из аргументов args и kwargs
     if kwargs:
@@ -59,6 +71,10 @@ def get_inline_url_kb(width: int,
 
     # Распаковываем список с кнопками в билдер методом row c параметром width
     kb_builder.row(*buttons, width=width)
+
+    if param_back:
+        kb_builder.row(InlineKeyboardButton(
+            text=i18n.get(back_data), callback_data=back_data), width=1)
 
     # Возвращаем объект инлайн-клавиатуры
     return kb_builder.as_markup()

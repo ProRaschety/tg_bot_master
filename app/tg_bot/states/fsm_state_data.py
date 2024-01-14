@@ -9,7 +9,6 @@ class FSMAdminForm(StatesGroup):
 
 
 class FSMSteelForm(StatesGroup):
-
     fr_steel_edit_state = State()  # Состояние редактирвания исходных данных
     mode_edit_state = State()  # Состояние редактирвания Температурный режим
     ptm_edit_state = State()  # Состояние редактирвания Приведенная толщина металла
@@ -24,28 +23,26 @@ class FSMSteelForm(StatesGroup):
     heat_capacity_edit_state = State()  # Состояние редактирвания Теплоемкость стали
     density_steel_edit_state = State()  # Состояние редактирвания Плотность стали
     s_0_edit_state = State()  # Состояние редактирвания Степень черноты среды, S\u2080
-
     len_elem_edit_state = State()  # Состояние редактирвания длины элемеента конструкции
     # Состояние редактирвания нагрузки на элемеент конструкции
     n_load_edit_state = State()
-
     num_profile_inline_search_state = State()
-
     add_steel_element_state = State()
 
 
 class FSMWoodForm(StatesGroup):
-
     fr_wood_edit_state = State()  # Состояние редактирвания исходных данных
 
 
 class FSMConcreteForm(StatesGroup):
-
     fr_concrete_edit_state = State()  # Состояние редактирвания исходных данных
 
 
 class FSMSubstanceForm(StatesGroup):
-
     database_edit_state = State()  # Состояние выбора вещества из базы данных
     database_search_state = State()  # Состояние поиска веществ в базе данных
     database_inline_state = State()  # Состояние поиска веществ в инлайн-режиме
+
+
+class FSMPromoCodeForm(StatesGroup):
+    promo_code_state = State()  # Состояние ввода промокода

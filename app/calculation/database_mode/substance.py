@@ -17,8 +17,10 @@ import matplotlib.patches as patches
 
 from scipy.interpolate import interp1d
 
+logging.getLogger('matplotlib.font_manager').disabled = True
+logging.getLogger('PIL.PngImagePlugin').disabled = True
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 # data: list | str, word_search: str
 
@@ -153,15 +155,15 @@ class SubstanceDB:
         fig = go.Figure(data=[go.Sankey(
             node=dict(
                 thickness=5,
-                line=dict(color="white", width=0.5),
+                line=dict(color="black", width=0.5),
                 label=[
-                    f"{quantity_keys}",
+                    f"Общее количество: {quantity_keys}",
                     f"Жидкости: {liquid_sub}",
                     f"Газы: {gas_sub}",
                     f"Пыли: {dust_sub}",
                     f"ЛВЖ: {liquid_hfl}",
                     f"ГЖ: {liquid_fl}"],
-                color="rgba(214, 39, 40, 0.5)"  # цвет вертикальной линии
+                color="rgba(242, 134, 68, 0.95)"  # цвет вертикальной линии
             ),
             link=dict(
                 # indices correspond to labels=индексы соответствуют меткам
@@ -181,28 +183,18 @@ class SubstanceDB:
             width=800,
             height=800,
             hovermode='x',
-            title='База данных веществ',
-            font=dict(size=14, color='white'),
-            paper_bgcolor='rgba(173, 157, 141, 0.70)')
-
-        # name_fig = 'fig_sankey_'
-
-        # directory = get_temp_folder(fold_name='temp_pic')
-        # name_plot = "".join([name_fig, str(self.chat_id), '.png'])
-        # name_dir = '/'.join([directory, name_plot])
+            title='Справочник веществ',
+            font=dict(size=18, color='black'),
+            paper_bgcolor="rgba(255, 255, 255, 0.95)")
 
         buffer = io.BytesIO()
-
-        fig.write_image(buffer, format='png', width=500,
+        fig.write_image(buffer, format='png', width=800,
                         height=500, scale=1, engine='kaleido')
-
-        # fig.savefig(buffer, format='png')
         buffer.seek(0)
         fig_sankey = buffer.getvalue()
         buffer.close()
-        # plt.cla()
-        # plt.close(fig)
-
+        plt.cla()
+        plt.close("all")
         return fig_sankey
 
     def get_rus_alphabet(self):

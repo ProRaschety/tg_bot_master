@@ -4,6 +4,7 @@ from datetime import datetime
 from asyncpg import Connection
 
 from app.infrastructure.database.models.users import UsersModel
+from app.tg_bot.models.role import UserRole
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class _UsersDB:
                     language VARCHAR(10),
                     is_alive BOOLEAN NOT NULL,
                     is_blocked BOOLEAN NOT NULL,
-                    is_admin BOOLEAN NOT NULL
+                    role VARCHAR(20) NOT NULL
                 );
             ''')
             logger.info("Created table '%s'", self.__table_name__)
@@ -36,21 +37,21 @@ class _UsersDB:
             language: str,
             is_alive: bool = True,
             is_blocked: bool = False,
-            is_admin: bool = False
+            role: UserRole
     ) -> None:
 
         async with self.connect.transaction():
             await self.connect.execute('''
-                INSERT INTO users(user_id, language, is_alive, is_blocked, is_admin)
+                INSERT INTO users(user_id, language, is_alive, is_blocked, role)
                 VALUES($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING;
-            ''', user_id, language, is_alive, is_blocked, is_admin
+            ''', user_id, language, is_alive, is_blocked, role
                                        )
 
             logger.info(
                 "User added. db='%s', user_id=%d, date_time='%s', "
-                "language='%s', is_alive=%s, is_blocked=%s, is_admin=%s",
+                "language='%s', is_alive=%s, is_blocked=%s, role=%s",
                 self.__table_name__, user_id, datetime.utcnow(), language,
-                is_alive, is_blocked, is_admin
+                is_alive, is_blocked, role
             )
 
     async def delete(self, *, user_id: int) -> None:
@@ -72,7 +73,7 @@ class _UsersDB:
                     language,
                     is_alive,
                     is_blocked,
-                    is_admin
+                    role
                 FROM users
                 WHERE users.user_id = $1
             ''', user_id
