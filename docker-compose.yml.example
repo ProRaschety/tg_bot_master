@@ -16,9 +16,5 @@ services:
     restart: on-failure
     ports:
       - "5432:5432"
-
     volumes:
-      - "hostPath:containerPath:ro"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - redis_data:/data
+      - ./postgres_data:/var/lib/postgresql/data
