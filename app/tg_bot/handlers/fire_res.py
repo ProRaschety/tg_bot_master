@@ -22,7 +22,8 @@ from app.tg_bot.states.fsm_state_data import FSMSteelForm
 from app.calculation.fire_resistance.steel_calculation import SteelFireResistance, SteelFireStrength, SteelFireProtection
 
 
-logging.getLogger('matplotlib.font_manager').disabled = True
+logging.getLogger('matplotlib.font_manager').disabled = False
+
 log = logging.getLogger(__name__)
 
 
@@ -956,10 +957,9 @@ async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSM
 async def run_thermal_calculation_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
     t_res = SteelFireResistance(i18n=i18n, data=data)
-    plot_thermal_png = t_res.get_plot_steel()
-    time_fsr = t_res.get_steel_fsr()
-    text = i18n.thermal_calculation.text(time_fsr=round(time_fsr, 2))
-    await state.update_data(time_fsr=time_fsr)
+    t_fsr, plot_thermal_png = t_res.get_plot_steel()
+    text = i18n.thermal_calculation.text(time_fsr=round(t_fsr/60, 2))
+    await state.update_data(time_fsr=t_fsr/60)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,

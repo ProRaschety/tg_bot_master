@@ -46,3 +46,8 @@ class FSMSubstanceForm(StatesGroup):
 
 class FSMPromoCodeForm(StatesGroup):
     promo_code_state = State()  # Состояние ввода промокода
+
+
+class FSMClimateForm(StatesGroup):
+    select_region_state = State()
+    select_city_state = State()

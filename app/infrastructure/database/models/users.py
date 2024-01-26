@@ -14,3 +14,5 @@ class UsersModel(BaseModel):
     is_alive: bool
     is_blocked: bool
     role: UserRole
+    role_update: datetime
+    promocode: str

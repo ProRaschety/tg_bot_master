@@ -630,7 +630,7 @@ class SteelFireResistance:
         # fig.subplots_adjust(**margins)
         # ax = fig.add_subplot()
 
-        label = 'Исходные данные\nдля теплотехнического расчета'
+        label = 'Теплотехнический расчет'
         data = [
 
             {'id': 'Коэффициент изм.\nтеплоемкости стали',
@@ -835,7 +835,7 @@ class SteelFireResistance:
         mpl.rcParams['font.family'] = 'fantasy'
         mpl.rcParams['font.fantasy'] = 'Arial'
         mpl.rcParams["axes.labelsize"] = 14
-        mpl.rcParams["axes.titlesize"] = 18
+        # mpl.rcParams["axes.titlesize"] = 18
         mpl.rcParams["xtick.labelsize"] = 12
         mpl.rcParams["ytick.labelsize"] = 12
 
@@ -843,7 +843,8 @@ class SteelFireResistance:
         ax = fig.add_subplot(1, 1, 1)
 
         title_plot = 'График прогрева стального элемента'
-        ax.set_title(f'{title_plot}\n')
+        ax.set_title(f'{title_plot}\n', fontsize=18,
+                     alpha=1.0, clip_on=False, y=1.0)
 
         if self.mode == 'Углеводородный':
             rl = "Углеводородный режим"
@@ -935,7 +936,7 @@ class SteelFireResistance:
         buffer.close()
         plt.cla()
         plt.close(fig)
-        return plot_thermal_png
+        return time_fsr, plot_thermal_png
 
     def get_data_steel_heating(self):
         log.info("Экспорт данных теплотехнического расчета")

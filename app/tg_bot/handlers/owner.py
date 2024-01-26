@@ -9,6 +9,8 @@ from aiogram.types import CallbackQuery, Message, FSInputFile, PhotoSize, Buffer
 
 from fluentogram import TranslatorRunner
 
+from app.infrastructure.database.database.db import DB
+from app.infrastructure.database.models.users import UsersModel
 from app.tg_bot.filters.filter_role import IsOwner
 from app.tg_bot.utilities.check_sub_admin import check_sub_admin
 from app.tg_bot.states.fsm_state_data import FSMAdminForm
@@ -17,8 +19,36 @@ from app.tg_bot.utilities.misc_utils import get_picture_filling
 from app.tg_bot.models.role import UserRole
 
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 owner_router = Router()
 owner_router.message.filter(IsOwner())
 owner_router.callback_query.filter(IsOwner())
+
+
+@owner_router.callback_query(F.data == 'owner_panel')
+async def owner_panel_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    text = i18n.owner_panel()
+    await bot.edit_message_media(
+        chat_id=callback_data.message.chat.id,
+        message_id=callback_data.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, 'get_users', 'get_promocode', 'set_promocode', i18n=i18n))
+    await state.set_state(state=None)
+
+
+@owner_router.callback_query(F.data == 'get_users')
+async def get_users_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
+    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
+    text = i18n.owner_panel.text(id=user_record.user_id, created=user_record.created,
+                                 role=str(user_record.role), promocode=str(user_record.promocode))
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, 'get_promocode', 'set_promocode', 'owner_panel', i18n=i18n))
+    await state.set_state(state=None)
