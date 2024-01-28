@@ -14,10 +14,12 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuer
 from fluentogram import TranslatorRunner
 
 from app.infrastructure.database.database.db import DB
+from app.tg_bot.filters.filter_role import IsComrade
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb, get_inline_sub_kb, SubCallbackFactory
 from app.tg_bot.utilities.misc_utils import get_temp_folder, get_picture_filling
 from app.tg_bot.states.fsm_state_data import FSMSubstanceForm
 from app.calculation.database_mode.substance import SubstanceDB
+
 
 log = logging.getLogger(__name__)
 # logger = logging.getLogger(__name__)
@@ -26,3 +28,5 @@ log = logging.getLogger(__name__)
 
 
 tools_router = Router()
+tools_router.message.filter(IsComrade())
+tools_router.callback_query.filter(IsComrade())

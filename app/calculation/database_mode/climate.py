@@ -35,106 +35,154 @@ class Climate:
         pass
 
     def get_climate_info(self, data):
-        log.info("Годовая повторяемость направления ветра")
-        data = {"pwindn": data.pwindn,  # 0
-                "pwindne": data.pwindne,  # 45
-                "pwinde": data.pwinde,  # 90
-                "pwindse": data.pwindse,  # 135
-                "pwinds": data.pwinds,  # 180
-                "pwindsw": data.pwindsw,  # 225
-                "pwindw": data.pwindw,  # 270
-                "pwindnw": data.pwindnw  # 315
-                }
-        px = 96.358115
+        log.info("Метеоданные")
+        clim_data = {"pwindn": data.pwindn,  # 0
+                     "pwindne": data.pwindne,  # 45
+                     "pwinde": data.pwinde,  # 90
+                     "pwindse": data.pwindse,  # 135
+                     "pwinds": data.pwinds,  # 180
+                     "pwindsw": data.pwindsw,  # 225
+                     "pwindw": data.pwindw,  # 270
+                     "pwindnw": data.pwindnw  # 315
+                     }
+
+        px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
         w = 500  # px
-        h = 600  # px
-        # Создание объекта Figure
+        h = 500  # px
+        left = 0.030
+        bottom = 0.080
+        right = 0.970
+        top = 0.920
+        hspace = 0.100
+        xmin = 0.0
+        ymin = 0.0
+        xmax = 4.0
+        ymax = 0.5
+
         margins = {
-            "left": 0.080,  # 0.030
-            "bottom": 0.060,  # 0.030
-            "right": 0.950,  # 0.970
-            "top": 0.950,  # 0.900
-            "hspace": 0.250  # 0.200
+            "left": left,  # 0.030
+            "bottom": bottom,  # 0.030
+            "right": right,  # 0.970
+            "top": top,  # 0.900
+            "hspace": hspace  # 0.200
         }
-        fig = plt.figure(figsize=(w / px, h / px), dpi=300)
+
+        fig = plt.figure(figsize=(w / px, h / px),
+                         dpi=300, constrained_layout=False)
         fig.subplots_adjust(**margins)
 
-        # fg = plt.figure(figsize=(7, 7), constrained_layout=True)
-        widths = [1]
-        heights = [0.5, 5]
+        widths = [1.0]
+        heights = [xmax, xmax]
         gs = gridspec.GridSpec(
             ncols=1, nrows=2, width_ratios=widths, height_ratios=heights)
-
-        fig_ax_1 = fig.add_subplot(gs[0, 0])
+        ft_label_size = {'fontname': 'Arial', 'fontsize': w*0.021}
+        ft_title_size = {'fontname': 'Arial', 'fontsize': 10}
+        ft_size = {'fontname': 'Arial', 'fontsize': 10}
         logo = plt.imread('temp_files/temp/logo.png')
-        fig_ax_1.plot()
+        # logo = image.imread('temp_files/temp/logo.png')
+        # logo = plt.imread('logo.png')
+        # [left, bottom, width, height]
+        fig_ax_1 = fig.add_axes(
+            [left, 0.0, 1.0, 1.86], frameon=True, aspect=1.0, xlim=(0.0, xmax+0.25))
         fig_ax_1.axis('off')
-        ft_title_size = {'fontname': 'Arial', 'fontsize': 18}
-        fig_ax_1.set_xlim(0.0, 0.9)
-        fig_ax_1.set_ylim(-.5, 0.5)
-        fig_ax_1.text(x=0.05, y=-0.5, s='Годовая повторяемость ветра',
-                      weight='bold', ha='left', **ft_title_size)
-        # fig_ax_1.figure.figimage(logo, 10, 10, alpha=.15, zorder=1)
-        # fig_ax_1.imshow(logo, alpha=.15, zorder=.1)
-        imagebox = OffsetImage(logo, zoom=0.1)
-        ab = AnnotationBbox(imagebox, (0, 0))
+        fig_ax_1.text(x=0.0, y=0.025, s='Метеоданные',
+                      weight='bold', ha='left', **ft_label_size)
+        fig_ax_1.plot([0, xmax], [0.0, 0.0], lw='1.0',
+                      color=(0.913, 0.380, 0.082, 1.0))
+        imagebox = OffsetImage(logo, zoom=w*0.000085, dpi_cor=True)
+        ab = AnnotationBbox(imagebox, (xmax-(xmax/33.3), 0.025),
+                            frameon=False, pad=0, box_alignment=(0.00, 0.0))
         fig_ax_1.add_artist(ab)
 
-        fig_ax_2 = fig.add_subplot(gs[1, 0], projection='polar')
+        fig_ax_2 = fig.add_subplot(gs[0, 0])
+        rows = 7
+        cols = 4
+        fig_ax_2.set_xlim(0.0, cols)
+        fig_ax_2.set_ylim(0.0, rows+0.5)
+
+        fig_ax_2.text(x=0.0, y=rows-0.2, s='Регион:', ha='left', **ft_size)
+        fig_ax_2.text(x=2.05, y=rows-0.2, s='Московская область',
+                      weight='bold', ha='left', **ft_size)
+        fig_ax_2.text(x=0.0, y=rows-1.2, s='Населенный пункт:',
+                      ha='left', **ft_size)
+        fig_ax_2.text(x=2.05, y=rows-1.2, s='Москва',
+                      weight='bold', ha='left', **ft_size)
+        fig_ax_2.text(
+            x=0.0, y=rows-2.2, s='Максимальная температура, \u00B0С:', ha='left', **ft_size)
+        fig_ax_2.text(x=2.05, y=rows-2.2, s='35',
+                      weight='bold', ha='left', **ft_size)
+        fig_ax_2.text(
+            x=0.0, y=rows-3.2, s='Максимальная скорость ветра, м/с:', ha='left', **ft_size)
+        fig_ax_2.text(x=2.05, y=rows-3.2, s='3.5',
+                      weight='bold', ha='left', **ft_size)
+        fig_ax_2.text(x=0.0, y=rows-4.2, s='Вероятность штиля:',
+                      ha='left', **ft_size)
+        fig_ax_2.text(x=2.05, y=rows-4.2, s='0.35',
+                      weight='bold', ha='left', **ft_size)
+
+        fig_ax_2.text(x=0.0, y=rows-5.2, s='Направление:',
+                      ha='left', **ft_size)
+        fig_ax_2.text(x=1.25, y=rows - 5.2, s='С', ha='center', **ft_size)
+        fig_ax_2.text(x=1.60, y=rows - 5.2, s='СВ', ha='center', **ft_size)
+        fig_ax_2.text(x=1.95, y=rows - 5.2, s='В', ha='center', **ft_size)
+        fig_ax_2.text(x=2.30, y=rows - 5.2, s='ЮВ', ha='center', **ft_size)
+        fig_ax_2.text(x=2.65, y=rows - 5.2, s='Ю', ha='center', **ft_size)
+        fig_ax_2.text(x=3.00, y=rows - 5.2, s='ЮЗ', ha='center', **ft_size)
+        fig_ax_2.text(x=3.35, y=rows - 5.2, s='З', ha='center', **ft_size)
+        fig_ax_2.text(x=3.70, y=rows - 5.2, s='СЗ', ha='center', **ft_size)
+
+        fig_ax_2.text(x=0.0, y=rows-6.2, s='Повторяемость, %:',
+                      ha='left', **ft_size)
+        fig_ax_2.text(x=1.25, y=rows - 6.2, s=data.pwindn,
+                      weight='bold', ha='center', **ft_size)
+        fig_ax_2.text(x=1.60, y=rows - 6.2, s=data.pwindne,
+                      weight='bold', ha='center', **ft_size)
+        fig_ax_2.text(x=1.95, y=rows - 6.2, s=data.pwinde,
+                      weight='bold', ha='center', **ft_size)
+        fig_ax_2.text(x=2.30, y=rows - 6.2, s=data.pwindse,
+                      weight='bold', ha='center', **ft_size)
+        fig_ax_2.text(x=2.65, y=rows - 6.2, s=data.pwinds,
+                      weight='bold', ha='center', **ft_size)
+        fig_ax_2.text(x=3.00, y=rows - 6.2, s=data.pwindsw,
+                      weight='bold', ha='center', **ft_size)
+        fig_ax_2.text(x=3.35, y=rows - 6.2, s=data.pwindw,
+                      weight='bold', ha='center', **ft_size)
+        fig_ax_2.text(x=3.70, y=rows - 6.2, s=data.pwindnw,
+                      weight='bold', ha='center', **ft_size)
+
+        # линия сетки
+        for row in range(rows):
+            fig_ax_2.plot([0, cols+0.5], [row+.5, row+.5],
+                          ls=':', lw='.5', c='grey')
+
+        fig_ax_2.axis('off')
+        # plt.style.use('default')
+        # plt.style.use('bmh')
+        # plt.style.use('fivethirtyeight')
+        # plt.style.use('ggplot')
+        plt.style.use('Solarize_Light2')
+        fig_ax_3 = fig.add_subplot(gs[1, 0], projection='polar')
+
         angles = np.arange(0, 2*pi, pi/4.0)  # Задаём массив направлений
-        r = [data.get(value, "0") for value in data]  # массив значений
-        fig_ax_2.plot(angles, r, color='r', linewidth=2.5)
-        fig_ax_2.set_theta_direction(-1)
-        fig_ax_2.set_theta_offset(pi / 2.0)
-        fig_ax_2.plot((angles[-1], angles[0]), (r[-1], r[0]), color='r',
-                      linewidth=2.5)
+        r = [clim_data.get(value, "0")
+             for value in clim_data]  # массив значений
+        linewidth = 1.75
+        linestyle = 'solid'
+        color = (0.9, 0.1, 0, 0.9)
+        fig_ax_3.plot(angles, r, color=color,
+                      linewidth=linewidth, linestyle=linestyle)
+        fig_ax_3.set_theta_direction(-1)
+        fig_ax_3.set_theta_offset(pi / 2.0)
+        fig_ax_3.plot((angles[-1], angles[0]), (r[-1], r[0]), color=color,
+                      linewidth=linewidth, linestyle=linestyle)
         x_labels = ['С', 'СВ', 'В', 'ЮВ', 'Ю', 'ЮЗ', 'З', 'СЗ']
-        fig_ax_2.set_xticklabels(x_labels)
-
-        # # размеры рисунка в дюймах
-        # inch = 2.54  # 1 дюйм = 2.54 см = 96.358115 pixel
-        # px = 96.358115
-        # w = 600  # px
-        # h = 600  # px
-        # # Создание объекта Figure
-        # fig = plt.figure(figsize=(w / px, h / px), dpi=200)
-        # # fig = plt.figure() # Создаём новое полотно, на котором будем рисовать
-
-        # mpl.style.use('classic')
-        # # plt.xkcd()
-        # mpl.rcParams['font.family'] = 'fantasy'
-        # mpl.rcParams['font.fantasy'] = 'Arial'
-        # mpl.rcParams["axes.labelsize"] = 16
-        # mpl.rcParams["axes.titlesize"] = 16
-        # # mpl.rcParams["xtick.labelsize"] = 14
-        # # mpl.rcParams["ytick.labelsize"] = 14
-
-        # x_labels = ['С', 'СВ', 'В', 'ЮВ', 'Ю', 'ЮЗ', 'З', 'СЗ']
-        # angles = np.arange(0, 2*m.pi, m.pi/4.0)  # Задаём массив направлений
-        # r = [data.get(value, "0") for value in data]  # массив значений
-        # # ax - полотно в полярной проекции, занимающее всё пространство полотно fig
-        # ax = fig.add_subplot(111, projection='polar')
-        # ax.set_title("Годовая повторяемость направления ветра, %", y=1.08)
-        # # Рисуем график и его название
-        # ax.plot(angles, r, color='r', linewidth=2.5)
-        # # теперь увеличение угла theta будет по часовой (-1 - увеличение угла
-        # ax.set_theta_direction(-1)
-        # # идёт против часовой стрелки)
-        # # изменим положение нуля (ставим его на положение 'N', которое
-        # ax.set_theta_offset(m.pi / 2.0)
-        # # сейчас равно 90 градусам)
-        # ax.plot((angles[-1], angles[0]), (r[-1], r[0]), color='r',
-        #         linewidth=2.5)  # Добавляем ещё один plot-линию,
-        # # которая соединяет последнюю и первую точки.
-        # ax.set_xticklabels(x_labels)
-
-        # # ax.annotate('text', xy=(45, 95))
-
-        # # logo = plt.imread('temp_files/temp/fsr_logo.png')
-        # # plt.imshow(logo)
-        # # imagebox = OffsetImage(logo, zoom=.5)
-        # # ab = AnnotationBbox(imagebox, (0, 0))
-        # # ax.add_artist(ab)
+        fig_ax_3.set_xticklabels(x_labels, **ft_size)
+        fig_ax_3.grid(visible=True,
+                      which='major',
+                      axis='both',
+                      color=(0, 0, 0, 0.5),
+                      linestyle=':',
+                      linewidth=0.350)
 
         buffer = io.BytesIO()
         fig.savefig(buffer, format='png')
@@ -142,5 +190,6 @@ class Climate:
         wind_rose = buffer.getvalue()
         buffer.close()
         plt.cla()
+        plt.style.use('default')
         plt.close(fig)
         return wind_rose

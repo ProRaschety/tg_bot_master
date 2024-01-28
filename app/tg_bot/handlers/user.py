@@ -17,6 +17,7 @@ from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
 from app.tg_bot.states.fsm_state_data import FSMPromoCodeForm
 from app.tg_bot.models.role import UserRole
 
+
 log = logging.getLogger(__name__)
 
 user_router = Router()
@@ -29,8 +30,8 @@ async def process_start_command(message: Message, bot: Bot, state: FSMContext, i
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.start.menu()
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
-                   'fire_risks', 'fire_category']
+        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+                   'fire_risks_guest', 'fire_category_guest']
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
@@ -41,8 +42,8 @@ async def process_start_command(message: Message, bot: Bot, state: FSMContext, i
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
     else:
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
-                   'fire_risks', 'fire_category']
+        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+                   'fire_risks_guest', 'fire_category_guest']
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
         caption=text,
@@ -56,8 +57,8 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.start.menu()
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
-                   'fire_risks', 'fire_category']
+        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+                   'fire_risks_guest', 'fire_category_guest']
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
@@ -68,8 +69,8 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
     else:
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
-                   'fire_risks', 'fire_category']
+        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+                   'fire_risks_guest', 'fire_category_guest']
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,
@@ -194,8 +195,8 @@ async def fire_resistance_guest_call(callback_data: CallbackQuery, bot: Bot, sta
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.guest.menu()
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
-                   'fire_risks', 'fire_category']
+        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+                   'fire_risks_guest', 'fire_category_guest']
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
@@ -206,7 +207,8 @@ async def fire_resistance_guest_call(callback_data: CallbackQuery, bot: Bot, sta
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
     else:
-        main_kb = ['handbooks', 'tools', 'fire_risks', 'fire_category']
+        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+                   'fire_risks_guest', 'fire_category_guest']
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,

@@ -13,10 +13,14 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuer
 
 from fluentogram import TranslatorRunner
 
+from app.infrastructure.database.database.db import DB
+from app.tg_bot.models.role import UserRole
+from app.tg_bot.filters.filter_role import IsSubscriber
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb, get_inline_sub_kb, SubCallbackFactory
 from app.tg_bot.utilities.misc_utils import get_temp_folder
 from app.tg_bot.states.fsm_state_data import FSMSubstanceForm
 from app.calculation.database_mode.substance import SubstanceDB
+
 
 log = logging.getLogger(__name__)
 # logger = logging.getLogger(__name__)
@@ -25,10 +29,12 @@ log = logging.getLogger(__name__)
 
 
 data_base_req_router = Router()
+data_base_req_router.message.filter(IsSubscriber())
+data_base_req_router.callback_query.filter(IsSubscriber())
 
 
 @data_base_req_router.callback_query(F.data.in_(["substances"]), StateFilter(default_state))
-async def process_get_data_base(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def process_get_data_base(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     log.info('Запрос: Справочник веществ')
     chat_id = str(callback.message.chat.id)
     await callback.message.bot.send_chat_action(

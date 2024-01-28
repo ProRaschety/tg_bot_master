@@ -1,4 +1,4 @@
-fire_risks-text = Выберите вид расчета
+fire_risks-text = <blockquote></blockquote>
 
 back_fire_risks = ↩ Назад
 back_fire_risks_calc = ↩ Назад

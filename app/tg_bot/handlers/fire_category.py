@@ -15,20 +15,25 @@ from aiogram.enums import ChatAction
 
 from fluentogram import TranslatorRunner
 
+from app.infrastructure.database.database.db import DB
+from app.tg_bot.models.role import UserRole
+from app.tg_bot.filters.filter_role import IsComrade
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
 from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_initial_data_table
-from app.calculation.fire_hazard_category.fire_hazard_categories import FireCategoryOutInstall
+from app.calculation.fire_hazard_category.fire_hazard_categories import FireCategoryBuild, FireCategoryOutInstall
 
 
 logging.getLogger('matplotlib.font_manager').disabled = True
+
 log = logging.getLogger(__name__)
 
-
 fire_category_router = Router()
+fire_category_router.message.filter(IsComrade())
+fire_category_router.callback_query.filter(IsComrade())
 
 
 @fire_category_router.callback_query(F.data.in_(['fire_category', 'back_fire_category']))
-async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.fire_category.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fire_category_logo.png')
@@ -43,10 +48,27 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
 
 
 @fire_category_router.callback_query(F.data == 'category_build')
-async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    area = 3100
+    info_area = [
+        {'area': 150, 'category': 'А', 'efs': False},
+        {'area': 0, 'category': 'Б', 'efs': True},
+        {'area': 0, 'category': 'В1', 'efs': True},
+        {'area': 0, 'category': 'В2', 'efs': True},
+        {'area': 0, 'category': 'В3', 'efs': True},
+        {'area': 0, 'category': 'В4'},
+        {'area': 0, 'category': 'Г'},
+        {'area': 0, 'category': 'Д'}
+    ]
+
+    fc_build = FireCategoryBuild()
+    fc_build_data = fc_build.get_category_build(*info_area)
+
     text = i18n.category_build.text()
+
     media = get_picture_filling(
         file_path='temp_files/temp/fire_category_logo.png')
+
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -57,7 +79,7 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 
 @fire_category_router.callback_query(F.data == 'category_premises')
-async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.category_premises.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fire_category_logo.png')
@@ -71,7 +93,7 @@ async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 
 @fire_category_router.callback_query((F.data.in_(['category_outdoor_installation', 'back_outdoor_installation',])))
-async def category_outdoor_installation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def category_outdoor_installation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.category_outdoor_installation.text()
 
     data = await state.get_data()
@@ -97,7 +119,7 @@ async def category_outdoor_installation_call(callback: CallbackQuery, bot: Bot, 
 
 
 @fire_category_router.callback_query((F.data.in_(['run_category_outdoor_installation'])))
-async def run_category_outdoor_installation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def run_category_outdoor_installation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     data.setdefault("substance", "Пропилен"),
     data.setdefault("pressure_substance_kPa", "2500"),

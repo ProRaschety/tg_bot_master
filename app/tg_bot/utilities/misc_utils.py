@@ -7,6 +7,8 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import matplotlib.gridspec as gridspec
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 log = logging.getLogger(__name__)
 
@@ -105,54 +107,79 @@ def get_initial_data_table(data, label) -> bytes:
     px = 96.358115
     w = 500  # px
     h = 500  # px
-    # Создание объекта Figure
+
     margins = {
         "left": 0.030,  # 0.030
         "bottom": 0.030,  # 0.030
         "right": 0.970,  # 0.970
-        "top": 0.900  # 0.900
+        "top": 0.950,  # 0.950
+        "hspace": 0.000  # 0.000
     }
-    fig = plt.figure(figsize=(w / px, h / px), dpi=300)
+    fig = plt.figure(figsize=(w / px, h / px),
+                     dpi=300, constrained_layout=False)
     fig.subplots_adjust(**margins)
-    ax = fig.add_subplot()
 
-    ax.set_xlim(0.0, cols+0.5)
-    ax.set_ylim(-.75, rows+0.55)
+    widths = [1]
+    heights = [0.20, 7.8]
+    gs = gridspec.GridSpec(
+        ncols=1, nrows=2, width_ratios=widths, height_ratios=heights)
+    ft_label_size = {'fontname': 'Arial', 'fontsize': w*0.021}
+    ft_title_size = {'fontname': 'Arial', 'fontsize': 10}
+    ft_size = {'fontname': 'Arial', 'fontsize': 10}
+
+    fig_ax_1 = fig.add_subplot(gs[0, 0])
+    logo = plt.imread('temp_files/temp/logo.png')
+    # logo = image.imread('temp_files/temp/logo.png')
+    x_bound_right = 0.9
+    fig_ax_1.plot()
+    fig_ax_1.axis('off')
+
+    fig_ax_1.set_xlim(0.0, x_bound_right)
+    fig_ax_1.set_ylim(-0.250, 0.3)
+    fig_ax_1.text(x=0.0, y=0.0, s=label, weight='bold',
+                  ha='left', **ft_label_size)
+    fig_ax_1.plot([0, x_bound_right], [-0.25, -0.25],
+                  lw='1.5', color=(0.913, 0.380, 0.082, 1.0))
+    imagebox = OffsetImage(logo, zoom=0.04, dpi_cor=True)
+    ab = AnnotationBbox(imagebox, (x_bound_right-0.025, 0.0),  frameon=False,
+                        pad=0, box_alignment=(0.0, 0.0))
+    fig_ax_1.add_artist(ab)
+
+    fig_ax_2 = fig.add_subplot(gs[1, 0])
+    fig_ax_2.set_xlim(0.0, cols+0.5)
+    fig_ax_2.set_ylim(-.75, rows+0.55)
 
     # добавить заголовки столбцов на высоте y=..., чтобы уменьшить пространство до первой строки данных
-    ft_title_size = {'fontname': 'Arial', 'fontsize': 10}
-
     hor_up_line = rows-0.25
-    ax.text(x=0, y=hor_up_line, s='Параметр',
-            weight='bold', ha='left', **ft_title_size)
-    ax.text(x=2.5, y=hor_up_line, s='Значение',
-            weight='bold', ha='center', **ft_title_size)
-    ax.text(x=cols+.5, y=hor_up_line, s='Ед. изм',
-            weight='bold', ha='right', **ft_title_size)
+    fig_ax_2.text(x=0, y=hor_up_line, s='Параметр',
+                  weight='bold', ha='left', **ft_title_size)
+    fig_ax_2.text(x=2.5, y=hor_up_line, s='Значение',
+                  weight='bold', ha='center', **ft_title_size)
+    fig_ax_2.text(x=cols+.5, y=hor_up_line, s='Ед. изм',
+                  weight='bold', ha='right', **ft_title_size)
 
     # добавить основной разделитель заголовка
-    ax.plot([0, cols + .5], [rows-0.5, rows-0.5], lw='2', c='black')
-    ax.plot([0, cols + .5], [- 0.5, - 0.5], lw='2', c='black')
+    fig_ax_2.plot([0, cols + .5], [rows-0.5, rows-0.5], lw='2', c='black')
+    fig_ax_2.plot([0, cols + .5], [- 0.5, - 0.5], lw='2', c='black')
 
     # линия сетки
     for row in range(rows):
-        ax.plot([0, cols+.5], [row - .5, row - .5],
-                ls=':', lw='.5', c='grey')
+        fig_ax_2.plot([0, cols+.5], [row - .5, row - .5],
+                      ls=':', lw='.5', c='grey')
 
     # заполнение таблицы данных
-    ft_size = {'fontname': 'Arial', 'fontsize': 9}
     for row in range(rows):
         # извлечь данные строки из списка
         d = data[row]
         # координата y (строка (row)) основана на индексе строки (цикл (loop))
         # координата x (столбец (column)) определяется на основе порядка, в котором я хочу отображать данные в столбце имени игрока
-        ax.text(x=0, y=row, s=d['id'], va='center', ha='left', **ft_size)
+        fig_ax_2.text(x=0, y=row, s=d['id'], va='center', ha='left', **ft_size)
         # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
-        ax.text(x=2.5, y=row, s=d['var'], va='center',
-                ha='center', weight='bold', **ft_size)
+        fig_ax_2.text(x=2.5, y=row, s=d['var'], va='center',
+                      ha='center', weight='bold', **ft_size)
         # unit column
-        ax.text(x=3.5, y=row, s=d['unit'],
-                va='center', ha='right', **ft_size)
+        fig_ax_2.text(x=3.5, y=row, s=d['unit'],
+                      va='center', ha='right', **ft_size)
 
     # выделите столбец, используя прямоугольную заплатку
     rect = patches.Rectangle((2.0, -0.5),  # нижняя левая начальная позиция (x,y)
@@ -162,11 +189,10 @@ def get_initial_data_table(data, label) -> bytes:
                              fc='grey',
                              alpha=.2,
                              zorder=-1)
-    ax.add_patch(rect)
-
-    ax.set_title(label=label,
-                 loc='left', fontsize=12, weight='bold')
-    ax.axis('off')
+    fig_ax_2.add_patch(rect)
+    # fig_ax_2.set_title(label=label,
+    #              loc='left', fontsize=12, weight='bold')
+    fig_ax_2.axis('off')
 
     buffer = io.BytesIO()
     fig.savefig(buffer, format='png')
@@ -174,6 +200,6 @@ def get_initial_data_table(data, label) -> bytes:
     image_png = buffer.getvalue()
     buffer.close()
     plt.cla()
+    plt.style.use('default')
     plt.close(fig)
-
     return image_png

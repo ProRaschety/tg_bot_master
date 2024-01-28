@@ -1,5 +1,4 @@
 import logging
-
 import io
 import json
 
@@ -12,6 +11,8 @@ import matplotlib as mpl
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import matplotlib.gridspec as gridspec
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 from scipy.interpolate import interp1d
 
@@ -93,7 +94,7 @@ class SteelFireStrength:
         len_elem = self.len_elem
         n_load = self.n_load
         ptm = round(self.get_reduced_thickness(), 2)
-        label = 'Исходные данные\nдля прочностного расчета'
+        label = 'Прочностной расчет'
         if sketch == "Двутавр":
             data = [
                 {'id': 'Способ закрепления', 'var': fixation, 'unit': '-'},
@@ -822,30 +823,62 @@ class SteelFireResistance:
     def get_plot_steel(self):
         log.info("График прогрева элемента конструкции")
         # размеры рисунка в дюймах
-        inch = 2.54  # 1 дюйм = 2.54 см = 96.358115 pixel
-        px = 96.358115
+        px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
         w = 700  # px
         h = 700  # px
+        left = 0.130
+        bottom = 0.100
+        right = 0.970
+        top = 0.900
+        hspace = 0.100
+        xmin = 0.0
+        ymin = 0.0
+        xmax = 4.0
+        ymax = 0.5
 
-        # Создание объекта Figure
-        fig = plt.figure(figsize=(w/px, h/px), dpi=200)
+        margins = {
+            "left": left,  # 0.030
+            "bottom": bottom,  # 0.030
+            "right": right,  # 0.970
+            "top": top,  # 0.900
+            "hspace": hspace  # 0.200
+        }
+        fig = plt.figure(figsize=(w / px, h / px),
+                         dpi=300, constrained_layout=False)
+        fig.subplots_adjust(**margins)
+        # plt.style.use('bmh')
+        plt.style.use('Solarize_Light2')
+        widths = [1.0]
+        heights = [xmax]
+        gs = gridspec.GridSpec(
+            ncols=1, nrows=1, width_ratios=widths, height_ratios=heights)
+        ft_label_size = {'fontname': 'Arial', 'fontsize': w*0.021}
+        ft_title_size = {'fontname': 'Arial', 'fontsize': 8}
+        ft_size = {'fontname': 'Arial', 'fontsize': 12}
+        logo = plt.imread('temp_files/temp/logo.png')
+        # logo = image.imread('temp_files/temp/logo.png')
+        # logo = plt.imread('logo.png')
+        # [left, bottom, width, height]
+        fig_ax_1 = fig.add_axes(
+            [0.03, 0.0, 1.0, 1.86], frameon=True, aspect=1.0, xlim=(0.0, xmax+0.25))
+        fig_ax_1.axis('off')
+        fig_ax_1.text(x=0.0, y=0.025, s='Прогрев элемента конструкции',
+                      weight='bold', ha='left', **ft_label_size)
+        fig_ax_1.plot([0, xmax], [0.0, 0.0], lw='1.0',
+                      color=(0.913, 0.380, 0.082, 1.0))
+        imagebox = OffsetImage(logo, zoom=w*0.000085, dpi_cor=True)
+        ab = AnnotationBbox(imagebox, (xmax-(xmax/33.3), 0.025),
+                            frameon=False, pad=0, box_alignment=(0.00, 0.0))
+        fig_ax_1.add_artist(ab)
 
-        mpl.style.use('classic')
-        # plt.xkcd()
-        mpl.rcParams['font.family'] = 'fantasy'
-        mpl.rcParams['font.fantasy'] = 'Arial'
-        mpl.rcParams["axes.labelsize"] = 14
-        # mpl.rcParams["axes.titlesize"] = 18
-        mpl.rcParams["xtick.labelsize"] = 12
-        mpl.rcParams["ytick.labelsize"] = 12
+        fig_ax_2 = fig.add_subplot(gs[0, 0])
 
-        # Область рисования Axes
-        ax = fig.add_subplot(1, 1, 1)
+        # fig_ax_2.set_xlim(0.0, cols+0.5)
+        # fig_ax_2.set_ylim(-.75, rows+0.55)
 
-        title_plot = 'График прогрева стального элемента'
-        ax.set_title(f'{title_plot}\n', fontsize=18,
-                     alpha=1.0, clip_on=False, y=1.0)
-
+        # title_plot = 'График прогрева стального элемента'
+        # fig_ax_2.set_title(f'{title_plot}\n', fontsize=18,
+        #                    alpha=1.0, clip_on=False, y=1.0)
         if self.mode == 'Углеводородный':
             rl = "Углеводородный режим"
         elif self.mode == 'Наружный':
@@ -854,9 +887,7 @@ class SteelFireResistance:
             rl = "Тлеющий режим"
         else:
             rl = "Стандартный режим"
-
         label_plot_Tst = f'Температура элемента'
-
         Tm = self.get_fire_mode()
         Tst = self.get_steel_heating()
         Tcr = self.t_critic
@@ -871,36 +902,33 @@ class SteelFireResistance:
         for i in tt:
             x_t.append(i)
 
-        ax.plot(x_t, Tm, '-', linewidth=3,
-                label=f'{rl}', color=(0.9, 0.1, 0, 0.9))
-        ax.plot(x_t, Tst, '-', linewidth=3,
-                label=label_plot_Tst, color=(0, 0, 0, 0.9))
-
-        ax.hlines(y=Tcr, xmin=0, xmax=time_fsr*0.96, linestyle='--',
-                  linewidth=1, color=(0.1, 0.1, 0, 1.0))
-        ax.vlines(x=time_fsr, ymin=0, ymax=Tcr*0.98, linestyle='--',
-                  linewidth=1, color=(0.1, 0.1, 0, 1.0))
-
-        ax.scatter(time_fsr, Tcr, s=90, marker='o', color=(0.9, 0.1, 0, 1))
-
+        fig_ax_2.plot(x_t, Tm, '-', linewidth=3,
+                      label=f'{rl}', color=(0.9, 0.1, 0, 0.9))
+        fig_ax_2.plot(x_t, Tst, '-', linewidth=3,
+                      label=label_plot_Tst, color=(0, 0, 0, 0.9))
+        fig_ax_2.hlines(y=Tcr, xmin=0, xmax=time_fsr*0.96, linestyle='--',
+                        linewidth=1, color=(0.1, 0.1, 0, 1.0))
+        fig_ax_2.vlines(x=time_fsr, ymin=0, ymax=Tcr*0.98, linestyle='--',
+                        linewidth=1, color=(0.1, 0.1, 0, 1.0))
+        fig_ax_2.scatter(time_fsr, Tcr, s=90, marker='o',
+                         color=(0.9, 0.1, 0, 1))
         # Ось абсцисс Xaxis
-        ax.set_xlim(-100.0, self.x_max+100)
-        ax.set_xlabel(xlabel=r"Время, [с]", fontdict=None,
-                      labelpad=None, loc='right')
-
+        fig_ax_2.set_xlim(-100.0, self.x_max+100)
+        fig_ax_2.set_xlabel(xlabel=r"Время, с", fontdict=None,
+                            labelpad=None, weight='bold', loc='center', **ft_size)
         # Ось абсцисс Yaxis
-        ax.set_ylim(0, max(Tm) + 200)
-        set_y_label = str(f'Температура, [\u00B0С]')
-        ax.set_ylabel(ylabel=f"{set_y_label}",
-                      fontdict=None, labelpad=None, loc='top')
+        fig_ax_2.set_ylim(0, max(Tm) + 200)
+        set_y_label = str(f'Температура, \u00B0С')
+        fig_ax_2.set_ylabel(ylabel=f"{set_y_label}",
+                            fontdict=None, labelpad=None, weight='bold', loc='top', **ft_size)
 
-        ax.annotate(f'Предел огнестойкости: {round((time_fsr / 60), 2)} мин\n'
-                    f'Критическая температура: {round((Tcr), 1)} \u00B0С\n'
-                    f'Приведенная толщина элемента: {round((self.ptm), 2)} мм',
-                    xy=(0, max(Tm)), xycoords='data', xytext=(time_fsr, max(Tm)+50), textcoords='data')
+        fig_ax_2.annotate(f'Предел огнестойкости: {round((time_fsr / 60), 2)} мин\n'
+                          f'Критическая температура: {round((Tcr), 1)} \u00B0С\n'
+                          f'Приведенная толщина элемента: {round((self.ptm), 2)} мм',
+                          xy=(0, max(Tm)), xycoords='data', xytext=(time_fsr, max(Tm)+50), textcoords='data', weight='bold', **ft_size)
 
         # Легенда
-        plt.legend(fontsize=12, framealpha=0.95, facecolor="w", loc=4)
+        fig_ax_2.legend(fontsize=12, framealpha=0.95, facecolor="w", loc=4)
 
         # Цветовая шкала
         # plt.colorbar()
@@ -908,34 +936,34 @@ class SteelFireResistance:
         # Подпись вертикальной оси абсцисс OY -> cbar.ax.set_ylabel();
 
         # Деления на оси абсцисс OX
-        plt.xticks(np.arange(min(x_t), max(x_t), 1000.0))
+        fig_ax_2.set_xticks(np.arange(min(x_t), max(x_t), 1000.0), minor=False)
 
         # Деления на оси ординат OY
-        plt.yticks(np.arange(0, max(Tm)+100, 100.0))
+        fig_ax_2.set_yticks(np.arange(0, max(Tm)+100, 100.0), minor=False)
 
         # Вспомогательная сетка (grid)
-        ax.grid(visible=True,
-                which='major',
-                axis='both',
-                color=(0, 0, 0, 0.5),
-                linestyle=':',
-                linewidth=0.250)
+        fig_ax_2.grid(visible=True,
+                      which='major',
+                      axis='both',
+                      color=(0, 0, 0, 0.5),
+                      linestyle=':',
+                      linewidth=0.250)
 
         # directory = get_temp_folder(fold_name='temp_pic')
         # name_plot = "".join(['fig_steel_fr_', str(self.chat_id), '.png'])
         # name_dir = '/'.join([directory, name_plot])
-
         # fig.savefig(name_dir, format='png', transparent=True)
         # plt.cla()
         # plt.close(fig)
-
         buffer = io.BytesIO()
         fig.savefig(buffer, format='png')
         buffer.seek(0)
         plot_thermal_png = buffer.getvalue()
         buffer.close()
         plt.cla()
+        plt.style.use('default')
         plt.close(fig)
+
         return time_fsr, plot_thermal_png
 
     def get_data_steel_heating(self):

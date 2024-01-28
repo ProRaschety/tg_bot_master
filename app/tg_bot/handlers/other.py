@@ -17,6 +17,7 @@ log = logging.getLogger(__name__)
 
 other_router = Router()
 other_router.message.filter(IsGuest())
+other_router.callback_query.filter(IsGuest())
 
 
 @other_router.message(StateFilter(default_state))

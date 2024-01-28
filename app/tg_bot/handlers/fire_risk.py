@@ -1,4 +1,5 @@
 import logging
+import json
 
 from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, Command, StateFilter
@@ -11,15 +12,17 @@ from aiogram.enums import ChatAction
 
 from fluentogram import TranslatorRunner
 
+from app.infrastructure.database.database.db import DB
+from app.tg_bot.filters.filter_role import IsComrade
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
 from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling
-
-import json
 
 
 log = logging.getLogger(__name__)
 
 fire_risk_router = Router()
+fire_risk_router.message.filter(IsComrade())
+fire_risk_router.callback_query.filter(IsComrade())
 
 
 @fire_risk_router.callback_query(F.data == 'fire_risks')

@@ -14,12 +14,14 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuer
 from fluentogram import TranslatorRunner
 
 from app.infrastructure.database.database.db import DB
+from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb, get_inline_sub_kb, SubCallbackFactory
 from app.tg_bot.utilities.misc_utils import get_temp_folder, get_picture_filling
 from app.tg_bot.states.fsm_state_data import FSMClimateForm
 from app.calculation.database_mode.substance import SubstanceDB
 from app.calculation.database_mode.climate import Climate
+
 
 log = logging.getLogger(__name__)
 # logger = logging.getLogger(__name__)
@@ -31,18 +33,60 @@ handbooks_router = Router()
 handbooks_router.message.filter(IsGuest())
 handbooks_router.callback_query.filter(IsGuest())
 
-handbooks_kb = [
-    'substances',
-    # 'typical_flammable_load',
-    'climate',
-    # 'frequencys',
-    # 'statistics',
-    'general_menu']
+
+# handbooks_kb = [
+#     'substances',
+#     # 'typical_flammable_load',
+#     'climate',
+#     # 'frequencys',
+#     # 'statistics',
+#     'general_menu']
 
 
 @handbooks_router.callback_query(F.data.in_(['handbooks', 'back_to_handbooks']), StateFilter(default_state))
-async def handbooks_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def handbooks_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     log.info('Запрос: Справочники')
+    if role == "subscriber":
+        handbooks_kb = [
+            'substances',
+            # 'typical_flammable_load',
+            'climate',
+            # 'frequencys',
+            # 'statistics',
+            'general_menu']
+    elif role == "comrade":
+        handbooks_kb = [
+            'substances',
+            # 'typical_flammable_load',
+            'climate',
+            # 'frequencys',
+            # 'statistics',
+            'general_menu']
+    elif role == "admin":
+        handbooks_kb = [
+            'substances',
+            # 'typical_flammable_load',
+            'climate',
+            # 'frequencys',
+            # 'statistics',
+            'general_menu']
+    elif role == "owner":
+        handbooks_kb = [
+            'substances',
+            # 'typical_flammable_load',
+            'climate',
+            # 'frequencys',
+            # 'statistics',
+            'general_menu']
+    else:
+        handbooks_kb = [
+            'substances_guest',
+            # 'typical_flammable_load',
+            'climate',
+            # 'frequencys',
+            # 'statistics',
+            'general_menu']
+
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.handbooks.text()
     await bot.edit_message_media(
@@ -54,7 +98,7 @@ async def handbooks_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
 
 
 @handbooks_router.callback_query(F.data.in_(["climate"]), StateFilter(default_state))
-async def climate_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, db: DB) -> None:
+async def climate_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
     log.info('Запрос: Справочник метеоданных')
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.climate.text()
