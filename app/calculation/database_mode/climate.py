@@ -101,23 +101,23 @@ class Climate:
         fig_ax_2.set_ylim(0.0, rows+0.5)
 
         fig_ax_2.text(x=0.0, y=rows-0.2, s='Регион:', ha='left', **ft_size)
-        fig_ax_2.text(x=2.05, y=rows-0.2, s='Московская область',
+        fig_ax_2.text(x=2.05, y=rows-0.2, s=data.region,
                       weight='bold', ha='left', **ft_size)
         fig_ax_2.text(x=0.0, y=rows-1.2, s='Населенный пункт:',
                       ha='left', **ft_size)
-        fig_ax_2.text(x=2.05, y=rows-1.2, s='Москва',
+        fig_ax_2.text(x=2.05, y=rows-1.2, s=data.city,
                       weight='bold', ha='left', **ft_size)
         fig_ax_2.text(
             x=0.0, y=rows-2.2, s='Максимальная температура, \u00B0С:', ha='left', **ft_size)
-        fig_ax_2.text(x=2.05, y=rows-2.2, s='35',
+        fig_ax_2.text(x=2.05, y=rows-2.2, s=data.temperature,
                       weight='bold', ha='left', **ft_size)
         fig_ax_2.text(
             x=0.0, y=rows-3.2, s='Максимальная скорость ветра, м/с:', ha='left', **ft_size)
-        fig_ax_2.text(x=2.05, y=rows-3.2, s='3.5',
+        fig_ax_2.text(x=2.05, y=rows-3.2, s=data.windvelocity,
                       weight='bold', ha='left', **ft_size)
         fig_ax_2.text(x=0.0, y=rows-4.2, s='Вероятность штиля:',
                       ha='left', **ft_size)
-        fig_ax_2.text(x=2.05, y=rows-4.2, s='0.35',
+        fig_ax_2.text(x=2.05, y=rows-4.2, s=data.cwind,
                       weight='bold', ha='left', **ft_size)
 
         fig_ax_2.text(x=0.0, y=rows-5.2, s='Направление:',

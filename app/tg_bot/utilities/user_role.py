@@ -54,7 +54,7 @@ async def get_user_role(db: DB, event: Update, data) -> UserRole:
                         await db.users.update(role=UserRole.SUBSCRIBER, user_id=user_id)
                         role = UserRole.SUBSCRIBER.value
                 else:
-                    await db.users.add(user_id=user_id, language=user_lang, role=UserRole.GUEST)
+                    await db.users.update(role=UserRole.GUEST, user_id=user_id)
                     role = UserRole.GUEST.value
         elif await check_sub_member(bot=bot, user_id=user_id):
             if role != UserRole.SUBSCRIBER.value:
@@ -63,7 +63,13 @@ async def get_user_role(db: DB, event: Update, data) -> UserRole:
         else:
             await db.users.add(user_id=user_id, language=user_lang, role=UserRole.GUEST)
             role = UserRole.GUEST.value
-
+            await db.users.update(role=UserRole.GUEST, user_id=user_id)
+            role = UserRole.GUEST.value
+    else:
+        await db.users.add(user_id=user_id, language=user_lang, role=UserRole.GUEST)
+        role = UserRole.GUEST.value
+        await db.users.update(role=UserRole.GUEST, user_id=user_id)
+        role = UserRole.GUEST.value
     log.info(f'Role: {role}')
     return role
 

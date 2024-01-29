@@ -3,7 +3,7 @@ data_base_search-text = Отправьте название вещества д�
 cansel_search_database = Отменить поиск ❌
 data_base_search_result = По запросу <b>{$word_search}</b> найдено <b>{$word_search_quan}</b> веществ
 
-data_base_inline_search = Инлайн поиск 🔍
+data_base_inline_search = Поиск из списка 🔍
 
 data_base_inline_search-text = Нажмите на кнопку <b>Начать поиск</b> для поиска
 
