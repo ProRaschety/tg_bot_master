@@ -100,24 +100,24 @@ class FireCategoryBuild(FireHazardCategory):
             if any(efs_a) is False:
                 if area_a >= area_percent_5:
                     log.info(
-                        f'Площадь пом.кат. А: {area_a} сост. {(100 / (total_area / area_a)):.2f}% > 5% от {total_area}м2 и нет АУПТ')
+                        f'Площадь пом.кат. А: {area_a}м2 сост. {(100 / (total_area / area_a)):.2f}% > 5% от {total_area}м2 и нет АУПТ')
                     cat_build = 'A'
                     return cat_build
                 else:
                     log.info(
-                        f'Площадь пом.кат. А: {area_a} сост. {(100 / (total_area / area_a)):.2f}% не прев. 5%, но боллее 200 м2 и нет АУПТ')
+                        f'Площадь пом.кат. А: {area_a}м2 сост. {(100 / (total_area / area_a)):.2f}% не прев. 5%, но боллее 200 м2 и нет АУПТ')
                     cat_build = 'A'
                     return cat_build
             else:
                 if area_a >= area_percent_25 or area_a >= 1000:
                     if area_a >= area_percent_25:
                         log.info(
-                            f'Площадь пом.кат. А: {area_a} сост. {(100 / (total_area / area_a)):.2f}% > 25% от {total_area}м2 оборуд. АУПТ')
+                            f'Площадь пом.кат. А: {area_a}м2 сост. {(100 / (total_area / area_a)):.2f}% > 25% от {total_area}м2 оборуд. АУПТ')
                         cat_build = 'A'
                         return cat_build
                     else:
                         log.info(
-                            f'Площадь пом.кат. А: {area_a} больше 1000м2 и оборуд. АУПТ')
+                            f'Площадь пом.кат. А: {area_a}м2 больше 1000м2 и оборуд. АУПТ')
                         cat_build = 'A'
                         return cat_build
                 else:
@@ -134,26 +134,27 @@ class FireCategoryBuild(FireHazardCategory):
             if any(efs_a) is False:
                 if (area_a + area_b) >= area_percent_5:
                     log.info(
-                        f'Площадь пом.кат. А и Б: {area_a + area_b} сост. {(100 / (total_area / (area_a + area_b))):.2f}% > 5% от {total_area}м2 и отсутст. АУПТ')
+                        f'Площадь пом.кат. А и Б: {area_a + area_b}м2 сост. {(100 / (total_area / (area_a + area_b))):.2f}% > 5% от {total_area}м2 и отсутст. АУПТ')
                     cat_build = 'Б'
                     return cat_build
                 else:
                     log.info(
-                        f'Площадь пом.кат. А и Б: {area_a + area_b} более 200м2 и отсутст. АУПТ')
+                        f'Площадь пом.кат. А и Б: {area_a + area_b}м2 более 200м2 и отсутст. АУПТ')
                     cat_build = 'Б'
                     return cat_build
             else:
                 if (area_a + area_b) >= area_percent_25 or (area_a + area_b) >= 1000:
                     if (area_a + area_b) >= area_percent_25:
                         log.info(
-                            f'Площадь пом.кат. А и Б: {(area_a + area_b)} сост. {(100 / (total_area / (area_a + area_b))):.2f}% > 25% от {total_area}м2 оборуд. АУПТ')
+                            f'Площадь пом.кат. А и Б: {area_a + area_b}м2 сост. {(100 / (total_area / (area_a + area_b))):.2f}% > 25% от {total_area}м2 оборуд. АУПТ')
                         cat_build = 'Б'
                         return cat_build
                     else:
                         log.info(
-                            f'Площадь пом.кат. А и Б: {(area_a + area_b)} больше 1000м2 и оборуд. АУПТ')
+                            f'Площадь пом.кат. А и Б: {area_a + area_b}м2 больше 1000м2 и оборуд. АУПТ')
                         cat_build = 'Б'
                         return cat_build
+
                 else:
                     return None
         else:
@@ -169,7 +170,7 @@ class FireCategoryBuild(FireHazardCategory):
                 return None
             else:
                 log.info(
-                    f'Площадь пом.кат. А, Б и В: {a + b + v} сост. {100/(total_area/(a + b + v)):.2f}% > 10% от {total_area}м2')
+                    f'Площадь пом.кат. В: {a + b + v}м2 сост. {100/(total_area/(a + b + v)):.2f}% > 10% от {total_area}м2')
                 cat_build = 'В'
                 return cat_build
 
@@ -179,19 +180,19 @@ class FireCategoryBuild(FireHazardCategory):
                     if ((a + b + v) >= area_percent_25) or ((a + b + v) >= 3500):
                         if ((a + b + v) >= area_percent_25):
                             log.info(
-                                f'Площадь пом.кат. А, Б и В: {a + b + v} сост. {100/(total_area/(a + b + v)):.2f}% > 25% от {total_area}м2 и пом.кат. А,Б,В1-В3 оборуд. АУПТ')
+                                f'Площадь пом.кат. А, Б и В: {a + b + v}м2 сост. {100/(total_area/(a + b + v)):.2f}% > 25% от {total_area}м2 и пом.кат. А,Б,В1-В3 оборуд. АУПТ')
                             cat_build = 'В'
                             return cat_build
                         else:
                             log.info(
-                                f'Площадь пом.кат. А, Б и В: {a + b + v} более 3500 м2 и пом.кат. А,Б,В1-В3 оборуд. АУПТ')
+                                f'Площадь пом.кат. А, Б и В: {a + b + v}м2 более 3500 м2 и пом.кат. А,Б,В1-В3 оборуд. АУПТ')
                             cat_build = 'В'
                             return cat_build
                     else:
                         return None
                 else:
                     log.info(
-                        f'Площадь пом.кат. А, Б и В: {a + b + v} сост. {100/(total_area/(a + b + v)):.2f}% > 5% от {total_area}м2 и пом.кат. А,Б,В1-В3 не оборуд. АУПТ')
+                        f'Площадь пом.кат. А, Б и В: {a + b + v}м2 сост. {100/(total_area/(a + b + v)):.2f}% > 5% от {total_area}м2 и пом.кат. А,Б,В1-В3 не оборуд. АУПТ')
                     cat_build = 'В'
                     return cat_build
             else:
@@ -205,19 +206,19 @@ class FireCategoryBuild(FireHazardCategory):
                 if ((a + b + v + g) >= area_percent_25) or ((a + b + v + g) >= 5000):
                     if ((a + b + v + g) >= area_percent_25):
                         log.info(
-                            f'Площадь пом.кат. А, Б, В и Г: {a + b + v + g} сост. {100/(total_area/(a + b + v + g)):.2f}% > 25% от {total_area}м2 и пом.кат. А,Б,В1-В3 оборуд. АУПТ')
+                            f'Площадь пом.кат. А, Б, В и Г: {a + b + v + g}м2 сост. {100/(total_area/(a + b + v + g)):.2f}% > 25% от {total_area}м2 и пом.кат. А,Б,В1-В3 оборуд. АУПТ')
                         cat_build = 'Г'
                         return cat_build
                     else:
                         log.info(
-                            f'Площадь пом.кат. А, Б, В и Г: {a + b + v + g} более 5000 м2 и пом.кат. А,Б,В1-В3 оборуд. АУПТ')
+                            f'Площадь пом.кат. А, Б, В и Г: {a + b + v + g}м2 более 5000 м2 и пом.кат. А,Б,В1-В3 оборуд. АУПТ')
                         cat_build = 'Г'
                         return cat_build
                 else:
                     return None
             else:
                 log.info(
-                    f'Площадь пом.кат. А, Б, В и Г: {a + b + v + g} сост. {100/(total_area/(a + b + v + g)):.2f}% > 5% от {total_area}м2 и пом.кат. А,Б,В1-В3 не оборуд. АУПТ')
+                    f'Площадь пом.кат. А, Б, В и Г: {a + b + v + g}м2 сост. {100/(total_area/(a + b + v + g)):.2f}% > 5% от {total_area}м2 и пом.кат. А,Б,В1-В3 не оборуд. АУПТ')
                 cat_build = 'Г'
                 return cat_build
         else:
@@ -227,16 +228,22 @@ class FireCategoryBuild(FireHazardCategory):
         a, b, v, g, other, efs_a, efs_b, efs_v = self._calc_area_premises(
             *args)
         cat_build = ''
-        # print(f'area_a: {a}')
-        # print(f'area_b: {b}')
-        # print(f'area_v: {v}')
-        # print(f'area_g: {g}')
-        # print(f'area_other: {other}')
         # print(f'area_efs ([А], [Б], [В]): {efs_a, efs_b, efs_v}')
         if total_area is None:
             total_area = a + b + v + g + other
         log.info(f'Общая площадь, м2: {total_area}')
-        if a > 0 or (a > 0 and b > 0):
+        log.info(
+            f'Площадь пом. кат. А: {a} -> {(100 / (total_area / a)):.2f}% от {total_area}м2')
+        log.info(
+            f'Площадь пом. кат. Б: {b} -> {(100 / (total_area / b)):.2f}% от {total_area}м2')
+        log.info(
+            f'Площадь пом. кат. В1-В3: {v} -> {(100 / (total_area / v)):.2f}% от {total_area}м2')
+        log.info(
+            f'Площадь пом. кат. Г: {g} -> {(100 / (total_area / g)):.2f}% от {total_area}м2')
+        log.info(
+            f'Общая площадь пом. с кат.: {other} -> {(100 / (total_area / other)):.2f}% от {total_area}м2')
+
+        if a > 0 and b > 0:
             cat_build = self._check_category_a(
                 a=a, efs_a=efs_a, total_area=total_area)
             log.info(f'Проверка кат.А: {cat_build}')

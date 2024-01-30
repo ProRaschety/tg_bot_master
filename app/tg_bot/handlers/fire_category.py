@@ -49,16 +49,24 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
 
 @fire_category_router.callback_query(F.data == 'category_build')
 async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    area = 3100
+    area = 10000
     info_area = [
-        {'area': 150, 'category': 'А', 'efs': False},
-        {'area': 0, 'category': 'Б', 'efs': True},
+        {'area': 2500, 'category': 'А', 'efs': True},
+        {'area': 1, 'category': 'Б', 'efs': True},
         {'area': 0, 'category': 'В1', 'efs': True},
         {'area': 0, 'category': 'В2', 'efs': True},
-        {'area': 0, 'category': 'В3', 'efs': True},
-        {'area': 0, 'category': 'В4'},
-        {'area': 0, 'category': 'Г'},
-        {'area': 0, 'category': 'Д'}
+        {'area': 300, 'category': 'В3', 'efs': True},
+        {'area': 700, 'category': 'В3', 'efs': False},
+        {'area': 700, 'category': 'В3', 'efs': True},
+        {'area': 300, 'category': 'В3', 'efs': True},
+        {'area': 1000, 'category': 'В3', 'efs': True},
+        {'area': 2000, 'category': 'В3', 'efs': True},
+        {'area': 2000, 'category': 'В4'},
+        {'area': 2000, 'category': 'В4'},
+        {'area': 2000, 'category': 'В4'},
+        {'area': 2000, 'category': 'В4'},
+        {'area': 100, 'category': 'Г'},
+        {'area': 1000, 'category': 'Д'}
     ]
 
     fc_build = FireCategoryBuild()

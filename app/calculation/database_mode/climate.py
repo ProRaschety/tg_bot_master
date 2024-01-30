@@ -109,15 +109,15 @@ class Climate:
                       weight='bold', ha='left', **ft_size)
         fig_ax_2.text(
             x=0.0, y=rows-2.2, s='Максимальная температура, \u00B0С:', ha='left', **ft_size)
-        fig_ax_2.text(x=2.05, y=rows-2.2, s=data.temperature,
+        fig_ax_2.text(x=2.05, y=rows-2.2, s=round(data.temperature, 2),
                       weight='bold', ha='left', **ft_size)
         fig_ax_2.text(
             x=0.0, y=rows-3.2, s='Максимальная скорость ветра, м/с:', ha='left', **ft_size)
-        fig_ax_2.text(x=2.05, y=rows-3.2, s=data.windvelocity,
+        fig_ax_2.text(x=2.05, y=rows-3.2, s=round(data.windvelocity, 2),
                       weight='bold', ha='left', **ft_size)
         fig_ax_2.text(x=0.0, y=rows-4.2, s='Вероятность штиля:',
                       ha='left', **ft_size)
-        fig_ax_2.text(x=2.05, y=rows-4.2, s=data.cwind,
+        fig_ax_2.text(x=2.05, y=rows-4.2, s=round(data.cwind/100, 2),
                       weight='bold', ha='left', **ft_size)
 
         fig_ax_2.text(x=0.0, y=rows-5.2, s='Направление:',
