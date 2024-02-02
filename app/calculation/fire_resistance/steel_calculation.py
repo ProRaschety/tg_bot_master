@@ -2,7 +2,6 @@ import logging
 import io
 import json
 
-
 from fluentogram import TranslatorRunner
 from dataclasses import dataclass, asdict
 
@@ -95,6 +94,7 @@ class SteelFireStrength:
         n_load = self.n_load
         ptm = round(self.get_reduced_thickness(), 2)
         label = 'Прочностной расчет'
+        headers = ('Параметр', 'Значение', 'Ед.изм.')
         if sketch == "Двутавр":
             data = [
                 {'id': 'Способ закрепления', 'var': fixation, 'unit': '-'},
@@ -125,7 +125,7 @@ class SteelFireStrength:
                 {'id': 'Сечение', 'var': self.name_profile, 'unit': '-'},
                 {'id': 'Сортамент', 'var': self.sketch, 'unit': '-'},
                 {'id': 'Профиль по ГОСТ', 'var': self.reg_document, 'unit': '-'}]
-        return data, label
+        return data, headers, label
 
     def get_initial_data_strength(self):
         data = self.get_init_data_table()
@@ -632,6 +632,7 @@ class SteelFireResistance:
         # ax = fig.add_subplot()
 
         label = 'Теплотехнический расчет'
+        headers = ('Параметр', 'Значение', 'Ед.изм.')
         data = [
 
             {'id': 'Коэффициент изм.\nтеплоемкости стали',
@@ -646,9 +647,9 @@ class SteelFireResistance:
                 'var': a_convection, 'unit': 'Вт/м\u00B2\u00D7К'},
             {'id': 'Начальная температура', 'var': self.T_0-273, 'unit': '\u00B0С'},
             {'id': 'Критическая температура стали',
-                'var': round(self.t_critic, 1), 'unit': '\u00B0С'},
+                'var': f'{self.t_critic:.2f}', 'unit': '\u00B0С'},
             {'id': 'Приведенная толщина\nметалла',
-                'var': round(self.ptm, 2), 'unit': 'мм'},
+                'var': f'{self.ptm:.2f}', 'unit': 'мм'},
             {'id': 'Температурный режим', 'var': self.mode, 'unit': '-'}
         ]
 
@@ -726,7 +727,7 @@ class SteelFireResistance:
         # buffer.close()
         # plt.cla()
         # plt.close(fig)
-        return data, label
+        return data, headers, label
 
     def get_fire_mode(self):
         """Функция возвращает значения изменения температуры от времени"""

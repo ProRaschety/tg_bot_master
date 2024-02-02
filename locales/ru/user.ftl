@@ -15,8 +15,9 @@ contacts-admin = Чтобы связаться с разработчиком
 general_menu = ☰ Главное меню
 
 link_owner = https://t.me/r_kamalovich
+link_owner-text = Связаться с разработчиком
 link_1 = https://t.me/fireengin_ru
-link_1-text = Связаться с разработчиком
+link_1-text = Связаться с техподдержкой
 
 handbooks = Справочники
 

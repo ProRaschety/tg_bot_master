@@ -49,33 +49,27 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
 
 @fire_category_router.callback_query(F.data == 'category_build')
 async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    area = 10000
     info_area = [
         {'area': 2500, 'category': 'А', 'efs': True},
         {'area': 1, 'category': 'Б', 'efs': True},
         {'area': 0, 'category': 'В1', 'efs': True},
         {'area': 0, 'category': 'В2', 'efs': True},
         {'area': 300, 'category': 'В3', 'efs': True},
-        {'area': 700, 'category': 'В3', 'efs': False},
-        {'area': 700, 'category': 'В3', 'efs': True},
-        {'area': 300, 'category': 'В3', 'efs': True},
-        {'area': 1000, 'category': 'В3', 'efs': True},
-        {'area': 2000, 'category': 'В3', 'efs': True},
-        {'area': 2000, 'category': 'В4'},
-        {'area': 2000, 'category': 'В4'},
-        {'area': 2000, 'category': 'В4'},
         {'area': 2000, 'category': 'В4'},
         {'area': 100, 'category': 'Г'},
         {'area': 1000, 'category': 'Д'}
     ]
 
     fc_build = FireCategoryBuild()
+
+    data_out, headers, label = fc_build.get_init_data_table(
+        *info_area)
+    media = get_initial_data_table(data=data_out, headers=headers, label=label)
     fc_build_data = fc_build.get_category_build(*info_area)
+    text = i18n.category_build.text(category_build=fc_build_data)
 
-    text = i18n.category_build.text()
-
-    media = get_picture_filling(
-        file_path='temp_files/temp/fire_category_logo.png')
+    # media = get_picture_filling(
+    #     file_path='temp_files/temp/fire_category_logo.png')
 
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -112,9 +106,9 @@ async def category_outdoor_installation_call(callback: CallbackQuery, bot: Bot, 
     data.setdefault("volume_container", "50.0"),
     data.setdefault("valve_closing_time", "120")
 
-    cat_out_inst = FireCategoryOutInstall()
-    data_out, label = cat_out_inst.get_init_data_table()
-    media = get_initial_data_table(data=data_out, label=label)
+    fc_out_inst = FireCategoryOutInstall()
+    data_out, headers, label = fc_out_inst.get_init_data_table()
+    media = get_initial_data_table(data=data_out, headers=headers, label=label)
 
     await state.update_data(data)
     await bot.edit_message_media(
@@ -137,9 +131,9 @@ async def run_category_outdoor_installation_call(callback: CallbackQuery, bot: B
     data.setdefault("valve_closing_time", "120")
 
     cat_out_inst = FireCategoryOutInstall()
-    data_out, label = cat_out_inst.get_init_data_table()
+    data_out, headers, label = cat_out_inst.get_init_data_table()
 
-    media = get_initial_data_table(data=data_out, label=label)
+    media = get_initial_data_table(data=data_out, headers=headers, label=label)
 
     category_out_inst = cat_out_inst.get_fire_hazard_categories()
 

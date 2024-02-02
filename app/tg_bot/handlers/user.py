@@ -219,9 +219,25 @@ async def fire_resistance_guest_call(callback_data: CallbackQuery, bot: Bot, sta
 
 
 @user_router.message(Command(commands=["contacts"]))
-async def process_get_admin_contacts(message: Message, i18n: TranslatorRunner) -> None:
-    await message.answer(text=i18n.contacts.admin(),
-                         reply_markup=get_inline_url_kb(1, i18n=i18n, link_1="link_1-text"))
+async def process_get_admin_contacts(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    dict_kb = {"link_owner": "link_owner-text", "link_1": "link_1-text"}
+    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    text = i18n.contacts.admin()
+    await message.answer_photo(
+        photo=BufferedInputFile(file=media, filename="pic_filling.png"),
+        caption=text, reply_markup=get_inline_url_kb(2, i18n=i18n, param_back=True, back_data="general_menu", ** dict_kb))
+
+    # await bot.edit_message_media(
+    #     chat_id=callback_data.message.chat.id,
+    #     message_id=callback_data.message.message_id,
+    #     media=InputMediaPhoto(media=BufferedInputFile(
+    #         file=media, filename="pic_filling"), caption=text),
+    #     # reply_markup=get_inline_cd_kb(1, *main_kb, i18n=i18n))
+
+    #     # await message.answer(text=i18n.contacts.admin(),
+    #     #                      #  reply_markup=get_inline_url_kb(1, i18n=i18n, link_owner="link_owner-text")),
+    #     reply_markup=get_inline_url_kb(2, i18n=i18n, param_back=True, back_data="general_menu", ** dict_kb))
+    await state.set_state(state=None)
     await message.delete()
 
 

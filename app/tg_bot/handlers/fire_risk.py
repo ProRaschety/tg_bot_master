@@ -15,8 +15,8 @@ from fluentogram import TranslatorRunner
 from app.infrastructure.database.database.db import DB
 from app.tg_bot.filters.filter_role import IsComrade
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
-from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling
-
+from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_initial_data_table
+from app.calculation.qra_mode.fire_risk_calculator import FireRisk
 
 log = logging.getLogger(__name__)
 
@@ -117,9 +117,13 @@ async def fire_risks_calculator_call(callback: CallbackQuery, bot: Bot, state: F
 @fire_risk_router.callback_query(F.data == 'public')
 async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.public.text()
+    log.info(str(callback.data))
+    frp = FireRisk()
+    data_out, headers, label = frp.calc_fire_risk(type_object=callback.data)
+    media = get_initial_data_table(data=data_out, headers=headers, label=label)
+    # media = get_picture_filling(
+    #     file_path='temp_files/temp/fire_risk_logo.png')
 
-    media = get_picture_filling(
-        file_path='temp_files/temp/fire_risk_logo.png')
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -132,9 +136,10 @@ async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n
 @fire_risk_router.callback_query(F.data == 'industrial')
 async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.industrial.text()
-
-    media = get_picture_filling(
-        file_path='temp_files/temp/fire_risk_logo.png')
+    log.info(str(callback.data))
+    fri = FireRisk()
+    data_out, headers, label = fri.calc_fire_risk(type_object=callback.data)
+    media = get_initial_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,

@@ -99,28 +99,46 @@ def get_dict(list_: list) -> dict:
     return {first: get_dict(rest)} if rest else first
 
 
-def get_initial_data_table(data, label) -> bytes:
+def get_initial_data_table(data, headers, label) -> bytes:
+    log.info(f'headers: {headers}')
+
     rows = len(data)
     cols = len(list(data[0]))
-    # размеры рисунка в дюймах
-    # 1 дюйм = 2.54 см = 96.358115 pixel
-    px = 96.358115
+    px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
     w = 500  # px
     h = 500  # px
 
+    left = 0.030
+    bottom = 0.030
+    right = 0.970
+    top = 0.950
+    hspace = 0.000
+    xmin = 0.0
+    ymin = 0.0
+    xmax = 4.0
+    ymax = 0.5
     margins = {
-        "left": 0.030,  # 0.030
-        "bottom": 0.030,  # 0.030
-        "right": 0.970,  # 0.970
-        "top": 0.950,  # 0.950
-        "hspace": 0.000  # 0.000
+        "left": left,  # 0.030
+        "bottom": bottom,  # 0.030
+        "right": right,  # 0.970
+        "top": top,  # 0.900
+        "hspace": hspace  # 0.200
     }
+
+    # margins = {
+    #     "left": 0.030,  # 0.030
+    #     "bottom": 0.030,  # 0.030
+    #     "right": 0.970,  # 0.970
+    #     "top": 0.950,  # 0.950
+    #     "hspace": 0.000  # 0.000
+    # }
     fig = plt.figure(figsize=(w / px, h / px),
                      dpi=300, constrained_layout=False)
     fig.subplots_adjust(**margins)
-
+    # plt.style.use('Solarize_Light2')
     widths = [1]
     heights = [0.20, 7.8]
+    # heights = [xmax, xmax]
     gs = gridspec.GridSpec(
         ncols=1, nrows=2, width_ratios=widths, height_ratios=heights)
     ft_label_size = {'fontname': 'Arial', 'fontsize': w*0.021}
@@ -131,16 +149,16 @@ def get_initial_data_table(data, label) -> bytes:
     logo = plt.imread('temp_files/temp/logo.png')
     # logo = image.imread('temp_files/temp/logo.png')
     x_bound_right = 0.9
-    fig_ax_1.plot()
-    fig_ax_1.axis('off')
+    # fig_ax_1.plot()
 
+    fig_ax_1.axis('off')
     fig_ax_1.set_xlim(0.0, x_bound_right)
     fig_ax_1.set_ylim(-0.250, 0.3)
     fig_ax_1.text(x=0.0, y=0.0, s=label, weight='bold',
                   ha='left', **ft_label_size)
     fig_ax_1.plot([0, x_bound_right], [-0.25, -0.25],
                   lw='1.5', color=(0.913, 0.380, 0.082, 1.0))
-    imagebox = OffsetImage(logo, zoom=0.04, dpi_cor=True)
+    imagebox = OffsetImage(logo, zoom=w*0.000085, dpi_cor=True)
     ab = AnnotationBbox(imagebox, (x_bound_right-0.025, 0.0),  frameon=False,
                         pad=0, box_alignment=(0.0, 0.0))
     fig_ax_1.add_artist(ab)
@@ -151,43 +169,63 @@ def get_initial_data_table(data, label) -> bytes:
 
     # добавить заголовки столбцов на высоте y=..., чтобы уменьшить пространство до первой строки данных
     hor_up_line = rows-0.25
-    fig_ax_2.text(x=0, y=hor_up_line, s='Параметр',
-                  weight='bold', ha='left', **ft_title_size)
-    fig_ax_2.text(x=2.5, y=hor_up_line, s='Значение',
-                  weight='bold', ha='center', **ft_title_size)
-    fig_ax_2.text(x=cols+.5, y=hor_up_line, s='Ед. изм',
-                  weight='bold', ha='right', **ft_title_size)
-
+    if len(list(headers)) == 4:
+        fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
+                      weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+        fig_ax_2.text(x=2.5, y=hor_up_line, s=headers[1],
+                      weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+        fig_ax_2.text(x=cols-0.5, y=hor_up_line, s=headers[2],
+                      weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+        fig_ax_2.text(x=cols+0.5, y=hor_up_line, s=headers[3],
+                      weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+    else:
+        fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
+                      weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+        fig_ax_2.text(x=2.5, y=hor_up_line, s=headers[1],
+                      weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+        fig_ax_2.text(x=cols+.5, y=hor_up_line, s=headers[2],
+                      weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
     # добавить основной разделитель заголовка
-    fig_ax_2.plot([0, cols + .5], [rows-0.5, rows-0.5], lw='2', c='black')
-    fig_ax_2.plot([0, cols + .5], [- 0.5, - 0.5], lw='2', c='black')
+    fig_ax_2.plot([0, cols + .5], [rows-0.5, rows-0.5],
+                  lw='2', color=(0.4941, 0.5686, 0.5843, 1.0))
+    fig_ax_2.plot([0, cols + .5], [- 0.5, - 0.5], lw='2',
+                  color=(0.4941, 0.5686, 0.5843, 1.0))
 
     # линия сетки
-    for row in range(rows):
-        fig_ax_2.plot([0, cols+.5], [row - .5, row - .5],
-                      ls=':', lw='.5', c='grey')
+    for row in range(1, rows):
+        fig_ax_2.plot([0.0, cols+.5], [row - .5, row - .5],
+                      ls=':', lw='.5', c='black')
 
     # заполнение таблицы данных
-    for row in range(rows):
-        # извлечь данные строки из списка
-        d = data[row]
-        # координата y (строка (row)) основана на индексе строки (цикл (loop))
-        # координата x (столбец (column)) определяется на основе порядка, в котором я хочу отображать данные в столбце имени игрока
-        fig_ax_2.text(x=0, y=row, s=d['id'], va='center', ha='left', **ft_size)
-        # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
-        fig_ax_2.text(x=2.5, y=row, s=d['var'], va='center',
-                      ha='center', weight='bold', **ft_size)
-        # unit column
-        fig_ax_2.text(x=3.5, y=row, s=d['unit'],
-                      va='center', ha='right', **ft_size)
+    if len(list(headers)) == 4:
+        for row in range(rows):
+            d = data[row]
+            fig_ax_2.text(x=0, y=row, s=d['id'],
+                          va='center', ha='left', **ft_size)
+            # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
+            fig_ax_2.text(x=2.5, y=row, s=d['var'], va='center',
+                          ha='center', weight='bold', **ft_size)
+            fig_ax_2.text(x=cols-0.5, y=row, s=d['unit'],
+                          va='center', ha='center', **ft_size)
+            fig_ax_2.text(x=cols+0.5, y=row, s=d['EFS'],
+                          va='center', ha='right', **ft_size)
+    else:
+        for row in range(rows):
+            d = data[row]
+            fig_ax_2.text(x=0, y=row, s=d['id'],
+                          va='center', ha='left', **ft_size)
+            fig_ax_2.text(x=2.5, y=row, s=d['var'], va='center',
+                          ha='center', weight='bold', **ft_size)
+            fig_ax_2.text(x=3.5, y=row, s=d['unit'],
+                          va='center', ha='right', **ft_size)
 
     # выделите столбец, используя прямоугольную заплатку
     rect = patches.Rectangle((2.0, -0.5),  # нижняя левая начальная позиция (x,y)
                              width=1,
                              height=hor_up_line+0.95,
                              ec='none',
-                             fc='grey',
-                             alpha=.2,
+                             color=(0.9372, 0.9098, 0.8353, 1.0),
+                             alpha=1.0,
                              zorder=-1)
     fig_ax_2.add_patch(rect)
     # fig_ax_2.set_title(label=label,

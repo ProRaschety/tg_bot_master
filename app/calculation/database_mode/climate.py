@@ -153,7 +153,7 @@ class Climate:
         # линия сетки
         for row in range(rows):
             fig_ax_2.plot([0, cols+0.5], [row+.5, row+.5],
-                          ls=':', lw='.5', c='grey')
+                          ls=':', lw='.5', c='black')
 
         fig_ax_2.axis('off')
         # plt.style.use('default')
