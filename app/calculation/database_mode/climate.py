@@ -75,24 +75,29 @@ class Climate:
         heights = [xmax, xmax]
         gs = gridspec.GridSpec(
             ncols=1, nrows=2, width_ratios=widths, height_ratios=heights)
-        ft_label_size = {'fontname': 'Arial', 'fontsize': w*0.021}
-        ft_title_size = {'fontname': 'Arial', 'fontsize': 10}
-        ft_size = {'fontname': 'Arial', 'fontsize': 10}
+        ft_label_size = {'fontname': 'Arial', 'fontsize': h*0.023}
+        ft_title_size = {'fontname': 'Arial', 'fontsize': h*0.021}
+        ft_size = {'fontname': 'Arial', 'fontsize': h*0.018}
         logo = plt.imread('temp_files/temp/logo.png')
         # logo = image.imread('temp_files/temp/logo.png')
         # logo = plt.imread('logo.png')
         # [left, bottom, width, height]
+
         fig_ax_1 = fig.add_axes(
             [left, 0.0, 1.0, 1.86], frameon=True, aspect=1.0, xlim=(0.0, xmax+0.25))
-        fig_ax_1.axis('off')
-        fig_ax_1.text(x=0.0, y=0.025, s='Метеоданные',
+        fig_ax_1.text(x=0.0, y=0.030, s='Метеоданные',
                       weight='bold', ha='left', **ft_label_size)
-        fig_ax_1.plot([0, xmax], [0.0, 0.0], lw='1.0',
-                      color=(0.913, 0.380, 0.082, 1.0))
-        imagebox = OffsetImage(logo, zoom=w*0.000085, dpi_cor=True)
-        ab = AnnotationBbox(imagebox, (xmax-(xmax/33.3), 0.025),
-                            frameon=False, pad=0, box_alignment=(0.00, 0.0))
+        fig_ax_1.plot([0, xmax], [0.0, 0.0], lw=(h*0.000080)
+                      * 25, color=(0.913, 0.380, 0.082, 1.0))
+        imagebox = OffsetImage(logo, zoom=h*0.00008,
+                               dpi_cor=True, resample=False, filternorm=False)
+        # ab = AnnotationBbox(imagebox, (xmax-(xmax/33.3), 0.025),
+        #                     frameon=False, pad=0, box_alignment=(0.00, 0.0))
+        ab = AnnotationBbox(imagebox, (xmax - (xmax/35.3), 0.030),  frameon=False,
+                            pad=0, box_alignment=(0.0, 0.0))
+
         fig_ax_1.add_artist(ab)
+        fig_ax_1.axis('off')
 
         fig_ax_2 = fig.add_subplot(gs[0, 0])
         rows = 7

@@ -48,8 +48,8 @@ ptm_strength_edit = Приведенная толщина металла
 ptm_strength_edit-text = Приведенная толщина металла <blockquote>{ $ptm_strength } мм</blockquote>
 
                 Для завершения ввода нажмите 💾
-type_steel_element_edit = Тип стали
-type_steel_element_edit-text = Выберите тип стали
+type_steel_element_edit = Марка стали
+type_steel_element_edit-text = Выберите марку стали
 C235 = C235
 C245 = C245
 C255 = C255

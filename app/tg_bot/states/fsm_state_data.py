@@ -8,6 +8,10 @@ class FSMAdminForm(StatesGroup):
     admin_set_pic_steel = State()
 
 
+class FSMCatBuildForm(StatesGroup):
+    edit_area_A = State()
+
+
 class FSMSteelForm(StatesGroup):
     fr_steel_edit_state = State()  # Состояние редактирвания исходных данных
     mode_edit_state = State()  # Состояние редактирвания Температурный режим

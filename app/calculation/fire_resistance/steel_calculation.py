@@ -73,7 +73,8 @@ class SteelFireStrength:
 
     def get_init_data_table(self):
         log.info("Исходные данные для прочностного расчета")
-        with open('app\infrastructure\data_base\db_steel_property.json', encoding='utf-8') as file_op:
+        with open('app\\infrastructure\\data_base\\db_steel_property.json', encoding='utf-8') as file_op:
+            # with open('db_steel_property.json', encoding='utf-8') as file_op:
             property_steel_in = json.load(file_op)
         r_norm = float(
             property_steel_in[self.type_steel_element]["r_norm_kg_cm2"])
@@ -109,7 +110,7 @@ class SteelFireStrength:
                 {'id': 'Профиль', 'var': self.num_profile, 'unit': '-'},
                 {'id': 'Профиль по ГОСТ', 'var': self.reg_document, 'unit': '-'},
                 {'id': 'Сопротивление стали', 'var': r_norm, 'unit': 'кг/см\u00B2'},
-                {'id': 'Тип стали', 'var': self.type_steel_element, 'unit': '-'}]
+                {'id': 'Марка стали', 'var': self.type_steel_element, 'unit': '-'}]
 
         elif sketch == "Швеллер":
             data = [
@@ -121,7 +122,7 @@ class SteelFireStrength:
                 {'id': 'Приведенная толщина\nметалла', 'var': ptm, 'unit': 'мм'},
                 {'id': 'Количество сторон обогрева',
                     'var': num_sides_heated, 'unit': 'шт'},
-                {'id': 'Тип стали', 'var': self.type_steel_element, 'unit': '-'},
+                {'id': 'Марка стали', 'var': self.type_steel_element, 'unit': '-'},
                 {'id': 'Сечение', 'var': self.name_profile, 'unit': '-'},
                 {'id': 'Сортамент', 'var': self.sketch, 'unit': '-'},
                 {'id': 'Профиль по ГОСТ', 'var': self.reg_document, 'unit': '-'}]
@@ -1127,7 +1128,7 @@ class SteelFireProtection(SteelFireStrength, SteelFireResistance):
         # log.info(f'{list(data[0])}')
         title_colm = ['№ п/п',
                       'Сортамент',
-                      'Тип стали',
+                      'Марка стали',
                       'Стороны\nобогрева',
                       'ПТМ, мм',
                       'Длина, мм',

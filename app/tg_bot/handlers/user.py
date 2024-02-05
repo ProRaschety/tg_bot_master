@@ -225,7 +225,7 @@ async def process_get_admin_contacts(message: Message, bot: Bot, state: FSMConte
     text = i18n.contacts.admin()
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
-        caption=text, reply_markup=get_inline_url_kb(2, i18n=i18n, param_back=True, back_data="general_menu", ** dict_kb))
+        caption=text, reply_markup=get_inline_url_kb(1, i18n=i18n, param_back=True, back_data="general_menu", ** dict_kb))
 
     # await bot.edit_message_media(
     #     chat_id=callback_data.message.chat.id,

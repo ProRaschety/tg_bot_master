@@ -100,14 +100,13 @@ def get_dict(list_: list) -> dict:
 
 
 def get_initial_data_table(data, headers, label) -> bytes:
-    log.info(f'headers: {headers}')
-
     rows = len(data)
     cols = len(list(data[0]))
+    # log.info(f'rows:{rows}, cols:{cols}')
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
-    w = 500  # px
-    h = 500  # px
-
+    marg = 30
+    w = rows * marg + marg + (cols / 10)  # px
+    h = rows * marg  # px 450
     left = 0.030
     bottom = 0.030
     right = 0.970
@@ -125,13 +124,6 @@ def get_initial_data_table(data, headers, label) -> bytes:
         "hspace": hspace  # 0.200
     }
 
-    # margins = {
-    #     "left": 0.030,  # 0.030
-    #     "bottom": 0.030,  # 0.030
-    #     "right": 0.970,  # 0.970
-    #     "top": 0.950,  # 0.950
-    #     "hspace": 0.000  # 0.000
-    # }
     fig = plt.figure(figsize=(w / px, h / px),
                      dpi=300, constrained_layout=False)
     fig.subplots_adjust(**margins)
@@ -141,26 +133,34 @@ def get_initial_data_table(data, headers, label) -> bytes:
     # heights = [xmax, xmax]
     gs = gridspec.GridSpec(
         ncols=1, nrows=2, width_ratios=widths, height_ratios=heights)
-    ft_label_size = {'fontname': 'Arial', 'fontsize': w*0.021}
-    ft_title_size = {'fontname': 'Arial', 'fontsize': 10}
-    ft_size = {'fontname': 'Arial', 'fontsize': 10}
+    ft_label_size = {'fontname': 'Arial', 'fontsize': h*0.023}
+    ft_title_size = {'fontname': 'Arial', 'fontsize': h*0.020}
+    ft_size = {'fontname': 'Arial', 'fontsize': h*0.020}
 
     fig_ax_1 = fig.add_subplot(gs[0, 0])
     logo = plt.imread('temp_files/temp/logo.png')
     # logo = image.imread('temp_files/temp/logo.png')
     x_bound_right = 0.9
+    step = 0.5
     # fig_ax_1.plot()
 
     fig_ax_1.axis('off')
+
     fig_ax_1.set_xlim(0.0, x_bound_right)
     fig_ax_1.set_ylim(-0.250, 0.3)
+
     fig_ax_1.text(x=0.0, y=0.0, s=label, weight='bold',
                   ha='left', **ft_label_size)
+
     fig_ax_1.plot([0, x_bound_right], [-0.25, -0.25],
-                  lw='1.5', color=(0.913, 0.380, 0.082, 1.0))
-    imagebox = OffsetImage(logo, zoom=w*0.000085, dpi_cor=True)
-    ab = AnnotationBbox(imagebox, (x_bound_right-0.025, 0.0),  frameon=False,
-                        pad=0, box_alignment=(0.0, 0.0))
+                  lw=(h*0.000080) * 50, color=(0.913, 0.380, 0.082, 1.0))
+
+    imagebox = OffsetImage(logo, zoom=h*0.000080,
+                           dpi_cor=True, resample=False, filternorm=False)
+
+    ab = AnnotationBbox(imagebox, (x_bound_right - h*0.0000080, 0.0),  frameon=False,
+                        pad=0, box_alignment=(x_bound_right, 0.0))
+
     fig_ax_1.add_artist(ab)
 
     fig_ax_2 = fig.add_subplot(gs[1, 0])
@@ -174,27 +174,27 @@ def get_initial_data_table(data, headers, label) -> bytes:
                       weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
         fig_ax_2.text(x=2.5, y=hor_up_line, s=headers[1],
                       weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=cols-0.5, y=hor_up_line, s=headers[2],
+        fig_ax_2.text(x=cols-step, y=hor_up_line, s=headers[2],
                       weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=cols+0.5, y=hor_up_line, s=headers[3],
+        fig_ax_2.text(x=cols+step, y=hor_up_line, s=headers[3],
                       weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
     else:
         fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
                       weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
         fig_ax_2.text(x=2.5, y=hor_up_line, s=headers[1],
                       weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=cols+.5, y=hor_up_line, s=headers[2],
+        fig_ax_2.text(x=cols+step, y=hor_up_line, s=headers[2],
                       weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
     # добавить основной разделитель заголовка
-    fig_ax_2.plot([0, cols + .5], [rows-0.5, rows-0.5],
-                  lw='2', color=(0.4941, 0.5686, 0.5843, 1.0))
-    fig_ax_2.plot([0, cols + .5], [- 0.5, - 0.5], lw='2',
+    fig_ax_2.plot([0, cols + step], [rows-step, rows-step],
+                  lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
+    fig_ax_2.plot([0, cols + step], [- step, - step], lw=h*0.005,
                   color=(0.4941, 0.5686, 0.5843, 1.0))
 
     # линия сетки
     for row in range(1, rows):
-        fig_ax_2.plot([0.0, cols+.5], [row - .5, row - .5],
-                      ls=':', lw='.5', c='black')
+        fig_ax_2.plot([0.0, cols+step], [row - step, row - step],
+                      ls=':', lw=h*0.002, c='black')
 
     # заполнение таблицы данных
     if len(list(headers)) == 4:
