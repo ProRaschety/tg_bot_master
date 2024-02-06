@@ -10,6 +10,13 @@ class FSMAdminForm(StatesGroup):
 
 class FSMCatBuildForm(StatesGroup):
     edit_area_A = State()
+    edit_area_B = State()
+    edit_area_V1 = State()
+    edit_area_V2 = State()
+    edit_area_V3 = State()
+    edit_area_V4 = State()
+    edit_area_G = State()
+    edit_area_D = State()
 
 
 class FSMSteelForm(StatesGroup):

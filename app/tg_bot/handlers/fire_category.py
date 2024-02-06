@@ -50,6 +50,7 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
 
 @fire_category_router.callback_query(F.data.in_(['category_build', 'back_category_build']))
 async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    await callback.answer('')
     data = await state.get_data()
     data.setdefault("area_A", "100"),
     data.setdefault("area_B", "100"),
@@ -85,6 +86,7 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     data_out, headers, label = fc_build.get_init_data_table(
         *info_area)
     media = get_initial_data_table(data=data_out, headers=headers, label=label)
+    await state.update_data(data)
     # fc_build_data = fc_build.get_category_build(*info_area)
     text = i18n.category_build.text()
     # media = get_picture_filling(
@@ -113,8 +115,9 @@ async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, i18n: 
     await callback.answer('')
 
 
-@fire_category_router.callback_query(F.data == 'edit_area_A')
-async def edit_area_A_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+@fire_category_router.callback_query(F.data.in_(['edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2', 'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D']))
+async def edit_area_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await state.set_state(f'FSMCatBuildForm.{callback.data}')
     data = await state.get_data()
     log.info(data)
     text = i18n.edit_area.text(edit_area=data.get("area_A", 0))
@@ -123,13 +126,14 @@ async def edit_area_A_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
-    await state.set_state(FSMCatBuildForm.edit_area_A)
+
     await callback.answer('')
 
 
-@fire_category_router.callback_query(StateFilter(FSMCatBuildForm.edit_area_A), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
+@fire_category_router.callback_query(~StateFilter(default_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
 async def edit_area_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     edit_area_data = await state.get_data()
+    text = i18n.edit_area.text(edit_area="")
     call_data = callback.data
     if call_data == "one":
         call_data = 1
@@ -154,19 +158,21 @@ async def edit_area_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
 
     if call_data != 'clear':
         if edit_area_data.get('area_A') == None:
-            await state.update_data(edit_area="")
+            await state.update_data(area_A="")
             edit_area_data = await state.get_data()
-            await state.update_data(edit_area=call_data)
+            await state.update_data(area_A=call_data)
             edit_area_data = await state.get_data()
             edit_area_edit = edit_area_data.get('area_A', 200)
             text = i18n.edit_area.text(edit_area=edit_area_edit)
         else:
+
             edit_area_1 = edit_area_data.get('area_A')
             edit_area_sum = str(edit_area_1) + str(call_data)
-            await state.update_data(edit_area=edit_area_sum)
+            await state.update_data(area_A=edit_area_sum)
             edit_area_data = await state.get_data()
             edit_area_edit = edit_area_data.get('area_A', 200)
             text = i18n.edit_area.text(edit_area=edit_area_edit)
+
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -174,7 +180,7 @@ async def edit_area_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
 
 
-@fire_category_router.callback_query(StateFilter(FSMCatBuildForm.edit_area_A), F.data.in_(['point']))
+@fire_category_router.callback_query(~StateFilter(default_state), F.data.in_(['point']))
 async def edit_area_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     edit_area_data = await state.get_data()
     call_data = callback.data
@@ -182,20 +188,20 @@ async def edit_area_var_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         call_data = '.'
 
     if edit_area_data.get('area_A') == None:
-        await state.update_data(edit_area="")
+        await state.update_data(area_A="")
         edit_area_data = await state.get_data()
-        await state.update_data(edit_area=call_data)
+        await state.update_data(area_A=call_data)
         edit_area_data = await state.get_data()
         edit_area_edit = edit_area_data.get('area_A', 200)
-        await state.update_data(edit_area=edit_area_edit)
+        await state.update_data(area_A=edit_area_edit)
         text = i18n.edit_area.text(edit_area=edit_area_edit)
     else:
         edit_area_1 = edit_area_data.get('area_A')
         edit_area_sum = str(edit_area_1) + str(call_data)
-        await state.update_data(edit_area=edit_area_sum)
+        await state.update_data(area_A=edit_area_sum)
         edit_area_data = await state.get_data()
         edit_area_edit = edit_area_data.get('area_A', 200)
-        await state.update_data(edit_area=edit_area_edit)
+        await state.update_data(area_A=edit_area_edit)
         text = i18n.edit_area.text(edit_area=edit_area_edit)
 
     await bot.edit_message_caption(
@@ -205,9 +211,9 @@ async def edit_area_var_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
 
 
-@fire_category_router.callback_query(StateFilter(FSMCatBuildForm.edit_area_A), F.data.in_(['clear']))
+@fire_category_router.callback_query(~StateFilter(default_state), F.data.in_(['clear']))
 async def edit_area_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    await state.update_data(edit_area="")
+    await state.update_data(area_A="")
     edit_area_data = await state.get_data()
     edit_area_edit = edit_area_data.get('area_A', 200)
     text = i18n.edit_area.text(edit_area=edit_area_edit)
@@ -219,22 +225,22 @@ async def edit_area_point_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     await callback.answer('')
 
 
-@fire_category_router.callback_query(StateFilter(FSMCatBuildForm.edit_area_A), F.data.in_(['ready']))
+@fire_category_router.callback_query(~StateFilter(default_state), F.data.in_(['ready']))
 async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
-    data.setdefault("area_A", "100"),
-    data.setdefault("area_B", "100"),
-    data.setdefault("area_V1", "100"),
-    data.setdefault("area_V2", "100"),
-    data.setdefault("area_V3", "100"),
-    data.setdefault("area_V4", "100"),
-    data.setdefault("area_G", "100"),
-    data.setdefault("area_D", "100"),
-    data.setdefault("area_A_EFS", "True"),
-    data.setdefault("area_B_EFS", "True"),
-    data.setdefault("area_V1_EFS", "True"),
-    data.setdefault("area_V2_EFS", "True"),
-    data.setdefault("area_V3_EFS", "True"),
+    # data.setdefault("area_A", "100"),
+    # data.setdefault("area_B", "100"),
+    # data.setdefault("area_V1", "100"),
+    # data.setdefault("area_V2", "100"),
+    # data.setdefault("area_V3", "100"),
+    # data.setdefault("area_V4", "100"),
+    # data.setdefault("area_G", "100"),
+    # data.setdefault("area_D", "100"),
+    # data.setdefault("area_A_EFS", "True"),
+    # data.setdefault("area_B_EFS", "True"),
+    # data.setdefault("area_V1_EFS", "True"),
+    # data.setdefault("area_V2_EFS", "True"),
+    # data.setdefault("area_V3_EFS", "True"),
 
     info_area = [
         {'area': data.get("area_A", 0), 'category': 'А',
