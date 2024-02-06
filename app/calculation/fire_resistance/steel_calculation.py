@@ -73,7 +73,7 @@ class SteelFireStrength:
 
     def get_init_data_table(self):
         log.info("Исходные данные для прочностного расчета")
-        with open('app\\infrastructure\\data_base\\db_steel_property.json', encoding='utf-8') as file_op:
+        with open('app/infrastructure/data_base/db_steel_property.json', encoding='utf-8') as file_op:
             # with open('db_steel_property.json', encoding='utf-8') as file_op:
             property_steel_in = json.load(file_op)
         r_norm = float(
@@ -216,7 +216,7 @@ class SteelFireStrength:
         sketch = self.sketch
         gost = self.reg_document
         if sketch == "Двутавр":
-            with open(file="app\infrastructure\data_base\db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
+            with open(file="app/infrastructure/data_base/db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
                 db_ibeam = json.load(file_op)
 
         list_num_profile = list(db_ibeam[sketch][gost].keys())
@@ -244,7 +244,7 @@ class SteelFireStrength:
         gost = self.reg_document
         sec_area_cm2 = None
         if sketch == "Двутавр":
-            with open(file="app\infrastructure\data_base\db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
+            with open(file="app/infrastructure/data_base/db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
                 sec_area_cm2 = db_steel_in[sketch][gost][profile]['a_cm2']
         elif sketch == "Швеллер":
@@ -262,7 +262,7 @@ class SteelFireStrength:
         gost = self.reg_document
         perimeter_section = None
         if sketch == "Двутавр":
-            with open(file="app\infrastructure\data_base\db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
+            with open(file="app/infrastructure/data_base/db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
                 h_mm = db_steel_in[sketch][gost][profile]["h_mm"]
                 b_mm = db_steel_in[sketch][gost][profile]["b_mm"]
@@ -299,7 +299,7 @@ class SteelFireStrength:
         gost = self.reg_document
         moment_section_resistance = None
         if sketch == "Двутавр":
-            with open(file="app\infrastructure\data_base\db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
+            with open(file="app/infrastructure/data_base/db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
                 w_x_cm3 = db_steel_in[sketch][gost][profile]['w_x_cm3']
                 w_y_cm3 = db_steel_in[sketch][gost][profile]['w_y_cm3']
@@ -320,7 +320,7 @@ class SteelFireStrength:
         gost = self.reg_document
         moment_section_of_inertia = None
         if sketch == "Двутавр":
-            with open(file="app\infrastructure\data_base\db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
+            with open(file="app/infrastructure/data_base/db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
                 i_x_cm4 = db_steel_in[sketch][gost][profile]['i_x_cm4']
                 i_y_cm4 = db_steel_in[sketch][gost][profile]['i_y_cm4']
@@ -378,7 +378,7 @@ class SteelFireStrength:
         return moment_load
 
     def get_coef_strength(self):
-        with open('app\infrastructure\data_base\db_steel_property.json', encoding='utf-8') as file_op:
+        with open('app/infrastructure/data_base/db_steel_property.json', encoding='utf-8') as file_op:
             property_steel_in = json.load(file_op)
         r_norm = float(
             property_steel_in[self.type_steel_element]["r_norm_kg_cm2"])
@@ -420,7 +420,7 @@ class SteelFireStrength:
 
     def get_crit_temp_steel(self):
 
-        with open('app\infrastructure\data_base\db_grades_steel.json', encoding='utf-8') as file_op:
+        with open('app/infrastructure/data_base/db_grades_steel.json', encoding='utf-8') as file_op:
             prop_steel_in = json.load(file_op)
             temp = prop_steel_in[self.type_steel_element]["heating_temperature"]
             coef = prop_steel_in[self.type_steel_element]["coeff_reduction_of_yield_strength"]
@@ -487,10 +487,10 @@ class SteelFireStrength:
                 t_critic = float(temp_correl(gamma))
             log.info(f"Критическая температура при изгибе: {t_critic:.3f} С")
 
-        # with open('app\infrastructure\init_data\init_data_thermal_steel.json', encoding='utf-8') as file_op:
+        # with open('app/infrastructure/init_data/init_data_thermal_steel.json', encoding='utf-8') as file_op:
         #     init_thermal_in = json.load(file_op)
         #     init_thermal_in[self.chat_id]["t_critic_C"] = t_critic
-        # with open('app\infrastructure\init_data\init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
+        # with open('app/infrastructure/init_data/init_data_thermal_steel.json', 'w', encoding='utf-8') as file_w:
         #     json.dump(init_thermal_in, file_w, ensure_ascii=False, indent=4)
 
         return t_critic
@@ -1006,17 +1006,17 @@ class SteelFireProtection(SteelFireStrength, SteelFireResistance):
 
     def creat_init_data_table(self):
         chat_id = self.chat_id
-        with open('app\infrastructure\init_data\init_data_protection_steel.json', encoding='utf-8') as file_op:
+        with open('app/infrastructure/init_data/init_data_protection_steel.json', encoding='utf-8') as file_op:
             init_protection_in = json.load(file_op)
             if chat_id not in init_protection_in:
                 init_protection_in[chat_id] = []
-                with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                with open('app/infrastructure/init_data/init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
                     json.dump(init_protection_in, file_w,
                               ensure_ascii=False, indent=4)
 
     def get_init_data_table(self) -> list:
         chat_id = self.chat_id
-        with open('app\infrastructure\init_data\init_data_protection_steel.json', encoding='utf-8') as file_op:
+        with open('app/infrastructure/init_data/init_data_protection_steel.json', encoding='utf-8') as file_op:
             init_protection_in = json.load(file_op)
             if len(init_protection_in[chat_id]) == 0:
                 init_protection_in[chat_id].append(
@@ -1030,7 +1030,7 @@ class SteelFireProtection(SteelFireStrength, SteelFireResistance):
                      'n_load': '-',
                      't_critic_C': '-',
                      'time_fsr': '-'})
-                with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                with open('app/infrastructure/init_data/init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
                     json.dump(init_protection_in, file_w,
                               ensure_ascii=False, indent=4)
 
@@ -1040,7 +1040,7 @@ class SteelFireProtection(SteelFireStrength, SteelFireResistance):
     def get_init_data_other_table(self, element: str = None) -> list:
         chat_id = self.chat_id
         if element != None:
-            with open('app\infrastructure\init_data\init_data_protection_steel.json', encoding='utf-8') as file_op:
+            with open('app/infrastructure/init_data/init_data_protection_steel.json', encoding='utf-8') as file_op:
                 init_protection_in = json.load(file_op)
                 num_elem = len(init_protection_in[chat_id])
                 elements = []
@@ -1060,7 +1060,7 @@ class SteelFireProtection(SteelFireStrength, SteelFireResistance):
                          'n_load': '-',
                          't_critic_C': '-',
                          'time_fsr': '-'})
-                    with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                    with open('app/infrastructure/init_data/init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
                         json.dump(init_protection_in, file_w,
                                   ensure_ascii=False, indent=4)
                 elif len(init_protection_in[chat_id]) == 1:
@@ -1071,7 +1071,7 @@ class SteelFireProtection(SteelFireStrength, SteelFireResistance):
                                                     1]["id"] = num_elem
                         init_protection_in[chat_id][num_elem -
                                                     1]["num_profile"] = element
-                        with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                        with open('app/infrastructure/init_data/init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
                             json.dump(init_protection_in, file_w,
                                       ensure_ascii=False, indent=4)
 
@@ -1080,7 +1080,7 @@ class SteelFireProtection(SteelFireStrength, SteelFireResistance):
                                                     1]["id"] = num_elem
                         init_protection_in[chat_id][num_elem -
                                                     1]["num_profile"] = element
-                        with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                        with open('app/infrastructure/init_data/init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
                             json.dump(init_protection_in, file_w,
                                       ensure_ascii=False, indent=4)
                     else:
@@ -1095,7 +1095,7 @@ class SteelFireProtection(SteelFireStrength, SteelFireResistance):
                              'n_load': '-',
                              't_critic_C': '-',
                              'time_fsr': '-'})
-                        with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                        with open('app/infrastructure/init_data/init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
                             json.dump(init_protection_in, file_w,
                                       ensure_ascii=False, indent=4)
                 elif len(init_protection_in[chat_id]) > 1 and element not in elements:
@@ -1110,11 +1110,11 @@ class SteelFireProtection(SteelFireStrength, SteelFireResistance):
                             'n_load': '-',
                             't_critic_C': '-',
                             'time_fsr': '-'})
-                    with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                    with open('app/infrastructure/init_data/init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
                         json.dump(init_protection_in, file_w,
                                   ensure_ascii=False, indent=4)
 
-        with open('app\infrastructure\init_data\init_data_protection_steel.json', encoding='utf-8') as file_op:
+        with open('app/infrastructure/init_data/init_data_protection_steel.json', encoding='utf-8') as file_op:
             init_protection_in = json.load(file_op)
             data_table = init_protection_in[chat_id]
         return data_table
@@ -1240,11 +1240,11 @@ class SteelFireProtection(SteelFireStrength, SteelFireResistance):
 
     def clear_table_protection(self):
         chat_id = self.chat_id
-        with open('app\infrastructure\init_data\init_data_protection_steel.json', encoding='utf-8') as file_op:
+        with open('app/infrastructure/init_data/init_data_protection_steel.json', encoding='utf-8') as file_op:
             init_protection_in = json.load(file_op)
             if chat_id in init_protection_in:
                 init_protection_in[chat_id] = []
-                with open('app\infrastructure\init_data\init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
+                with open('app/infrastructure/init_data/init_data_protection_steel.json', 'w', encoding='utf-8') as file_w:
                     json.dump(init_protection_in, file_w,
                               ensure_ascii=False, indent=4)
         data_table = self.get_init_data_table()
