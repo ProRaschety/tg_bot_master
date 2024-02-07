@@ -7,6 +7,9 @@ from app.infrastructure.database.models.promocode_model import PromocodeModel, P
 
 log = logging.getLogger(__name__)
 
+promocodes = [{'PROMO': 'fireengin24'}, {
+    'PROMO': 'fireengin2024'}, {'PROMO': 'fireengin04'}]
+
 
 class _PromocodeDB:
     __table_name__ = "promocodes"
@@ -25,6 +28,20 @@ class _PromocodeDB:
                 );
             ''')
             log.info("Created table '%s'", self.__table_name__)
+
+    async def add_promocode_start(self) -> None:
+        async with self.connect.transaction():
+            for promocode in promocodes:
+                await self.connect.execute('''
+                    INSERT INTO promocodes(promocode)
+                    VALUES($1) ON CONFLICT DO NOTHING;
+                ''', promocode['PROMO']
+                )
+
+                log.info(
+                    "Promocode added. db='%s', promocode=%d",
+                    self.__table_name__, promocode
+                )
 
     async def add_promocode(
             self,
