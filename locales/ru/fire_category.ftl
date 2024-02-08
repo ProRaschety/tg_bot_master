@@ -10,6 +10,7 @@ other_cat_text = Выберите объект
 
 back_fire_category = ↩ Назад
 back_category_build = ↩ Назад
+back_category_build_edit = ↩ Назад
 
 category_build = Категория здания
 category_build-text = 🚧 <i>Находится в разработке</i>
@@ -27,6 +28,18 @@ edit_area-text =
     Установите значение площади <blockquote>{$edit_area}</blockquote>
 
     Для завершения ввода нажмите 💾
+edit_area_A_EFS = АУПТ А
+edit_area_B_EFS = АУПТ Б
+edit_area_V1_EFS = АУПТ В1
+edit_area_V2_EFS = АУПТ В2
+edit_area_V3_EFS = АУПТ В3
+
+efs_build_true = ✔ АУПТ
+efs_build_false = ✖ АУПТ
+
+
+
+
 run_category_build = ▶ Рассчитать
 category_build_result-text = Категория здания по взрывопожарной и пожарной опасности: <blockquote>{ $category_build }</blockquote>
     <blockquote>{ $cause }</blockquote>

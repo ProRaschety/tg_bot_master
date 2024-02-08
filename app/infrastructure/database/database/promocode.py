@@ -39,7 +39,7 @@ class _PromocodeDB:
                 )
 
                 log.info(
-                    "Promocode added. db='%s', promocode=%d",
+                    "Promocode added. db='%s', promocode=%s",
                     self.__table_name__, promocode
                 )
 

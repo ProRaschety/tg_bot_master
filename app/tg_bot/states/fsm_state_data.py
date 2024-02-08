@@ -17,6 +17,11 @@ class FSMCatBuildForm(StatesGroup):
     edit_area_V4 = State()
     edit_area_G = State()
     edit_area_D = State()
+    edit_area_A_EFS = State()
+    edit_area_B_EFS = State()
+    edit_area_V1_EFS = State()
+    edit_area_V2_EFS = State()
+    edit_area_V3_EFS = State()
 
 
 class FSMSteelForm(StatesGroup):

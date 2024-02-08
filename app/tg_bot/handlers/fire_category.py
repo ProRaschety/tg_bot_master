@@ -105,14 +105,46 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     await callback.answer('')
 
 
-@fire_category_router.callback_query(F.data.in_(['edit_category_build', 'stop_edit_category_build']))
+@fire_category_router.callback_query(F.data.in_(['edit_category_build', 'back_category_build_edit', 'stop_edit_category_build']))
 async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(3,
-                                      'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2', 'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
+        reply_markup=get_inline_cd_kb(4,
+                                      'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2',
+                                      'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
+                                      'edit_area_A_EFS', 'edit_area_B_EFS', 'edit_area_V1_EFS', 'edit_area_V2_EFS', 'edit_area_V3_EFS',
                                       'back_category_build', i18n=i18n))
+    await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['edit_area_A_EFS', 'edit_area_B_EFS', 'edit_area_V1_EFS', 'edit_area_V2_EFS', 'edit_area_V3_EFS']))
+async def edit_area_efs_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await state.set_state(f'FSMCatBuildForm.{callback.data}')
+    data = await state.get_data()
+    state_data = await state.get_state()
+    # if state_data == 'FSMCatBuildForm.edit_area_A_EFS':
+    #     text = i18n.edit_area.text(efs_build=data.get("area_A_EFS", 0))
+    # elif state_data == 'FSMCatBuildForm.edit_area_B_EFS':
+    #     text = i18n.edit_area.text(efs_build=data.get("area_B_EFS", 0))
+    # elif state_data == 'FSMCatBuildForm.edit_area_V1_EFS':
+    #     text = i18n.edit_area.text(efs_build=data.get("area_V1_EFS", 0))
+    # elif state_data == 'FSMCatBuildForm.edit_area_V2_EFS':
+    #     text = i18n.edit_area.text(efs_build=data.get("area_V2_EFS", 0))
+    # elif state_data == 'FSMCatBuildForm.edit_area_V3_EFS':
+    #     text = i18n.edit_area.text(efs_build=data.get("area_V3_EFS", 0))
+    # else:
+    #     text = i18n.edit_area.text(efs_build=data.get("efs_build", 0))
+    # await bot.edit_message_caption(
+    #     chat_id=callback.message.chat.id,
+    #     message_id=callback.message.message_id,
+    #     caption=text,
+    #     reply_markup=get_inline_cd_kb(2, 'efs_build_true', 'efs_build_false', 'back_category_build_edit', i18n=i18n))
+    # await callback.answer('')
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=get_inline_cd_kb(2, 'efs_build_true', 'efs_build_false', 'back_category_build_edit', i18n=i18n))
     await callback.answer('')
 
 
@@ -121,37 +153,34 @@ async def edit_area_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     await state.set_state(f'FSMCatBuildForm.{callback.data}')
     data = await state.get_data()
     state_data = await state.get_state()
-    log.info(data)
-    log.info(state_data)
-    text = i18n.edit_area.text(edit_area=data.get("area_A", 0))
-    if state_data == FSMCatBuildForm.edit_area_A:
+    if state_data == 'FSMCatBuildForm.edit_area_A':
         text = i18n.edit_area.text(edit_area=data.get("area_A", 0))
-    elif state_data == FSMCatBuildForm.edit_area_B:
+    elif state_data == 'FSMCatBuildForm.edit_area_B':
         text = i18n.edit_area.text(edit_area=data.get("area_B", 0))
-    elif state_data == FSMCatBuildForm.edit_area_V1:
+    elif state_data == 'FSMCatBuildForm.edit_area_V1':
         text = i18n.edit_area.text(edit_area=data.get("area_V1", 0))
-    elif state_data == FSMCatBuildForm.edit_area_V2:
+    elif state_data == 'FSMCatBuildForm.edit_area_V2':
         text = i18n.edit_area.text(edit_area=data.get("area_V2", 0))
-    elif state_data == FSMCatBuildForm.edit_area_V3:
+    elif state_data == 'FSMCatBuildForm.edit_area_V3':
         text = i18n.edit_area.text(edit_area=data.get("area_V3", 0))
-    elif state_data == FSMCatBuildForm.edit_area_V4:
+    elif state_data == 'FSMCatBuildForm.edit_area_V4':
         text = i18n.edit_area.text(edit_area=data.get("area_V4", 0))
-    elif state_data == FSMCatBuildForm.edit_area_G:
+    elif state_data == 'FSMCatBuildForm.edit_area_G':
         text = i18n.edit_area.text(edit_area=data.get("area_G", 0))
-    elif state_data == FSMCatBuildForm.edit_area_D:
+    elif state_data == 'FSMCatBuildForm.edit_area_D':
         text = i18n.edit_area.text(edit_area=data.get("area_D", 0))
+    else:
+        text = i18n.edit_area.text(edit_area=data.get("area_build", 0))
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
-
     await callback.answer('')
 
 
 @fire_category_router.callback_query(~StateFilter(default_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
 async def edit_area_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    state_data = await state.get_state()
     edit_area_data = await state.get_data()
     call_data = callback.data
     if call_data == "one":
@@ -177,17 +206,16 @@ async def edit_area_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
 
     if call_data != 'clear':
         if edit_area_data.get('area_build') == None:
-            await state.update_data(area_A="")
+            await state.update_data(area_build="")
             edit_area_data = await state.get_data()
-            await state.update_data(area_A=call_data)
+            await state.update_data(area_build=call_data)
             edit_area_data = await state.get_data()
             edit_area_edit = edit_area_data.get('area_build', 200)
             text = i18n.edit_area.text(edit_area=edit_area_edit)
         else:
-
             edit_area_1 = edit_area_data.get('area_build')
             edit_area_sum = str(edit_area_1) + str(call_data)
-            await state.update_data(area_A=edit_area_sum)
+            await state.update_data(area_build=edit_area_sum)
             edit_area_data = await state.get_data()
             edit_area_edit = edit_area_data.get('area_build', 200)
             text = i18n.edit_area.text(edit_area=edit_area_edit)
@@ -207,20 +235,20 @@ async def edit_area_var_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         call_data = '.'
 
     if edit_area_data.get('area_build') == None:
-        await state.update_data(area_A="")
+        await state.update_data(area_build="")
         edit_area_data = await state.get_data()
-        await state.update_data(area_A=call_data)
+        await state.update_data(area_build=call_data)
         edit_area_data = await state.get_data()
         edit_area_edit = edit_area_data.get('area_build', 200)
-        await state.update_data(area_A=edit_area_edit)
+        await state.update_data(area_build=edit_area_edit)
         text = i18n.edit_area.text(edit_area=edit_area_edit)
     else:
         edit_area_1 = edit_area_data.get('area_build')
         edit_area_sum = str(edit_area_1) + str(call_data)
-        await state.update_data(area_A=edit_area_sum)
+        await state.update_data(area_build=edit_area_sum)
         edit_area_data = await state.get_data()
         edit_area_edit = edit_area_data.get('area_build', 200)
-        await state.update_data(area_A=edit_area_edit)
+        await state.update_data(area_build=edit_area_edit)
         text = i18n.edit_area.text(edit_area=edit_area_edit)
 
     await bot.edit_message_caption(
@@ -232,10 +260,42 @@ async def edit_area_var_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 
 @fire_category_router.callback_query(~StateFilter(default_state), F.data.in_(['clear']))
 async def edit_area_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    await state.update_data(area_A="")
-    edit_area_data = await state.get_data()
-    edit_area_edit = edit_area_data.get('area_build', 200)
-    text = i18n.edit_area.text(edit_area=edit_area_edit)
+    # state_data = await state.get_state()
+    # data = await state.get_data()
+    # if state_data == FSMCatBuildForm.edit_area_A:
+    #     await state.update_data(area_A=data.get("area_A", 0))
+    #     text = i18n.edit_area.text(edit_area=data.get("area_A", 0))
+    # elif state_data == FSMCatBuildForm.edit_area_B:
+    #     await state.update_data(area_B=data.get("area_B", 0))
+    #     text = i18n.edit_area.text(edit_area=data.get("area_B", 0))
+    # elif state_data == FSMCatBuildForm.edit_area_V1:
+    #     await state.update_data(area_V1=data.get("area_V1", 0))
+    #     text = i18n.edit_area.text(edit_area=data.get("area_V1", 0))
+    # elif state_data == FSMCatBuildForm.edit_area_V2:
+    #     await state.update_data(area_V2=data.get("area_V2", 0))
+    #     text = i18n.edit_area.text(edit_area=data.get("area_V2", 0))
+    # elif state_data == FSMCatBuildForm.edit_area_V3:
+    #     await state.update_data(area_V3=data.get("area_V3", 0))
+    #     text = i18n.edit_area.text(edit_area=data.get("area_V3", 0))
+    # elif state_data == FSMCatBuildForm.edit_area_V4:
+    #     await state.update_data(area_V4=data.get("area_V4", 0))
+    #     text = i18n.edit_area.text(edit_area=data.get("area_V4", 0))
+    # elif state_data == FSMCatBuildForm.edit_area_G:
+    #     await state.update_data(area_G=data.get("area_G", 0))
+    #     text = i18n.edit_area.text(edit_area=data.get("area_G", 0))
+    # elif state_data == FSMCatBuildForm.edit_area_D:
+    #     await state.update_data(area_D=data.get("area_D", 0))
+    #     text = i18n.edit_area.text(edit_area=data.get("area_D", 0))
+    # else:
+    #     await state.update_data(area_build=0)
+    #     text = i18n.edit_area.text(edit_area=data.get("area_build", 0))
+
+    call_data = callback.data
+    area_build_data = await state.get_data()
+    await state.update_data(area_build="")
+    area_build_data = await state.get_data()
+    area_build_edit = area_build_data.get('area_build', 1000)
+    text = i18n.edit_area.text(edit_area=area_build_edit)
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -244,23 +304,41 @@ async def edit_area_point_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     await callback.answer('')
 
 
-@fire_category_router.callback_query(~StateFilter(default_state), F.data.in_(['ready']))
+@fire_category_router.callback_query(~StateFilter(default_state), F.data.in_(['ready', 'efs_build_true', 'efs_build_false']))
 async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
     data = await state.get_data()
-    # data.setdefault("area_A", "100"),
-    # data.setdefault("area_B", "100"),
-    # data.setdefault("area_V1", "100"),
-    # data.setdefault("area_V2", "100"),
-    # data.setdefault("area_V3", "100"),
-    # data.setdefault("area_V4", "100"),
-    # data.setdefault("area_G", "100"),
-    # data.setdefault("area_D", "100"),
-    # data.setdefault("area_A_EFS", "True"),
-    # data.setdefault("area_B_EFS", "True"),
-    # data.setdefault("area_V1_EFS", "True"),
-    # data.setdefault("area_V2_EFS", "True"),
-    # data.setdefault("area_V3_EFS", "True"),
+    if state_data == 'FSMCatBuildForm.edit_area_A':
+        await state.update_data(area_A=data.get("area_build", 0))
+    elif state_data == 'FSMCatBuildForm.edit_area_B':
+        await state.update_data(area_B=data.get("area_build", 0))
+    elif state_data == 'FSMCatBuildForm.edit_area_V1':
+        await state.update_data(area_V1=data.get("area_build", 0))
+    elif state_data == 'FSMCatBuildForm.edit_area_V2':
+        await state.update_data(area_V2=data.get("area_build", 0))
+    elif state_data == 'FSMCatBuildForm.edit_area_V3':
+        await state.update_data(area_V3=data.get("area_build", 0))
+    elif state_data == 'FSMCatBuildForm.edit_area_V4':
+        await state.update_data(area_V4=data.get("area_build", 0))
+    elif state_data == 'FSMCatBuildForm.edit_area_G':
+        await state.update_data(area_G=data.get("area_build", 0))
+    elif state_data == 'FSMCatBuildForm.edit_area_D':
+        await state.update_data(area_D=data.get("area_build", 0))
 
+    elif state_data == 'FSMCatBuildForm.edit_area_A_EFS':
+        await state.update_data(area_A_EFS='True' if callback.data == 'efs_build_true' else 'False')
+    elif state_data == 'FSMCatBuildForm.edit_area_B_EFS':
+        await state.update_data(area_B_EFS='True' if callback.data == 'efs_build_true' else 'False')
+    elif state_data == 'FSMCatBuildForm.edit_area_V1_EFS':
+        await state.update_data(area_V1_EFS='True' if callback.data == 'efs_build_true' else 'False')
+    elif state_data == 'FSMCatBuildForm.edit_area_V2_EFS':
+        await state.update_data(area_V2_EFS='True' if callback.data == 'efs_build_true' else 'False')
+    elif state_data == 'FSMCatBuildForm.edit_area_V3_EFS':
+        await state.update_data(area_V3_EFS='True' if callback.data == 'efs_build_true' else 'False')
+    else:
+        await state.update_data(area_build='0')
+
+    data = await state.get_data()
     info_area = [
         {'area': data.get("area_A", 0), 'category': 'А',
          'efs': data.get("area_A_EFS", False)},
@@ -288,10 +366,12 @@ async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="initial_data"), caption=text),
-        reply_markup=get_inline_cd_kb(3,
-                                      'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2', 'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
+        reply_markup=get_inline_cd_kb(4,
+                                      'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2',
+                                      'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
+                                      'edit_area_A_EFS', 'edit_area_B_EFS', 'edit_area_V1_EFS', 'edit_area_V2_EFS', 'edit_area_V3_EFS',
                                       'back_category_build', i18n=i18n))
-    await callback.answer('')
+    await state.update_data(area_build='0')
     await state.set_state(state=None)
     await callback.answer('')
 

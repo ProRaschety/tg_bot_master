@@ -623,7 +623,6 @@ async def len_elem_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCo
             await state.update_data(len_elem=call_data)
             len_elem_data = await state.get_data()
             len_elem_edit = len_elem_data.get('len_elem', 1000)
-
             text = i18n.len_elem_edit.text(len_elem=len_elem_edit)
         else:
             len_elem_1 = len_elem_data.get('len_elem')
@@ -631,7 +630,6 @@ async def len_elem_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCo
             await state.update_data(len_elem=len_elem_sum)
             len_elem_data = await state.get_data()
             len_elem_edit = len_elem_data.get('len_elem', 1000)
-
             text = i18n.len_elem_edit.text(len_elem=len_elem_edit)
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
