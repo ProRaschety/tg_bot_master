@@ -17,7 +17,7 @@ from fluentogram import TranslatorRunner
 
 from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
-from app.tg_bot.filters.filter_role import IsComrade
+from app.tg_bot.filters.filter_role import IsComrade, IsSubscriber
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
 from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_initial_data_table
 from app.tg_bot.states.fsm_state_data import FSMCatBuildForm
@@ -29,12 +29,19 @@ logging.getLogger('matplotlib.font_manager').disabled = True
 log = logging.getLogger(__name__)
 
 fire_category_router = Router()
-fire_category_router.message.filter(IsComrade())
-fire_category_router.callback_query.filter(IsComrade())
+# fire_category_router.message.filter(IsComrade())
+# fire_category_router.callback_query.filter(IsComrade())
+fire_category_router.message.filter(IsSubscriber())
+fire_category_router.callback_query.filter(IsSubscriber())
 
 
 @fire_category_router.callback_query(F.data.in_(['fire_category', 'back_fire_category']))
 async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    if role in ["subscriber", "guest"]:
+        cat_kb = ['category_build', 'general_menu']
+    else:
+        cat_kb = ['category_build', 'category_premises',
+                  'category_outdoor_installation', 'general_menu']
     text = i18n.fire_category.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fire_category_logo.png')
@@ -43,7 +50,7 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'category_build', 'category_premises', 'category_outdoor_installation', 'general_menu', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, *cat_kb, i18n=i18n))
 
     await callback_data.answer('')
 
@@ -110,7 +117,7 @@ async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, i18n: 
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(4,
+        reply_markup=get_inline_cd_kb(2,
                                       'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2',
                                       'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
                                       'edit_area_A_EFS', 'edit_area_B_EFS', 'edit_area_V1_EFS', 'edit_area_V2_EFS', 'edit_area_V3_EFS',
@@ -336,7 +343,7 @@ async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
     elif state_data == 'FSMCatBuildForm.edit_area_V3_EFS':
         await state.update_data(area_V3_EFS='True' if callback.data == 'efs_build_true' else 'False')
     else:
-        await state.update_data(area_build='0')
+        await state.update_data(area_build='1')
 
     data = await state.get_data()
     info_area = [
@@ -366,12 +373,12 @@ async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="initial_data"), caption=text),
-        reply_markup=get_inline_cd_kb(4,
+        reply_markup=get_inline_cd_kb(2,
                                       'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2',
                                       'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
                                       'edit_area_A_EFS', 'edit_area_B_EFS', 'edit_area_V1_EFS', 'edit_area_V2_EFS', 'edit_area_V3_EFS',
                                       'back_category_build', i18n=i18n))
-    await state.update_data(area_build='0')
+    await state.update_data(area_build='1')
     await state.set_state(state=None)
     await callback.answer('')
 

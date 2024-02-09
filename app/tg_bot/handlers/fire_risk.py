@@ -116,10 +116,25 @@ async def fire_risks_calculator_call(callback: CallbackQuery, bot: Bot, state: F
 
 @fire_risk_router.callback_query(F.data == 'public')
 async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    info_build_public = {
+        'fire_frequency': 0.04,
+        'k_efs': 0.9,
+        # 'probability_presence': 1,
+        'time_presence': 2.0,
+        'probability_evacuation': 0.999,
+        'time_evacuation': 5.0,
+        'time_blocking_paths': 9.5,
+        'time_crowding': 1.0,
+        'time_start_evacuation': 0.5,
+        'k_alarm': 0.8,
+        'k_evacuation': 0.8,
+        'k_smoke': 0.8,
+    }
+
     text = i18n.public.text()
     log.info(str(callback.data))
-    frp = FireRisk()
-    data_out, headers, label = frp.calc_fire_risk(type_object=callback.data)
+    frisk = FireRisk(type_obj=str(callback.data))
+    data_out, headers, label = frisk.get_init_data(**info_build_public)
     media = get_initial_data_table(data=data_out, headers=headers, label=label)
     # media = get_picture_filling(
     #     file_path='temp_files/temp/fire_risk_logo.png')
@@ -135,10 +150,23 @@ async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n
 
 @fire_risk_router.callback_query(F.data == 'industrial')
 async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    info_build_industrial = {
+        'area': 104,
+        'fire_frequency': 2.2*10**-5,
+        'working_days_per_year': 247,
+        'time_presence': 12,
+        'probability_evacuation': 0.999,
+        'emergency escape': 0.03,
+        'k_efs': 0.0,
+        'k_alarm': 0.0,
+        'k_evacuation': 0.0,
+        'k_smoke': 0.0,
+    }
+
     text = i18n.industrial.text()
     log.info(str(callback.data))
-    fri = FireRisk()
-    data_out, headers, label = fri.calc_fire_risk(type_object=callback.data)
+    frisk = FireRisk(type_obj=str(callback.data))
+    data_out, headers, label = frisk.get_init_data(**info_build_industrial)
     media = get_initial_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,

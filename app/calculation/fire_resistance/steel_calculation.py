@@ -82,11 +82,11 @@ class SteelFireStrength:
         fixation = self.i18n.get(self.fixation)
         type_loading = self.i18n.get(self.type_loading)
         loading_method = self.i18n.get(self.loading_method)
-        unit_load = 'кг/м'
+        unit_1_load = 'кг/м'
         if self.loading_method == 'distributed_load_steel':
-            unit_load = "кг/м"
+            unit_1_load = "кг/м"
         elif self.loading_method == 'concentrated_load_steel':
-            unit_load = "кг"
+            unit_1_load = "кг"
 
         profile = self.num_profile
         sketch = self.sketch
@@ -98,34 +98,34 @@ class SteelFireStrength:
         headers = ('Параметр', 'Значение', 'Ед.изм.')
         if sketch == "Двутавр":
             data = [
-                {'id': 'Способ закрепления', 'var': fixation, 'unit': '-'},
-                {'id': 'Усилие', 'var': type_loading, 'unit': '-'},
-                {'id': 'Тип нагружения', 'var': loading_method, 'unit': '-'},
-                {'id': 'Нагрузка', 'var': self.n_load, 'unit': unit_load},
-                {'id': 'Длина', 'var': self.len_elem, 'unit': 'мм'},
-                {'id': 'Приведенная толщина\nметалла', 'var': ptm, 'unit': 'мм'},
+                {'id': 'Способ закрепления', 'var': fixation, 'unit_1': '-'},
+                {'id': 'Усилие', 'var': type_loading, 'unit_1': '-'},
+                {'id': 'Тип нагружения', 'var': loading_method, 'unit_1': '-'},
+                {'id': 'Нагрузка', 'var': self.n_load, 'unit_1': unit_1_load},
+                {'id': 'Длина', 'var': self.len_elem, 'unit_1': 'мм'},
+                {'id': 'Приведенная толщина\nметалла', 'var': ptm, 'unit_1': 'мм'},
                 {'id': 'Количество сторон обогрева',
-                    'var': num_sides_heated, 'unit': 'шт'},
-                {'id': 'Сечение', 'var': self.sketch, 'unit': '-'},
-                {'id': 'Профиль', 'var': self.num_profile, 'unit': '-'},
-                {'id': 'Профиль по ГОСТ', 'var': self.reg_document, 'unit': '-'},
-                {'id': 'Сопротивление стали', 'var': r_norm, 'unit': 'кг/см\u00B2'},
-                {'id': 'Марка стали', 'var': self.type_steel_element, 'unit': '-'}]
+                    'var': num_sides_heated, 'unit_1': 'шт'},
+                {'id': 'Сечение', 'var': self.sketch, 'unit_1': '-'},
+                {'id': 'Профиль', 'var': self.num_profile, 'unit_1': '-'},
+                {'id': 'Профиль по ГОСТ', 'var': self.reg_document, 'unit_1': '-'},
+                {'id': 'Сопротивление стали', 'var': r_norm, 'unit_1': 'кг/см\u00B2'},
+                {'id': 'Марка стали', 'var': self.type_steel_element, 'unit_1': '-'}]
 
         elif sketch == "Швеллер":
             data = [
-                {'id': 'Способ закрепления', 'var': fixation, 'unit': '-'},
-                {'id': 'Усилие', 'var': type_loading, 'unit': '-'},
-                {'id': 'Тип нагружения', 'var': loading_method, 'unit': '-'},
-                {'id': 'Нагрузка', 'var': self.n_load * 9.807, 'unit': 'Н'},
-                {'id': 'Длина', 'var': self.len_elem, 'unit': 'мм'},
-                {'id': 'Приведенная толщина\nметалла', 'var': ptm, 'unit': 'мм'},
+                {'id': 'Способ закрепления', 'var': fixation, 'unit_1': '-'},
+                {'id': 'Усилие', 'var': type_loading, 'unit_1': '-'},
+                {'id': 'Тип нагружения', 'var': loading_method, 'unit_1': '-'},
+                {'id': 'Нагрузка', 'var': self.n_load * 9.807, 'unit_1': 'Н'},
+                {'id': 'Длина', 'var': self.len_elem, 'unit_1': 'мм'},
+                {'id': 'Приведенная толщина\nметалла', 'var': ptm, 'unit_1': 'мм'},
                 {'id': 'Количество сторон обогрева',
-                    'var': num_sides_heated, 'unit': 'шт'},
-                {'id': 'Марка стали', 'var': self.type_steel_element, 'unit': '-'},
-                {'id': 'Сечение', 'var': self.name_profile, 'unit': '-'},
-                {'id': 'Сортамент', 'var': self.sketch, 'unit': '-'},
-                {'id': 'Профиль по ГОСТ', 'var': self.reg_document, 'unit': '-'}]
+                    'var': num_sides_heated, 'unit_1': 'шт'},
+                {'id': 'Марка стали', 'var': self.type_steel_element, 'unit_1': '-'},
+                {'id': 'Сечение', 'var': self.name_profile, 'unit_1': '-'},
+                {'id': 'Сортамент', 'var': self.sketch, 'unit_1': '-'},
+                {'id': 'Профиль по ГОСТ', 'var': self.reg_document, 'unit_1': '-'}]
         return data, headers, label
 
     def get_initial_data_strength(self):
@@ -183,8 +183,8 @@ class SteelFireStrength:
             # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
             ax.text(x=2.5, y=row, s=d['var'], va='center',
                     ha='center', weight='bold', **ft_size)
-            # unit column
-            ax.text(x=3.5, y=row, s=d['unit'],
+            # unit_1 column
+            ax.text(x=3.5, y=row, s=d['unit_1'],
                     va='center', ha='right', **ft_size)
 
         # выделите столбец, используя прямоугольную заплатку
@@ -637,21 +637,21 @@ class SteelFireResistance:
         data = [
 
             {'id': 'Коэффициент изм.\nтеплоемкости стали',
-                'var': self.heat_capacity_change, 'unit': 'Дж/кг\u00D7К\u00B2'},
+                'var': self.heat_capacity_change, 'unit_1': 'Дж/кг\u00D7К\u00B2'},
             {'id': 'Теплоемкость стали', 'var': self.heat_capacity,
-                'unit': 'Дж/кг\u00D7К'},
-            {'id': 'Степень черноты стали, Sст', 'var': self.s_1, 'unit': '-'},
+                'unit_1': 'Дж/кг\u00D7К'},
+            {'id': 'Степень черноты стали, Sст', 'var': self.s_1, 'unit_1': '-'},
             {'id': 'Плотность стали, \u03C1',
-                'var': self.density_steel, 'unit': 'кг/м\u00B3'},
-            {'id': 'Степень черноты среды, S0', 'var': self.s_0, 'unit': '-'},
+                'var': self.density_steel, 'unit_1': 'кг/м\u00B3'},
+            {'id': 'Степень черноты среды, S0', 'var': self.s_0, 'unit_1': '-'},
             {'id': 'Конвективный коэффициент\nтеплоотдачи, \u03B1к',
-                'var': a_convection, 'unit': 'Вт/м\u00B2\u00D7К'},
-            {'id': 'Начальная температура', 'var': self.T_0-273, 'unit': '\u00B0С'},
+                'var': a_convection, 'unit_1': 'Вт/м\u00B2\u00D7К'},
+            {'id': 'Начальная температура', 'var': self.T_0-273, 'unit_1': '\u00B0С'},
             {'id': 'Критическая температура стали',
-                'var': f'{self.t_critic:.2f}', 'unit': '\u00B0С'},
+                'var': f'{self.t_critic:.2f}', 'unit_1': '\u00B0С'},
             {'id': 'Приведенная толщина\nметалла',
-                'var': f'{self.ptm:.2f}', 'unit': 'мм'},
-            {'id': 'Температурный режим', 'var': self.mode, 'unit': '-'}
+                'var': f'{self.ptm:.2f}', 'unit_1': 'мм'},
+            {'id': 'Температурный режим', 'var': self.mode, 'unit_1': '-'}
         ]
 
         # rows = len(data)
@@ -691,8 +691,8 @@ class SteelFireResistance:
         #     # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
         #     ax.text(x=2.5, y=row, s=d['var'], va='center',
         #             ha='center', weight='bold', **ft_size)
-        #     # unit column
-        #     ax.text(x=3.5, y=row, s=d['unit'],
+        #     # unit_1 column
+        #     ax.text(x=3.5, y=row, s=d['unit_1'],
         #             va='center', ha='right', **ft_size)
 
         # # выделите столбец, используя прямоугольную заплатку

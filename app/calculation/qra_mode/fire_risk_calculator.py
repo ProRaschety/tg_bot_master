@@ -5,6 +5,178 @@ import json
 log = logging.getLogger(__name__)
 
 
+class FireRisk:
+    def __init__(self, type_obj: str):
+        self.type_obj = type_obj
+        # self.init_data = self._get_init_data(self, *args, type_obj = type_obj, **kwargs)
+
+    def get_init_data(self, *args, **kwargs):
+        # log.info(f'Data: {kwargs}')
+        # log.info(f'Type: {type}')
+        head_risk = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
+        if self.type_obj == 'public':
+            label_risk = 'Расчет пожарного риска. Методика 1140'
+        else:
+            label_risk = 'Расчет пожарного риска. Методика 404'
+        if self.type_obj == 'public':
+            coef_fire_protection = self._calc_probity_fire_protec_system(
+                **kwargs)
+            prob_presence = self._calc_probity_presence(**kwargs)
+            poten_risk = 1
+            ind_risk = 1
+            data_risk = [
+                {'id': 'Коэффициент соответствия СПЗ', 'var': 'Кпз',
+                    'unit_1': f'{coef_fire_protection:.3f}', 'unit_2': '-'},
+                {'id': 'Вероятность работы ПДЗ', 'var': 'Кпдз',
+                    'unit_1': kwargs.get('k_smoke', 0.0), 'unit_2': '-'},
+                {'id': 'Вероятность работы СОУЭ', 'var': 'Ксоуэ',
+                    'unit_1': kwargs.get('k_evacuation', 0.0), 'unit_2': '-'},
+                {'id': 'Вероятность работы АПС', 'var': 'Кобн',
+                    'unit_1': kwargs.get('k_alarm', 0.0), 'unit_2': '-'},
+                {'id': 'Вероятность работы АУП', 'var': 'Кап',
+                    'unit_1': kwargs.get('k_efs', 0.0), 'unit_2': '-'},
+                {'id': 'Вероятность эвакуации', 'var': 'Рэ',
+                    'unit_1': f"{(kwargs.get('probability_evacuation', 0.000)):.3f}", 'unit_2': '-'},
+                {'id': 'Вероятность присутствия', 'var': 'Рпр',
+                    'unit_1': f"{prob_presence:.3f}", 'unit_2': '-'},
+                {'id': 'Время присутствия человека', 'var': 'в сутки',
+                    'unit_1': kwargs.get('time_presence', 0.000), 'unit_2': 'ч'},
+                {'id': 'Частота возникновения\nпожара в здании', 'var': 'Общеобразовательные\nорганизации', 'unit_1': f"{(kwargs.get('fire_frequency', 0.04)):.2e}", 'unit_2': '1/год'}]
+        else:
+            fire_freq = self._get_frequency_of_fire(**kwargs)
+            probity_efs = self._calc_probity_fire_protec_system(**kwargs)
+            probity_evac = self._calc_probity_evacuation(**kwargs)
+            probity_dam = self._calc_probity_of_human_damage(
+                probity_evac=probity_evac, probity_efs=probity_efs, **kwargs)
+            poten_risk = self._calc_potential_fire_risk(
+                probity_damage=probity_dam, **kwargs)
+            ind_risk = self.calc_fire_risk(
+                self, *args, poten_risk=poten_risk, **kwargs)
+            data_risk = [
+                {'id': 'Индивидуальный риск в помещении', 'var': 'Rm',
+                    'unit_1': f'{ind_risk:.2e}', 'unit_2': '-'},
+                {'id': 'Потенциальный риск в помещении', 'var': 'Рi',
+                    'unit_1': f'{poten_risk:.2e}', 'unit_2': '-'},
+                {'id': 'Условная вероятность\nпоражения человека в i-ом помещении',
+                    'var': 'Qd', 'unit_1': f"{probity_dam:.3f}", 'unit_2': '-'},
+                {'id': 'Вероятность эффектиной работы\nсистем противопожарной защиты', 'var': 'Dijk',
+                    'unit_1': f"{probity_efs:.3f}", 'unit_2': '-'},
+                {'id': 'Вероятность работы ПДЗ', 'var': 'Dпдз',
+                    'unit_1': kwargs.get('k_smoke', 0.8), 'unit_2': '-'},
+                {'id': 'Вероятность работы СОУЭ', 'var': 'Dсоуэ',
+                    'unit_1': kwargs.get('k_evacuation', 0.8), 'unit_2': '-'},
+                {'id': 'Вероятность работы АПС', 'var': 'Dапс',
+                    'unit_1': kwargs.get('k_alarm', 0.8), 'unit_2': '-'},
+                {'id': 'Вероятность работы АПТ', 'var': 'Dапт',
+                    'unit_1': kwargs.get('k_efs', 0.9), 'unit_2': '-'},
+                {'id': 'Вероятность эвакуации из здания', 'var': 'Рэ',
+                    'unit_1': probity_evac, 'unit_2': '-'},
+                {'id': 'Вероятность эвакуации\nпо эвакуационным путям', 'var': 'Рэп',
+                    'unit_1': kwargs.get('probability_evacuation', 0), 'unit_2': '-'},
+                {'id': 'Вероятность эвакуации\nчерез аварийные выходы', 'var': 'Рдв',
+                    'unit_1': kwargs.get('emergency escape', 0.001), 'unit_2': '-'},
+                {'id': 'Вероятность присутствия', 'var': 'Р',
+                    'unit_1': f"{((kwargs.get('working_days_per_year', 30)*(kwargs.get('time_presence', 0)))/8760):.3f}", 'unit_2': '-'},
+                {'id': 'Рабочих дней в году', 'var': '-',
+                    'unit_1': kwargs.get('working_days_per_year', 30), 'unit_2': 'сутки'},
+                {'id': 'Время нахождения людей\nна объекте', 'var': '-',
+                    'unit_1': kwargs.get('time_presence', 0), 'unit_2': 'час/сутки'},
+                {'id': 'Частота возникновения\nпожара в здании', 'var': 'Q',
+                    'unit_1': f"{(fire_freq):.2e}", 'unit_2': '1/год'},
+                {'id': 'Частота возникновения\nпожара в здании', 'var': 'Справочная',
+                 'unit_1': f"{(kwargs.get('fire_frequency', 0.04)):.2e}", 'unit_2': '1/год'},
+                {'id': 'Площадь объекта', 'var': 'S', 'unit_1': kwargs.get('area', 100), 'unit_2': 'м2'}]
+        return data_risk, head_risk, label_risk
+
+    def _get_frequency_of_fire(self, **kwargs) -> int | float:
+        if self.type_obj == 'public':
+            frequency = kwargs.get('fire_frequency', 0.04)
+        else:
+            frequency = kwargs.get('fire_frequency', 0.04) * \
+                kwargs.get('area', 100)
+        return frequency
+
+    def _calc_probity_presence(self, **kwargs):
+        if self.type_obj == 'public':
+            probity_of_presence = kwargs.get('time_presence', 0) / 24
+        else:
+            days_in_year = 365
+            work_time = 12
+            quantity_work_day_in_year = 337
+            probity_of_presence = (337 * 12)/(365 * 24)
+        return probity_of_presence
+
+    def _calc_probity_evacuation(self, **kwargs):
+        log.info(
+            f'Определение вероятности эвакуации для {self.type_obj} объекта')
+        if self.type_obj == 'public':
+            probity_evacuation = 0
+        else:
+            probity_evacuation = 1 - \
+                ((1 - kwargs.get('probability_evacuation', 0.0))
+                 * (1 - kwargs.get('emergency escape', 0.0)))
+            log.info(probity_evacuation)
+        return probity_evacuation
+
+    def _calc_probity_of_human_damage(self, probity_evac: int | float, probity_efs: int | float, **kwargs):
+        if self.type_obj == 'public':
+            probity_human_damage = 0
+        else:
+            probity_human_damage = (1 - probity_evac) * (1 - probity_efs)
+        return probity_human_damage
+
+    def _calc_potential_fire_risk(self, probity_damage: int | float, **kwargs):
+        if self.type_obj == 'public':
+            poten_fire_risk = 1
+        else:
+            fire_frequency = kwargs.get('fire_frequency', 0.04)
+            poten_fire_risk = round(fire_frequency, 5) * \
+                round(probity_damage, 5)
+        return poten_fire_risk
+
+    def _calc_probity_fire_protec_system(self, **kwargs):
+        if self.type_obj == 'public':
+            probity_efs = 1 - (1 - kwargs.get('k_alarm', 0.0) * kwargs.get('k_evacuation', 0.0)) * (
+                1 - kwargs.get('k_alarm', 0.0) * kwargs.get('k_smoke', 0.0))
+        else:
+            probity_efs = 1 - ((1 - kwargs.get('k_alarm', 0.8) * kwargs.get('k_evacuation', 0.8))
+                               * (1 - kwargs.get('k_smoke', 0.8)) * (1 - kwargs.get('k_efs', 0.9)))
+        return probity_efs
+
+    def calc_fire_risk(self, *args, potencial_risk: int | float = None, fire_frequency: int | float, **kwargs) -> int | float:
+        if self.type_obj == 'public':
+            fire_frequency = kwargs.get('fire_frequency', 0.04)
+            k_efs = kwargs.get('k_efs', 0)
+            prob_presence = self._calc_probity_presence(
+                type_obj=self.type_obj, **kwargs)
+            probability_evacuation = kwargs.get(
+                'probability_evacuation', 0.000)
+            k_fps = self._calc_probity_fire_protec_system(**kwargs)
+            fire_risk = fire_frequency * \
+                (1 - k_efs) * prob_presence * \
+                (1 - probability_evacuation) * (1 - k_fps)
+        else:
+            if potencial_risk == None:
+                fire_freq = self._get_frequency_of_fire(**kwargs)
+                probity_efs = self._calc_probity_fire_protec_system(**kwargs)
+                probity_evac = self._calc_probity_evacuation(**kwargs)
+                probity_dam = self._calc_probity_of_human_damage(
+                    probity_evac=probity_evac, probity_efs=probity_efs, **kwargs)
+                poten_risk = self._calc_potential_fire_risk(
+                    probity_damage=probity_dam, **kwargs)
+                p_risk = self._calc_potential_fire_risk(
+                    probity_damage=probity_dam, **kwargs)
+            else:
+                p_risk = potencial_risk
+
+            fire_risk = p_risk * \
+                ((kwargs.get('working_days_per_year', 30)
+                 * (kwargs.get('time_presence', 0)))/8760)
+
+        log.info(f'Инд.пожарный риск для {self.type_obj}: {fire_risk:.3e}')
+        return fire_risk
+
+
 class FireRiskPublic:
     def __init__(self):
         pass
@@ -115,45 +287,45 @@ class FireRiskIndustrial:
         return individual_fire_risk
 
 
-class FireRisk(FireRiskPublic, FireRiskIndustrial):
-    def __init__(self, type_object=None):
-        self.type_object: str = type_object
-        if type_object == "Производственное":
-            pass
-        elif type_object == "Общественное":
-            pass
-        else:
-            pass
+# class FireRisk(FireRiskPublic, FireRiskIndustrial):
+#     def __init__(self, type_object=None):
+#         self.type_object: str = type_object
+#         if type_object == "Производственное":
+#             pass
+#         elif type_object == "Общественное":
+#             pass
+#         else:
+#             pass
 
-    def calc_fire_risk(self, type_object: str):
-        headers = ('Параметр', 'Значение', 'Ед.изм.')
-        if type_object == 'industrial':
-            label = 'Расчет пожарного риска для производственного здания'
-            data = [
-                {'id': 'Вероятность эффективного срабатывания\nустановок пожаротушения',
-                    'var': "ptm", 'unit': 'мм'},
-                {'id': 'Вероятность эффективного срабатывания\nсистемы противодымной защиты',
-                    'var': "num_sides_heated", 'unit': 'шт'},
-                {'id': 'Вероятность эффективного срабатывания\nпожарной сигнализации\nв сочетании с системой оповещения',
-                    'var': "self.sketch", 'unit': '-'},
-                {'id': 'Время нахождения людей на объекте',
-                    'var': '1', 'unit': 'часы'},
-                {'id': 'Вероятность эвакуации', 'var': '1', 'unit': '-'},
-                {'id': 'Площадь помещения', 'var': '1', 'unit': 'м\u00B2'},
-                {'id': 'Частота возникновения пожара', 'var': '1', 'unit': '-'}]
-        else:
-            label = 'Расчет пожарного риска для общественного здания'
-            data = [
-                {'id': 'Вероятность эффективного срабатывания\nустановок пожаротушения',
-                    'var': "ptm", 'unit': 'мм'},
-                {'id': 'Вероятность эффективного срабатывания\nсистемы противодымной защиты',
-                    'var': "num_sides_heated", 'unit': 'шт'},
-                {'id': 'Вероятность эффективного срабатывания\nпожарной сигнализации\nв сочетании с системой оповещения',
-                    'var': "self.sketch", 'unit': '-'},
-                {'id': 'Время нахождения людей на объекте',
-                    'var': '1', 'unit': 'часы'},
-                {'id': 'Вероятность эвакуации', 'var': '1', 'unit': '-'},
-                {'id': 'Площадь помещения', 'var': '1', 'unit': 'м\u00B2'},
-                {'id': 'Частота возникновения пожара', 'var': '1', 'unit': '-'}]
+#     def calc_fire_risk(self, type_object: str):
+#         headers = ('Параметр', 'Значение', 'Ед.изм.')
+#         if type_object == 'industrial':
+#             label = 'Расчет пожарного риска для производственного здания'
+#             data = [
+#                 {'id': 'Вероятность эффективного срабатывания\nустановок пожаротушения',
+#                     'var': "ptm", 'unit': 'мм'},
+#                 {'id': 'Вероятность эффективного срабатывания\nсистемы противодымной защиты',
+#                     'var': "num_sides_heated", 'unit': 'шт'},
+#                 {'id': 'Вероятность эффективного срабатывания\nпожарной сигнализации\nв сочетании с системой оповещения',
+#                     'var': "self.sketch", 'unit': '-'},
+#                 {'id': 'Время нахождения людей на объекте',
+#                     'var': '1', 'unit': 'часы'},
+#                 {'id': 'Вероятность эвакуации', 'var': '1', 'unit': '-'},
+#                 {'id': 'Площадь помещения', 'var': '1', 'unit': 'м\u00B2'},
+#                 {'id': 'Частота возникновения пожара', 'var': '1', 'unit': '-'}]
+#         else:
+#             label = 'Расчет пожарного риска для общественного здания'
+#             data = [
+#                 {'id': 'Вероятность эффективного срабатывания\nустановок пожаротушения',
+#                     'var': "ptm", 'unit': 'мм'},
+#                 {'id': 'Вероятность эффективного срабатывания\nсистемы противодымной защиты',
+#                     'var': "num_sides_heated", 'unit': 'шт'},
+#                 {'id': 'Вероятность эффективного срабатывания\nпожарной сигнализации\nв сочетании с системой оповещения',
+#                     'var': "self.sketch", 'unit': '-'},
+#                 {'id': 'Время нахождения людей на объекте',
+#                     'var': '1', 'unit': 'часы'},
+#                 {'id': 'Вероятность эвакуации', 'var': '1', 'unit': '-'},
+#                 {'id': 'Площадь помещения', 'var': '1', 'unit': 'м\u00B2'},
+#                 {'id': 'Частота возникновения пожара', 'var': '1', 'unit': '-'}]
 
-        return data, headers, label
+#         return data, headers, label

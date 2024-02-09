@@ -31,7 +31,7 @@ async def process_start_command(message: Message, bot: Bot, state: FSMContext, i
     text = i18n.start.menu()
     if role == "subscriber":
         main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
-                   'fire_risks_guest', 'fire_category_guest']
+                   'fire_risks_guest', 'fire_category']
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
@@ -58,7 +58,7 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
     text = i18n.start.menu()
     if role == "subscriber":
         main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
-                   'fire_risks_guest', 'fire_category_guest']
+                   'fire_risks_guest', 'fire_category']
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']

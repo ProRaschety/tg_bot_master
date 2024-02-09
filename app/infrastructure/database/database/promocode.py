@@ -7,8 +7,12 @@ from app.infrastructure.database.models.promocode_model import PromocodeModel, P
 
 log = logging.getLogger(__name__)
 
-promocodes = [{'PROMO': 'fireengin24'}, {
-    'PROMO': 'fireengin2024'}, {'PROMO': 'fireengin04'}]
+promocodes = [
+    {'PROMO': 'fireengin24'},
+    {'PROMO': 'fireengin2024'},
+    {'PROMO': 'fireengin01'},
+    {'PROMO': 'fireengin04'}
+]
 
 
 class _PromocodeDB:

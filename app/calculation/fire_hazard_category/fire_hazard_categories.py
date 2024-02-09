@@ -102,7 +102,7 @@ class FireCategoryBuild(FireHazardCategory):
         area_percent_5 = total_area * 0.05
         area_percent_25 = total_area * 0.25
         if area_a >= area_percent_5 or area_a >= 200:
-            if any(efs_a):
+            if all(efs_a) is False:
                 if area_a >= area_percent_5:
                     cause = (
                         f'Площадь помещений кат. А: {area_a}м\u00B2 сост. {(100 / (total_area / area_a)):.2f}% от {total_area}м\u00B2 и не оборуд. АУПТ')
@@ -110,9 +110,9 @@ class FireCategoryBuild(FireHazardCategory):
                     return cat_build, cause
                 else:
                     cause = (
-                        f'Площадь помещений кат. А: {area_a}м\u00B2 сост. {(100 / (total_area / area_a)):.2f}%, но боллее 200м\u00B2 и не оборуд. АУПТ')
+                        f'Площадь помещений кат. А: {area_a}м\u00B2 сост. {(100 / (total_area / area_a)):.2f}%, но ≥ 200м\u00B2 и не оборуд. АУПТ')
                     cat_build = 'A'
-                    return cat_build. cause
+                    return cat_build, cause
             else:
                 if area_a >= area_percent_25 or area_a >= 1000:
                     if area_a >= area_percent_25:
@@ -122,7 +122,7 @@ class FireCategoryBuild(FireHazardCategory):
                         return cat_build, cause
                     else:
                         cause = (
-                            f'Площадь помещений кат. А: {area_a}м\u00B2 больше 1000м\u00B2 и оборуд. АУПТ')
+                            f'Площадь помещений кат. А: {area_a}м\u00B2 ≥ 1000м\u00B2 и оборуд. АУПТ')
                         cat_build = 'A'
                         return cat_build, cause
                 else:
@@ -136,7 +136,7 @@ class FireCategoryBuild(FireHazardCategory):
         area_percent_5 = total_area * 0.05
         area_percent_25 = total_area * 0.25
         if (area_a + area_b) >= area_percent_5 or (area_a + area_b) >= 200:
-            if any(efs_a) is False:
+            if all(efs_a + efs_b) is False:
                 if (area_a + area_b) >= area_percent_5:
                     cause = (
                         f'Площадь помещений кат. А и Б: {area_a + area_b}м\u00B2 сост. {(100 / (total_area / (area_a + area_b))):.2f}% от {total_area}м\u00B2 и не оборуд. АУПТ')
@@ -144,9 +144,9 @@ class FireCategoryBuild(FireHazardCategory):
                     return cat_build, cause
                 else:
                     cause = (
-                        f'Площадь помещений кат. А и Б: {area_a + area_b}м\u00B2 более 200м\u00B2 и не оборуд. АУПТ')
+                        f'Площадь помещений кат. А и Б: {area_a + area_b}м\u00B2 ≥ 200м\u00B2 и не оборуд. АУПТ')
                     cat_build = 'Б'
-                    return cat_build
+                    return cat_build, cause
             else:
                 if (area_a + area_b) >= area_percent_25 or (area_a + area_b) >= 1000:
                     if (area_a + area_b) >= area_percent_25:
@@ -156,9 +156,9 @@ class FireCategoryBuild(FireHazardCategory):
                         return cat_build, cause
                     else:
                         cause = (
-                            f'Площадь помещений кат. А и Б: {area_a + area_b}м\u00B2 больше 1000м\u00B2 и оборуд. АУПТ')
+                            f'Площадь помещений кат. А и Б: {area_a + area_b}м\u00B2 ≥ 1000м\u00B2 и оборуд. АУПТ')
                         cat_build = 'Б'
-                        return cat_build
+                        return cat_build, cause
 
                 else:
                     return None, None
@@ -175,11 +175,11 @@ class FireCategoryBuild(FireHazardCategory):
                 return None, None
             else:
                 cause = (
-                    f'Площадь помещений кат. В1-В3: {a + b + v}м\u00B2 сост. {100/(total_area/(a + b + v)):.2f}% от {total_area}м\u00B2')
+                    f'Площадь помещений кат. В1-В3: {v}м\u00B2 сост. {100/(total_area/(v)):.2f}% от {total_area}м\u00B2')
                 cat_build = 'В'
                 return cat_build, cause
 
-        if a > 0 and b > 0 and v > 0:
+        elif a > 0 and b > 0 and v > 0:
             if (a + b + v) >= area_percent_5:
                 if all(efs_a + efs_b + efs_v):
                     if ((a + b + v) >= area_percent_25) or ((a + b + v) >= 3500):
@@ -190,7 +190,7 @@ class FireCategoryBuild(FireHazardCategory):
                             return cat_build, cause
                         else:
                             cause = (
-                                f'Площадь помещений кат. А, Б и В1-В3: {a + b + v}м\u00B2 более 3500 м\u00B2 и помещения кат. А,Б,В1-В3 оборуд. АУПТ')
+                                f'Площадь помещений кат. А, Б и В1-В3: {a + b + v}м\u00B2 ≥ 3500 м\u00B2 и помещения кат. А,Б,В1-В3 оборуд. АУПТ')
                             cat_build = 'В'
                             return cat_build, cause
                     else:
@@ -201,9 +201,8 @@ class FireCategoryBuild(FireHazardCategory):
                     cat_build = 'В'
                     return cat_build, cause
 
-        if a == 0 and b > 0 and v > 0:
+        elif a == 0 and b > 0 and v > 0:
             if (b + v) >= area_percent_5:
-                print((efs_b + efs_v))
                 if all(efs_b + efs_v):
                     if ((b + v) >= area_percent_25) or ((b + v) >= 3500):
                         if ((b + v) >= area_percent_25):
@@ -213,7 +212,7 @@ class FireCategoryBuild(FireHazardCategory):
                             return cat_build, cause
                         else:
                             cause = (
-                                f'Площадь помещений кат. Б и В1-В3: {b + v}м\u00B2 более 3500 м\u00B2 и помещения кат. Б,В1-В3 оборуд. АУПТ')
+                                f'Площадь помещений кат. Б и В1-В3: {b + v}м\u00B2 ≥ 3500 м\u00B2 и помещения кат. Б,В1-В3 оборуд. АУПТ')
                             cat_build = 'В'
                             return cat_build, cause
                     else:
@@ -223,7 +222,8 @@ class FireCategoryBuild(FireHazardCategory):
                         f'Площадь помещений кат. Б и В1-В3: {b + v}м\u00B2 сост. {100/(total_area/(b + v)):.2f}% от {total_area}м\u00B2 и помещения кат. Б,В1-В3 не оборуд. АУПТ')
                     cat_build = 'В'
                     return cat_build, cause
-        if a > 0 and b == 0 and v > 0:
+
+        elif a > 0 and b == 0 and v > 0:
             if (a + v) >= area_percent_5:
                 if all(efs_a + efs_v):
                     if ((a + v) >= area_percent_25) or ((a + v) >= 3500):
@@ -234,7 +234,7 @@ class FireCategoryBuild(FireHazardCategory):
                             return cat_build, cause
                         else:
                             cause = (
-                                f'Площадь помещений кат. А и В1-В3: {a + v}м\u00B2 более 3500 м\u00B2 и помещения кат. А,В1-В3 оборуд. АУПТ')
+                                f'Площадь помещений кат. А и В1-В3: {a + v}м\u00B2 ≥ 3500 м\u00B2 и помещения кат. А,В1-В3 оборуд. АУПТ')
                             cat_build = 'В'
                             return cat_build, cause
                     else:
@@ -247,37 +247,104 @@ class FireCategoryBuild(FireHazardCategory):
 
             else:
                 return None, None
+        else:
+            return None, None
 
     def _check_category_g(self,  efs_a, efs_b, efs_v, total_area, a: int | float = 0, b: int | float = 0, v: int | float = 0, g: int | float = 0) -> str | None:
         area_percent_5 = total_area * 0.05
         area_percent_25 = total_area * 0.25
-        if (a + b + v + g) >= area_percent_5:
-            if all(efs_a + efs_b + efs_v):
-                if ((a + b + v + g) >= area_percent_25) or ((a + b + v + g) >= 5000):
-                    if ((a + b + v + g) >= area_percent_25):
-                        cause = (
-                            f'Площадь помещений кат. А, Б, В1-В3 и Г: {a + b + v + g}м\u00B2 сост. {100/(total_area/(a + b + v + g)):.2f}% от {total_area}м\u00B2 и помещения кат. А,Б,В1-В3 оборуд. АУПТ')
-                        cat_build = 'Г'
-                        return cat_build, cause
+        if a > 0 and b > 0 and v > 0:
+            if (a + b + v + g) >= area_percent_5:
+                if all(efs_a + efs_b + efs_v):
+                    if ((a + b + v + g) >= area_percent_25) or ((a + b + v + g) >= 5000):
+                        if ((a + b + v + g) >= area_percent_25):
+                            cause = (
+                                f'Площадь помещений кат. А, Б, В1-В3 и Г: {a + b + v + g}м\u00B2 сост. {100/(total_area/(a + b + v + g)):.2f}% от {total_area}м\u00B2 и помещения кат. А,Б,В1-В3 оборуд. АУПТ')
+                            cat_build = 'Г'
+                            return cat_build, cause
+                        else:
+                            cause = (
+                                f'Площадь помещений кат. А, Б, В1-В3 и Г: {a + b + v + g}м\u00B2 ≥ 5000 м\u00B2 и помещения кат. А,Б,В1-В3 оборуд. АУПТ')
+                            cat_build = 'Г'
+                            return cat_build, cause
                     else:
-                        cause = (
-                            f'Площадь помещений кат. А, Б, В1-В3 и Г: {a + b + v + g}м\u00B2 более 5000 м\u00B2 и помещения кат. А,Б,В1-В3 оборуд. АУПТ')
-                        cat_build = 'Г'
-                        return cat_build, cause
+                        return None, None
                 else:
-                    return None, None
+                    cause = (
+                        f'Площадь помещений кат. А, Б, В1-В3 и Г: {a + b + v + g}м\u00B2 сост. {100/(total_area/(a + b + v + g)):.2f}% от {total_area}м\u00B2 и помещения кат. А,Б,В1-В3 не оборуд. АУПТ')
+                    cat_build = 'Г'
+                    return cat_build, cause
+
             else:
-                cause = (
-                    f'Площадь помещений кат. А, Б, В1-В3 и Г: {a + b + v + g}м\u00B2 сост. {100/(total_area/(a + b + v + g)):.2f}% от {total_area}м\u00B2 и помещения кат. А,Б,В1-В3 не оборуд. АУПТ')
-                cat_build = 'Г'
-                return cat_build, cause
+                return None, None
+        else:
+            return None, None
+
+        if a == 0 and b > 0 and v > 0:
+            if (b + v + g) >= area_percent_5:
+                if all(efs_b + efs_v):
+                    if ((b + v + g) >= area_percent_25) or ((b + v + g) >= 5000):
+                        if ((b + v + g) >= area_percent_25):
+                            cause = (
+                                f'Площадь помещений кат. Б, В1-В3 и Г: {b + v + g}м\u00B2 сост. {100/(total_area/(b + v + g)):.2f}% от {total_area}м\u00B2 и помещения кат. Б,В1-В3 оборуд. АУПТ')
+                            cat_build = 'Г'
+                            return cat_build, cause
+                        else:
+                            cause = (
+                                f'Площадь помещений кат. Б, В1-В3 и Г: {b + v + g}м\u00B2 ≥ 5000 м\u00B2 и помещения кат. Б,В1-В3 оборуд. АУПТ')
+                            cat_build = 'Г'
+                            return cat_build, cause
+                    else:
+                        return None, None
+                else:
+                    cause = (
+                        f'Площадь помещений кат. Б, В1-В3 и Г: {b + v + g}м\u00B2 сост. {100/(total_area/(b + v + g)):.2f}% от {total_area}м\u00B2 и помещения кат. Б,В1-В3 не оборуд. АУПТ')
+                    cat_build = 'Г'
+                    return cat_build, cause
+            else:
+                return None, None
+        else:
+            return None, None
+
+        if a == 0 and b == 0 and v > 0:
+            if (v + g) >= area_percent_5:
+                if all(efs_v):
+                    if ((v + g) >= area_percent_25) or ((v + g) >= 5000):
+                        if ((v + g) >= area_percent_25):
+                            cause = (
+                                f'Площадь помещений кат. В1-В3 и Г: {v + g}м\u00B2 сост. {100/(total_area/(v + g)):.2f}% от {total_area}м\u00B2 и помещения кат. В1-В3 оборуд. АУПТ')
+                            cat_build = 'Г'
+                            return cat_build, cause
+                        else:
+                            cause = (
+                                f'Площадь помещений кат. В1-В3 и Г: {v + g}м\u00B2 ≥ 5000 м\u00B2 и помещения кат. В1-В3 оборуд. АУПТ')
+                            cat_build = 'Г'
+                            return cat_build, cause
+                    else:
+                        return None, None
+                else:
+                    cause = (
+                        f'Площадь помещений кат. В1-В3 и Г: {v + g}м\u00B2 сост. {100/(total_area/(v + g)):.2f}% от {total_area}м\u00B2 и помещения кат. В1-В3 не оборуд. АУПТ')
+                    cat_build = 'Г'
+                    return cat_build, cause
+            else:
+                return None, None
         else:
             return None, None
 
     def get_init_data_table(self, *args):
         log.info("Определение категории здания по пожарной опасности")
         # a, b, v, g, other, efs_a, efs_b, efs_v = self.calc_area_premises(*args)
-        # log.info(args)
+        # log.info(f'{args}')
+        a = float(args[0].get('area', 0))
+        b = float(args[1].get('area', 0))
+        v1 = float(args[2].get('area', 0))
+        v2 = float(args[3].get('area', 0))
+        v3 = float(args[4].get('area', 0))
+        v4 = float(args[5].get('area', 0))
+        g = float(args[6].get('area', 0))
+        d = float(args[7].get('area', 0))
+
         label = 'Категория здания по пожарной опасности'
         headers = ("Наименование помещения",
                    "Площадь, м\u00B2", "АУПТ")
@@ -290,22 +357,19 @@ class FireCategoryBuild(FireHazardCategory):
 
         data = [
             {'id': 'Общая площадь помещений\nв здании или сооружении',
-                'var': area, 'unit': '-'},
-            {'id': 'Помещения категории Д', 'var': args[7].get(
-                'area', 0), 'unit': '-'},
-            {'id': 'Помещения категории Г', 'var': args[6].get(
-                'area', 0), 'unit': '-'},
-            {'id': 'Помещения категории В4', 'var': args[5].get(
-                'area', 0), 'unit': '-'},
-            {'id': 'Помещения категории В3', 'var': args[4].get(
-                'area', 0), 'unit': 'Да' if args[4].get('efs', 'True') == 'True' else 'Нет'},
-            {'id': 'Помещения категории В2', 'var': args[3].get(
-                'area', 0), 'unit': 'Да' if args[3].get('efs', 'True') == 'True' else 'Нет'},
-            {'id': 'Помещения категории В1', 'var': args[2].get(
-                'area', 0), 'unit': 'Да' if args[2].get('efs', 'True') == 'True' else 'Нет'},
-            {'id': 'Помещения категории Б', 'var': args[1].get(
-                'area', 0), 'unit': 'Да' if args[1].get('efs', 'True') == 'True' else 'Нет'},
-            {'id': 'Помещения категории А', 'var': args[0].get('area', 0), 'unit': 'Да' if args[0].get('efs', 'True') == 'True' else 'Нет'}]
+                'var': area, 'unit_1': '-'},
+            {'id': 'Помещения категории Д', 'var': d, 'unit_1': '-'},
+            {'id': 'Помещения категории Г', 'var': g, 'unit_1': '-'},
+            {'id': 'Помещения категории В4', 'var': v4, 'unit_1': '-'},
+            {'id': 'Помещения категории В3', 'var': v3, 'unit_1': 'Да' if args[4].get(
+                'efs', 'True') == 'True' and v3 > 0 else '-'},
+            {'id': 'Помещения категории В2', 'var': v2, 'unit_1': 'Да' if args[3].get(
+                'efs', 'True') == 'True' and v2 > 0 else '-'},
+            {'id': 'Помещения категории В1', 'var': v1, 'unit_1': 'Да' if args[2].get(
+                'efs', 'True') == 'True' and v1 > 0 else '-'},
+            {'id': 'Помещения категории Б', 'var': b, 'unit_1': 'Да' if args[1].get(
+                'efs', 'True') == 'True' and b > 0 else '-'},
+            {'id': 'Помещения категории А', 'var': a, 'unit_1': 'Да' if args[0].get('efs', 'True') == 'True' and a > 0 else '-'}]
         return data, headers, label
 
     def get_category_build(self, *args, total_area: int | float = None, **kwargs):
@@ -399,24 +463,24 @@ class FireCategoryOutInstall(FireHazardCategory):
         headers = ('Параметр', 'Значение', 'Ед.изм.')
         data = [
             {'id': 'Время закрытия задвижек',
-                'var': valve_closing_time, 'unit': 'с'},
-            {'id': 'Диаметр', 'var': diameter_outlet_pipeline, 'unit': 'м'},
-            {'id': 'Длина', 'var':  lenght_outlet_pipeline, 'unit': 'м'},
-            {'id': 'Тип трубопровода', 'var': outlet_pipeline, 'unit': '-'},
-            {'id': 'Диаметр', 'var': diameter_inlet_pipeline, 'unit': 'м'},
-            {'id': 'Длина', 'var': lenght_inlet_pipeline, 'unit': 'м'},
-            {'id': 'Тип трубопровода', 'var': inlet_pipeline, 'unit': '-'},
-            {'id': 'Объем', 'var': volume_container, 'unit': 'м\u00B3'},
-            {'id': 'Тип емкости', 'var': type_container, 'unit': '-'},
+                'var': valve_closing_time, 'unit_1': 'с'},
+            {'id': 'Диаметр', 'var': diameter_outlet_pipeline, 'unit_1': 'м'},
+            {'id': 'Длина', 'var':  lenght_outlet_pipeline, 'unit_1': 'м'},
+            {'id': 'Тип трубопровода', 'var': outlet_pipeline, 'unit_1': '-'},
+            {'id': 'Диаметр', 'var': diameter_inlet_pipeline, 'unit_1': 'м'},
+            {'id': 'Длина', 'var': lenght_inlet_pipeline, 'unit_1': 'м'},
+            {'id': 'Тип трубопровода', 'var': inlet_pipeline, 'unit_1': '-'},
+            {'id': 'Объем', 'var': volume_container, 'unit_1': 'м\u00B3'},
+            {'id': 'Тип емкости', 'var': type_container, 'unit_1': '-'},
             {'id': 'Плотность газа',
-                'var': density_substance, 'unit': 'кг/м\u00B3'},
-            {'id': 'Температура газа', 'var': temperature_substance, 'unit': '\u00B0С'},
-            {'id': 'Давление газа', 'var': pressure_substance, 'unit': 'кПа'},
+                'var': density_substance, 'unit_1': 'кг/м\u00B3'},
+            {'id': 'Температура газа', 'var': temperature_substance, 'unit_1': '\u00B0С'},
+            {'id': 'Давление газа', 'var': pressure_substance, 'unit_1': 'кПа'},
             {'id': 'Удельная теплота сгорания',
-                'var': heat_of_burn, 'unit': 'кДж/кг'},
-            {'id': 'Молярная масса', 'var': molar_mass, 'unit': 'кг/кмоль'},
-            {'id': 'Агрегатное состояние', 'var': physical_state, 'unit': '-'},
-            {'id': 'Вещество', 'var': self.substance, 'unit': '-'}]
+                'var': heat_of_burn, 'unit_1': 'кДж/кг'},
+            {'id': 'Молярная масса', 'var': molar_mass, 'unit_1': 'кг/кмоль'},
+            {'id': 'Агрегатное состояние', 'var': physical_state, 'unit_1': '-'},
+            {'id': 'Вещество', 'var': self.substance, 'unit_1': '-'}]
 
         return data, headers, label
 

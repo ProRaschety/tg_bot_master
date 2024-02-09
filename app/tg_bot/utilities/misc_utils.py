@@ -104,7 +104,7 @@ def get_initial_data_table(data, headers, label) -> bytes:
     cols = len(list(data[0]))
     # log.info(f'rows:{rows}, cols:{cols}')
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
-    marg = 30
+    marg = 45
     w = rows * marg + marg + (cols / 10)  # px
     h = rows * marg  # px 450
     left = 0.030
@@ -196,37 +196,78 @@ def get_initial_data_table(data, headers, label) -> bytes:
         fig_ax_2.plot([0.0, cols+step], [row - step, row - step],
                       ls=':', lw=h*0.002, c='black')
 
+    # # заполнение таблицы данных
+    # if len(list(headers)) == 4:
+    #     for row in range(rows):
+    #         d = data[row]
+    #         fig_ax_2.text(x=0, y=row, s=d['id'],
+    #                       va='center', ha='left', **ft_size)
+    #         # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
+    #         fig_ax_2.text(x=2.5, y=row, s=d['var'], va='center',
+    #                       ha='center', weight='bold', **ft_size)
+    #         fig_ax_2.text(x=cols-0.5, y=row, s=d['unit'],
+    #                       va='center', ha='center', **ft_size)
+    #         fig_ax_2.text(x=cols+0.5, y=row, s=d['EFS'],
+    #                       va='center', ha='right', **ft_size)
+    # else:
+    #     for row in range(rows):
+    #         d = data[row]
+    #         fig_ax_2.text(x=0, y=row, s=d['id'],
+    #                       va='center', ha='left', **ft_size)
+    #         fig_ax_2.text(x=2.5, y=row, s=d['var'], va='center',
+    #                       ha='center', weight='bold', **ft_size)
+    #         fig_ax_2.text(x=3.5, y=row, s=d['unit'],
+    #                       va='center', ha='right', **ft_size)
+
+    # # выделите столбец, используя прямоугольную заплатку
+    # rect = patches.Rectangle((2.0, -0.5),  # нижняя левая начальная позиция (x,y)
+    #                          width=1,
+    #                          height=hor_up_line+0.95,
+    #                          ec='none',
+    #                          color=(0.9372, 0.9098, 0.8353, 1.0),
+    #                          alpha=1.0,
+    #                          zorder=-1)
     # заполнение таблицы данных
     if len(list(headers)) == 4:
         for row in range(rows):
             d = data[row]
-            fig_ax_2.text(x=0, y=row, s=d['id'],
+            fig_ax_2.text(x=0, y=row, s=d.get('id'),
                           va='center', ha='left', **ft_size)
             # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
-            fig_ax_2.text(x=2.5, y=row, s=d['var'], va='center',
+            fig_ax_2.text(x=2.5, y=row, s=d.get('var'), va='center',
                           ha='center', weight='bold', **ft_size)
-            fig_ax_2.text(x=cols-0.5, y=row, s=d['unit'],
-                          va='center', ha='center', **ft_size)
-            fig_ax_2.text(x=cols+0.5, y=row, s=d['EFS'],
+            fig_ax_2.text(x=cols-step, y=row, s=d.get('unit_1'),
+                          va='center', weight='bold', ha='center', **ft_size)
+            fig_ax_2.text(x=cols+step, y=row, s=d.get('unit_2'),
                           va='center', ha='right', **ft_size)
     else:
         for row in range(rows):
             d = data[row]
-            fig_ax_2.text(x=0, y=row, s=d['id'],
+            fig_ax_2.text(x=0, y=row, s=d.get('id'),
                           va='center', ha='left', **ft_size)
-            fig_ax_2.text(x=2.5, y=row, s=d['var'], va='center',
+            fig_ax_2.text(x=2.5, y=row, s=d.get('var'), va='center',
                           ha='center', weight='bold', **ft_size)
-            fig_ax_2.text(x=3.5, y=row, s=d['unit'],
+            fig_ax_2.text(x=3.5, y=row, s=d.get('unit_1'),
                           va='center', ha='right', **ft_size)
 
     # выделите столбец, используя прямоугольную заплатку
-    rect = patches.Rectangle((2.0, -0.5),  # нижняя левая начальная позиция (x,y)
-                             width=1,
-                             height=hor_up_line+0.95,
-                             ec='none',
-                             color=(0.9372, 0.9098, 0.8353, 1.0),
-                             alpha=1.0,
-                             zorder=-1)
+    if len(list(headers)) == 4:
+        rect = patches.Rectangle((3.0, -step),  # нижняя левая начальная позиция (x,y)
+                                 width=1.00,
+                                 height=hor_up_line+0.95,
+                                 ec='none',
+                                 color=(0.9372, 0.9098, 0.8353, 1.0),
+                                 alpha=1.0,
+                                 zorder=-1)
+    else:
+        rect = patches.Rectangle((2.0, -step),  # нижняя левая начальная позиция (x,y)
+                                 width=1.00,
+                                 height=hor_up_line+0.95,
+                                 ec='none',
+                                 color=(0.9372, 0.9098, 0.8353, 1.0),
+                                 alpha=1.0,
+                                 zorder=-1)
+
     fig_ax_2.add_patch(rect)
     # fig_ax_2.set_title(label=label,
     #              loc='left', fontsize=12, weight='bold')
