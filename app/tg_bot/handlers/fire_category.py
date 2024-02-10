@@ -52,7 +52,7 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, *cat_kb, i18n=i18n))
-    await state.update_data(area_A='1236')
+
     await callback_data.answer('')
 
 
