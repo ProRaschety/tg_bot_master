@@ -19,7 +19,7 @@ from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsComrade, IsSubscriber
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
-from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_initial_data_table
+from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_data_table
 from app.tg_bot.states.fsm_state_data import FSMCatBuildForm
 from app.calculation.fire_hazard_category.fire_hazard_categories import FireCategoryBuild, FireCategoryOutInstall
 
@@ -60,20 +60,20 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
 async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await callback.answer('')
     data = await state.get_data()
-    data.setdefault("area_build", "100"),
-    data.setdefault("area_A", "100"),
-    data.setdefault("area_B", "100"),
-    data.setdefault("area_V1", "100"),
-    data.setdefault("area_V2", "100"),
-    data.setdefault("area_V3", "100"),
-    data.setdefault("area_V4", "100"),
-    data.setdefault("area_G", "100"),
-    data.setdefault("area_D", "100"),
-    data.setdefault("area_A_EFS", "True"),
-    data.setdefault("area_B_EFS", "True"),
-    data.setdefault("area_V1_EFS", "True"),
-    data.setdefault("area_V2_EFS", "True"),
-    data.setdefault("area_V3_EFS", "True"),
+    data.setdefault("area_build", "100")
+    data.setdefault("area_A", "100")
+    data.setdefault("area_B", "100")
+    data.setdefault("area_V1", "100")
+    data.setdefault("area_V2", "100")
+    data.setdefault("area_V3", "100")
+    data.setdefault("area_V4", "100")
+    data.setdefault("area_G", "100")
+    data.setdefault("area_D", "100")
+    data.setdefault("area_A_EFS", "True")
+    data.setdefault("area_B_EFS", "True")
+    data.setdefault("area_V1_EFS", "True")
+    data.setdefault("area_V2_EFS", "True")
+    data.setdefault("area_V3_EFS", "True")
 
     info_area = [
         {'area': data.get("area_A", 0), 'category': 'А',
@@ -94,7 +94,7 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     fc_build = FireCategoryBuild()
     data_out, headers, label = fc_build.get_init_data_table(
         *info_area)
-    media = get_initial_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(data=data_out, headers=headers, label=label)
     await state.update_data(data)
     # fc_build_data = fc_build.get_category_build(*info_area)
     text = i18n.category_build.text()
@@ -366,7 +366,7 @@ async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
     fc_build = FireCategoryBuild()
     data_out, headers, label = fc_build.get_init_data_table(
         *info_area)
-    media = get_initial_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(data=data_out, headers=headers, label=label)
     # fc_build_data = fc_build.get_category_build(*info_area)
     text = i18n.category_build.text()
     await bot.edit_message_media(
@@ -419,7 +419,7 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
     fc_build = FireCategoryBuild()
     data_out, headers, label = fc_build.get_init_data_table(
         *info_area)
-    media = get_initial_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(data=data_out, headers=headers, label=label)
     fc_build_data, cause = fc_build.get_category_build(*info_area)
     text = i18n.category_build_result.text(
         category_build=fc_build_data, cause=cause)
@@ -430,9 +430,7 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_category',
-                                      'back_category_build',
-                                      i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'back_category_build', 'fire_category', i18n=i18n))
     await callback.answer('')
 
 
@@ -464,7 +462,7 @@ async def category_outdoor_installation_call(callback: CallbackQuery, bot: Bot, 
 
     fc_out_inst = FireCategoryOutInstall()
     data_out, headers, label = fc_out_inst.get_init_data_table()
-    media = get_initial_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(data=data_out, headers=headers, label=label)
 
     await state.update_data(data)
     await bot.edit_message_media(
@@ -491,7 +489,7 @@ async def run_category_outdoor_installation_call(callback: CallbackQuery, bot: B
     cat_out_inst = FireCategoryOutInstall()
     data_out, headers, label = cat_out_inst.get_init_data_table()
 
-    media = get_initial_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(data=data_out, headers=headers, label=label)
 
     category_out_inst = cat_out_inst.get_fire_hazard_categories()
 

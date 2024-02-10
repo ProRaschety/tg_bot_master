@@ -99,12 +99,12 @@ def get_dict(list_: list) -> dict:
     return {first: get_dict(rest)} if rest else first
 
 
-def get_initial_data_table(data, headers, label) -> bytes:
+def get_data_table(data, headers: str, label: str, results: bool | None = False, row_num: int | None = None) -> bytes:
     rows = len(data)
     cols = len(list(data[0]))
     # log.info(f'rows:{rows}, cols:{cols}')
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
-    marg = 45
+    marg = 50
     w = rows * marg + marg + (cols / 10)  # px
     h = rows * marg  # px 450
     left = 0.030
@@ -185,16 +185,34 @@ def get_initial_data_table(data, headers, label) -> bytes:
                       weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
         fig_ax_2.text(x=cols+step, y=hor_up_line, s=headers[2],
                       weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-    # добавить основной разделитель заголовка
-    fig_ax_2.plot([0, cols + step], [rows-step, rows-step],
-                  lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
-    fig_ax_2.plot([0, cols + step], [- step, - step], lw=h*0.005,
-                  color=(0.4941, 0.5686, 0.5843, 1.0))
 
-    # линия сетки
-    for row in range(1, rows):
-        fig_ax_2.plot([0.0, cols+step], [row - step, row - step],
-                      ls=':', lw=h*0.002, c='black')
+    # results: bool | None = False, row_num: int | None = None
+
+    if results:
+        # линия сетки
+        for row in range(1, rows):
+            fig_ax_2.plot([0.0, cols+step], [row - step, row - step],
+                          ls=':', lw=h*0.002, c='black')
+        # добавить основной разделитель заголовка
+        fig_ax_2.plot([0, cols + step], [rows-step, rows-step],
+                      lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
+
+        fig_ax_2.plot([0, cols + step], [rows - row_num + step, rows - row_num + step], lw=h*0.005,
+                      color=(0.4941, 0.5686, 0.5843, 1.0))
+
+        fig_ax_2.plot([0, cols + step], [- step, - step], lw=h*0.005,
+                      color=(0.4941, 0.5686, 0.5843, 1.0))
+
+    else:
+        # линия сетки
+        for row in range(1, rows):
+            fig_ax_2.plot([0.0, cols+step], [row - step, row - step],
+                          ls=':', lw=h*0.002, c='black')
+        # добавить основной разделитель заголовка
+        fig_ax_2.plot([0, cols + step], [rows-step, rows-step],
+                      lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
+        fig_ax_2.plot([0, cols + step], [- step, - step], lw=h*0.005,
+                      color=(0.4941, 0.5686, 0.5843, 1.0))
 
     # # заполнение таблицы данных
     # if len(list(headers)) == 4:

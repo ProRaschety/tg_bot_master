@@ -15,7 +15,7 @@ from fluentogram import TranslatorRunner
 from app.infrastructure.database.database.db import DB
 from app.tg_bot.filters.filter_role import IsComrade
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
-from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_initial_data_table
+from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_data_table
 from app.calculation.qra_mode.fire_risk_calculator import FireRisk
 
 log = logging.getLogger(__name__)
@@ -114,28 +114,26 @@ async def fire_risks_calculator_call(callback: CallbackQuery, bot: Bot, state: F
     await callback.answer('')
 
 
-@fire_risk_router.callback_query(F.data == 'public')
+@fire_risk_router.callback_query(F.data.in_(['public', 'back_public']))
 async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    info_build_public = {
-        'fire_frequency': 0.04,
-        'k_efs': 0.9,
-        # 'probability_presence': 1,
-        'time_presence': 2.0,
-        'probability_evacuation': 0.999,
-        'time_evacuation': 5.0,
-        'time_blocking_paths': 9.5,
-        'time_crowding': 1.0,
-        'time_start_evacuation': 0.5,
-        'k_alarm': 0.8,
-        'k_evacuation': 0.8,
-        'k_smoke': 0.8,
-    }
+    data = await state.get_data()
+    data.setdefault("fire_freq_pub", "0.04")
+    data.setdefault("k_efs_pub", "0.9")
+    data.setdefault("time_presence_pub", "2.0")
+    data.setdefault("probity_evacuation_pub", "0.999")
+    data.setdefault("time_evacuation_pub", "5.0")
+    data.setdefault("time_blocking_paths_pub", "10")
+    data.setdefault("time_crowding_pub", "1.0")
+    data.setdefault("time_start_evacuation_pub", "1.0")
+    data.setdefault("k_alarm_pub", "0.8")
+    data.setdefault("k_evacuation_pub", "0.8")
+    data.setdefault("k_smoke_pub", "0.8")
 
     text = i18n.public.text()
     log.info(str(callback.data))
-    frisk = FireRisk(type_obj=str(callback.data))
-    data_out, headers, label = frisk.get_init_data(**info_build_public)
-    media = get_initial_data_table(data=data_out, headers=headers, label=label)
+    frisk = FireRisk(type_obj='public')
+    data_out, headers, label = frisk.get_init_data(**data)
+    media = get_data_table(data=data_out, headers=headers, label=label)
     # media = get_picture_filling(
     #     file_path='temp_files/temp/fire_risk_logo.png')
 
@@ -144,36 +142,109 @@ async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'back_fire_risks_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'run_public', 'back_fire_risks_calc', i18n=i18n))
+    await state.update_data(data)
     await callback.answer('')
 
 
-@fire_risk_router.callback_query(F.data == 'industrial')
-async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    info_build_industrial = {
-        'area': 104,
-        'fire_frequency': 2.2*10**-5,
-        'working_days_per_year': 247,
-        'time_presence': 12,
-        'probability_evacuation': 0.999,
-        'emergency escape': 0.03,
-        'k_efs': 0.0,
-        'k_alarm': 0.0,
-        'k_evacuation': 0.0,
-        'k_smoke': 0.0,
-    }
+@fire_risk_router.callback_query(F.data == 'run_public')
+async def run_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    data = await state.get_data()
+    data.setdefault("fire_freq_pub", "0.04")
+    data.setdefault("k_efs_pub", "0.9")
+    data.setdefault("time_presence_pub", "2.0")
+    data.setdefault("probity_evacuation_pub", "0.999")
+    data.setdefault("time_evacuation_pub", "5.0")
+    data.setdefault("time_blocking_paths_pub", "10")
+    data.setdefault("time_crowding_pub", "1.0")
+    data.setdefault("time_start_evacuation_pub", "1.0")
+    data.setdefault("k_alarm_pub", "0.8")
+    data.setdefault("k_evacuation_pub", "0.8")
+    data.setdefault("k_smoke_pub", "0.8")
 
-    text = i18n.industrial.text()
+    text = i18n.public.text()
     log.info(str(callback.data))
-    frisk = FireRisk(type_obj=str(callback.data))
-    data_out, headers, label = frisk.get_init_data(**info_build_industrial)
-    media = get_initial_data_table(data=data_out, headers=headers, label=label)
+    frisk = FireRisk(type_obj='public')
+    data_out, headers, label = frisk.get_result_data(**data)
+    media = get_data_table(data=data_out, headers=headers,
+                           label=label, results=True, row_num=9)
+    # media = get_picture_filling(
+    #     file_path='temp_files/temp/fire_risk_logo.png')
+
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'back_fire_risks_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'back_public', i18n=i18n))
+    await state.update_data(data)
+    await callback.answer('')
+
+
+@fire_risk_router.callback_query(F.data.in_(['industrial', 'back_industrial']))
+async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    data = await state.get_data()
+    data.setdefault("area_ind", "100.0")
+    data.setdefault("fire_freq_ind", "0.04")
+    data.setdefault("k_efs_ind", "0.9")
+    data.setdefault("time_presence_ind", "2.0")
+    data.setdefault("probity_evacuation_ind", "0.999")
+    data.setdefault("time_evacuation_ind", "5.0")
+    data.setdefault("time_blocking_paths_ind", "10")
+    data.setdefault("time_crowding_ind", "1.0")
+    data.setdefault("time_start_evacuation_ind", "1.0")
+    data.setdefault("k_alarm_ind", "0.8")
+    data.setdefault("k_evacuation_ind", "0.8")
+    data.setdefault("k_smoke_ind", "0.8")
+    data.setdefault("working_days_per_year_ind", "0.8")
+    data.setdefault("emergency_escape_ind", "0.001")
+
+    text = i18n.industrial.text()
+    log.info(str(callback.data))
+    frisk = FireRisk(type_obj='industrial')
+    data_out, headers, label = frisk.get_init_data(**data)
+    media = get_data_table(data=data_out, headers=headers, label=label)
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, 'run_industrial', 'back_fire_risks_calc', i18n=i18n))
+    await state.update_data(data)
+    await callback.answer('')
+
+
+@fire_risk_router.callback_query(F.data.in_(['run_industrial']))
+async def run_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    data = await state.get_data()
+    data.setdefault("area_ind", "100.0")
+    data.setdefault("fire_freq_ind", "0.04")
+    data.setdefault("k_efs_ind", "0.9")
+    data.setdefault("time_presence_ind", "2.0")
+    data.setdefault("probity_evacuation_ind", "0.999")
+    data.setdefault("time_evacuation_ind", "5.0")
+    data.setdefault("time_blocking_paths_ind", "10")
+    data.setdefault("time_crowding_ind", "1.0")
+    data.setdefault("time_start_evacuation_ind", "1.0")
+    data.setdefault("k_alarm_ind", "0.8")
+    data.setdefault("k_evacuation_ind", "0.8")
+    data.setdefault("k_smoke_ind", "0.8")
+    data.setdefault("working_days_per_year_ind", "0.8")
+    data.setdefault("emergency_escape_ind", "0.001")
+
+    text = i18n.industrial.text()
+    log.info(str(callback.data))
+    frisk = FireRisk(type_obj='industrial')
+    data_out, headers, label = frisk.get_result_data(**data)
+    media = get_data_table(data=data_out, headers=headers,
+                           label=label, results=True, row_num=5)
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, 'back_industrial', i18n=i18n))
+    await state.update_data(data)
     await callback.answer('')
 
 

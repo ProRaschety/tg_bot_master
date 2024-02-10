@@ -170,7 +170,7 @@ async def cities_inline_search_input(message: Message, bot: Bot, state: FSMConte
     data = await db.climate_tables.get_climate_record(city=city)
     # strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     # data_out, label = strength_calculation.get_init_data_table()
-    # media = get_initial_data_table(data=data_out, label=label)
+    # media = get_data_table(data=data_out, label=label)
     # ptm = strength_calculation.get_reduced_thickness()
     # await state.update_data(ptm=ptm)
     clim = Climate()

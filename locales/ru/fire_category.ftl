@@ -3,6 +3,9 @@ Alpha = 𝛼
 
 fire_category-text = <blockquote></blockquote>
 
+cat_kb = 'category_build', 'category_premises', 'category_outdoor_installation', 'general_menu'
+
+
 other_cat_text = Выберите объект
     для определения категории
     по взрывопожарной и пожарной опасности
@@ -28,14 +31,14 @@ edit_area-text =
     Установите значение площади <blockquote>{$edit_area}</blockquote>
 
     Для завершения ввода нажмите 💾
-edit_area_A_EFS = АУПТ А
-edit_area_B_EFS = АУПТ Б
-edit_area_V1_EFS = АУПТ В1
-edit_area_V2_EFS = АУПТ В2
-edit_area_V3_EFS = АУПТ В3
+edit_area_A_EFS = АУПТ А 🔥
+edit_area_B_EFS = АУПТ Б 🔥
+edit_area_V1_EFS = АУПТ В1 🔥
+edit_area_V2_EFS = АУПТ В2 🔥
+edit_area_V3_EFS = АУПТ В3 🔥
 
-efs_build_true = ✔ АУПТ
-efs_build_false = ✖ АУПТ
+efs_build_true = ✅ АУПТ
+efs_build_false = ❌ АУПТ
 
 
 
