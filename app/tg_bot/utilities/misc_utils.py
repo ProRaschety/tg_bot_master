@@ -114,7 +114,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     hspace = 0.000
     xmin = 0.0
     ymin = 0.0
-    xmax = 4.0
+    xmax = rows  # rows 4.0
     ymax = 0.5
     margins = {
         "left": left,  # 0.030
@@ -164,16 +164,16 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     fig_ax_1.add_artist(ab)
 
     fig_ax_2 = fig.add_subplot(gs[1, 0])
-    fig_ax_2.set_xlim(0.0, cols+0.5)
-    fig_ax_2.set_ylim(-.75, rows+0.55)
+    fig_ax_2.set_xlim(0.0, (cols + step) if cols == 4 else 3)  # +0.5
+    fig_ax_2.set_ylim(-0.5, rows + 0.3)
 
     # добавить заголовки столбцов на высоте y=..., чтобы уменьшить пространство до первой строки данных
     hor_up_line = rows-0.25
     if len(list(headers)) == 4:
         fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
                       weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=2.5, y=hor_up_line, s=headers[1],
-                      weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+        fig_ax_2.text(x=2.9, y=hor_up_line, s=headers[1],
+                      weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
         fig_ax_2.text(x=cols-step, y=hor_up_line, s=headers[2],
                       weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
         fig_ax_2.text(x=cols+step, y=hor_up_line, s=headers[3],
@@ -181,9 +181,9 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     else:
         fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
                       weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=2.5, y=hor_up_line, s=headers[1],
+        fig_ax_2.text(x=2.0, y=hor_up_line, s=headers[1],
                       weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=cols+step, y=hor_up_line, s=headers[2],
+        fig_ax_2.text(x=cols, y=hor_up_line, s=headers[2],
                       weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
 
     # results: bool | None = False, row_num: int | None = None
@@ -197,10 +197,12 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
         fig_ax_2.plot([0, cols + step], [rows-step, rows-step],
                       lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
 
-        fig_ax_2.plot([0, cols + step], [rows - row_num + step, rows - row_num + step], lw=h*0.005,
+        fig_ax_2.plot([0, cols + step], [rows - row_num + step, rows - row_num + step],
+                      lw=h*0.005,
                       color=(0.4941, 0.5686, 0.5843, 1.0))
 
-        fig_ax_2.plot([0, cols + step], [- step, - step], lw=h*0.005,
+        fig_ax_2.plot([0, cols + step], [- step, - step],
+                      lw=h*0.010,
                       color=(0.4941, 0.5686, 0.5843, 1.0))
 
     else:
@@ -214,37 +216,6 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
         fig_ax_2.plot([0, cols + step], [- step, - step], lw=h*0.005,
                       color=(0.4941, 0.5686, 0.5843, 1.0))
 
-    # # заполнение таблицы данных
-    # if len(list(headers)) == 4:
-    #     for row in range(rows):
-    #         d = data[row]
-    #         fig_ax_2.text(x=0, y=row, s=d['id'],
-    #                       va='center', ha='left', **ft_size)
-    #         # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
-    #         fig_ax_2.text(x=2.5, y=row, s=d['var'], va='center',
-    #                       ha='center', weight='bold', **ft_size)
-    #         fig_ax_2.text(x=cols-0.5, y=row, s=d['unit'],
-    #                       va='center', ha='center', **ft_size)
-    #         fig_ax_2.text(x=cols+0.5, y=row, s=d['EFS'],
-    #                       va='center', ha='right', **ft_size)
-    # else:
-    #     for row in range(rows):
-    #         d = data[row]
-    #         fig_ax_2.text(x=0, y=row, s=d['id'],
-    #                       va='center', ha='left', **ft_size)
-    #         fig_ax_2.text(x=2.5, y=row, s=d['var'], va='center',
-    #                       ha='center', weight='bold', **ft_size)
-    #         fig_ax_2.text(x=3.5, y=row, s=d['unit'],
-    #                       va='center', ha='right', **ft_size)
-
-    # # выделите столбец, используя прямоугольную заплатку
-    # rect = patches.Rectangle((2.0, -0.5),  # нижняя левая начальная позиция (x,y)
-    #                          width=1,
-    #                          height=hor_up_line+0.95,
-    #                          ec='none',
-    #                          color=(0.9372, 0.9098, 0.8353, 1.0),
-    #                          alpha=1.0,
-    #                          zorder=-1)
     # заполнение таблицы данных
     if len(list(headers)) == 4:
         for row in range(rows):
@@ -252,8 +223,8 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
             fig_ax_2.text(x=0, y=row, s=d.get('id'),
                           va='center', ha='left', **ft_size)
             # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
-            fig_ax_2.text(x=2.5, y=row, s=d.get('var'), va='center',
-                          ha='center', weight='bold', **ft_size)
+            fig_ax_2.text(x=2.9, y=row, s=d.get('var'), va='center',
+                          ha='right', weight='bold', **ft_size)
             fig_ax_2.text(x=cols-step, y=row, s=d.get('unit_1'),
                           va='center', weight='bold', ha='center', **ft_size)
             fig_ax_2.text(x=cols+step, y=row, s=d.get('unit_2'),
@@ -263,14 +234,14 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
             d = data[row]
             fig_ax_2.text(x=0, y=row, s=d.get('id'),
                           va='center', ha='left', **ft_size)
-            fig_ax_2.text(x=2.5, y=row, s=d.get('var'), va='center',
+            fig_ax_2.text(x=2.0, y=row, s=d.get('var'), va='center',
                           ha='center', weight='bold', **ft_size)
-            fig_ax_2.text(x=3.5, y=row, s=d.get('unit_1'),
+            fig_ax_2.text(x=cols, y=row, s=d.get('unit_1'),
                           va='center', ha='right', **ft_size)
 
     # выделите столбец, используя прямоугольную заплатку
     if len(list(headers)) == 4:
-        rect = patches.Rectangle((3.0, -step),  # нижняя левая начальная позиция (x,y)
+        rect = patches.Rectangle((cols - (step*2), -step),  # нижняя левая начальная позиция (x,y)
                                  width=1.00,
                                  height=hor_up_line+0.95,
                                  ec='none',
@@ -278,7 +249,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
                                  alpha=1.0,
                                  zorder=-1)
     else:
-        rect = patches.Rectangle((2.0, -step),  # нижняя левая начальная позиция (x,y)
+        rect = patches.Rectangle((cols-(step*cols), -step),  # нижняя левая начальная позиция (x,y)
                                  width=1.00,
                                  height=hor_up_line+0.95,
                                  ec='none',

@@ -38,9 +38,9 @@ class FireRisk:
                     'unit_1': f"{probity_evac:.3f}", 'unit_2': '-'},
                 {'id': 'Вероятность присутствия', 'var': 'Рпр',
                     'unit_1': f"{probity_presence:.3f}", 'unit_2': '-'},
-                {'id': 'Время присутствия человека', 'var': 'в сутки',
+                {'id': 'Время присутствия человека\nв части здания', 'var': 'tпр',
                     'unit_1': kwargs.get('time_presence_pub', 0.000), 'unit_2': 'ч'},
-                {'id': 'Частота возникновения пожара', 'var': '-', 'unit_1': f"{float((kwargs.get('fire_freq_pub', 0.04))):.2e}", 'unit_2': '1/год'}]
+                {'id': 'Частота возникновения пожара', 'var': 'Qп', 'unit_1': f"{float((kwargs.get('fire_freq_pub', 0.04))):.2e}", 'unit_2': '1/год'}]
         else:
             fire_freq = self._get_frequency_of_fire(**kwargs)
             probity_efs = self._calc_probity_fire_protec_system(**kwargs)
@@ -79,7 +79,7 @@ class FireRisk:
                 #     'unit_1': f"{(probity_presence):.3f}", 'unit_2': '-'},
                 {'id': 'Рабочих дней в году', 'var': '-',
                     'unit_1': kwargs.get('working_days_per_year_ind', 30), 'unit_2': 'сутки'},
-                {'id': 'Время нахождения людей\nна объекте', 'var': '-',
+                {'id': 'Время нахождения работника\nв i-ом помещении здания', 'var': '-',
                     'unit_1': kwargs.get('time_presence_ind', 0), 'unit_2': 'час/\nсутки'},
                 # {'id': 'Частота возникновения\nпожара в здании', 'var': 'Q',
                 #     'unit_1': f"{(fire_freq):.2e}", 'unit_2': '1/год'},
@@ -96,17 +96,19 @@ class FireRisk:
         else:
             label_risk = 'Расчет пожарного риска. Методика 404'
         if self.type_obj == 'public':
+            fire_freq = self._get_frequency_of_fire(**kwargs)
             coef_fire_protection = self._calc_probity_fire_protec_system(
                 **kwargs)
             probity_presence = self._calc_probity_presence(**kwargs)
             probity_evac = self._calc_probity_evacuation(**kwargs)
-            poten_risk = 1
-            ind_risk = 1
+            # poten_risk = 1
+            ind_risk = self.calc_fire_risk(
+                self, *args, fire_frequency=fire_freq, **kwargs)
             data_risk = [
-                {'id': 'Индивидуальный пожарный риск', 'var': 'Кпз',
+                {'id': 'Индивидуальный пожарный риск', 'var': 'Rij',
                     'unit_1': f'{ind_risk:.2e}', 'unit_2': '-'},
-                {'id': 'Потенциальный пожарный риск', 'var': 'Кпдз',
-                    'unit_1': f'{poten_risk:.2e}', 'unit_2': '-'},
+                # {'id': 'Потенциальный пожарный риск', 'var': 'Кпдз',
+                #     'unit_1': f'{poten_risk:.2e}', 'unit_2': '-'},
                 {'id': 'Коэффициент соответствия СПЗ', 'var': 'Кпз',
                     'unit_1': f'{coef_fire_protection:.3f}', 'unit_2': '-'},
                 {'id': 'Вероятность работы ПДЗ', 'var': 'Кпдз',
@@ -121,9 +123,9 @@ class FireRisk:
                     'unit_1': f"{probity_evac:.3f}", 'unit_2': '-'},
                 {'id': 'Вероятность присутствия', 'var': 'Рпр',
                     'unit_1': f"{probity_presence:.3f}", 'unit_2': '-'},
-                {'id': 'Время присутствия человека', 'var': 'в сутки',
+                {'id': 'Время присутствия человека\nв части здания', 'var': 'tпр',
                     'unit_1': kwargs.get('time_presence_pub', 0.000), 'unit_2': 'ч'},
-                {'id': 'Частота возникновения пожара', 'var': '-', 'unit_1': f"{float((kwargs.get('fire_freq_pub', 0.04))):.2e}", 'unit_2': '1/год'}]
+                {'id': 'Частота возникновения пожара', 'var': 'Qп', 'unit_1': f"{fire_freq:.2e}", 'unit_2': '1/год'}]
         else:
             fire_freq = self._get_frequency_of_fire(**kwargs)
             probity_efs = self._calc_probity_fire_protec_system(**kwargs)
@@ -136,19 +138,19 @@ class FireRisk:
             ind_risk = self.calc_fire_risk(
                 self, *args, poten_risk=poten_risk, fire_frequency=fire_freq, **kwargs)
             data_risk = [
-                {'id': 'Индивидуальный риск в помещении', 'var': 'Rm',
+                {'id': 'Индивидуальный риск\nдля работника m в i-ом помещении здания', 'var': 'Rm',
                     'unit_1': f'{ind_risk:.2e}', 'unit_2': '-'},
-                {'id': 'Потенциальный риск в помещении', 'var': 'Рi',
+                {'id': 'Потенциальный риск\nв i-ом помещении здания', 'var': 'Рi',
                     'unit_1': f'{poten_risk:.2e}', 'unit_2': '-'},
-                {'id': 'Условная вероятность\nпоражения человека в i-ом помещении',
-                    'var': 'Qd', 'unit_1': f"{probity_dam:.2e}", 'unit_2': '-'},
+                {'id': 'Условная вероятность поражения человека\nв i-ом помещении для j-го сценария пожара',
+                    'var': 'Qdij', 'unit_1': f"{probity_dam:.2e}", 'unit_2': '-'},
                 {'id': 'Вероятность эффектиной работы\nсистем противопожарной защиты', 'var': 'Dijk',
                     'unit_1': f"{probity_efs:.3f}", 'unit_2': '-'},
                 # {'id': 'Вероятность эвакуации\nпо эвакуационным путям', 'var': 'Рэп',
                 #     'unit_1': kwargs.get('probability_evacuation_ind', 0), 'unit_2': '-'},
                 # {'id': 'Вероятность эвакуации\nчерез аварийные выходы', 'var': 'Рдв',
                 #     'unit_1': kwargs.get('emergency_escape_ind', 0.001), 'unit_2': '-'},
-                {'id': 'Вероятность присутствия', 'var': 'Р',
+                {'id': 'Вероятность присутствия\nработника m в i-ом помещении', 'var': 'qim',
                     'unit_1': f"{(probity_presence):.3f}", 'unit_2': '-'},
                 {'id': 'Вероятность эвакуации из здания', 'var': 'Рэ',
                     'unit_1': probity_evac, 'unit_2': '-'},
@@ -156,7 +158,7 @@ class FireRisk:
                 #     'unit_1': kwargs.get('working_days_per_year_ind', 30), 'unit_2': 'сутки'},
                 # {'id': 'Время нахождения людей\nна объекте', 'var': '-',
                 #     'unit_1': kwargs.get('time_presence_ind', 0), 'unit_2': 'час/\nсутки'},
-                {'id': 'Частота j-го реализации сценария', 'var': 'Q',
+                {'id': 'Частота реализации в течение года\nj-го сценария пожара', 'var': 'Qj',
                     'unit_1': f"{(fire_freq):.2e}", 'unit_2': '1/год'},
                 {'id': 'Вероятность работы ПДЗ', 'var': 'Dпдз',
                     'unit_1': kwargs.get('k_smoke_ind', 0.8), 'unit_2': '-'},
@@ -197,7 +199,8 @@ class FireRisk:
         log.info(
             f'Определение вероятности эвакуации для {self.type_obj} объекта')
         if self.type_obj == 'public':
-            probity_evacuation = 0.999
+            probity_evacuation = float(kwargs.get(
+                'probability_evacuation_pub', 0.000))
         else:
             probity_evacuation = 1 - \
                 ((1 - float(kwargs.get('probity_evacuation_ind', 0.0)))
@@ -232,12 +235,10 @@ class FireRisk:
 
     def calc_fire_risk(self, *args, potencial_risk: int | float = None, fire_frequency: int | float, **kwargs) -> int | float:
         if self.type_obj == 'public':
-            fire_frequency = float(kwargs.get('fire_freq_pub', 0.04))
+            # fire_frequency = float(kwargs.get('fire_freq_pub', 0.04))
             k_efs = float(kwargs.get('k_efs_pub', 0))
-            prob_presence = self._calc_probity_presence(
-                type_obj=self.type_obj, **kwargs)
-            probability_evacuation = float(kwargs.get(
-                'probability_evacuation_pub', 0.000))
+            prob_presence = self._calc_probity_presence(**kwargs)
+            probability_evacuation = self._calc_probity_evacuation(**kwargs)
             k_fps = self._calc_probity_fire_protec_system(**kwargs)
             fire_risk = fire_frequency * \
                 (1 - k_efs) * prob_presence * \
