@@ -138,9 +138,9 @@ class FireRisk:
             ind_risk = self.calc_fire_risk(
                 self, *args, poten_risk=poten_risk, fire_frequency=fire_freq, **kwargs)
             data_risk = [
-                {'id': 'Индивидуальный риск\nдля работника m в i-ом помещении здания', 'var': 'Rm',
+                {'id': 'Индивидуальный риск\nдля работника m в i-ом помещении', 'var': 'Rm',
                     'unit_1': f'{ind_risk:.2e}', 'unit_2': '-'},
-                {'id': 'Потенциальный риск\nв i-ом помещении здания', 'var': 'Рi',
+                {'id': 'Потенциальный риск\nв i-ом помещении', 'var': 'Рi',
                     'unit_1': f'{poten_risk:.2e}', 'unit_2': '-'},
                 {'id': 'Условная вероятность поражения \nработника в i-ом помещении',
                     'var': 'Qdij', 'unit_1': f"{probity_dam:.2e}", 'unit_2': '-'},
