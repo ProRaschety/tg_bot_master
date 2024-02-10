@@ -45,13 +45,14 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
     text = i18n.fire_category.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fire_category_logo.png')
+
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, *cat_kb, i18n=i18n))
-
+    await state.update_data(area_A='1236')
     await callback_data.answer('')
 
 
