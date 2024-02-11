@@ -189,7 +189,6 @@ async def clear_table_protection_steel_call(callback: CallbackQuery, bot: Bot, s
 async def add_element_steel_inline_search_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     chat_id = str(callback.message.chat.id)
     message_id = callback.message.message_id
-    steel_protection_data = await state.get_data()
     await state.update_data(chat_id=chat_id, message_id=message_id)
     await state.update_data(id=None, num_profile=None,
                             type_steel_element=None,
@@ -264,17 +263,17 @@ STRENGTH_CALC_KB = ['edit_init_data_strength',
 async def strength_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext,  i18n: TranslatorRunner) -> None:
     text = i18n.initial_data_steel.text()
     data = await state.get_data()
-    data.setdefault("num_profile", "20Б1"),
-    data.setdefault("sketch", "Двутавр"),
-    data.setdefault("reg_document", "ГОСТ Р 57837"),
-    data.setdefault("num_sides_heated", "num_sides_heated_four"),
+    data.setdefault("num_profile", "20Б1")
+    data.setdefault("sketch", "Двутавр")
+    data.setdefault("reg_document", "ГОСТ Р 57837")
+    data.setdefault("num_sides_heated", "num_sides_heated_four")
     data.setdefault("len_elem", "5000.0"),
-    data.setdefault("fixation", "sealing-sealing"),
-    data.setdefault("type_loading", "bend_element"),
-    data.setdefault("loading_method", "distributed_load_steel"),
-    data.setdefault("ptm", "3.94"),
-    data.setdefault("n_load", "1000.0"),
-    data.setdefault("type_steel_element", "C235"),
+    data.setdefault("fixation", "sealing-sealing")
+    data.setdefault("type_loading", "bend_element")
+    data.setdefault("loading_method", "distributed_load_steel")
+    data.setdefault("ptm", "3.94")
+    data.setdefault("n_load", "1000.0")
+    data.setdefault("type_steel_element", "C235")
     data.setdefault("t_critic_C", "500.0")
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     data_out, headers, label = strength_calculation.get_init_data_table()
@@ -524,6 +523,12 @@ async def n_load_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.n_load_edit_state), F.data.in_(['ready']))
 async def n_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
+    value = data.get("n_load")
+    if value != '' and value != '.':
+        await state.update_data(n_load=value)
+    else:
+        await state.update_data(n_load=1000)
+    data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     data_out, headers, label = strength_calculation.get_init_data_table()
     media = get_data_table(data=data_out, headers=headers, label=label)
@@ -606,7 +611,6 @@ async def len_elem_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
 async def len_elem_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     len_elem_data = await state.get_data()
-
     call_data = callback.data
     if call_data == "one":
         call_data = 1
@@ -683,7 +687,6 @@ async def len_elem_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['clear']))
 async def len_elem_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    call_data = callback.data
     len_elem_data = await state.get_data()
     await state.update_data(len_elem="")
     len_elem_data = await state.get_data()
@@ -699,6 +702,12 @@ async def len_elem_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSM
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['ready']))
 async def len_elem_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    data = await state.get_data()
+    value = data.get("len_elem")
+    if value != '' and value != '.':
+        await state.update_data(len_elem=value)
+    else:
+        await state.update_data(len_elem=1000)
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     data_out, headers, label = strength_calculation.get_init_data_table()
@@ -1125,6 +1134,12 @@ async def ptm_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.ptm_edit_state), F.data.in_(['ready']))
 async def ptm_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
+    value = data.get("ptm")
+    if value != '' and value != '.':
+        await state.update_data(ptm=value)
+    else:
+        await state.update_data(ptm=3.44)
+    data = await state.get_data()
     t_res = SteelFireResistance(i18n=i18n, data=data)
     text = i18n.initial_data_steel.text()
     data_out, headers, label = t_res.get_initial_data_thermal()
@@ -1211,6 +1226,12 @@ async def t_critic_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.t_critic_edit_state), F.data.in_(['ready']))
 async def t_critic_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    data = await state.get_data()
+    value = data.get("t_critic_C")
+    if value != '' and value != '.':
+        await state.update_data(t_critic_C=value)
+    else:
+        await state.update_data(t_critic_C=500)
     data = await state.get_data()
     t_res = SteelFireResistance(i18n=i18n, data=data)
     text = i18n.initial_data_steel.text()

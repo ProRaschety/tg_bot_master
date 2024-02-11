@@ -50,20 +50,19 @@ class _PromocodeDB:
     async def add_promocode(
             self,
             *,
-            promocode: PromocodeModel,
-            valid_until: str
+            promocode: str
     ) -> None:
 
         async with self.connect.transaction():
             await self.connect.execute('''
-                INSERT INTO promocodes(promocode, valid_until)
+                INSERT INTO promocodes(promocode, created)
                 VALUES($1, $2) ON CONFLICT DO NOTHING;
-            ''', promocode, valid_until
+            ''', promocode, datetime.utcnow()
                                        )
 
             log.info(
-                "User added. db='%s', promocode=%d, date_time='%s', date='%s'",
-                self.__table_name__, promocode, datetime.utcnow(), datetime.date()
+                "Promocode added. db='%s', promocode=%s, date_time='%s'",
+                self.__table_name__, promocode, datetime.utcnow()
             )
 
     async def get_promocode_user(self) -> PromocodeModel | None:
@@ -100,6 +99,16 @@ class _PromocodeDB:
             data = await cursor.fetchrow()
             log.info(data)
             return data
+
+    async def delete(self) -> None:
+        async with self.connect.transaction():
+            await self.connect.execute('''
+                    DELETE FROM promocodes;
+                '''
+                                       )
+            log.info(
+                "Promocodes clear. db='%s'", self.__table_name__
+            )
 
     # async def get_promocode_user(self, *, promocode: str) -> PromocodeModel | None:
     #     async with self.connect.transaction():

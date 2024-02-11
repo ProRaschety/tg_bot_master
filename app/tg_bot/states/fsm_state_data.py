@@ -1,11 +1,10 @@
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state, State, StatesGroup
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.state import State, StatesGroup
 
 
 class FSMAdminForm(StatesGroup):
     # Состояние отправки картинки для отображения на первой странице ввода данных
     admin_set_pic_steel = State()
+
 
 class FSMCatBuildForm(StatesGroup):
     edit_area_A = State()
@@ -21,6 +20,7 @@ class FSMCatBuildForm(StatesGroup):
     edit_area_V1_EFS = State()
     edit_area_V2_EFS = State()
     edit_area_V3_EFS = State()
+
 
 class FSMSteelForm(StatesGroup):
     fr_steel_edit_state = State()  # Состояние редактирвания исходных данных
@@ -43,23 +43,29 @@ class FSMSteelForm(StatesGroup):
     num_profile_inline_search_state = State()
     add_steel_element_state = State()
 
+
 class FSMWoodForm(StatesGroup):
     fr_wood_edit_state = State()  # Состояние редактирвания исходных данных
 
+
 class FSMConcreteForm(StatesGroup):
     fr_concrete_edit_state = State()  # Состояние редактирвания исходных данных
+
 
 class FSMSubstanceForm(StatesGroup):
     database_edit_state = State()  # Состояние выбора вещества из базы данных
     database_search_state = State()  # Состояние поиска веществ в базе данных
     database_inline_state = State()  # Состояние поиска веществ в инлайн-режиме
 
+
 class FSMPromoCodeForm(StatesGroup):
     promo_code_state = State()  # Состояние ввода промокода
+
 
 class FSMClimateForm(StatesGroup):
     select_region_state = State()
     select_city_state = State()
+
 
 class FSMFireRiskForm(StatesGroup):
     edit_fire_freq_pub = State()

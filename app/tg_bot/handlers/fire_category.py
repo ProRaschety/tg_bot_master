@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 from aiogram import Router, F, Bot
-from aiogram.filters import CommandStart, Command, StateFilter
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import CallbackQuery, Message, BufferedInputFile, FSInputFile, InputMediaPhoto, InputFile, InputMediaDocument

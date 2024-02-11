@@ -3,15 +3,15 @@ import logging
 from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state, State, StatesGroup
+from aiogram.fsm.state import default_state  # , State, StatesGroup
 from aiogram.types import CallbackQuery, Message, BufferedInputFile, InputMediaPhoto
 
 from fluentogram import TranslatorRunner
 
 from app.infrastructure.database.database.db import DB
 from app.tg_bot.filters.filter_role import IsGuest
-from app.tg_bot.utilities.check_sub_admin import check_sub_admin
-from app.tg_bot.utilities.check_sub_member import check_sub_member
+# from app.tg_bot.utilities.check_sub_admin import check_sub_admin
+# from app.tg_bot.utilities.check_sub_member import check_sub_member
 from app.tg_bot.utilities.misc_utils import get_picture_filling
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
 from app.tg_bot.states.fsm_state_data import FSMPromoCodeForm
@@ -251,9 +251,3 @@ async def process_cancel_command_state(message: Message, i18n: TranslatorRunner,
     await message.answer(text=i18n.cansel.state())
     await state.set_state(state=None)
     await message.delete()
-
-
-@user_router.message(Command(commands=["help"]))
-async def process_get_admin_contacts(message: Message, i18n: TranslatorRunner) -> None:
-    await message.answer(text=i18n.contacts.admin(),
-                         reply_markup=get_inline_url_kb(1, i18n=i18n, link_1="link_1-text"))

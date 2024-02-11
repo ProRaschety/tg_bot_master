@@ -41,6 +41,9 @@ k_smoke_pub = ПДЗ
 k_smoke_pub_true = 0.8
 k_smoke_pub_false = 0.0
 stop_edit_public = ↩ Назад
+name_fire_freq_pub = Введите частоту пожара:
+name_time_presence_pub = Введите время присутствия:
+name_probity_evac_pub = Введите вероятность эвакуации:
 
 edit_public-text = {$public_param}
     <blockquote>{$edit_public}</blockquote>

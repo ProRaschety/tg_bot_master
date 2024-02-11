@@ -112,10 +112,10 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     right = 0.970
     top = 0.950
     hspace = 0.000
-    xmin = 0.0
-    ymin = 0.0
-    xmax = cols  # rows 4.0
-    ymax = 0.5
+    # xmin = 0.0
+    # ymin = 0.0
+    # xmax = cols  # rows 4.0
+    # ymax = 0.5
     margins = {
         "left": left,  # 0.030
         "bottom": bottom,  # 0.030

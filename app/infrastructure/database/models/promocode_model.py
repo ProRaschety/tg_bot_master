@@ -8,8 +8,8 @@ from app.infrastructure.database.models.base import BaseModel
 class PromocodeModel(BaseModel):
     id: int
     promocode: str
-    created: datetime
-    valid_until: date
+    # created: datetime
+    # valid_until: date
 
 
 @dataclass
