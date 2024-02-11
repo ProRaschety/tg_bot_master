@@ -246,7 +246,8 @@ class SteelFireStrength:
         if sketch == "Двутавр":
             with open(file="app/infrastructure/data_base/db_steel_ibeam.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)
-                sec_area_cm2 = db_steel_in[sketch][gost][profile]['a_cm2']
+                sec_area_cm2 = db_steel_in[sketch][gost][profile].get(
+                    'a_cm2', 1)
         elif sketch == "Швеллер":
             with open(file="db_steel_channel.json", mode="r", encoding='utf-8') as file_op:
                 db_steel_in = json.load(file_op)

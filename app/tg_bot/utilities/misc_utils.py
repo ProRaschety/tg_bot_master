@@ -114,7 +114,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     hspace = 0.000
     xmin = 0.0
     ymin = 0.0
-    xmax = rows  # rows 4.0
+    xmax = cols  # rows 4.0
     ymax = 0.5
     margins = {
         "left": left,  # 0.030
@@ -141,6 +141,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     logo = plt.imread('temp_files/temp/logo.png')
     # logo = image.imread('temp_files/temp/logo.png')
     x_bound_right = 0.9
+    zoom = h*0.000080
     step = 0.5
     # fig_ax_1.plot()
 
@@ -155,10 +156,10 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     fig_ax_1.plot([0, x_bound_right], [-0.25, -0.25],
                   lw=(h*0.000080) * 50, color=(0.913, 0.380, 0.082, 1.0))
 
-    imagebox = OffsetImage(logo, zoom=h*0.000080,
+    imagebox = OffsetImage(logo, zoom=zoom,
                            dpi_cor=True, resample=False, filternorm=False)
 
-    ab = AnnotationBbox(imagebox, (x_bound_right - h*0.0000080, 0.0),  frameon=False,
+    ab = AnnotationBbox(imagebox, (x_bound_right - zoom * 0.1, 0.0),  frameon=False,
                         pad=0, box_alignment=(x_bound_right, 0.0))
 
     fig_ax_1.add_artist(ab)
@@ -242,7 +243,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     # выделите столбец, используя прямоугольную заплатку
     if len(list(headers)) == 4:
         rect = patches.Rectangle((cols - (step*2), -step),  # нижняя левая начальная позиция (x,y)
-                                 width=1.00,
+                                 width=0.97,
                                  height=hor_up_line+0.95,
                                  ec='none',
                                  color=(0.9372, 0.9098, 0.8353, 1.0),

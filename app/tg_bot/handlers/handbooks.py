@@ -97,9 +97,10 @@ async def handbooks_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         reply_markup=get_inline_cd_kb(1, *handbooks_kb, i18n=i18n))
 
 
-@handbooks_router.callback_query(F.data.in_(["climate"]), StateFilter(default_state))
+@handbooks_router.callback_query(F.data.in_(['climate', 'stop_select_city']), StateFilter(default_state))
 async def climate_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
     log.info('Запрос: Справочник метеоданных')
+    await state.set_state(state=None)
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.climate.text()
     # data = dict(await db.climate_tables.get_climate_region_list())
@@ -129,13 +130,16 @@ async def to_cities_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     await state.update_data(chat_id=chat_id, cities_mes_id=message_id)
     text = i18n.to_cities.text()
 
-    markup = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(
-                text="Выбрать населенный пункт 🔎",
-                switch_inline_query_current_chat="")]
-        ])
+    # markup = InlineKeyboardMarkup(
+    #     inline_keyboard=[
+    #         [InlineKeyboardButton(
+    #             text="Выбрать населенный пункт 🔎",
+    #             switch_inline_query_current_chat="")]
+    #     ])
 
+    markup = get_inline_cd_kb(1, i18n=i18n,
+                              switch=True, switch_text='select_city', switch_data='',
+                              param_back=True, back_data='stop_select_city')
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,

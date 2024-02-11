@@ -1,13 +1,13 @@
 import logging
-import io
+# import io
 import json
 
-from pathlib import Path
-from datetime import datetime
+# from pathlib import Path
+# from datetime import datetime
 from fluentogram import TranslatorRunner
 
 from aiogram import Router, F, Bot
-from aiogram.filters import CommandStart, Command, StateFilter
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
@@ -106,9 +106,10 @@ async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 
 @fire_res_router.callback_query(F.data == 'steel_element')
-async def steel_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def steel_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.type_of_calculation_steel.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    await state.update_data(num_profile="20Б1")
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -327,7 +328,8 @@ async def protocol_strength_call(callback: CallbackQuery, bot: Bot, i18n: Transl
 
 
 @fire_res_router.callback_query(F.data.in_(['edit_init_data_strength', 'stop_edit_strength']))
-async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await state.set_state(state=None)
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -350,8 +352,19 @@ async def num_profile_inline_search_call(callback: CallbackQuery, bot: Bot, stat
     message_id = callback.message.message_id
     await state.update_data(chat_id=chat_id, message_id=message_id)
     text = i18n.num_profile_inline_search.text()
-    markup = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(
-        text="Выбрать профиль 🔎", switch_inline_query_current_chat="")]])
+    # kb_1 = InlineKeyboardButton(
+    #     text="Выбрать профиль 🔎", switch_inline_query_current_chat="")
+    # kb_2 = InlineKeyboardButton(
+    #     text="🔙 Назад", callback_data="stop_edit_strength")
+    # kb = InlineKeyboardBuilder()
+    # kb.row(kb_1, kb_2, width=1)
+    # markup = kb.as_markup()
+    markup = get_inline_cd_kb(1, i18n=i18n,
+                              switch=True, switch_text='select_steel_profile', switch_data='',
+                              param_back=True, back_data='stop_edit_strength')
+    # markup = InlineKeyboardMarkup(inline_keyboard=[
+    #     [InlineKeyboardButton(
+    #         text="Выбрать профиль 🔎", switch_inline_query_current_chat="")]])
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,

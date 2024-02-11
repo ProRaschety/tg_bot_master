@@ -39,7 +39,8 @@ edit_area_V3_EFS = АУПТ В3 🔥
 
 efs_build_true = ✅ АУПТ
 efs_build_false = ❌ АУПТ
-
+efs_true = ✅
+efs_false = ❌
 
 
 

@@ -31,7 +31,7 @@ async def process_start_command(message: Message, bot: Bot, state: FSMContext, i
     text = i18n.start.menu()
     if role == "subscriber":
         main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
-                   'fire_risks_guest', 'fire_category']
+                   'fire_risks', 'fire_category']
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
@@ -49,7 +49,7 @@ async def process_start_command(message: Message, bot: Bot, state: FSMContext, i
         caption=text,
         reply_markup=get_inline_cd_kb(1, *main_kb, i18n=i18n))
     await state.set_state(state=None)
-    await message.delete()
+    # await message.delete()
 
 
 @user_router.callback_query(F.data == 'general_menu')
@@ -58,7 +58,7 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
     text = i18n.start.menu()
     if role == "subscriber":
         main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
-                   'fire_risks_guest', 'fire_category']
+                   'fire_risks', 'fire_category']
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
