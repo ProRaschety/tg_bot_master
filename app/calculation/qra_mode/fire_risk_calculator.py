@@ -7,7 +7,6 @@ log = logging.getLogger(__name__)
 class FireRisk:
     def __init__(self, type_obj: str):
         self.type_obj = type_obj
-        # self.init_data = self._get_init_data(self, *args, type_obj = type_obj, **kwargs)
 
     def get_init_data(self, *args, **kwargs):
         head_risk = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
@@ -35,16 +34,14 @@ class FireRisk:
                     'unit_1': kwargs.get('time_presence_pub', 0.000), 'unit_2': 'ч'},
                 {'id': 'Частота возникновения пожара', 'var': 'Qп', 'unit_1': f"{float((kwargs.get('fire_freq_pub', 0.04))):.2e}", 'unit_2': '1/год'}]
         else:
-            fire_freq = self._get_frequency_of_fire(**kwargs)
+            # fire_freq = self._get_frequency_of_fire(**kwargs)
             probity_efs = self._calc_probity_fire_protec_system(**kwargs)
             probity_presence = self._calc_probity_presence(**kwargs)
             probity_evac = self._calc_probity_evacuation(**kwargs)
             probity_dam = self._calc_probity_of_human_damage(
                 probity_evac=probity_evac, probity_efs=probity_efs, **kwargs)
-            poten_risk = self._calc_potential_fire_risk(
-                probity_damage=probity_dam, **kwargs)
-            ind_risk = self.calc_fire_risk(
-                self, *args, poten_risk=poten_risk, fire_frequency=fire_freq, **kwargs)
+            # poten_risk = self._calc_potential_fire_risk(
+            #     probity_damage=probity_dam, **kwargs)
             data_risk = [
                 # {'id': 'Индивидуальный риск в помещении', 'var': 'Rm',
                 #     'unit_1': f'{ind_risk:.2e}', 'unit_2': '-'},
@@ -94,7 +91,6 @@ class FireRisk:
                 **kwargs)
             probity_presence = self._calc_probity_presence(**kwargs)
             probity_evac = self._calc_probity_evacuation(**kwargs)
-            # poten_risk = 1
             ind_risk = self.calc_fire_risk(
                 self, *args, fire_frequency=fire_freq, **kwargs)
             data_risk = [
@@ -175,20 +171,21 @@ class FireRisk:
         return frequency
 
     def _calc_probity_presence(self, **kwargs):
+        hours_day = 24
+        days_in_year = 365
+
         if self.type_obj == 'public':
             probity_of_presence = float(
-                kwargs.get('time_presence_pub', 0)) / 24
+                kwargs.get('time_presence_pub', 0)) / hours_day
         else:
-            days_in_year = 365
             work_time = float(kwargs.get('time_presence', 0))
             quantity_work_day_in_year = float(
                 kwargs.get('working_days_per_year_ind', 247))
-            probity_of_presence = (337 * 12)/(365 * 24)
+            probity_of_presence = (
+                quantity_work_day_in_year * work_time)/(days_in_year * hours_day)
         return probity_of_presence
 
     def _calc_probity_evacuation(self, **kwargs):
-        log.info(
-            f'Определение вероятности эвакуации для {self.type_obj} объекта')
         if self.type_obj == 'public':
             probity_evacuation = float(kwargs.get(
                 'probity_evacuation_pub', 0.000))
@@ -196,7 +193,6 @@ class FireRisk:
             probity_evacuation = 1 - \
                 ((1 - float(kwargs.get('probity_evacuation_ind', 0.0)))
                  * (1 - float(kwargs.get('emergency_escape_ind', 0.0))))
-            log.info(probity_evacuation)
         return probity_evacuation
 
     def _calc_probity_of_human_damage(self, probity_evac: int | float, probity_efs: int | float, **kwargs):
@@ -226,7 +222,6 @@ class FireRisk:
 
     def calc_fire_risk(self, *args, potencial_risk: int | float = None, fire_frequency: int | float, **kwargs) -> int | float:
         if self.type_obj == 'public':
-            # fire_frequency = float(kwargs.get('fire_freq_pub', 0.04))
             k_efs = float(kwargs.get('k_efs_pub', 0))
             prob_presence = self._calc_probity_presence(**kwargs)
             probability_evacuation = self._calc_probity_evacuation(**kwargs)
@@ -243,12 +238,7 @@ class FireRisk:
                     probity_evac=probity_evac, probity_efs=probity_efs, **kwargs)
                 poten_risk = self._calc_potential_fire_risk(
                     probity_damage=probity_dam, **kwargs)
-                p_risk = self._calc_potential_fire_risk(
-                    probity_damage=probity_dam, **kwargs)
             else:
-                p_risk = potencial_risk
-
-            fire_risk = p_risk * probity_presence
-
-        log.info(f'Инд.пожарный риск для {self.type_obj}: {fire_risk:.3e}')
+                poten_risk = potencial_risk
+            fire_risk = poten_risk * probity_presence
         return fire_risk

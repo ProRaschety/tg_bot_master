@@ -30,7 +30,7 @@ async def process_start_command(message: Message, bot: Bot, state: FSMContext, i
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.start.menu()
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
@@ -57,7 +57,7 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.start.menu()
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
@@ -136,8 +136,6 @@ async def promo_code_input(message: Message, bot: Bot, state: FSMContext, i18n: 
     await db.users.update_promocode(user_id=message.chat.id, promocode=promocode.lower())
     await message.delete()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
-    # user_record: UsersModel = await db.users.get_user_record(user_id=message.chat.id)
-    # text = i18n.setlevel.text(role_user=str(user_record.role))
     data = await state.get_data()
     message_id = data.get('mes_promocode_id')
 
@@ -190,12 +188,12 @@ async def subscribe_channel_call(callback_data: CallbackQuery, bot: Bot, state: 
     await state.set_state(state=None)
 
 
-@user_router.callback_query(F.data == 'fire_resistance_guest')
+@user_router.callback_query(F.data.in_(['tools_guest', 'fire_resistance_guest', 'fire_risks_guest', 'fire_category_guest']))
 async def fire_resistance_guest_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.guest.menu()
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
                    'fire_risks_guest', 'fire_category_guest']
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
@@ -226,17 +224,6 @@ async def process_get_admin_contacts(message: Message, bot: Bot, state: FSMConte
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
         caption=text, reply_markup=get_inline_url_kb(1, i18n=i18n, param_back=True, back_data="general_menu", ** dict_kb))
-
-    # await bot.edit_message_media(
-    #     chat_id=callback_data.message.chat.id,
-    #     message_id=callback_data.message.message_id,
-    #     media=InputMediaPhoto(media=BufferedInputFile(
-    #         file=media, filename="pic_filling"), caption=text),
-    #     # reply_markup=get_inline_cd_kb(1, *main_kb, i18n=i18n))
-
-    #     # await message.answer(text=i18n.contacts.admin(),
-    #     #                      #  reply_markup=get_inline_url_kb(1, i18n=i18n, link_owner="link_owner-text")),
-    #     reply_markup=get_inline_url_kb(2, i18n=i18n, param_back=True, back_data="general_menu", ** dict_kb))
     await state.set_state(state=None)
     await message.delete()
 

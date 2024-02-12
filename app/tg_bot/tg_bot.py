@@ -1,12 +1,10 @@
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.redis import Redis, RedisStorage
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.enums import ParseMode
 
-from fluent_compiler.bundle import FluentBundle
-from fluentogram import FluentTranslator, TranslatorHub
+from fluentogram import TranslatorHub
 
 from app.infrastructure.database.utils.connect_to_pg import get_pg_pool
 from app.infrastructure.database.utils.create_tables import create_tables

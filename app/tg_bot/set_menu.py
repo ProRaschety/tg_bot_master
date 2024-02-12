@@ -1,5 +1,6 @@
 from aiogram import Bot
 from aiogram.types import BotCommand
+
 # '/bot_wiki': 'Информация о боте',
 LEXICON_COMMANDS_RU: dict[str, str] = {
     '/start': 'Главное меню',
