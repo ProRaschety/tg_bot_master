@@ -522,6 +522,8 @@ async def n_load_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.n_load_edit_state), F.data.in_(['ready']))
 async def n_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
+    log.info(state_data)
     data = await state.get_data()
     value = data.get("n_load")
     if value != '' and value != '.':
