@@ -69,7 +69,7 @@ class FireRisk:
                 #     'unit_1': f"{(probity_presence):.3f}", 'unit_2': '-'},
                 {'id': 'Рабочих дней в году', 'var': '-',
                     'unit_1': kwargs.get('working_days_per_year_ind', 30), 'unit_2': 'сутки'},
-                {'id': 'Время нахождения работника\nв i-ом помещении здания', 'var': '-',
+                {'id': 'Время присутствия работника\nв i-ом помещении здания', 'var': '-',
                     'unit_1': kwargs.get('time_presence_ind', 0), 'unit_2': 'час/\nсутки'},
                 # {'id': 'Частота возникновения\nпожара в здании', 'var': 'Q',
                 #     'unit_1': f"{(fire_freq):.2e}", 'unit_2': '1/год'},
