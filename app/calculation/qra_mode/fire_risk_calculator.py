@@ -35,7 +35,7 @@ class FireRisk:
                 {'id': 'Частота возникновения пожара', 'var': 'Qп', 'unit_1': f"{float((kwargs.get('fire_freq_pub', 0.04))):.2e}", 'unit_2': '1/год'}]
         else:
             # fire_freq = self._get_frequency_of_fire(**kwargs)
-            probity_efs = self._calc_probity_fire_protec_system(**kwargs)
+            # probity_efs = self._calc_probity_fire_protec_system(**kwargs)
             probity_presence = self._calc_probity_presence(**kwargs)
             probity_evac = self._calc_probity_evacuation(**kwargs)
             # probity_dam = self._calc_probity_of_human_damage(

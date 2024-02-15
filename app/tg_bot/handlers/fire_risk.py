@@ -3,17 +3,16 @@ import logging
 from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state
 # , InlineQueryResultArticle, InputTextMessageContent
-from aiogram.types import InlineQuery
-from aiogram.types import CallbackQuery, Message, BufferedInputFile, InputMediaPhoto, InputFile, InputMediaDocument
+# from aiogram.types import InlineQuery
+from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
 
 from fluentogram import TranslatorRunner
 
-from app.infrastructure.database.database.db import DB
+# from app.infrastructure.database.database.db import DB
 from app.tg_bot.filters.filter_role import IsSubscriber
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
-from app.tg_bot.utilities.misc_utils import get_csv_file, get_csv_bt_file, get_picture_filling, get_data_table
+from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
 from app.tg_bot.states.fsm_state_data import FSMFireRiskForm
 from app.calculation.qra_mode.fire_risk_calculator import FireRisk
 
@@ -25,9 +24,15 @@ fire_risk_router.callback_query.filter(IsSubscriber())
 
 SFilter_pub = [FSMFireRiskForm.edit_time_presence_pub,
                FSMFireRiskForm.edit_probity_evac_pub, FSMFireRiskForm.edit_fire_freq_pub]
+Kb_pub = [2, 'fire_freq_pub', 'time_presence_pub', 'probity_evac_pub',
+          'k_efs_pub', 'k_alarm_pub', 'k_evacuation_pub', 'k_smoke_pub',
+                                      'back_public']
 
 SFilter_ind = [FSMFireRiskForm.edit_fire_freq_ind, FSMFireRiskForm.edit_time_presence_ind,
                FSMFireRiskForm.edit_probity_evac_ind, FSMFireRiskForm.edit_area_ind, FSMFireRiskForm.edit_work_days_ind]
+
+Kb_ind = [2, 'area_ind', 'fire_freq_ind', 'working_days_per_year_ind', 'time_presence_ind',
+          'k_efs_ind', 'k_alarm_ind', 'k_evacuation_ind', 'k_smoke_ind', 'back_industrial']
 
 
 @fire_risk_router.callback_query(F.data == 'fire_risks')
@@ -187,9 +192,7 @@ async def edit_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_pub', 'time_presence_pub', 'probity_evac_pub',
-                                      'k_efs_pub', 'k_alarm_pub', 'k_evacuation_pub', 'k_smoke_pub',
-                                      'back_public', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n))
     await callback.answer('')
 
 
@@ -360,7 +363,6 @@ async def edit_public_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
             await state.update_data(probity_evacuation_pub=value)
         else:
             await state.update_data(probity_evacuation_pub=0.999)
-
     elif state_data == FSMFireRiskForm.edit_fire_freq_pub:
         if value != '' and value != '.':
             await state.update_data(fire_freq_pub=value)
@@ -379,8 +381,7 @@ async def edit_public_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_pub', 'time_presence_pub', 'probity_evac_pub',
-                                      'k_efs_pub', 'k_alarm_pub', 'k_evacuation_pub', 'k_smoke_pub', 'back_public', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n))
     await state.update_data(edit_public_param='')
     await callback.answer('')
 
@@ -444,8 +445,7 @@ async def k_efs_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_pub', 'time_presence_pub', 'probity_evac_pub',
-                                      'k_efs_pub', 'k_alarm_pub', 'k_evacuation_pub', 'k_smoke_pub', 'back_public', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n))
     await callback.answer('')
 
 
@@ -468,8 +468,7 @@ async def k_alarm_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_pub', 'time_presence_pub', 'probity_evac_pub',
-                                      'k_efs_pub', 'k_alarm_pub', 'k_evacuation_pub', 'k_smoke_pub', 'back_public', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n))
     await callback.answer('')
 
 
@@ -492,8 +491,7 @@ async def k_evacuation_call(callback: CallbackQuery, bot: Bot, state: FSMContext
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_pub', 'time_presence_pub', 'probity_evac_pub',
-                                      'k_efs_pub', 'k_alarm_pub', 'k_evacuation_pub', 'k_smoke_pub', 'back_public', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n))
     await callback.answer('')
 
 
@@ -516,8 +514,7 @@ async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_pub', 'time_presence_pub', 'probity_evac_pub',
-                                      'k_efs_pub', 'k_alarm_pub', 'k_evacuation_pub', 'k_smoke_pub', 'back_public', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n))
     await callback.answer('')
 
 
@@ -541,7 +538,6 @@ async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     data.setdefault("emergency_escape_ind", "0.001")
 
     text = i18n.industrial.text()
-    log.info(str(callback.data))
     frisk = FireRisk(type_obj='industrial')
     data_out, headers, label = frisk.get_init_data(**data)
     media = get_data_table(data=data_out, headers=headers, label=label)
@@ -561,7 +557,7 @@ async def edit_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_ind', 'working_days_per_year_ind', 'time_presence_ind', 'k_efs_ind', 'k_alarm_ind', 'k_evacuation_ind', 'k_smoke_ind', 'back_industrial', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n))
     await callback.answer('')
 
 
@@ -606,7 +602,7 @@ async def k_smoke_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
 
 
 @fire_risk_router.callback_query(F.data.in_(['k_efs_ind_true', 'k_efs_ind_false']))
-async def k_efs_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def k_efs_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = callback.data
     data = await state.get_data()
     if call_data == 'k_efs_ind_true':
@@ -624,13 +620,13 @@ async def k_efs_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_ind', 'working_days_per_year_ind', 'time_presence_ind', 'k_efs_ind', 'k_alarm_ind', 'k_evacuation_ind', 'k_smoke_ind', 'back_industrial', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n))
 
     await callback.answer('')
 
 
 @fire_risk_router.callback_query(F.data.in_(['k_alarm_ind_true', 'k_alarm_ind_false']))
-async def k_alarm_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def k_alarm_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = callback.data
     data = await state.get_data()
     if call_data == 'k_alarm_ind_true':
@@ -648,13 +644,13 @@ async def k_alarm_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_ind', 'working_days_per_year_ind', 'time_presence_ind', 'k_efs_ind', 'k_alarm_ind', 'k_evacuation_ind', 'k_smoke_ind', 'back_industrial', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n))
 
     await callback.answer('')
 
 
 @fire_risk_router.callback_query(F.data.in_(['k_evacuation_ind_true', 'k_evacuation_ind_false']))
-async def k_evacuation_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def k_evacuation_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = callback.data
     data = await state.get_data()
     if call_data == 'k_evacuation_ind_true':
@@ -672,13 +668,13 @@ async def k_evacuation_ind_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_ind', 'working_days_per_year_ind', 'time_presence_ind', 'k_efs_ind', 'k_alarm_ind', 'k_evacuation_ind', 'k_smoke_ind', 'back_industrial', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n))
 
     await callback.answer('')
 
 
 @fire_risk_router.callback_query(F.data.in_(['k_smoke_ind_true', 'k_smoke_ind_false']))
-async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def k_smoke_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = callback.data
     data = await state.get_data()
     if call_data == 'k_smoke_ind_true':
@@ -696,15 +692,17 @@ async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_ind', 'working_days_per_year_ind', 'time_presence_ind', 'k_efs_ind', 'k_alarm_ind', 'k_evacuation_ind', 'k_smoke_ind', 'back_industrial', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n))
 
     await callback.answer('')
 
 
-@fire_risk_router.callback_query(F.data.in_(['fire_freq_ind', 'working_days_per_year_ind', 'time_presence_ind', 'probity_evac_ind']))
+@fire_risk_router.callback_query(F.data.in_(['area_ind', 'fire_freq_ind', 'working_days_per_year_ind', 'time_presence_ind', 'probity_evac_ind']))
 async def edit_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     if callback.data == 'fire_freq_ind':
         await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
+    elif callback.data == 'area_ind':
+        await state.set_state(FSMFireRiskForm.edit_area_ind)
     elif callback.data == 'working_days_per_year_ind':
         await state.set_state(FSMFireRiskForm.edit_work_days_ind)
     elif callback.data == 'time_presence_ind':
@@ -726,18 +724,21 @@ async def edit_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
     elif state_data == FSMFireRiskForm.edit_fire_freq_ind:
         text = i18n.edit_industrial.text(industrial_param=i18n.get(
             "name_fire_freq_ind"), edit_industrial=data.get("fire_freq_ind", 0))
+    elif state_data == FSMFireRiskForm.edit_area_ind:
+        text = i18n.edit_industrial.text(industrial_param=i18n.get(
+            "name_area_ind"), edit_industrial=data.get("area_ind", 0))
     else:
         text = i18n.edit_industrial.text(
-            industrial_param='Тут будет текст', edit_area=data.get("edit_industrial_param", 0))
+            industrial_param='Введите значение', edit_area=data.get("edit_industrial_param", 0))
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
+        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
     await callback.answer('')
 
 
-@fire_risk_router.callback_query(StateFilter(*SFilter_ind), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
+@fire_risk_router.callback_query(StateFilter(*SFilter_ind), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero', 'point', 'clear']))
 async def edit_ind_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     state_data = await state.get_state()
     if state_data == FSMFireRiskForm.edit_time_presence_ind:
@@ -748,118 +749,30 @@ async def edit_ind_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext
         industrial_param = i18n.get("name_probity_evac_ind")
     elif state_data == FSMFireRiskForm.edit_fire_freq_ind:
         industrial_param = i18n.get("name_fire_freq_ind")
-
+    elif state_data == FSMFireRiskForm.edit_area_ind:
+        industrial_param = i18n.get("name_area_ind")
     edit_data = await state.get_data()
-    call_data = callback.data
-    if call_data == "one":
-        call_data = 1
-    elif call_data == "two":
-        call_data = 2
-    elif call_data == "three":
-        call_data = 3
-    elif call_data == "four":
-        call_data = 4
-    elif call_data == "five":
-        call_data = 5
-    elif call_data == "six":
-        call_data = 6
-    elif call_data == "seven":
-        call_data = 7
-    elif call_data == "eight":
-        call_data = 8
-    elif call_data == "nine":
-        call_data = 9
-    elif call_data == "zero":
-        call_data = 0
-
-    if call_data != 'clear':
-        if edit_data.get('edit_industrial_param') == None:
-            await state.update_data(edit_industrial_param="")
-            edit_data = await state.get_data()
-            await state.update_data(edit_industrial_param=call_data)
-            edit_data = await state.get_data()
-            edit_param = edit_data.get('edit_industrial_param', 0)
-            text = i18n.edit_industrial.text(
-                industrial_param=industrial_param, edit_industrial=edit_param)
-        else:
-            edit_param_1 = edit_data.get('edit_industrial_param')
-            edit_sum = str(edit_param_1) + str(call_data)
-            await state.update_data(edit_industrial_param=edit_sum)
-            edit_data = await state.get_data()
-            edit_param = edit_data.get('edit_industrial_param', 0)
-            text = i18n.edit_industrial.text(
-                industrial_param=industrial_param, edit_industrial=edit_param)
-
-    await bot.edit_message_caption(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
-
-
-@fire_risk_router.callback_query(StateFilter(*SFilter_ind), F.data.in_(['point']))
-async def edit_point_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    state_data = await state.get_state()
-    if state_data == FSMFireRiskForm.edit_time_presence_ind:
-        industrial_param = i18n.get("name_time_presence_ind")
-    elif state_data == FSMFireRiskForm.edit_work_days_ind:
-        industrial_param = i18n.get("name_work_days_ind")
-    elif state_data == FSMFireRiskForm.edit_probity_evac_ind:
-        industrial_param = i18n.get("name_probity_evac_ind")
-    elif state_data == FSMFireRiskForm.edit_fire_freq_ind:
-        industrial_param = i18n.get("name_fire_freq_ind")
-
-    edit_data = await state.get_data()
-    call_data = callback.data
-    if call_data == "point":
-        call_data = '.'
-    if edit_data.get('edit_industrial_param') == None:
+    if callback.data == 'clear':
         await state.update_data(edit_industrial_param="")
-        edit_data = await state.get_data()
-        await state.update_data(edit_industrial_param=call_data)
-        edit_data = await state.get_data()
-        edit_param = edit_data.get('edit_industrial_param', 0)
+        edit_d = await state.get_data()
+        edit_data = edit_d.get('edit_industrial_param', 1)
         text = i18n.edit_industrial.text(
-            industrial_param=industrial_param, edit_industrial=edit_param)
+            industrial_param=industrial_param, edit_industrial=edit_data)
+
     else:
         edit_param_1 = edit_data.get('edit_industrial_param')
-        edit_sum = str(edit_param_1) + str(call_data)
+        edit_sum = edit_param_1 + i18n.get(callback.data)
         await state.update_data(edit_industrial_param=edit_sum)
         edit_data = await state.get_data()
         edit_param = edit_data.get('edit_industrial_param', 0)
         text = i18n.edit_industrial.text(
             industrial_param=industrial_param, edit_industrial=edit_param)
+
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
-
-
-@fire_risk_router.callback_query(StateFilter(*SFilter_ind), F.data.in_(['clear']))
-async def edit_clear_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    state_data = await state.get_state()
-    if state_data == FSMFireRiskForm.edit_time_presence_ind:
-        industrial_param = i18n.get("name_time_presence_ind")
-    elif state_data == FSMFireRiskForm.edit_work_days_ind:
-        industrial_param = i18n.get("name_work_days_ind")
-    elif state_data == FSMFireRiskForm.edit_probity_evac_ind:
-        industrial_param = i18n.get("name_probity_evac_ind")
-    elif state_data == FSMFireRiskForm.edit_fire_freq_ind:
-        industrial_param = i18n.get("name_fire_freq_ind")
-
-    edit_data = await state.get_data()
-    await state.update_data(edit_industrial_param="")
-    edit_d = await state.get_data()
-    edit_data = edit_d.get('edit_industrial_param', 1000)
-    text = i18n.edit_industrial.text(
-        industrial_param=industrial_param, edit_industrial=edit_data)
-    await bot.edit_message_caption(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
-    await callback.answer('')
+        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
 
 
 @fire_risk_router.callback_query(StateFilter(*SFilter_ind), F.data.in_(['ready']))
@@ -882,7 +795,11 @@ async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
             await state.update_data(probity_evacuation_ind=value)
         else:
             await state.update_data(probity_evacuation_ind=0.999)
-
+    elif state_data == FSMFireRiskForm.edit_area_ind:
+        if value != '' and value != '.':
+            await state.update_data(area_ind=value)
+        else:
+            await state.update_data(area_ind=100)
     elif state_data == FSMFireRiskForm.edit_fire_freq_ind:
         if value != '' and value != '.':
             await state.update_data(fire_freq_ind=value)
@@ -901,7 +818,7 @@ async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_freq_ind', 'working_days_per_year_ind', 'time_presence_ind', 'k_efs_ind', 'k_alarm_ind', 'k_evacuation_ind', 'k_smoke_ind', 'back_industrial', i18n=i18n))
+        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n))
 
     await state.update_data(edit_industrial_param='')
     await callback.answer('')
@@ -926,7 +843,7 @@ async def run_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     data.setdefault("emergency_escape_ind", "0.001")
 
     text = i18n.industrial.text()
-    log.info(str(callback.data))
+
     frisk = FireRisk(type_obj='industrial')
     data_out, headers, label = frisk.get_result_data(**data)
     media = get_data_table(data=data_out, headers=headers,

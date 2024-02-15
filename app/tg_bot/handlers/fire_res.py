@@ -10,14 +10,13 @@ from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
-from aiogram.types import CallbackQuery, Message, BufferedInputFile, FSInputFile, InputMediaPhoto, InputFile, InputMediaDocument
-from aiogram.utils.chat_action import ChatActionSender
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuery, InlineQueryResultArticle, InputTextMessageContent, CallbackQuery, Message, BufferedInputFile, InputMediaPhoto, InputMediaDocument
+# from aiogram.utils.chat_action import ChatActionSender
 from aiogram.enums import ChatAction
 
 from app.tg_bot.filters.filter_role import IsComrade
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
-from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_data_table
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
+from app.tg_bot.utilities.misc_utils import get_csv_bt_file, get_picture_filling, get_data_table
 from app.tg_bot.states.fsm_state_data import FSMSteelForm
 from app.calculation.fire_resistance.steel_calculation import SteelFireResistance, SteelFireStrength, SteelFireProtection
 

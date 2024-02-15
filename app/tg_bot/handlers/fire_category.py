@@ -1,23 +1,23 @@
 import logging
 
-import json
-from datetime import datetime
+# import json
+# from datetime import datetime
 
 from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
-from aiogram.types import CallbackQuery, Message, BufferedInputFile, FSInputFile, InputMediaPhoto, InputFile, InputMediaDocument
-from aiogram.utils.chat_action import ChatActionSender
-from aiogram.enums import ChatAction
+from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
+# from aiogram.utils.chat_action import ChatActionSender
+# from aiogram.enums import ChatAction
 
 from fluentogram import TranslatorRunner
 
-from app.infrastructure.database.database.db import DB
+# from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
-from app.tg_bot.filters.filter_role import IsComrade, IsSubscriber
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
-from app.tg_bot.utilities.misc_utils import get_temp_folder, get_csv_file, get_csv_bt_file, get_picture_filling, get_data_table
+from app.tg_bot.filters.filter_role import IsSubscriber
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
+from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
 from app.tg_bot.states.fsm_state_data import FSMCatBuildForm
 from app.calculation.fire_hazard_category.fire_hazard_categories import FireCategoryBuild, FireCategoryOutInstall
 

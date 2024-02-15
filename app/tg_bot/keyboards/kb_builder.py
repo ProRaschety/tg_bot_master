@@ -6,7 +6,7 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from app.tg_bot.models.role import UserRole
+# from app.tg_bot.models.role import UserRole
 
 
 logger = logging.getLogger(__name__)
