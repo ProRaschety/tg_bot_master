@@ -31,7 +31,7 @@ Kb_pub = [2, 'fire_freq_pub', 'time_presence_pub', 'probity_evac_pub',
 SFilter_ind = [FSMFireRiskForm.edit_fire_freq_ind, FSMFireRiskForm.edit_time_presence_ind,
                FSMFireRiskForm.edit_probity_evac_ind, FSMFireRiskForm.edit_area_ind, FSMFireRiskForm.edit_work_days_ind]
 
-Kb_ind = [2, 'area_ind', 'fire_freq_ind', 'working_days_per_year_ind', 'time_presence_ind',
+Kb_ind = [2, 'area_ind', 'fire_freq_ind', 'time_presence_ind', 'working_days_per_year_ind',
           'k_efs_ind', 'k_alarm_ind', 'k_evacuation_ind', 'k_smoke_ind', 'back_industrial']
 
 
