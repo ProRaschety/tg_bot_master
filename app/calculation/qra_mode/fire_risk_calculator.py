@@ -37,6 +37,7 @@ class FireRisk:
             # fire_freq = self._get_frequency_of_fire(**kwargs)
             # probity_efs = self._calc_probity_fire_protec_system(**kwargs)
             probity_presence = self._calc_probity_presence(**kwargs)
+            probity_escape_exits = self._calc_probity_escape_exits(**kwargs)
             probity_evac = self._calc_probity_evacuation(**kwargs)
             # probity_dam = self._calc_probity_of_human_damage(
             #     probity_evac=probity_evac, probity_efs=probity_efs, **kwargs)
@@ -61,10 +62,16 @@ class FireRisk:
                     'unit_1': kwargs.get('k_efs_ind', 0.9), 'unit_2': '-'},
                 # {'id': 'Вероятность эвакуации из здания', 'var': 'Рэ',
                 #     'unit_1': probity_evac, 'unit_2': '-'},
-                {'id': 'Вероятность эвакуации\nпо эвакуационным путям', 'var': 'Рэп',
-                    'unit_1': kwargs.get('probity_evacuation_ind', 0), 'unit_2': '-'},
                 {'id': 'Вероятность эвакуации\nчерез аварийные выходы', 'var': 'Рдв',
-                    'unit_1': kwargs.get('emergency_escape_ind', 0.001), 'unit_2': '-'},
+                    'unit_1': kwargs.get('emergency_escape_ind'), 'unit_2': '-'},
+                {'id': 'Вероятность эвакуации\nпо эвакуационным путям', 'var': 'Рэп',
+                    'unit_1': f"{probity_escape_exits:.3f}", 'unit_2': '-'},
+                {'id': 'Расчетное время эвакуации', 'var': 'tр',
+                    'unit_1': kwargs.get('time_evacuation_ind'), 'unit_2': 'сек'},
+                {'id': 'Время блокирования путей эвакуации', 'var': 'tбл',
+                    'unit_1': kwargs.get('time_blocking_paths_ind'), 'unit_2': 'сек'},
+                {'id': 'Время начала эвакуации', 'var': 'tнэ',
+                    'unit_1': kwargs.get('time_start_evacuation_ind'), 'unit_2': 'сек'},
                 # {'id': 'Вероятность присутствия', 'var': 'Р',
                 #     'unit_1': f"{(probity_presence):.3f}", 'unit_2': '-'},
                 {'id': 'Рабочих дней в году', 'var': '-',
@@ -117,6 +124,7 @@ class FireRisk:
             fire_freq = self._get_frequency_of_fire(**kwargs)
             probity_efs = self._calc_probity_fire_protec_system(**kwargs)
             probity_presence = self._calc_probity_presence(**kwargs)
+            # probity_escape_exits = self._calc_probity_escape_exits(**kwargs)
             probity_evac = self._calc_probity_evacuation(**kwargs)
             probity_dam = self._calc_probity_of_human_damage(
                 probity_evac=probity_evac, probity_efs=probity_efs, **kwargs)
@@ -134,7 +142,7 @@ class FireRisk:
                 {'id': 'Вероятность эффективной работы\nсистем противопожарной защиты', 'var': 'Dijk',
                     'unit_1': f"{probity_efs:.3f}", 'unit_2': '-'},
                 # {'id': 'Вероятность эвакуации\nпо эвакуационным путям', 'var': 'Рэп',
-                #     'unit_1': kwargs.get('probability_evacuation_ind', 0), 'unit_2': '-'},
+                #     'unit_1': f"{probity_escape_exits:.3f}", 'unit_2': '-'},
                 # {'id': 'Вероятность эвакуации\nчерез аварийные выходы', 'var': 'Рдв',
                 #     'unit_1': kwargs.get('emergency_escape_ind', 0.001), 'unit_2': '-'},
                 {'id': 'Вероятность присутствия\nработника m в i-ом помещении', 'var': 'qim',
@@ -185,14 +193,37 @@ class FireRisk:
                 quantity_work_day_in_year * work_time)/(days_in_year * hours_day)
         return probity_of_presence
 
+    def _calc_probity_escape_exits(self, **kwargs):
+        if self.type_obj == 'public':
+            probity_escape_exits = float(
+                kwargs.get('probity_evacuation_pub', 0.000))
+
+        else:
+            time_evacuation = float(kwargs.get('time_evacuation_ind'))
+            time_blocking_paths = float(kwargs.get('time_blocking_paths_ind'))
+            time_start_evacuation = float(
+                kwargs.get('time_start_evacuation_ind'))
+            if time_evacuation > (0.8 * time_blocking_paths):
+                probity_escape_exits = 0.001
+            elif ((0.8 * time_blocking_paths) > time_evacuation) and (
+                    (0.8 * time_blocking_paths) < (time_evacuation + time_start_evacuation)):
+                probity_escape_exits = 0.999 * \
+                    ((0.8 * time_blocking_paths - time_evacuation) /
+                     time_start_evacuation)
+            elif ((time_evacuation + time_start_evacuation) <= (0.8 * time_blocking_paths)):
+                probity_escape_exits = 0.999
+
+        return probity_escape_exits
+
     def _calc_probity_evacuation(self, **kwargs):
         if self.type_obj == 'public':
             probity_evacuation = float(kwargs.get(
                 'probity_evacuation_pub', 0.000))
         else:
+            probity_escape_exits = self._calc_probity_escape_exits(**kwargs)
             probity_evacuation = 1 - \
-                ((1 - float(kwargs.get('probity_evacuation_ind', 0.0)))
-                 * (1 - float(kwargs.get('emergency_escape_ind', 0.0))))
+                ((1 - probity_escape_exits) *
+                 (1 - float(kwargs.get('emergency_escape_ind', 0.0))))
         return probity_evacuation
 
     def _calc_probity_of_human_damage(self, probity_evac: int | float, probity_efs: int | float, **kwargs):
@@ -229,15 +260,5 @@ class FireRisk:
                 (1 - k_efs) * prob_presence * \
                 (1 - probability_evacuation) * (1 - k_fps)
         else:
-            # if potencial_risk == None:
-            # probity_efs = self._calc_probity_fire_protec_system(**kwargs)
-            # probity_evac = self._calc_probity_evacuation(**kwargs)
-            # probity_presence = self._calc_probity_presence(**kwargs)
-            # probity_dam = self._calc_probity_of_human_damage(
-            #     probity_evac=probity_evac, probity_efs=probity_efs, **kwargs)
-            # poten_risk = self._calc_potential_fire_risk(
-            #     probity_damage=probity_dam, **kwargs)
-            # else:
-            #     poten_risk = potencial_risk
             fire_risk = potencial_risk * probity_presence
         return fire_risk
