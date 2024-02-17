@@ -125,14 +125,15 @@ async def fire_risks_calculator_call(callback: CallbackQuery, bot: Bot, i18n: Tr
         reply_markup=get_inline_cd_kb(1, 'public', 'industrial', 'back_fire_risks', i18n=i18n))
     await callback.answer('')
 
-"""______________________ Общественное здание ______________________"""
+"""______________________Общественное здание______________________"""
 
 
 @fire_risk_router.callback_query(F.data.in_(['public', 'back_public']))
 async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    await state.set_state(state=None)
+    state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("edit_public_param", "0")
+    data.setdefault("area_pub", "10")
     data.setdefault("fire_freq_pub", "0.04")
     data.setdefault("time_presence_pub", "2.0")
     data.setdefault("probity_evacuation_pub", "0.999")
@@ -147,7 +148,10 @@ async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n
 
     text = i18n.public.text()
     log.info(str(callback.data))
-    frisk = FireRisk(type_obj='public')
+    if state_data == FSMFireRiskForm.edit_probity_evac_pub:
+        frisk = FireRisk(type_obj='public', prob_evac=True)
+    else:
+        frisk = FireRisk(type_obj='public')
     data_out, headers, label = frisk.get_init_data(**data)
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
@@ -162,6 +166,7 @@ async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n
 
 @fire_risk_router.callback_query(F.data == 'run_public')
 async def run_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("fire_freq_pub", "0.04")
     data.setdefault("k_efs_pub", "0.9")
@@ -175,8 +180,10 @@ async def run_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     data.setdefault("k_evacuation_pub", "0.8")
     data.setdefault("k_smoke_pub", "0.8")
     text = i18n.public.text()
-    log.info(str(callback.data))
-    frisk = FireRisk(type_obj='public')
+    if state_data == FSMFireRiskForm.edit_probity_evac_pub:
+        frisk = FireRisk(type_obj='public', prob_evac=True)
+    else:
+        frisk = FireRisk(type_obj='public')
     data_out, headers, label = frisk.get_result_data(**data)
     media = get_data_table(data=data_out, headers=headers,
                            label=label, results=True, row_num=9)
@@ -187,6 +194,7 @@ async def run_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'edit_public', 'back_fire_risks_calc', i18n=i18n))
     await state.update_data(data)
+    await state.set_state(state=None)
     await callback.answer('')
 
 
@@ -287,12 +295,14 @@ async def edit_public_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
             await state.update_data(fire_freq_pub=value)
         else:
             await state.update_data(fire_freq_pub=0.04)
-
     else:
         await state.update_data(edit_public_param=value)
     data = await state.get_data()
     text = i18n.public.text()
-    frisk = FireRisk(type_obj='public')
+    if state_data == FSMFireRiskForm.edit_probity_evac_pub:
+        frisk = FireRisk(type_obj='public', prob_evac=True)
+    else:
+        frisk = FireRisk(type_obj='public')
     data_out, headers, label = frisk.get_init_data(**data)
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
@@ -307,7 +317,6 @@ async def edit_public_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 @fire_risk_router.callback_query(F.data.in_(['k_efs_pub']))
 async def k_efs_pub_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    await state.set_state(state=None)
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -317,7 +326,6 @@ async def k_efs_pub_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
 
 @fire_risk_router.callback_query(F.data.in_(['k_alarm_pub']))
 async def k_alarm_pub_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    await state.set_state(state=None)
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -327,7 +335,6 @@ async def k_alarm_pub_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
 
 @fire_risk_router.callback_query(F.data.in_(['k_evacuation_pub']))
 async def k_evacuation_pub_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    await state.set_state(state=None)
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -337,7 +344,6 @@ async def k_evacuation_pub_call(callback: CallbackQuery, bot: Bot, state: FSMCon
 
 @fire_risk_router.callback_query(F.data.in_(['k_smoke_pub']))
 async def k_smoke_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    await state.set_state(state=None)
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -347,6 +353,7 @@ async def k_smoke_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18
 
 @fire_risk_router.callback_query(F.data.in_(['k_efs_pub_true', 'k_efs_pub_false']))
 async def k_efs_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
     call_data = callback.data
     data = await state.get_data()
     if call_data == 'k_efs_pub_true':
@@ -355,8 +362,10 @@ async def k_efs_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
         await state.update_data(k_efs_pub=0.0)
     data = await state.get_data()
     text = i18n.public.text()
-    log.info(str(callback.data))
-    frisk = FireRisk(type_obj='public')
+    if state_data == FSMFireRiskForm.edit_probity_evac_pub:
+        frisk = FireRisk(type_obj='public', prob_evac=True)
+    else:
+        frisk = FireRisk(type_obj='public')
     data_out, headers, label = frisk.get_init_data(**data)
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
@@ -370,6 +379,7 @@ async def k_efs_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
 
 @fire_risk_router.callback_query(F.data.in_(['k_alarm_pub_true', 'k_alarm_pub_false']))
 async def k_alarm_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
     call_data = callback.data
     data = await state.get_data()
     if call_data == 'k_alarm_pub_true':
@@ -378,8 +388,10 @@ async def k_alarm_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18
         await state.update_data(k_alarm_pub=0.0)
     data = await state.get_data()
     text = i18n.public.text()
-    log.info(str(callback.data))
-    frisk = FireRisk(type_obj='public')
+    if state_data == FSMFireRiskForm.edit_probity_evac_pub:
+        frisk = FireRisk(type_obj='public', prob_evac=True)
+    else:
+        frisk = FireRisk(type_obj='public')
     data_out, headers, label = frisk.get_init_data(**data)
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
@@ -393,6 +405,7 @@ async def k_alarm_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18
 
 @fire_risk_router.callback_query(F.data.in_(['k_evacuation_pub_true', 'k_evacuation_pub_false']))
 async def k_evacuation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
     call_data = callback.data
     data = await state.get_data()
     if call_data == 'k_evacuation_pub_true':
@@ -401,8 +414,10 @@ async def k_evacuation_call(callback: CallbackQuery, bot: Bot, state: FSMContext
         await state.update_data(k_evacuation_pub=0.0)
     data = await state.get_data()
     text = i18n.public.text()
-    log.info(str(callback.data))
-    frisk = FireRisk(type_obj='public')
+    if state_data == FSMFireRiskForm.edit_probity_evac_pub:
+        frisk = FireRisk(type_obj='public', prob_evac=True)
+    else:
+        frisk = FireRisk(type_obj='public')
     data_out, headers, label = frisk.get_init_data(**data)
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
@@ -416,6 +431,7 @@ async def k_evacuation_call(callback: CallbackQuery, bot: Bot, state: FSMContext
 
 @fire_risk_router.callback_query(F.data.in_(['k_smoke_pub_true', 'k_smoke_pub_false']))
 async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
     call_data = callback.data
     data = await state.get_data()
     if call_data == 'k_smoke_pub_true':
@@ -424,8 +440,10 @@ async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         await state.update_data(k_smoke_pub=0.0)
     data = await state.get_data()
     text = i18n.public.text()
-    log.info(str(callback.data))
-    frisk = FireRisk(type_obj='public')
+    if state_data == FSMFireRiskForm.edit_probity_evac_pub:
+        frisk = FireRisk(type_obj='public', prob_evac=True)
+    else:
+        frisk = FireRisk(type_obj='public')
     data_out, headers, label = frisk.get_init_data(**data)
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
@@ -436,7 +454,8 @@ async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
     await callback.answer('')
 
-"""______________________ Производственное здание ______________________"""
+
+"""______________________Производственное здание______________________"""
 
 
 @fire_risk_router.callback_query(F.data.in_(['industrial', 'back_industrial']))

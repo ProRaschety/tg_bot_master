@@ -73,6 +73,11 @@ class FSMFireRiskForm(StatesGroup):
     edit_probity_evac_pub = State()
     select_type_obj_pub = State()
 
+    edit_time_crowding_pub = State()
+    edit_time_evacuation_pub = State()
+    edit_time_blocking_paths_pub = State()
+    edit_time_start_evacuation_pub = State()
+
     edit_fire_freq_ind = State()
     edit_time_presence_ind = State()
     edit_probity_evac_ind = State()
