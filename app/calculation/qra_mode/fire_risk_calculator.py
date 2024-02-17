@@ -5,8 +5,9 @@ log = logging.getLogger(__name__)
 
 
 class FireRisk:
-    def __init__(self, type_obj: str):
+    def __init__(self, type_obj: str, prob_evac: bool = False):
         self.type_obj = type_obj
+        self.prob_evac = prob_evac
 
     def get_init_data(self, *args, **kwargs):
         head_risk = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
@@ -199,20 +200,23 @@ class FireRisk:
                 kwargs.get('probity_evacuation_pub', 0.000))
 
         else:
-            time_evacuation = float(kwargs.get('time_evacuation_ind'))
-            time_blocking_paths = float(kwargs.get('time_blocking_paths_ind'))
-            time_start_evacuation = float(
-                kwargs.get('time_start_evacuation_ind'))
-            if time_evacuation > (0.8 * time_blocking_paths):
-                probity_escape_exits = 0.001
-            elif ((0.8 * time_blocking_paths) > time_evacuation) and (
-                    (0.8 * time_blocking_paths) < (time_evacuation + time_start_evacuation)):
-                probity_escape_exits = 0.999 * \
-                    ((0.8 * time_blocking_paths - time_evacuation) /
-                     time_start_evacuation)
-            elif ((time_evacuation + time_start_evacuation) <= (0.8 * time_blocking_paths)):
-                probity_escape_exits = 0.999
-
+            if self.prob_evac:
+                probity_escape_exits = float(
+                    kwargs.get('probity_evacuation_ind'))
+            else:
+                time_evacuation = float(kwargs.get('time_evacuation_ind'))
+                time_blocking_paths = float(
+                    kwargs.get('time_blocking_paths_ind'))
+                time_start_evacuation = float(
+                    kwargs.get('time_start_evacuation_ind'))
+                if time_evacuation >= (0.8 * time_blocking_paths):
+                    probity_escape_exits = 0.001
+                elif ((time_evacuation + time_start_evacuation) <= (0.8 * time_blocking_paths)):
+                    probity_escape_exits = 0.999
+                elif ((0.8 * time_blocking_paths) > time_evacuation) and ((0.8 * time_blocking_paths) < (time_evacuation + time_start_evacuation)):
+                    probity_escape_exits = 0.999 * \
+                        ((0.8 * time_blocking_paths - time_evacuation) /
+                         time_start_evacuation)
         return probity_escape_exits
 
     def _calc_probity_evacuation(self, **kwargs):
