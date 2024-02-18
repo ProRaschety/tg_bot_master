@@ -1,6 +1,10 @@
 from aiogram.fsm.state import State, StatesGroup
 
 
+class FSMOwnerForm(StatesGroup):
+    promocode_state = State()
+
+
 class FSMAdminForm(StatesGroup):
     # Состояние отправки картинки для отображения на первой странице ввода данных
     admin_set_pic_steel = State()

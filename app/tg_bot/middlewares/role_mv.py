@@ -2,7 +2,7 @@ import logging
 
 from typing import Awaitable, Callable
 from aiogram import BaseMiddleware
-from aiogram.types import Update, User
+from aiogram.types import Update
 
 from app.infrastructure.database.database.db import DB
 from app.tg_bot.utilities.user_role import get_user_role

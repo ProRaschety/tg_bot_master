@@ -9,6 +9,7 @@ from aiogram.types import CallbackQuery, Message, BufferedInputFile, InputMediaP
 from fluentogram import TranslatorRunner
 
 from app.infrastructure.database.database.db import DB
+from app.infrastructure.database.models.users import UsersModel
 from app.tg_bot.filters.filter_role import IsGuest
 # from app.tg_bot.utilities.check_sub_admin import check_sub_admin
 # from app.tg_bot.utilities.check_sub_member import check_sub_member
@@ -26,51 +27,92 @@ user_router.callback_query.filter(IsGuest())
 
 
 @user_router.message(CommandStart())
-async def process_start_command(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+async def process_start_command(message: Message, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
-    text = i18n.start.menu()
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
+        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']
+        text = i18n.start_subscriber.menu()
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
+        text = i18n.start.menu()
     elif role == "admin":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel']
+        text = i18n.start.menu()
     elif role == "owner":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
+        text = i18n.start.menu()
     else:
         main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
-                   'fire_risks_guest', 'fire_category_guest']
+                   'fire_risks', 'fire_category_guest']
+        text = i18n.start_guest.menu()
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
         caption=text,
         reply_markup=get_inline_cd_kb(1, *main_kb, i18n=i18n))
     await state.set_state(state=None)
-    # await message.delete()
+    await message.delete()
 
 
 @user_router.callback_query(F.data == 'general_menu')
 async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
-    text = i18n.start.menu()
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
+        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']
+        text = i18n.start_subscriber.menu()
     elif role == "comrade":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
+        text = i18n.start.menu()
     elif role == "admin":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel']
+        text = i18n.start.menu()
     elif role == "owner":
         main_kb = ['handbooks', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
+        text = i18n.start.menu()
     else:
         main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
-                   'fire_risks_guest', 'fire_category_guest']
+                   'fire_risks', 'fire_category_guest']
+        text = i18n.start_guest.menu()
+    await bot.edit_message_media(
+        chat_id=callback_data.message.chat.id,
+        message_id=callback_data.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, *main_kb, i18n=i18n))
+    await state.set_state(state=None)
+
+
+@user_router.callback_query(F.data.in_(['tools_guest', 'fire_resistance_guest', 'fire_risks_guest', 'fire_category_guest', 'substances_guest']))
+async def fire_resistance_guest_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+
+    if role == "subscriber":
+        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+                   'fire_risks', 'fire_category']
+        text = i18n.subscriber.menu(button=i18n.get(callback_data.data))
+    elif role == "comrade":
+        main_kb = ['handbooks', 'tools', 'fire_resistance',
+                   'fire_risks', 'fire_category']
+
+    elif role == "admin":
+        main_kb = ['handbooks', 'tools', 'fire_resistance',
+                   'fire_risks', 'fire_category', 'admin_panel']
+        text = i18n.start.menu()
+    elif role == "owner":
+        main_kb = ['handbooks', 'tools', 'fire_resistance',
+                   'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
+        text = i18n.start.menu()
+    else:
+        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+                   'fire_risks', 'fire_category_guest']
+        text = i18n.guest.menu(button=i18n.get(callback_data.data))
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,
@@ -84,7 +126,15 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
 async def process_set_level(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=message.chat.id)
-    text = i18n.setlevel.text(role_user=str(user_record.role))
+    dict_role = {'guest': 'Гость',
+                 'subscriber': 'Подписчик',
+                 'comrade': 'Коллега',
+                 'admin': 'Администратор',
+                 'owner': 'Владелец'}
+
+    text = i18n.setlevel.text(role_user=dict_role.get(
+        str(user_record.role), 'Неизвестно'))
+
     if role == 'subscriber':
         keyboad = ['select_tariff', 'enter_promo_code', 'general_menu']
     else:
@@ -101,7 +151,14 @@ async def process_set_level(message: Message, bot: Bot, state: FSMContext, i18n:
 async def back_setlevel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
-    text = i18n.setlevel.text(role_user=str(user_record.role))
+    dict_role = {'guest': 'Гость',
+                 'subscriber': 'Подписчик',
+                 'comrade': 'Коллега',
+                 'admin': 'Администратор',
+                 'owner': 'Владелец'}
+
+    text = i18n.setlevel.text(role_user=dict_role.get(
+        str(user_record.role), 'Неизвестно'))
     if role == 'subscriber':
         keyboad = ['select_tariff', 'enter_promo_code', 'general_menu']
     else:
@@ -160,7 +217,14 @@ async def promo_code_input(message: Message, bot: Bot, state: FSMContext, i18n: 
 async def cansel_enter_promo_code_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
-    text = i18n.setlevel.text(role_user=str(user_record.role))
+    dict_role = {'guest': 'Гость',
+                 'subscriber': 'Подписчик',
+                 'comrade': 'Коллега',
+                 'admin': 'Администратор',
+                 'owner': 'Владелец'}
+
+    text = i18n.setlevel.text(role_user=dict_role.get(
+        str(user_record.role), 'Неизвестно'))
     if role == 'subscriber':
         keyboad = ['select_tariff', 'enter_promo_code', 'general_menu']
     else:
@@ -188,36 +252,8 @@ async def subscribe_channel_call(callback_data: CallbackQuery, bot: Bot, state: 
     await state.set_state(state=None)
 
 
-@user_router.callback_query(F.data.in_(['tools_guest', 'fire_resistance_guest', 'fire_risks_guest', 'fire_category_guest']))
-async def fire_resistance_guest_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
-    text = i18n.guest.menu()
-    if role == "subscriber":
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
-                   'fire_risks_guest', 'fire_category_guest']
-    elif role == "comrade":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
-                   'fire_risks', 'fire_category']
-    elif role == "admin":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
-                   'fire_risks', 'fire_category', 'admin_panel']
-    elif role == "owner":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
-                   'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
-    else:
-        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
-                   'fire_risks_guest', 'fire_category_guest']
-    await bot.edit_message_media(
-        chat_id=callback_data.message.chat.id,
-        message_id=callback_data.message.message_id,
-        media=InputMediaPhoto(media=BufferedInputFile(
-            file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *main_kb, i18n=i18n))
-    await state.set_state(state=None)
-
-
 @user_router.message(Command(commands=["contacts"]))
-async def process_get_admin_contacts(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def process_get_admin_contacts(message: Message, state: FSMContext, i18n: TranslatorRunner) -> None:
     dict_kb = {"link_owner": "link_owner-text", "link_1": "link_1-text"}
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.contacts.admin()

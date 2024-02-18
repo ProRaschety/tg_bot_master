@@ -11,11 +11,14 @@ fire_risks_calculator-text = Калькулятор риска.
                             Выберите тип здания.
 
 
-industrial = 🏭 Производственное ⚠
+industrial = 🏭 Производственное
 industrial-text = Расчет индивидуального пожарного риска выполняется для 1-го сценария в 1-ом помещении здания и 1-го работника
-    ⚠ <i>Находится в тестовом режиме</i>
+
+run_industrial_guest = ▶ Рассчитать
+edit_industrial_guest = 🔓 Редактировать
 run_industrial= ▶ Рассчитать
 edit_industrial = 📝 Редактировать
+
 area_ind = Площадь помещения
 fire_freq_ind = Частота пожара
 time_presence_ind = Время присутствия
@@ -41,6 +44,21 @@ k_smoke_ind_true = ✅ 0.8
 k_smoke_ind_false = ❌ 0.0
 stop_edit_industrial = ↩ Назад
 
+area_ind_guest = 🔒 Площадь помещения
+fire_freq_ind_guest = 🔒 Частота пожара
+time_presence_ind_guest = 🔒 Время присутствия
+working_days_per_year_ind_guest = 🔒 Рабочих дней
+probity_evac_ind_guest = 🔒 Вероятность эвакуации
+emergency_escape_ind_guest = 🔒 Аварийные выходы
+time_evacuation_ind_guest = 🔒 Время эвакуации
+time_blocking_paths_ind_guest = 🔒 Время блокирования
+time_start_evacuation_ind_guest = 🔒 Время начала эвакуации
+k_efs_ind_guest = 🔒 АУП
+k_alarm_ind_guest = 🔒 АПС
+k_evacuation_ind_guest = 🔒 СОУЭ
+k_smoke_ind_guest = 🔒 ПДЗ
+
+
 name_area_ind = Введите площадь помещения:
 name_fire_freq_ind = Введите частоту пожара:
 name_work_days_ind = Введите количество рабочих дней:
@@ -56,11 +74,13 @@ edit_industrial-text = {$industrial_param}
 
     Для завершения ввода нажмите 💾
 
-public = 🏢 Общественное ⚠
+public = 🏢 Общественное
 public-text = Расчет индивидуального пожарного риска выполняется для 1-го сценария и 1-ой группы эвакуируемого контингента
-    ⚠ <i>Находится в тестовом режиме</i>
+
 run_public = ▶ Рассчитать
 edit_public = 📝 Редактировать
+run_public_guest = ▶ Рассчитать
+edit_public_guest = 🔓 Редактировать
 area_pub = Площадь помещения
 fire_freq_pub = Частота пожара
 time_presence_pub = Время присутствия
@@ -70,18 +90,31 @@ time_blocking_paths_pub = Время блокирования
 time_crowding_pub = Время скопления
 time_start_evacuation_pub = Время начала эвакуации
 k_efs_pub = АУП
+k_efs_pub_guest = 🔒 АУП
 k_efs_pub_true = ✅ 0.9
 k_efs_pub_false = ❌ 0.0
 k_alarm_pub = АПС
+k_alarm_pub_guest = 🔒 АПС
 k_alarm_pub_true = ✅ 0.8
 k_alarm_pub_false = ❌ 0.0
 k_evacuation_pub = СОУЭ
+k_evacuation_pub_guest = 🔒 СОУЭ
 k_evacuation_pub_true = ✅ 0.8
 k_evacuation_pub_false = ❌ 0.0
 k_smoke_pub = ПДЗ
+k_smoke_pub_guest = 🔒 ПДЗ
 k_smoke_pub_true = ✅ 0.8
 k_smoke_pub_false = ❌ 0.0
 stop_edit_public = ↩ Назад
+
+area_pub_guest = 🔒 Площадь помещения
+fire_freq_pub_guest = 🔒 Частота пожара
+time_presence_pub_guest = 🔒 Время присутствия
+probity_evac_pub_guest = 🔒 Вероятность эвакуации
+time_evacuation_pub_guest = 🔒 Время эвакуации
+time_blocking_paths_pub_guest = 🔒 Время блокирования
+time_crowding_pub_guest = 🔒 Время скопления
+time_start_evacuation_pub_guest = 🔒 Время начала эвакуации
 
 name_area_pub = Введите площадь помещения:
 name_fire_freq_pub = Введите частоту пожара:

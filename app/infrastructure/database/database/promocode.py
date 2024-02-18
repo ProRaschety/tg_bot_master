@@ -97,7 +97,7 @@ class _PromocodeDB:
             ''', promocode
                                                )
             data = await cursor.fetchrow()
-            log.info(data)
+            # log.info(data)
             return data
 
     async def delete(self) -> None:

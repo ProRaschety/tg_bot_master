@@ -9,11 +9,11 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 # from app.tg_bot.models.role import UserRole
 
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 # Функция для формирования инлайн-клавиатуры на лету
-def get_inline_cd_kb(width: int,
+def get_inline_cd_kb(width: int = 1,
                      *args: str,
                      i18n: TranslatorRunner,
                      param_back: bool | None = False,
@@ -21,17 +21,32 @@ def get_inline_cd_kb(width: int,
                      switch: bool | None = False,
                      switch_data: str | None = None,
                      switch_text: str | None = None,
+                     check_role: bool | None = False,
+                     role: str | None = None,
                      **kwargs: str) -> InlineKeyboardMarkup:
     # Инициализируем билдер
     kb_builder = InlineKeyboardBuilder()
     # Инициализируем список для кнопок
     buttons: list[InlineKeyboardButton] = []
     # Заполняем список кнопками из аргументов args и kwargs
+
     if args:
-        for button in args:
-            buttons.append(InlineKeyboardButton(
-                text=i18n.get(button),
-                callback_data=button))
+        if check_role:
+            if role == 'guest':
+                for button in args:
+                    buttons.append(InlineKeyboardButton(
+                        text=i18n.get(button + '_guest'),
+                        callback_data=button + '_guest'))
+            else:
+                for button in args:
+                    buttons.append(InlineKeyboardButton(
+                        text=i18n.get(button),
+                        callback_data=button))
+        else:
+            for button in args:
+                buttons.append(InlineKeyboardButton(
+                    text=i18n.get(button),
+                    callback_data=button))
     if kwargs:
         for button, text in kwargs.items():
             buttons.append(InlineKeyboardButton(

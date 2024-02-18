@@ -121,9 +121,9 @@ class FireRisk:
             probity_presence = self._calc_probity_presence(**kwargs)
             probity_evac = self._calc_probity_evacuation(**kwargs)
             probity_dam = self._calc_probity_of_human_damage(
-                probity_evac=probity_evac, probity_efs=probity_efs, **kwargs)
+                probity_evac=probity_evac, probity_efs=probity_efs)
             poten_risk = self._calc_potential_fire_risk(
-                probity_damage=probity_dam, fire_frequency=fire_freq, **kwargs)
+                probity_damage=probity_dam, fire_frequency=fire_freq)
             ind_risk = self.calc_fire_risk(
                 self, *args, potencial_risk=poten_risk, probity_presence=probity_presence, **kwargs)
             data_risk = [
@@ -140,7 +140,7 @@ class FireRisk:
                 {'id': 'Вероятность эвакуации из здания', 'var': 'Рэ',
                     'unit_1': f"{probity_evac:.3f}", 'unit_2': '-'},
                 {'id': 'Частота реализации в течение года\nj-го сценария пожара', 'var': 'Qj',
-                    'unit_1': f"{(fire_freq):.3e}", 'unit_2': '1/год'},
+                    'unit_1': f"{fire_freq:.3e}", 'unit_2': '1/год'},
                 {'id': 'Вероятность работы ПДЗ', 'var': 'Dпдз',
                     'unit_1': kwargs.get('k_smoke_ind', 0.8), 'unit_2': '-'},
                 {'id': 'Вероятность работы СОУЭ', 'var': 'Dсоуэ',

@@ -10,29 +10,31 @@ from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
 from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
-from app.tg_bot.filters.filter_role import IsSubscriber
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
+from app.tg_bot.models.role import UserRole
+from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.states.fsm_state_data import FSMFireRiskForm
 from app.calculation.qra_mode.fire_risk_calculator import FireRisk
 
 log = logging.getLogger(__name__)
 
 fire_risk_router = Router()
-fire_risk_router.message.filter(IsSubscriber())
-fire_risk_router.callback_query.filter(IsSubscriber())
+fire_risk_router.message.filter(IsGuest())
+fire_risk_router.callback_query.filter(IsGuest())
 
 SFilter_pub = [FSMFireRiskForm.edit_time_presence_pub,
                FSMFireRiskForm.edit_probity_evac_pub, FSMFireRiskForm.edit_fire_freq_pub]
 
-Kb_pub = [2, 'fire_freq_pub', 'time_presence_pub', 'probity_evac_pub',
+kb_pub = [2, 'fire_freq_pub', 'time_presence_pub', 'probity_evac_pub',
           'k_efs_pub', 'k_alarm_pub', 'k_evacuation_pub', 'k_smoke_pub']
+
 
 SFilter_ind = [FSMFireRiskForm.edit_fire_freq_ind, FSMFireRiskForm.edit_time_presence_ind,
                FSMFireRiskForm.edit_probity_evac_ind, FSMFireRiskForm.edit_area_ind, FSMFireRiskForm.edit_work_days_ind,
                FSMFireRiskForm.edit_time_blocking_paths_ind, FSMFireRiskForm.edit_time_start_evacuation_ind, FSMFireRiskForm.edit_time_evacuation_ind]
 
-Kb_ind = [2, 'area_ind', 'fire_freq_ind', 'time_presence_ind', 'working_days_per_year_ind',
+kb_ind = [2, 'area_ind', 'fire_freq_ind', 'time_presence_ind', 'working_days_per_year_ind',
           'time_start_evacuation_ind', 'time_blocking_paths_ind', 'time_evacuation_ind', 'probity_evac_ind', 'emergency_escape_ind',
           'k_efs_ind', 'k_alarm_ind', 'k_evacuation_ind', 'k_smoke_ind']
 
@@ -129,7 +131,7 @@ async def fire_risks_calculator_call(callback: CallbackQuery, bot: Bot, i18n: Tr
 
 
 @fire_risk_router.callback_query(F.data.in_(['public', 'back_public']))
-async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("edit_public_param", "0")
@@ -147,25 +149,27 @@ async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n
     data.setdefault("k_smoke_pub", "0.8")
 
     text = i18n.public.text()
-    log.info(str(callback.data))
+
     if state_data == FSMFireRiskForm.edit_probity_evac_pub:
         frisk = FireRisk(type_obj='public', prob_evac=True)
     else:
         frisk = FireRisk(type_obj='public')
     data_out, headers, label = frisk.get_init_data(**data)
     media = get_data_table(data=data_out, headers=headers, label=label)
+
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_public', 'run_public', 'back_fire_risks_calc', i18n=i18n))
+        # reply_markup=get_inline_cd_kb(1, 'edit_public', 'run_public', 'back_fire_risks_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'edit_public', 'run_public', i18n=i18n, param_back=True, back_data='back_fire_risks_calc', check_role=True, role=role))
     await state.update_data(data)
     await callback.answer('')
 
 
-@fire_risk_router.callback_query(F.data == 'run_public')
-async def run_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+@fire_risk_router.callback_query(F.data.in_(['run_public', 'run_public_guest']))
+async def run_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("fire_freq_pub", "0.04")
@@ -192,19 +196,20 @@ async def run_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_public', 'back_fire_risks_calc', i18n=i18n))
+        # reply_markup=get_inline_cd_kb(1, 'edit_public', 'back_fire_risks_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'edit_public', i18n=i18n, param_back=True, back_data='back_fire_risks_calc', check_role=True, role=role))
     await state.update_data(data)
     await state.set_state(state=None)
     await callback.answer('')
 
 
-@fire_risk_router.callback_query(F.data.in_(['edit_public', 'stop_edit_public']))
-async def edit_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+@fire_risk_router.callback_query(F.data.in_(['edit_public', 'edit_public_guest', 'stop_edit_public']))
+async def edit_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.set_state(state=None)
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
+        reply_markup=get_inline_cd_kb(*kb_pub, i18n=i18n, param_back=True, back_data='back_public', check_role=True, role=role))
     await callback.answer('')
 
 
@@ -310,7 +315,7 @@ async def edit_public_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
+        reply_markup=get_inline_cd_kb(*kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
     await state.update_data(edit_public_param='')
     await callback.answer('')
 
@@ -373,7 +378,7 @@ async def k_efs_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
+        reply_markup=get_inline_cd_kb(*kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
     await callback.answer('')
 
 
@@ -399,7 +404,7 @@ async def k_alarm_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
+        reply_markup=get_inline_cd_kb(*kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
     await callback.answer('')
 
 
@@ -425,7 +430,7 @@ async def k_evacuation_call(callback: CallbackQuery, bot: Bot, state: FSMContext
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
+        reply_markup=get_inline_cd_kb(*kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
     await callback.answer('')
 
 
@@ -451,7 +456,7 @@ async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
+        reply_markup=get_inline_cd_kb(*kb_pub, i18n=i18n, param_back=True, back_data='back_public'))
     await callback.answer('')
 
 
@@ -459,7 +464,7 @@ async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
 
 
 @fire_risk_router.callback_query(F.data.in_(['industrial', 'back_industrial']))
-async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     state_data = await state.get_state()
 
     # await state.update_data(time_evacuation_ind=100)
@@ -494,18 +499,19 @@ async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_industrial', 'run_industrial', 'back_fire_risks_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'edit_industrial', 'run_industrial', i18n=i18n, param_back=True, back_data='back_fire_risks_calc', check_role=True, role=role))
     await state.update_data(data)
     await callback.answer('')
 
 
-@fire_risk_router.callback_query(F.data.in_(['edit_industrial', 'stop_edit_industrial']))
-async def edit_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+@fire_risk_router.callback_query(F.data.in_(['edit_industrial', 'edit_industrial_guest', 'stop_edit_industrial']))
+async def edit_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.set_state(state=None)
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
+        # reply_markup=get_inline_cd_kb(*kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
+        reply_markup=get_inline_cd_kb(*kb_ind, i18n=i18n, param_back=True, back_data='back_industrial', check_role=True, role=role))
     await callback.answer('')
 
 
@@ -577,7 +583,7 @@ async def k_efs_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
+        reply_markup=get_inline_cd_kb(*kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
 
     await callback.answer('')
 
@@ -600,7 +606,7 @@ async def k_alarm_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
+        reply_markup=get_inline_cd_kb(*kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
 
     await callback.answer('')
 
@@ -623,7 +629,7 @@ async def k_evacuation_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSM
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
+        reply_markup=get_inline_cd_kb(*kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
 
     await callback.answer('')
 
@@ -646,7 +652,7 @@ async def k_smoke_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
+        reply_markup=get_inline_cd_kb(*kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
 
     await callback.answer('')
 
@@ -669,7 +675,7 @@ async def emergency_escape_ind_in_call(callback: CallbackQuery, bot: Bot, state:
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
+        reply_markup=get_inline_cd_kb(*kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
     await callback.answer('')
 
 
@@ -842,13 +848,13 @@ async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*Kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
+        reply_markup=get_inline_cd_kb(*kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
 
     await state.update_data(edit_industrial_param='')
     await callback.answer('')
 
 
-@fire_risk_router.callback_query(F.data.in_(['run_industrial']))
+@fire_risk_router.callback_query(F.data.in_(['run_industrial', 'run_industrial_guest']))
 async def run_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
     data.setdefault("area_ind", "100.0")

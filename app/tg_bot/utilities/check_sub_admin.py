@@ -1,6 +1,5 @@
 import os
 from aiogram import Bot
-from environs import Env
 
 
 async def check_sub_admin(bot: Bot, user_id: int = None):

@@ -1,11 +1,10 @@
 import logging
 import os
-import json
 
-from aiogram import BaseMiddleware
 from aiogram.types import Update, User
 
 from app.infrastructure.database.database.db import DB
+from app.infrastructure.database.models.users import UsersModel
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.utilities.check_sub_admin import check_sub_admin
 from app.tg_bot.utilities.check_sub_member import check_sub_member
@@ -60,6 +59,8 @@ async def get_user_role(db: DB, event: Update, data) -> UserRole:
             if role != UserRole.SUBSCRIBER.value:
                 await db.users.update(role=UserRole.SUBSCRIBER, user_id=user_id)
                 role = UserRole.SUBSCRIBER.value
+            else:
+                role = UserRole.SUBSCRIBER.value
         else:
             await db.users.add(user_id=user_id, language=user_lang, role=UserRole.GUEST)
             role = UserRole.GUEST.value
@@ -70,7 +71,9 @@ async def get_user_role(db: DB, event: Update, data) -> UserRole:
         role = UserRole.GUEST.value
         await db.users.update(role=UserRole.GUEST, user_id=user_id)
         role = UserRole.GUEST.value
+
     log.info(f'Role: {role}')
+
     return role
 
 
