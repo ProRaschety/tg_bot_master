@@ -1,14 +1,13 @@
 import logging
-import json
 
 from aiogram import Router, F, Bot
-from aiogram.filters import CommandStart, Command, StateFilter
+from aiogram.filters import StateFilter
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.chat_action import ChatActionSender
 from aiogram.enums import ChatAction
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
-from aiogram.types import CallbackQuery, Message, FSInputFile, InputMediaPhoto, InputFile, BufferedInputFile
+from aiogram.types import CallbackQuery, Message, InputMediaPhoto, BufferedInputFile
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
 
 from fluentogram import TranslatorRunner
@@ -16,8 +15,8 @@ from fluentogram import TranslatorRunner
 from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb, get_inline_sub_kb, SubCallbackFactory
-from app.tg_bot.utilities.misc_utils import get_temp_folder, get_picture_filling
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
+from app.tg_bot.utilities.misc_utils import get_picture_filling
 from app.tg_bot.states.fsm_state_data import FSMClimateForm
 from app.calculation.database_mode.substance import SubstanceDB
 from app.calculation.database_mode.climate import Climate
@@ -82,7 +81,7 @@ async def handbooks_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         handbooks_kb = [
             'substances_guest',
             # 'typical_flammable_load',
-            'climate',
+            'climate_guest',
             # 'frequencys',
             # 'statistics',
             'general_menu']
@@ -97,29 +96,40 @@ async def handbooks_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         reply_markup=get_inline_cd_kb(1, *handbooks_kb, i18n=i18n))
 
 
-@handbooks_router.callback_query(F.data.in_(['climate', 'stop_select_city']), StateFilter(default_state))
+@handbooks_router.callback_query(F.data.in_(['climate', 'stop_select_city']))
 async def climate_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
     log.info('Запрос: Справочник метеоданных')
     await state.set_state(state=None)
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
-    text = i18n.climate.text()
-    # data = dict(await db.climate_tables.get_climate_region_list())
-    # regions = list(data.values())
-    # log.info(f'Данные из Справочника метеоданных: {regions[0]}')
-    # data = dict(await db.climate_tables.get_climate_cities_list(region=regions[0]))
-    # cities = list(data.values())
-    # log.info(f'Данные из Справочника метеоданных: {cities}')
 
-    # data = await db.climate_tables.get_climate_record(city='Москва')
-    # print(data)
-    # log.info(
-    #     f'Данные из Справочника метеоданных: {data.region, data.city, data.cwind, data.pwinde, data.pwindne, data.temperature}')
+    text = i18n.climate.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'to_cities', 'back_to_handbooks', i18n=i18n))
+        # reply_markup=get_inline_cd_kb(1, 'to_cities', 'back_to_handbooks', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'to_cities', i18n=i18n, param_back=True, back_data='back_to_handbooks', check_role=True, role=role))
+
+
+@handbooks_router.callback_query(F.data.in_(['climate_guest']))
+async def climate_guest_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
+    log.info('Запрос: Справочник метеоданных')
+    await state.set_state(state=None)
+    # media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+
+    data = await db.climate_tables.get_climate_record(city='Москва')
+    clim = Climate()
+    media = clim.get_climate_info(data=data)
+
+    text = i18n.climate.text()
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        # reply_markup=get_inline_cd_kb(1, 'to_cities', 'back_to_handbooks', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'to_cities', i18n=i18n, param_back=True, back_data='back_to_handbooks', check_role=True, role=role))
 
 
 @handbooks_router.callback_query(F.data.in_(["to_cities"]), StateFilter(default_state))
@@ -137,14 +147,16 @@ async def to_cities_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     #             switch_inline_query_current_chat="")]
     #     ])
 
-    markup = get_inline_cd_kb(1, i18n=i18n,
-                              switch=True, switch_text='select_city', switch_data='',
-                              param_back=True, back_data='stop_select_city')
+    # markup = get_inline_cd_kb(1, i18n=i18n,
+    #                           switch=True, switch_text='select_city', switch_data='',
+    #                           param_back=True, back_data='stop_select_city')
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=markup)
+        reply_markup=get_inline_cd_kb(1, i18n=i18n,
+                                      switch=True, switch_text='select_city', switch_data='',
+                                      param_back=True, back_data='stop_select_city'))
     await state.set_state(FSMClimateForm.select_city_state)
 
 
@@ -172,11 +184,6 @@ async def cities_inline_search_input(message: Message, bot: Bot, state: FSMConte
     data = await state.get_data()
     message_id = data.get('cities_mes_id')
     data = await db.climate_tables.get_climate_record(city=city)
-    # strength_calculation = SteelFireStrength(i18n=i18n, data=data)
-    # data_out, label = strength_calculation.get_init_data_table()
-    # media = get_data_table(data=data_out, label=label)
-    # ptm = strength_calculation.get_reduced_thickness()
-    # await state.update_data(ptm=ptm)
     clim = Climate()
     media = clim.get_climate_info(data=data)
     # media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
