@@ -92,7 +92,6 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
 @user_router.callback_query(F.data.in_(['tools_guest', 'fire_resistance_guest', 'fire_risks_guest', 'fire_category_guest', 'substances_guest', "to_cities_guest"]))
 async def fire_resistance_guest_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
-
     if role == "subscriber":
         main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']

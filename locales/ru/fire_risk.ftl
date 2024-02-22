@@ -32,6 +32,7 @@ time_blocking_paths_ind = Время блокирования
 time_start_evacuation_ind = Время начала эвакуации
 k_efs_ind = АУП
 k_efs_ind_true = ✅ 0.9
+k_efs_ind_true_095 = ✅ 0.95 Водяное
 k_efs_ind_false = ❌ 0.0
 k_alarm_ind = АПС
 k_alarm_ind_true = ✅ 0.8
@@ -120,7 +121,6 @@ name_area_pub = Введите площадь помещения:
 name_fire_freq_pub = Введите частоту пожара:
 name_time_presence_pub = Введите время присутствия:
 name_probity_evac_pub = Введите вероятность эвакуации:
-
 name_time_evacuation_pub = Введите расчетное время эвакуации, сек
 name_time_blocking_paths_pub = Введите время блокирования путей эвакуации, сек
 name_time_start_evacuation_pub = Введите время начала эвакуации, сек

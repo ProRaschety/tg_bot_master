@@ -272,3 +272,148 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     plt.style.use('default')
     plt.close(fig)
     return image_png
+
+
+def get_data_plot(data, annotate: bool = False, **kwargs) -> bytes:
+    log.info("График прогрева элемента конструкции")
+    # размеры рисунка в дюймах
+    px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
+    w = 700  # px
+    h = 700  # px
+    left = 0.130
+    bottom = 0.100
+    right = 0.970
+    top = 0.900
+    hspace = 0.100
+    # xmin = 0.0
+    # ymin = 0.0
+    xmax = 4.0
+    # ymax = 0.5
+
+    margins = {
+        "left": left,  # 0.030
+        "bottom": bottom,  # 0.030
+        "right": right,  # 0.970
+        "top": top,  # 0.900
+        "hspace": hspace  # 0.200
+    }
+    fig = plt.figure(figsize=(w / px, h / px),
+                     dpi=300, constrained_layout=False)
+    fig.subplots_adjust(**margins)
+    # plt.style.use('bmh')
+    plt.style.use('Solarize_Light2')
+    widths = [1.0]
+    heights = [xmax]
+    gs = gridspec.GridSpec(
+        ncols=1, nrows=1, width_ratios=widths, height_ratios=heights)
+    ft_label_size = {'fontname': 'Arial', 'fontsize': w*0.021}
+    # ft_title_size = {'fontname': 'Arial', 'fontsize': 8}
+    ft_size = {'fontname': 'Arial', 'fontsize': 12}
+    logo = plt.imread('temp_files/temp/logo.png')
+    # [left, bottom, width, height]
+    fig_ax_1 = fig.add_axes(
+        [0.03, 0.0, 1.0, 1.86], frameon=True, aspect=1.0, xlim=(0.0, xmax+0.25))
+    fig_ax_1.axis('off')
+    fig_ax_1.text(x=0.0, y=0.025, s='Прогрев элемента конструкции',
+                  weight='bold', ha='left', **ft_label_size)
+    fig_ax_1.plot([0, xmax], [0.0, 0.0], lw='1.0',
+                  color=(0.913, 0.380, 0.082, 1.0))
+    imagebox = OffsetImage(logo, zoom=w*0.000085, dpi_cor=True)
+    ab = AnnotationBbox(imagebox, (xmax-(xmax/33.3), 0.025),
+                        frameon=False, pad=0, box_alignment=(0.00, 0.0))
+    fig_ax_1.add_artist(ab)
+
+    fig_ax_2 = fig.add_subplot(gs[0, 0])
+
+    # fig_ax_2.set_xlim(0.0, cols+0.5)
+    # fig_ax_2.set_ylim(-.75, rows+0.55)
+
+    # title_plot = 'График прогрева стального элемента'
+    # fig_ax_2.set_title(f'{title_plot}\n', fontsize=18,
+    #                    alpha=1.0, clip_on=False, y=1.0)
+    if mode == 'Углеводородный':
+        rl = "Углеводородный режим"
+    elif mode == 'Наружный':
+        rl = "Наружный режим"
+    elif mode == 'Тлеющий':
+        rl = "Тлеющий режим"
+    else:
+        rl = "Стандартный режим"
+    label_plot_Tst = f'Температура элемента'
+    Tm = get_fire_mode()
+    Tst = get_steel_heating()
+    Tcr = t_critic
+    time_fsr = get_steel_fsr() * 60
+
+    x_max = x_max
+    if t_critic > 750.0 or mode == 'Тлеющий':
+        x_max = 150 * 60
+
+    tt = range(0, x_max, 1)
+    x_t = []
+    for i in tt:
+        x_t.append(i)
+
+    fig_ax_2.plot(x_t, Tm, '-', linewidth=3,
+                  label=f'{rl}', color=(0.9, 0.1, 0, 0.9))
+    fig_ax_2.plot(x_t, Tst, '-', linewidth=3,
+                  label=label_plot_Tst, color=(0, 0, 0, 0.9))
+    fig_ax_2.hlines(y=Tcr, xmin=0, xmax=time_fsr*0.96,
+                    linestyle='--', linewidth=1, color=(0.1, 0.1, 0, 1.0))
+    fig_ax_2.vlines(x=time_fsr, ymin=0, ymax=Tcr*0.98, linestyle='--',
+                    linewidth=1, color=(0.1, 0.1, 0, 1.0))
+    fig_ax_2.scatter(time_fsr, Tcr, s=90, marker='o',
+                     color=(0.9, 0.1, 0, 1))
+    # Ось абсцисс Xaxis
+    fig_ax_2.set_xlim(-100.0, x_max+100)
+    fig_ax_2.set_xlabel(xlabel=r"Время, с", fontdict=None,
+                        labelpad=None, weight='bold', loc='center', **ft_size)
+    # Ось абсцисс Yaxis
+    fig_ax_2.set_ylim(0, max(Tm) + 200)
+    set_y_label = str(f'Температура, \u00B0С')
+    fig_ax_2.set_ylabel(ylabel=f"{set_y_label}",
+                        fontdict=None, labelpad=None, weight='bold', loc='top', **ft_size)
+    if annotate:
+        fig_ax_2.annotate(f"Предел огнестойкости: {(time_fsr / 60):.2f} мин\n"
+                          f"Критическая температура: {Tcr:.2f} \u00B0С\n"
+                          f"Приведенная толщина элемента: {ptm:.2f} мм",
+                          xy=(0, max(Tm)), xycoords='data', xytext=(time_fsr, max(Tm)+50), textcoords='data', weight='bold', **ft_size)
+
+    # Легенда
+    fig_ax_2.legend(fontsize=12, framealpha=0.95, facecolor="w", loc=4)
+
+    # Цветовая шкала
+    # plt.colorbar()
+    # Подпись горизонтальной оси абсцисс OY -> cbar.ax.set_xlabel();
+    # Подпись вертикальной оси абсцисс OY -> cbar.ax.set_ylabel();
+
+    # Деления на оси абсцисс OX
+    fig_ax_2.set_xticks(np.arange(min(x_t), max(x_t), 1000.0), minor=False)
+
+    # Деления на оси ординат OY
+    fig_ax_2.set_yticks(np.arange(0, max(Tm)+100, 100.0), minor=False)
+
+    # Вспомогательная сетка (grid)
+    fig_ax_2.grid(visible=True,
+                  which='major',
+                  axis='both',
+                  color=(0, 0, 0, 0.5),
+                  linestyle=':',
+                  linewidth=0.250)
+
+    # directory = get_temp_folder(fold_name='temp_pic')
+    # name_plot = "".join(['fig_steel_fr_', str(self.chat_id), '.png'])
+    # name_dir = '/'.join([directory, name_plot])
+    # fig.savefig(name_dir, format='png', transparent=True)
+    # plt.cla()
+    # plt.close(fig)
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format='png')
+    buffer.seek(0)
+    plot_thermal_png = buffer.getvalue()
+    buffer.close()
+    plt.cla()
+    plt.style.use('default')
+    plt.close(fig)
+
+    return time_fsr, plot_thermal_png

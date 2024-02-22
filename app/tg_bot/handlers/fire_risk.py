@@ -521,7 +521,7 @@ async def k_efs_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(2, 'k_efs_ind_true', 'k_efs_ind_false', 'stop_edit_industrial', i18n=i18n))
+        reply_markup=get_inline_cd_kb(2, 'k_efs_ind_true', 'k_efs_ind_true_095', 'k_efs_ind_false', 'stop_edit_industrial', i18n=i18n))
     await callback.answer('')
 
 
@@ -565,12 +565,14 @@ async def emergency_escape_ind_call(callback: CallbackQuery, bot: Bot, state: FS
     await callback.answer('')
 
 
-@fire_risk_router.callback_query(F.data.in_(['k_efs_ind_true', 'k_efs_ind_false']))
+@fire_risk_router.callback_query(F.data.in_(['k_efs_ind_true', 'k_efs_ind_true_095', 'k_efs_ind_false']))
 async def k_efs_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = callback.data
     data = await state.get_data()
     if call_data == 'k_efs_ind_true':
         await state.update_data(k_efs_ind=0.9)
+    elif call_data == 'k_efs_ind_true_095':
+        await state.update_data(k_efs_ind=0.95)
     elif call_data == 'k_efs_ind_false':
         await state.update_data(k_efs_ind=0.0)
     data = await state.get_data()

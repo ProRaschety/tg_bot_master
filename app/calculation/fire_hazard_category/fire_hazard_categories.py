@@ -334,8 +334,7 @@ class FireCategoryBuild(FireHazardCategory):
 
     def get_init_data_table(self, *args):
         log.info("Определение категории здания по пожарной опасности")
-        # a, b, v, g, other, efs_a, efs_b, efs_v = self.calc_area_premises(*args)
-        # log.info(f'{args}')
+
         a = float(args[0].get('area', 0))
         b = float(args[1].get('area', 0))
         v1 = float(args[2].get('area', 0))
@@ -357,7 +356,7 @@ class FireCategoryBuild(FireHazardCategory):
 
         data = [
             {'id': 'Общая площадь помещений\nв здании или сооружении',
-                'var': area, 'unit_1': '-'},
+                'var': f'{area:.2f}', 'unit_1': '-'},
             {'id': 'Помещения категории Д', 'var': d, 'unit_1': '-'},
             {'id': 'Помещения категории Г', 'var': g, 'unit_1': '-'},
             {'id': 'Помещения категории В4', 'var': v4, 'unit_1': '-'},
@@ -378,17 +377,6 @@ class FireCategoryBuild(FireHazardCategory):
         cat_build = ''
         if total_area is None:
             total_area = a + b + v + g + other
-        # log.info(f'Общая площадь, м\u00B2: {total_area}')
-        # log.info(
-        #     f'Площадь помещений  кат. А: {a} -> {((100 / (total_area / a)) if a != 0  else 0):.2f}% от {total_area}м\u00B2')
-        # log.info(
-        #     f'Площадь помещений  кат. Б: {b} -> {((100 / (total_area / b)) if b != 0  else 0):.2f}% от {total_area}м\u00B2')
-        # log.info(
-        #     f'Площадь помещений  кат. В1-В3: {v} -> {((100 / (total_area / v)) if v != 0  else 0):.2f}% от {total_area}м\u00B2')
-        # log.info(
-        #     f'Площадь помещений  кат. Г: {g} -> {((100 / (total_area / g)) if g != 0  else 0):.2f}% от {total_area}м\u00B2')
-        # log.info(
-        #     f'Общая площадь помещений  с кат.: {other} -> {(100 / (total_area / other)):.2f}% от {total_area}м\u00B2')
 
         if a > 0 and b >= 0:
             cat_build, cause = self._check_category_a(

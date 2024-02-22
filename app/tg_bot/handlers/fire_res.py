@@ -935,12 +935,7 @@ async def channel_element_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     await callback.answer('')
 
 
-"""
-
-Теплотехнический расчет
-
-
-"""
+"""___________________________Теплотехнический расчет___________________________"""
 
 THERMAL_CALC_KB = ['edit_init_data_thermal',
                    'run_thermal_steel', 'back_type_calc']
@@ -978,6 +973,9 @@ async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSM
 async def run_thermal_calculation_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
     t_res = SteelFireResistance(i18n=i18n, data=data)
+
+    # data_dict = {'mode': mode, }
+
     t_fsr, plot_thermal_png = t_res.get_plot_steel()
     text = i18n.thermal_calculation.text(time_fsr=round(t_fsr/60, 2))
     await state.update_data(time_fsr=t_fsr/60)

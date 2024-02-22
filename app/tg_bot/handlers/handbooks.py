@@ -2,13 +2,13 @@ import logging
 
 from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
-from aiogram.filters.callback_data import CallbackData
-from aiogram.utils.chat_action import ChatActionSender
-from aiogram.enums import ChatAction
+# from aiogram.filters.callback_data import CallbackData
+# from aiogram.utils.chat_action import ChatActionSender
+# from aiogram.enums import ChatAction
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import CallbackQuery, Message, InputMediaPhoto, BufferedInputFile
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
+from aiogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent
 
 from fluentogram import TranslatorRunner
 
@@ -18,14 +18,11 @@ from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.utilities.misc_utils import get_picture_filling
 from app.tg_bot.states.fsm_state_data import FSMClimateForm
-from app.calculation.database_mode.substance import SubstanceDB
+# from app.calculation.database_mode.substance import SubstanceDB
 from app.calculation.database_mode.climate import Climate
 
 
 log = logging.getLogger(__name__)
-# logger = logging.getLogger(__name__)
-# logger = logging.getLogger('matplotlib').setLevel(logging.ERROR)
-# logger = logging.getLogger('PIL.PngImagePlugin').setLevel(logging.ERROR)
 
 
 handbooks_router = Router()
@@ -43,7 +40,7 @@ handbooks_router.callback_query.filter(IsGuest())
 
 
 @handbooks_router.callback_query(F.data.in_(['handbooks', 'back_to_handbooks']), StateFilter(default_state))
-async def handbooks_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+async def handbooks_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
     log.info('Запрос: Справочники')
     if role == "subscriber":
         handbooks_kb = [
@@ -97,7 +94,7 @@ async def handbooks_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
 
 
 @handbooks_router.callback_query(F.data.in_(['climate', 'stop_select_city']))
-async def climate_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
+async def climate_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     log.info('Запрос: Справочник метеоданных')
     await state.set_state(state=None)
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
@@ -133,23 +130,12 @@ async def climate_guest_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 
 
 @handbooks_router.callback_query(F.data.in_(["to_cities"]), StateFilter(default_state))
-async def to_cities_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, db: DB) -> None:
+async def to_cities_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     log.info('Запрос: Поиск по городам')
     chat_id = str(callback.message.chat.id)
     message_id = callback.message.message_id
     await state.update_data(chat_id=chat_id, cities_mes_id=message_id)
     text = i18n.to_cities.text()
-
-    # markup = InlineKeyboardMarkup(
-    #     inline_keyboard=[
-    #         [InlineKeyboardButton(
-    #             text="Выбрать населенный пункт 🔎",
-    #             switch_inline_query_current_chat="")]
-    #     ])
-
-    # markup = get_inline_cd_kb(1, i18n=i18n,
-    #                           switch=True, switch_text='select_city', switch_data='',
-    #                           param_back=True, back_data='stop_select_city')
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -161,12 +147,9 @@ async def to_cities_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
 
 
 @handbooks_router.inline_query(StateFilter(FSMClimateForm.select_city_state))
-async def show_cities(inline_query: InlineQuery, state: FSMContext, i18n: TranslatorRunner, db: DB):
+async def show_cities(inline_query: InlineQuery, db: DB):
     data = dict(await db.climate_tables.get_climate_cities())
     list_cities = list(data.values())
-    # data = await state.get_data()
-    # q_keys = SteelFireStrength(i18n=i18n, data=data)
-    # list_cities = q_keys.get_list_num_profile()
     results = []
     for name in list_cities:
         if inline_query.query in str(name):

@@ -3,10 +3,9 @@ import io
 import json
 
 from fluentogram import TranslatorRunner
-from dataclasses import dataclass, asdict
 
 import math as m
-import matplotlib as mpl
+# import matplotlib as mpl
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -18,34 +17,7 @@ from scipy.interpolate import interp1d
 log = logging.getLogger(__name__)
 
 
-@dataclass
-class SteelProtection:
-    num_profile: str = "20Б1"
-    sketch: str = "Двутавр"
-    reg_document: str = "ГОСТ Р 57837"
-    num_sides_heated: str = "num_sides_heated_four"
-    len_elem: float = 5000.0
-    fixation: str = "sealing-sealing"
-    type_loading: str = "bend_element"
-    n_load: float = 1000.0
-    type_steel_element: str = "C235"
-    loading_method: str = "distributed_load_steel"
-    ptm: float = 3.94
-    mode: str = "Углеводородный"
-    t_critic_C: float = 700
-    a_convection: float = 29
-    s_0: float = 0.85
-    s_1: float = 0.625
-    T_0: float = 293
-    xmax: float = 90
-    density_steel: float = 7800
-    heat_capacity: float = 310
-    heat_capacity_change: float = 0.469
-    time_fsr: float = 6.458168935091035
-
-
 class SteelFireStrength:
-
     def __init__(self, i18n: TranslatorRunner, chat_id=None, data=None):
         self.i18n = i18n
         self.chat_id = chat_id
@@ -88,11 +60,11 @@ class SteelFireStrength:
         elif self.loading_method == 'concentrated_load_steel':
             unit_1_load = "кг"
 
-        profile = self.num_profile
+        # profile = self.num_profile
         sketch = self.sketch
-        reg_document = self.reg_document
-        len_elem = self.len_elem
-        n_load = self.n_load
+        # reg_document = self.reg_document
+        # len_elem = self.len_elem
+        # n_load = self.n_load
         ptm = round(self.get_reduced_thickness(), 2)
         label = 'Прочностной расчет'
         headers = ('Параметр', 'Значение', 'Ед.изм.')
@@ -212,7 +184,7 @@ class SteelFireStrength:
         return image_png
 
     def get_list_num_profile(self):
-        profile = self.num_profile
+        # profile = self.num_profile
         sketch = self.sketch
         gost = self.reg_document
         if sketch == "Двутавр":
@@ -534,7 +506,7 @@ class SteelFireStrength:
 
         data_profile = []
         for i in range(1, self.quan_elem+1):
-            data_profile.append([i, profile, name_profile, gost, "1.5", "1",
+            data_profile.append([i, profile, self.name_profile, gost, "1.5", "1",
                                 "3500", "4", "4.8", "500", "15.5", "45", "1.2", "2.5", "3.5"],)
 
         data = table_title + data_title + data_profile + table_note
@@ -580,23 +552,6 @@ class SteelFireResistance:
         self.get_init_data(data)
 
     def get_init_data(self, data):
-        # log.info(f"Данные из редис: {data}")
-        # def __init__(
-        #         self,
-        #         i18n: TranslatorRunner,
-        #         chat_id=0,
-        #         ptm=4.8,
-        #         mode='Стандартный',
-        #         s_0=0.85,
-        #         s_1=0.625,
-        #         T_0=293.0,
-        #         t_critic=500.0,
-        #         xmax=90,
-        #         a_convection=29.0,
-        #         density_steel=7800.0,
-        #         heat_capacity=310.0,
-        #         heat_capacity_change=0.469,
-        # ):
         self.ptm: float = float(data.get('ptm'))
         self.mode: str = data.get('mode')
         self.s_0: float = float(data.get('s_0'))
@@ -830,14 +785,14 @@ class SteelFireResistance:
         w = 700  # px
         h = 700  # px
         left = 0.130
-        bottom = 0.100
+        bottom = 0.090
         right = 0.970
         top = 0.900
         hspace = 0.100
-        xmin = 0.0
-        ymin = 0.0
+        # xmin = 0.0
+        # ymin = 0.0
         xmax = 4.0
-        ymax = 0.5
+        # ymax = 0.5
 
         margins = {
             "left": left,  # 0.030
@@ -856,7 +811,7 @@ class SteelFireResistance:
         gs = gridspec.GridSpec(
             ncols=1, nrows=1, width_ratios=widths, height_ratios=heights)
         ft_label_size = {'fontname': 'Arial', 'fontsize': w*0.021}
-        ft_title_size = {'fontname': 'Arial', 'fontsize': 8}
+        # ft_title_size = {'fontname': 'Arial', 'fontsize': 8}
         ft_size = {'fontname': 'Arial', 'fontsize': 12}
         logo = plt.imread('temp_files/temp/logo.png')
         # logo = image.imread('temp_files/temp/logo.png')
@@ -921,13 +876,13 @@ class SteelFireResistance:
                             labelpad=None, weight='bold', loc='center', **ft_size)
         # Ось абсцисс Yaxis
         fig_ax_2.set_ylim(0, max(Tm) + 200)
-        set_y_label = str(f'Температура, \u00B0С')
-        fig_ax_2.set_ylabel(ylabel=f"{set_y_label}",
-                            fontdict=None, labelpad=None, weight='bold', loc='top', **ft_size)
+        set_y_label = "Температура, \u00B0С"
+        fig_ax_2.set_ylabel(ylabel=set_y_label,
+                            fontdict=None, labelpad=None, weight='bold', loc='center', **ft_size)
 
-        fig_ax_2.annotate(f'Предел огнестойкости: {round((time_fsr / 60), 2)} мин\n'
-                          f'Критическая температура: {round((Tcr), 1)} \u00B0С\n'
-                          f'Приведенная толщина элемента: {round((self.ptm), 2)} мм',
+        fig_ax_2.annotate(f"Предел огнестойкости: {(time_fsr / 60):.2f} мин\n"
+                          f"Критическая температура: {Tcr:.2f} \u00B0С\n"
+                          f"Приведенная толщина элемента: {self.ptm:.2f} мм",
                           xy=(0, max(Tm)), xycoords='data', xytext=(time_fsr, max(Tm)+50), textcoords='data', weight='bold', **ft_size)
 
         # Легенда
