@@ -106,12 +106,14 @@ class FSMToolLiquidForm(StatesGroup):
 
 
 class FSMToolCompGasForm(StatesGroup):
+    edit_state_comp_gas_pres_init = State()
     edit_state_comp_gas_density = State()
     edit_state_comp_gas_volume_vessel = State()
     edit_state_comp_gas_height_vessel = State()
     edit_state_comp_gas_vessel_diameter = State()
     edit_state_comp_gas_temperature = State()
-    edit_state_comp_gas_fill_factor = State()
+    edit_state_comp_gas_coef_poisson = State()
     edit_state_comp_gas_hole_diameter = State()
-    edit_state_comp_gas_hole_distance = State()
+    edit_state_comp_gas_specific_heat_const_vol = State()
     edit_state_comp_gas_mu = State()
+    edit_state_comp_gas_molar_mass = State()

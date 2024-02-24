@@ -1,10 +1,10 @@
 import logging
-
 import os
 import csv
 import io
 import pandas as pd
-import matplotlib as mpl
+import numpy as np
+# import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.gridspec as gridspec
@@ -54,8 +54,8 @@ def get_csv_file(data, name_file) -> csv:
         print(f"Непредвиденная ошибка: {e}")
 
 
-def get_txt_file(data, name_file):
-    pass
+# def get_txt_file(data, name_file):
+#     pass
 
 
 def get_csv_bt_file(data) -> bytes:
@@ -100,6 +100,7 @@ def get_dict(list_: list) -> dict:
 
 
 def get_data_table(data, headers: str, label: str, results: bool | None = False, row_num: int | None = None) -> bytes:
+    log.info("Таблица данных")
     rows = len(data)
     cols = len(list(data[0]))
     # log.info(f'rows:{rows}, cols:{cols}')
@@ -137,6 +138,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     ft_title_size = {'fontname': 'Arial', 'fontsize': h*0.020}
     ft_size = {'fontname': 'Arial', 'fontsize': h*0.020}
 
+    """____Первая часть таблицы____"""
     fig_ax_1 = fig.add_subplot(gs[0, 0])
     logo = plt.imread('temp_files/temp/logo.png')
     # logo = image.imread('temp_files/temp/logo.png')
@@ -144,30 +146,23 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     zoom = h*0.000080
     step = 0.5
     # fig_ax_1.plot()
-
     fig_ax_1.axis('off')
-
     fig_ax_1.set_xlim(0.0, x_bound_right)
     fig_ax_1.set_ylim(-0.250, 0.3)
-
     fig_ax_1.text(x=0.0, y=0.0, s=label, weight='bold',
                   ha='left', **ft_label_size)
-
     fig_ax_1.plot([0, x_bound_right], [-0.25, -0.25],
                   lw=(h*0.000080) * 50, color=(0.913, 0.380, 0.082, 1.0))
-
     imagebox = OffsetImage(logo, zoom=zoom,
                            dpi_cor=True, resample=False, filternorm=False)
-
     ab = AnnotationBbox(imagebox, (x_bound_right - zoom * 0.1, 0.0),  frameon=False,
                         pad=0, box_alignment=(x_bound_right, 0.0))
-
     fig_ax_1.add_artist(ab)
 
+    """____Вторая часть таблицы____"""
     fig_ax_2 = fig.add_subplot(gs[1, 0])
     fig_ax_2.set_xlim(0.0, (cols + step) if cols == 4 else 3)  # +0.5
     fig_ax_2.set_ylim(-0.5, rows + 0.3)
-
     # добавить заголовки столбцов на высоте y=..., чтобы уменьшить пространство до первой строки данных
     hor_up_line = rows-0.25
     if len(list(headers)) == 4:
@@ -187,31 +182,26 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
         fig_ax_2.text(x=cols, y=hor_up_line, s=headers[2],
                       weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
 
-    # results: bool | None = False, row_num: int | None = None
-
     if results:
         # линия сетки
         for row in range(1, rows):
             fig_ax_2.plot([0.0, cols+step], [row - step, row - step],
                           ls=':', lw=h*0.002, c='black')
-        # добавить основной разделитель заголовка
+        # основной разделитель заголовка
         fig_ax_2.plot([0, cols + step], [rows-step, rows-step],
                       lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
-
         fig_ax_2.plot([0, cols + step], [rows - row_num + step, rows - row_num + step],
                       lw=h*0.005,
                       color=(0.4941, 0.5686, 0.5843, 1.0))
-
         fig_ax_2.plot([0, cols + step], [- step, - step],
                       lw=h*0.010,
                       color=(0.4941, 0.5686, 0.5843, 1.0))
-
     else:
         # линия сетки
         for row in range(1, rows):
             fig_ax_2.plot([0.0, cols+step], [row - step, row - step],
                           ls=':', lw=h*0.002, c='black')
-        # добавить основной разделитель заголовка
+        # основной разделитель заголовка
         fig_ax_2.plot([0, cols + step], [rows-step, rows-step],
                       lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
         fig_ax_2.plot([0, cols + step], [- step, - step], lw=h*0.005,
@@ -274,8 +264,8 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     return image_png
 
 
-def get_data_plot(data, annotate: bool = False, **kwargs) -> bytes:
-    log.info("График прогрева элемента конструкции")
+def get_data_plot(data, add_annotate: bool = False, add_legend: bool = False, add_colorbar: bool = False, **kwargs) -> bytes:
+    log.info("График данных")
     # размеры рисунка в дюймах
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
     w = 700  # px
@@ -285,11 +275,7 @@ def get_data_plot(data, annotate: bool = False, **kwargs) -> bytes:
     right = 0.970
     top = 0.900
     hspace = 0.100
-    # xmin = 0.0
-    # ymin = 0.0
     xmax = 4.0
-    # ymax = 0.5
-
     margins = {
         "left": left,  # 0.030
         "bottom": bottom,  # 0.030
@@ -373,19 +359,19 @@ def get_data_plot(data, annotate: bool = False, **kwargs) -> bytes:
     set_y_label = str(f'Температура, \u00B0С')
     fig_ax_2.set_ylabel(ylabel=f"{set_y_label}",
                         fontdict=None, labelpad=None, weight='bold', loc='top', **ft_size)
-    if annotate:
+    if add_annotate:
         fig_ax_2.annotate(f"Предел огнестойкости: {(time_fsr / 60):.2f} мин\n"
                           f"Критическая температура: {Tcr:.2f} \u00B0С\n"
                           f"Приведенная толщина элемента: {ptm:.2f} мм",
                           xy=(0, max(Tm)), xycoords='data', xytext=(time_fsr, max(Tm)+50), textcoords='data', weight='bold', **ft_size)
 
-    # Легенда
-    fig_ax_2.legend(fontsize=12, framealpha=0.95, facecolor="w", loc=4)
+    if add_legend:
+        fig_ax_2.legend(fontsize=12, framealpha=0.95, facecolor="w", loc=4)
 
-    # Цветовая шкала
-    # plt.colorbar()
-    # Подпись горизонтальной оси абсцисс OY -> cbar.ax.set_xlabel();
-    # Подпись вертикальной оси абсцисс OY -> cbar.ax.set_ylabel();
+    if add_colorbar:
+        plt.colorbar()
+        # Подпись горизонтальной оси абсцисс OY -> cbar.ax.set_xlabel();
+        # Подпись вертикальной оси абсцисс OY -> cbar.ax.set_ylabel();
 
     # Деления на оси абсцисс OX
     fig_ax_2.set_xticks(np.arange(min(x_t), max(x_t), 1000.0), minor=False)
@@ -410,10 +396,10 @@ def get_data_plot(data, annotate: bool = False, **kwargs) -> bytes:
     buffer = io.BytesIO()
     fig.savefig(buffer, format='png')
     buffer.seek(0)
-    plot_thermal_png = buffer.getvalue()
+    plot = buffer.getvalue()
     buffer.close()
     plt.cla()
     plt.style.use('default')
     plt.close(fig)
 
-    return time_fsr, plot_thermal_png
+    return plot

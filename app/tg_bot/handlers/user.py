@@ -28,7 +28,8 @@ user_router.callback_query.filter(IsGuest())
 
 @user_router.message(CommandStart())
 async def process_start_command(message: Message, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
     if role == "subscriber":
         main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']
@@ -59,7 +60,8 @@ async def process_start_command(message: Message, state: FSMContext, i18n: Trans
 
 @user_router.callback_query(F.data == 'general_menu')
 async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
     if role == "subscriber":
         main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']
@@ -91,7 +93,8 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
 
 @user_router.callback_query(F.data.in_(['tools_guest', 'fire_resistance_guest', 'fire_risks_guest', 'fire_category_guest', 'substances_guest', "to_cities_guest"]))
 async def fire_resistance_guest_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
     if role == "subscriber":
         main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']
@@ -123,7 +126,8 @@ async def fire_resistance_guest_call(callback_data: CallbackQuery, bot: Bot, sta
 
 @user_router.message(Command(commands=["setlevel"]))
 async def process_set_level(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=message.chat.id)
     dict_role = {'guest': 'Гость',
                  'subscriber': 'Подписчик',
@@ -148,7 +152,8 @@ async def process_set_level(message: Message, bot: Bot, state: FSMContext, i18n:
 
 @user_router.callback_query(F.data.in_(['back_setlevel', 'update_role']))
 async def back_setlevel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
     dict_role = {'guest': 'Гость',
                  'subscriber': 'Подписчик',
@@ -175,7 +180,8 @@ async def back_setlevel_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 async def enter_promo_code_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     message_id = callback.message.message_id
     await state.update_data(mes_promocode_id=message_id)
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
     text = i18n.enter_promo_code.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -191,7 +197,8 @@ async def promo_code_input(message: Message, bot: Bot, state: FSMContext, i18n: 
     promocode = message.text
     await db.users.update_promocode(user_id=message.chat.id, promocode=promocode.lower())
     await message.delete()
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
     data = await state.get_data()
     message_id = data.get('mes_promocode_id')
 
@@ -214,7 +221,8 @@ async def promo_code_input(message: Message, bot: Bot, state: FSMContext, i18n: 
 
 @user_router.callback_query(F.data == 'cansel_enter_promo_code')
 async def cansel_enter_promo_code_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
     dict_role = {'guest': 'Гость',
                  'subscriber': 'Подписчик',
@@ -240,7 +248,8 @@ async def cansel_enter_promo_code_call(callback: CallbackQuery, bot: Bot, state:
 
 @user_router.callback_query(F.data == 'subscribe_channel')
 async def subscribe_channel_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
     text = i18n.subscribe_channel.text()
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
@@ -254,7 +263,8 @@ async def subscribe_channel_call(callback_data: CallbackQuery, bot: Bot, state: 
 @user_router.message(Command(commands=["contacts"]))
 async def process_get_admin_contacts(message: Message, state: FSMContext, i18n: TranslatorRunner) -> None:
     dict_kb = {"link_owner": "link_owner-text", "link_1": "link_1-text"}
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
     text = i18n.contacts.admin()
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
