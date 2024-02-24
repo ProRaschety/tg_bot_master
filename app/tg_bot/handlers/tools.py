@@ -22,7 +22,7 @@ tools_router = Router()
 tools_router.message.filter(IsComrade())
 tools_router.callback_query.filter(IsComrade())
 
-kb_tools = [1, 'tool_liquid', 'tool_comp_gas', 'tool_liq_gas', 'tool_vap_liquid',
+kb_tools = [1, 'tool_liquid', 'tool_comp_gas', 'tool_liq_gas',
             # 'tool_fifth', 'tool_sixth'
             ]
 
@@ -53,7 +53,6 @@ SFilter_tool_comp_gas = [
     FSMToolCompGasForm.edit_state_comp_gas_volume_vessel,
     FSMToolCompGasForm.edit_state_comp_gas_height_vessel,
     FSMToolCompGasForm.edit_state_comp_gas_vessel_diameter,
-    FSMToolCompGasForm.edit_state_comp_gas_temperature,
     FSMToolCompGasForm.edit_state_comp_gas_coef_poisson,
     FSMToolCompGasForm.edit_state_comp_gas_hole_diameter,
     FSMToolCompGasForm.edit_state_comp_gas_molar_mass,
@@ -361,18 +360,17 @@ async def edit_tool_liquid_param_call(callback: CallbackQuery, bot: Bot, state: 
 async def tool_comp_gas_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     state_data = await state.get_state()
     data = await state.get_data()
-    data.setdefault("edit_tool_comp_gas_param", "0")
-    data.setdefault("tool_comp_gas_density", "1000")
-    data.setdefault("tool_comp_gas_volume_vessel", "1000")
+    data.setdefault("edit_tool_comp_gas_param", "1")
+    data.setdefault("tool_comp_gas_density", "1")
+    data.setdefault("tool_comp_gas_volume_vessel", "200")
     data.setdefault("tool_comp_gas_height_vessel", "10")
     data.setdefault("tool_comp_gas_vessel_diameter", "10")
     data.setdefault("tool_comp_gas_temperature", "20")
-    data.setdefault("tool_comp_gas_coef_poisson", "0.85")
+    data.setdefault("tool_comp_gas_coef_poisson", "1.40")
     data.setdefault("tool_comp_gas_hole_diameter", "0.1")
     data.setdefault("tool_comp_gas_mu", "0.8")
-    data.setdefault("tool_comp_gas_pres_init", "1600000")
-    data.setdefault("tool_comp_gas_coef_poisson", "1.40")
-    data.setdefault("tool_comp_gas_molar_mass", "0.016")
+    data.setdefault("tool_comp_gas_pres_init", "5000000")
+    data.setdefault("tool_comp_gas_molar_mass", "0.002")
     data.setdefault("tool_comp_gas_specific_heat_const_vol", "10.24")
 
     text = i18n.tool_comp_gas.text()
@@ -516,11 +514,18 @@ async def edit_tool_comp_gas_kb_call(callback: CallbackQuery, bot: Bot, state: F
         text = i18n.edit_tool_comp_gas.text(tool_comp_gas_param=i18n.get(
             "name_comp_gas_specific_heat_const_vol"), edit_tool_comp_gas=data.get("tool_comp_gas_specific_heat_const_vol", 0))
 
+    if state_data == FSMToolCompGasForm.edit_state_comp_gas_temperature:
+        kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight',
+              'nine', 'zero', 'point', 'dooble_zero', 'minus', 'clear', 'ready']
+    else:
+        kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
+              'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
+
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
+        reply_markup=get_inline_cd_kb(3, *kb, i18n=i18n))
     await callback.answer('')
 
 
@@ -537,8 +542,8 @@ async def edit_tool_comp_gas_in_call(callback: CallbackQuery, bot: Bot, state: F
         tool_comp_gas_param = i18n.get("name_comp_gas_volume_vessel")
     elif state_data == FSMToolCompGasForm.edit_state_comp_gas_vessel_diameter:
         tool_comp_gas_param = i18n.get("name_comp_gas_vessel_diameter")
-    elif state_data == FSMToolCompGasForm.edit_state_comp_gas_temperature:
-        tool_comp_gas_param = i18n.get("name_comp_gas_temperature")
+    # elif state_data == FSMToolCompGasForm.edit_state_comp_gas_temperature:
+    #     tool_comp_gas_param = i18n.get("name_comp_gas_temperature")
     elif state_data == FSMToolCompGasForm.edit_state_comp_gas_coef_poisson:
         tool_comp_gas_param = i18n.get("name_comp_gas_coef_poisson")
     elif state_data == FSMToolCompGasForm.edit_state_comp_gas_molar_mass:
@@ -572,6 +577,32 @@ async def edit_tool_comp_gas_in_call(callback: CallbackQuery, bot: Bot, state: F
         reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
 
 
+@tools_router.callback_query(StateFilter(FSMToolCompGasForm.edit_state_comp_gas_temperature), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero', 'point', 'clear', 'minus']))
+async def edit_tool_comp_gas_temp_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    tool_comp_gas_param = i18n.get("name_comp_gas_temperature")
+    edit_data = await state.get_data()
+    if callback.data == 'clear':
+        await state.update_data(edit_tool_comp_gas_param="")
+        edit_d = await state.get_data()
+        edit_data = edit_d.get('edit_tool_comp_gas_param', 1)
+        text = i18n.edit_tool_comp_gas.text(
+            tool_comp_gas_param=tool_comp_gas_param, edit_tool_comp_gas=edit_data)
+    else:
+        edit_param_1 = edit_data.get('edit_tool_comp_gas_param')
+        edit_sum = edit_param_1 + i18n.get(callback.data)
+        await state.update_data(edit_tool_comp_gas_param=edit_sum)
+        edit_data = await state.get_data()
+        edit_param = edit_data.get('edit_tool_comp_gas_param', 0)
+        text = i18n.edit_tool_comp_gas.text(
+            tool_comp_gas_param=tool_comp_gas_param, edit_tool_comp_gas=edit_param)
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'minus', 'clear', 'ready', i18n=i18n))
+
+
 @tools_router.callback_query(StateFilter(*SFilter_tool_comp_gas), F.data.in_(['ready']))
 async def edit_tool_comp_gas_param_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     state_data = await state.get_state()
@@ -603,7 +634,7 @@ async def edit_tool_comp_gas_param_call(callback: CallbackQuery, bot: Bot, state
         else:
             await state.update_data(tool_comp_gas_vessel_diameter=5)
     elif state_data == FSMToolCompGasForm.edit_state_comp_gas_temperature:
-        if value != '' and value != '.' and (float(value)) > 0:
+        if value != '' and value != '.' and (float(value)) > -273.15:
             await state.update_data(tool_comp_gas_temperature=value)
         else:
             await state.update_data(tool_comp_gas_temperature=20)
@@ -646,4 +677,44 @@ async def edit_tool_comp_gas_param_call(callback: CallbackQuery, bot: Bot, state
     await state.update_data(edit_tool_comp_gas_param='')
     await callback.answer('')
 
+
+@tools_router.callback_query(StateFilter(FSMToolCompGasForm.edit_state_comp_gas_temperature), F.data.in_(['ready']))
+async def edit_tool_comp_gas_temp_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    data = await state.get_data()
+    value = data.get("edit_tool_comp_gas_param")
+    if value != '' and value != '.' and value != '-' and (float(value)) > -273.15:
+        await state.update_data(tool_comp_gas_temperature=value)
+    else:
+        await state.update_data(tool_comp_gas_temperature=20)
+
+    data = await state.get_data()
+    text = i18n.tool_comp_gas.text()
+    ph_tool = PhysicTool(type_substance='comp_gas')
+    data_out, headers, label = ph_tool.get_init_data(**data)
+    media = get_data_table(data=data_out, headers=headers, label=label)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(*kb_but_comp_gas, i18n=i18n, param_back=True, back_data='back_tool_comp_gas'))
+
+    await state.update_data(edit_tool_comp_gas_param='')
+    await callback.answer('')
+
+
 """____сжиженный_газ____"""
+
+
+@tools_router.callback_query(F.data.in_(['tool_liq_gas', 'back_tool_liq_gas']))
+async def tools_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+    text = i18n.tools.text()
+    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    await bot.edit_message_media(
+        chat_id=callback_data.message.chat.id,
+        message_id=callback_data.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, 'tool_liq_gas_vap', 'tool_liq_gas_liq', param_back=True, back_data='general_menu', i18n=i18n))
+    await callback_data.answer('')

@@ -19,3 +19,4 @@ comma = ,
 colon = ;
 ready = 💾
 clear = del
+minus = -
