@@ -8,8 +8,8 @@ back_tool_liq_gas = ↩ Назад
 tool_liquid = Расход жидкости 💧
 tool_comp_gas = Расход сжатого газа 💨
 tool_liq_gas = Расход сжиженного газа 💦
-tool_liq_gas_vap = 🔒 Расход паровой фазы ☁
-tool_liq_gas_liq = 🔒 Расход жидкой фазы 💧
+tool_liq_gas_vap = 🚧 Расход паровой фазы ☁
+tool_liq_gas_liq = 🚧 Расход жидкой фазы 💧
 tool_fifth = 🔒 Пятый инстр
 tool_sixth = 🔒 Шестой инстр
 

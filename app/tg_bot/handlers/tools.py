@@ -9,7 +9,7 @@ from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
-from app.tg_bot.filters.filter_role import IsComrade
+from app.tg_bot.filters.filter_role import IsSubscriber
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
 from app.tg_bot.states.fsm_state_data import FSMToolLiquidForm, FSMToolCompGasForm
@@ -19,8 +19,8 @@ log = logging.getLogger(__name__)
 
 
 tools_router = Router()
-tools_router.message.filter(IsComrade())
-tools_router.callback_query.filter(IsComrade())
+tools_router.message.filter(IsSubscriber())
+tools_router.callback_query.filter(IsSubscriber())
 
 kb_tools = [1, 'tool_liquid', 'tool_comp_gas', 'tool_liq_gas',
             # 'tool_fifth', 'tool_sixth'

@@ -79,6 +79,11 @@ class PhysicTool:
                 {'id': 'Атмосферное давление', 'var': 'Pa',
                     'unit_1': self.p_atm, 'unit_2': 'Па'}
             ]
+        elif self.type_substance == 'liq_gas_vap':
+            pass
+        elif self.type_substance == 'liq_gas_liq':
+            pass
+
         return data_table, head, label
 
     def get_result_data(self, *args, **kwargs):
@@ -156,6 +161,11 @@ class PhysicTool:
                 {'id': 'Атмосферное давление', 'var': 'Pa',
                     'unit_1': self.p_atm, 'unit_2': 'Па'}
             ]
+
+        elif self.type_substance == 'liq_gas_vap':
+            pass
+        elif self.type_substance == 'liq_gas_liq':
+            pass
 
         return data_table, head, label
 
