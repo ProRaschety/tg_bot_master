@@ -3,25 +3,26 @@ import numpy as np
 from scipy.stats import norm
 
 
+def compute_fatal_probability(probit_value: int | float = 0, normal_distribution_mean=5) -> float:
+    """
+    Вычисляет вероятность летального исхода по значению пробита
+    Параметры
+    ----------
+    probit_value : float
+        Значение из модели probit
+    normal_distribution_mean: int
+        Значение по умолчанию, равное 5, позволяет избежать отрицательных значений в соответствии с опубликованными моделями
+    Возвращается
+    -------
+    prob: плавающий
+    Вероятность летального исхода
+    """
+    return norm.cdf(probit_value, loc=normal_distribution_mean)
+
+
 class ProbabilityDefeat:
     def __init__(self):
         self.distance: float = 30
-
-    def calc_fatality_probability(probit_value: int | float = 0, normal_distribution_mean=5) -> float:
-        """
-        Вычисляет вероятность летального исхода по значению пробита
-        Параметры
-        ----------
-        probit_value : float
-            Значение из модели probit
-        normal_distribution_mean: int
-            Значение по умолчанию, равное 5, позволяет избежать отрицательных значений в соответствии с опубликованными моделями
-        Возвращается
-        -------
-        prob: плавающий
-        Вероятность летального исхода
-        """
-        return norm.cdf(probit_value, loc=normal_distribution_mean)
 
     """
     THERMAL Fatality Probit Models
@@ -136,7 +137,7 @@ class ProbabilityDefeat:
         """
         return -29.02 + 1.99 * np.log(0.5 * thermal_dose)
 
-    def thermal_pbtp(self):
+    def thermal_pbtp(self, thermal_dose):
 
         return -12.8 + 2.56 * np.log(thermal_dose)
 

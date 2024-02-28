@@ -1,13 +1,14 @@
 import logging
 import io
-import json
+# import json
 import math as m
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+# import matplotlib.patches as patches
 import matplotlib.gridspec as gridspec
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
+from scipy.constants import physical_constants
 from scipy.interpolate import interp1d
 
 from app.calculation.physics.physics_utils import compute_area_circle
@@ -18,8 +19,8 @@ log = logging.getLogger(__name__)
 class PhysicTool:
     def __init__(self, type_substance: str | None = None) -> None:
         self.type_substance = type_substance
-        self.p_atm = 101325  # Па
-        self.R = 8.31446261815324  # Дж/моль*К
+        self.pressure_ambient = 101325  # Па
+        self.R = physical_constants.get('molar gas constant')[0]  # Дж/моль*К
         self.K = 273.15  # К
         self.g = 9.81
 
@@ -77,7 +78,7 @@ class PhysicTool:
                 {'id': 'Начальное давление газа в резервуаре',
                     'var': 'Pvₒ', 'unit_1': f"{pres_init:.2e}", 'unit_2': 'Па'},
                 {'id': 'Атмосферное давление', 'var': 'Pa',
-                    'unit_1': self.p_atm, 'unit_2': 'Па'}
+                    'unit_1': self.pressure_ambient, 'unit_2': 'Па'}
             ]
         elif self.type_substance == 'liq_gas_vap':
             pass
@@ -159,7 +160,7 @@ class PhysicTool:
                 {'id': 'Начальное давление газа в резервуаре',
                     'var': 'Pv', 'unit_1': f"{pres_init:.2e}", 'unit_2': 'Па'},
                 {'id': 'Атмосферное давление', 'var': 'Pa',
-                    'unit_1': self.p_atm, 'unit_2': 'Па'}
+                    'unit_1': self.pressure_ambient, 'unit_2': 'Па'}
             ]
 
         elif self.type_substance == 'liq_gas_vap':
@@ -182,10 +183,11 @@ class PhysicTool:
         # h_hol = 1  # высота расположения отверстия от днища, м
         # hi_hol = h_liq0 - h_hol  # Высота столба жидкости над отверстием, м
         initial_pressure_in_vessel = density_liq * self.g * \
-            initial_height_liquid + self.p_atm  # Давление в оборудовании, Па
+            initial_height_liquid + self.pressure_ambient  # Давление в оборудовании, Па
         # начальный массовый расход, кг/с
         initial_mass_flow = mu * hole_area * \
-            m.sqrt(2 * (initial_pressure_in_vessel - self.p_atm) * density_liq)
+            m.sqrt(2 * (initial_pressure_in_vessel -
+                   self.pressure_ambient) * density_liq)
         return initial_mass_flow
 
     def _compute_mass_flow_rate(self, **kwargs):
@@ -219,18 +221,19 @@ class PhysicTool:
             if t == 0:
                 fi = m_equip[t] / (volume_vessel * density_liq)
                 h_liq_i = fi * height_vessel
-                p_equip = density_liq * self.g * h_liq_i + self.p_atm
+                p_equip = density_liq * self.g * h_liq_i + self.pressure_ambient
                 G_i = mu * hole_area * \
-                    m.sqrt((2 * (p_equip - self.p_atm) * density_liq))
+                    m.sqrt((2 * (p_equip - self.pressure_ambient) * density_liq))
                 delta_m_i = G_i * delta_t
                 # h_i = h_liq_i * (m_equip[-1] - delta_m_i) / m_equip[-1]
             elif t > 0:
                 fi = m_equip[-1] / (volume_vessel * density_liq)
                 h_liq_i = fi * height_vessel
-                p_equip = density_liq * self.g * h_liq_i + self.p_atm
-                if float(p_equip) > self.p_atm:
+                p_equip = density_liq * self.g * h_liq_i + self.pressure_ambient
+                if float(p_equip) > self.pressure_ambient:
                     G_i = mu * hole_area * \
-                        m.sqrt((2 * (p_equip - self.p_atm) * density_liq))
+                        m.sqrt(
+                            (2 * (p_equip - self.pressure_ambient) * density_liq))
                     delta_m_i = G_i * delta_t
                     # скорость истечения (м/с) по формуле Торричелли
                     velocity_outflow.append(m.sqrt(2 * self.g * h_liq_i))
@@ -256,7 +259,7 @@ class PhysicTool:
         return t_i, G_t
 
     def _compute_coef_k(self, pres_init: int | float, **kwargs):
-        return self.p_atm / pres_init
+        return self.pressure_ambient / pres_init
 
     def compute_density_gas(self, pres_init: int | float, molar_mass: int | float, temperature: int | float):
         return (pres_init * molar_mass) / (self.R * (self.K + temperature))
@@ -324,7 +327,7 @@ class PhysicTool:
             outflow.append(outflow_rate)
             ti = i
             t.append(ti)
-            if pres[-1] <= self.p_atm:
+            if pres[-1] <= self.pressure_ambient:
                 break
         return t, outflow
 

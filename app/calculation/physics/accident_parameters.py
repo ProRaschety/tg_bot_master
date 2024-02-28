@@ -4,20 +4,23 @@ import json
 import math as m
 import numpy as np
 
-from scipy import constants as const
+from scipy.constants import physical_constants
 from scipy.interpolate import RectBivariateSpline
 from scipy.stats import norm
 
-from app.calculation.physics._property_sub import FlowParameters
+# from app.calculation.physics._property_sub import FlowParameters
 
 
 log = logging.getLogger(__name__)
 
 
-class AccidentParameters(FlowParameters):
+class AccidentParameters:
     def __init__(self):
-        self.pressure_ambient = 101.325  # кПа
+        self.pressure_ambient = 101325  # Па
         self.heat_capacity_air = 1010  # Дж/кг*К
+        self.R = physical_constants.get('molar gas constant')[0]  # Дж/моль*К
+        self.K = 273.15  # К
+        self.g = 9.81
 
     def calc_radius_LCl(self):
         pass
@@ -36,7 +39,7 @@ class AccidentParameters(FlowParameters):
         coef_kn = 3
         density_vap = sub.calc_density_gas(temperature_gas=temp + 273)
         stoichiometric_concentration = sub.calc_stoichiometric_concentration()
-        overpres_inclosed = (exp_pres_max - self.pressure_ambient) * ((m_vap * coef_z) / (vol_free * density_vap)) * (100 / stoichiometric_concentration) * (
+        overpres_inclosed = (exp_pres_max - self.pressure_ambient / 1000) * ((m_vap * coef_z) / (vol_free * density_vap)) * (100 / stoichiometric_concentration) * (
             1 / coef_kn)
 
         return overpres_inclosed

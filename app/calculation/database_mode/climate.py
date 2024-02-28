@@ -169,8 +169,10 @@ class Climate:
         fig_ax_3 = fig.add_subplot(gs[1, 0], projection='polar')
 
         angles = np.arange(0, 2*pi, pi/4.0)  # Задаём массив направлений
+        x_labels = ['С', 'СВ', 'В', 'ЮВ', 'Ю', 'ЮЗ', 'З', 'СЗ']
         r = [clim_data.get(value, "0")
              for value in clim_data]  # массив значений
+
         linewidth = 1.75
         linestyle = 'solid'
         color = (0.9, 0.1, 0, 0.9)
@@ -180,7 +182,7 @@ class Climate:
         fig_ax_3.set_theta_offset(pi / 2.0)
         fig_ax_3.plot((angles[-1], angles[0]), (r[-1], r[0]), color=color,
                       linewidth=linewidth, linestyle=linestyle)
-        x_labels = ['С', 'СВ', 'В', 'ЮВ', 'Ю', 'ЮЗ', 'З', 'СЗ']
+        fig_ax_3.set_xticks(angles)
         fig_ax_3.set_xticklabels(x_labels, **ft_size)
         fig_ax_3.grid(visible=True,
                       which='major',

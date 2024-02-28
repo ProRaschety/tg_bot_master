@@ -8,7 +8,6 @@ from scipy import constants as const
 from scipy.interpolate import RectBivariateSpline
 from scipy.stats import norm
 
-from ._const import Const
 from app.calculation.equipment.equipment_param import Equipment
 
 log = logging.getLogger(__name__)
@@ -17,11 +16,11 @@ log = logging.getLogger(__name__)
 class FuelProperties:
     """Свойства вещества из справочных данных"""
 
-    def __init__(self):
-        self.temperature_celsius: int | float = Const
+    def __init__(self, type_sub):
+        self.temperature_celsius: int | float = 0
         self.temperature_kelvin: int | float = const.zero_Celsius + self.temperature_celsius
         self.pressure_ambient: int | float = const.atm
-        self.type_sub = sub_dict.get("substance_type")[-1]
+        self.type_sub = type_sub
 
     def get_property_species(self, name_sub: str = '') -> dict:
         try:
