@@ -19,10 +19,11 @@ log = logging.getLogger(__name__)
 class PhysicTool:
     def __init__(self, type_substance: str | None = None) -> None:
         self.type_substance = type_substance
-        self.pressure_ambient = 101325  # Па
+        self.pressure_ambient = physical_constants.get(
+            'standard atmosphere')[0]  # Па
         self.R = physical_constants.get('molar gas constant')[0]  # Дж/моль*К
         self.K = 273.15  # К
-        self.g = 9.81
+        self.g = physical_constants.get('standard acceleration of gravity')[0]
 
     def get_init_data(self, *args, **kwargs):
         head = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')

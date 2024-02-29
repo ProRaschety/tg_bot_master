@@ -96,6 +96,8 @@ class FireRisk:
             ind_risk = self.calc_fire_risk(
                 self, *args, fire_frequency=fire_freq, **kwargs)
             data_risk = [
+                # {'id': 'Индивидуальный пожарный риск\nc учетом противопожарных дверей', 'var': 'Ri',
+                #     'unit_1': f'{(0.3 * ind_risk + 0.7 * ind_risk):.2e}', 'unit_2': f"{'Соотв.' if ind_risk < 0.000001 else 'Не соотв.'}"},
                 {'id': 'Индивидуальный пожарный риск', 'var': 'Rij',
                     'unit_1': f'{ind_risk:.2e}', 'unit_2': f"{'Соотв.' if ind_risk < 0.000001 else 'Не соотв.'}"},
                 {'id': 'Коэффициент соответствия СПЗ', 'var': 'Кпз',

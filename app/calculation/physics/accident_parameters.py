@@ -16,11 +16,12 @@ log = logging.getLogger(__name__)
 
 class AccidentParameters:
     def __init__(self):
-        self.pressure_ambient = 101325  # Па
+        self.pressure_ambient = physical_constants.get(
+            'standard atmosphere')[0]  # Па
         self.heat_capacity_air = 1010  # Дж/кг*К
         self.R = physical_constants.get('molar gas constant')[0]  # Дж/моль*К
         self.K = 273.15  # К
-        self.g = 9.81
+        self.g = physical_constants.get('standard acceleration of gravity')[0]
 
     def calc_radius_LCl(self):
         pass

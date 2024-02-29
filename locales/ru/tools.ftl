@@ -4,6 +4,7 @@ back_tool_liquid = ↩ Назад
 stop_edit_tool_liquid = ↩ Назад
 back_tool_comp_gas = ↩ Назад
 back_tool_liq_gas = ↩ Назад
+result_tool_comp_gas = 🔂 К таблице
 
 tool_liquid = Расход жидкости 💧
 tool_comp_gas = Расход сжатого газа 💨

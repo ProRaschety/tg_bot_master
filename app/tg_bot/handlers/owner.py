@@ -34,7 +34,7 @@ async def owner_panel_call(callback_data: CallbackQuery, bot: Bot, state: FSMCon
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'get_users', 'get_promocode', 'set_promocode', 'clear_promocodes', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'get_users', 'get_promocode', 'set_promocode', 'clear_promocodes', 'general_menu', i18n=i18n))
     await state.set_state(state=None)
 
 

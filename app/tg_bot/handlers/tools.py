@@ -160,7 +160,7 @@ async def plot_tool_liquid_call(callback: CallbackQuery, state: FSMContext, bot:
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="plot_tools"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'run_tool_liquid', param_back=True, back_data='back_tool_liquid', i18n=i18n))
+        reply_markup=get_inline_cd_kb(param_back=True, back_data='back_tool_liquid', i18n=i18n))
     await state.set_state(state=None)
     await callback.answer('')
 
@@ -390,7 +390,7 @@ async def tool_comp_gas_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
     await callback_data.answer('')
 
 
-@tools_router.callback_query(F.data.in_(['run_tool_comp_gas']))
+@tools_router.callback_query(F.data.in_(['run_tool_comp_gas', 'result_tool_comp_gas']))
 async def run_tool_comp_gas_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
     text = i18n.tool_comp_gas.text()
@@ -442,7 +442,7 @@ async def plot_tool_comp_gas_call(callback: CallbackQuery, state: FSMContext, bo
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="plot_tools"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'run_tool_comp_gas', param_back=True, back_data='back_tool_comp_gas', i18n=i18n))
+        reply_markup=get_inline_cd_kb(param_back=True, back_data='back_tool_comp_gas', i18n=i18n))
     await state.set_state(state=None)
     await callback.answer('')
 
