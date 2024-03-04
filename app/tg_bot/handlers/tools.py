@@ -404,7 +404,7 @@ async def run_tool_comp_gas_call(callback: CallbackQuery, state: FSMContext, bot
     # await state.update_data(time_fsr=t_fsr/60)
     data_out, headers, label = ph_tool.get_result_data(**data)
     media = get_data_table(data=data_out, headers=headers,
-                           label=label, results=True, row_num=11)
+                           label=label, results=True, row_num=10)
     # media = get_picture_filling(file_path='temp_files/temp/logo_pic_filling.png')
 
     await bot.edit_message_media(

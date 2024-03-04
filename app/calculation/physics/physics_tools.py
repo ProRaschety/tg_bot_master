@@ -82,7 +82,29 @@ class PhysicTool:
                     'unit_1': self.pressure_ambient, 'unit_2': 'Па'}
             ]
         elif self.type_substance == 'liq_gas_vap':
-            pass
+            pres_init = float(kwargs.get('tool_comp_gas_pres_init'))
+            molar_mass = float(kwargs.get('tool_comp_gas_molar_mass'))
+            temperature = float(kwargs.get('tool_comp_gas_temperature'))
+            density_gas = self.compute_density_gas(
+                pres_init=pres_init, molar_mass=molar_mass, temperature=temperature)
+            data_table = [
+                {'id': 'Коэффициент истечения', 'var': 'μ',
+                    'unit_1': kwargs.get('tool_comp_gas_mu'), 'unit_2': '-'},
+                {'id': 'Диаметр отверстия', 'var': 'dотв', 'unit_1': kwargs.get(
+                    'tool_comp_gas_hole_diameter'), 'unit_2': 'м'},
+                {'id': 'Объем резервуара', 'var': 'Vр',
+                    'unit_1': f"{float((kwargs.get('tool_comp_gas_volume_vessel', 1000))):.1f}", 'unit_2': 'м\u00B3'},
+                {'id': 'Молярная масса газа', 'var': 'M',
+                    'unit_1': molar_mass, 'unit_2': 'кг/моль'},
+                {'id': 'Безразмерное давление сжиженного газа', 'var': 'PR',
+                    'unit_1': 'Pv/Рс', 'unit_2': 'Па'},
+                {'id': 'Критическое давление сжиженного газа', 'var': 'Pc',
+                    'unit_1': 'Рс', 'unit_2': 'Па'},
+                {'id': 'Критическая темепература сжиженного газа', 'var': 'Tc',
+                    'unit_1': 'Tc', 'unit_2': '\u00B0С'},
+                {'id': 'Начальное давление cжиженного газа в резервуаре',
+                    'var': 'Pvₒ', 'unit_1': f"{pres_init:.2e}", 'unit_2': 'Па'},
+            ]
         elif self.type_substance == 'liq_gas_liq':
             pass
 
@@ -135,11 +157,17 @@ class PhysicTool:
             density_gas = self.compute_density_gas(
                 pres_init=pres_init, molar_mass=molar_mass, temperature=temperature)
             mass_flow = self.compute_outflow_comp_gas(**kwargs)
+            pres_init = float(kwargs.get('tool_comp_gas_pres_init'))
+            coef_k = self._compute_coef_k(pres_init=pres_init, **kwargs)
+            gamma = float(kwargs.get('tool_comp_gas_coef_poisson'))
+            coef_p = (2 / (gamma + 1)) ** (gamma / (gamma - 1))
             data_table = [
                 {'id': 'Начальный объемный расход газа',
                     'var': 'Gvₒ', 'unit_1': f"{(mass_flow/density_gas):.3f}", 'unit_2': 'м\u00B3/с'},
                 {'id': 'Начальный массовый расход газа',
                     'var': 'Gmₒ', 'unit_1': f"{mass_flow:.3f}", 'unit_2': 'кг/с'},
+                {'id': 'Режим истечения', 'var': '-',
+                    'unit_1': "до-\nкритический" if coef_k >= coef_p else "сверх-\nкритический", 'unit_2': '-'},
                 {'id': 'Начальная масса газа в резервуаре',
                     'var': 'mₒ', 'unit_1': f"{(density_gas * float((kwargs.get('tool_comp_gas_volume_vessel')))):.1f}", 'unit_2': 'кг'},
                 {'id': 'Коэффициент истечения', 'var': 'μ',
@@ -160,8 +188,8 @@ class PhysicTool:
                     'unit_1': temperature, 'unit_2': '\u00B0С'},
                 {'id': 'Начальное давление газа в резервуаре',
                     'var': 'Pv', 'unit_1': f"{pres_init:.2e}", 'unit_2': 'Па'},
-                {'id': 'Атмосферное давление', 'var': 'Pa',
-                    'unit_1': self.pressure_ambient, 'unit_2': 'Па'}
+                # {'id': 'Атмосферное давление', 'var': 'Pa',
+                #     'unit_1': self.pressure_ambient, 'unit_2': 'Па'}
             ]
 
         elif self.type_substance == 'liq_gas_vap':

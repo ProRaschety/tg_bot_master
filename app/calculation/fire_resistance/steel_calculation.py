@@ -192,8 +192,8 @@ class SteelFireStrength:
                 db_ibeam = json.load(file_op)
 
         list_num_profile = list(db_ibeam[sketch][gost].keys())
-        log.info(
-            f"Количесто номеров профилей: {len(db_ibeam[sketch][gost].keys())}")
+        # log.info(
+        #     f"Количесто номеров профилей: {len(db_ibeam[sketch][gost].keys())}")
         return list_num_profile
 
     def get_effective_length(self):
@@ -206,7 +206,7 @@ class SteelFireStrength:
             effective_length = self.len_elem * 0.5
         elif self.fixation == 'seal-hinge':
             effective_length = self.len_elem * 0.7
-        log.info(f"Эффективная длина элемента: {effective_length} мм")
+        # log.info(f"Эффективная длина элемента: {effective_length} мм")
         return effective_length
 
     def get_sectional_area(self):
@@ -225,7 +225,7 @@ class SteelFireStrength:
                 db_steel_in = json.load(file_op)
                 sec_area_cm2 = db_steel_in[sketch][gost][profile]['a_cm2']
         sectional_area = float(sec_area_cm2) * 100  # мм2
-        log.info(f"Площадь сечения: {sectional_area} мм2")
+        # log.info(f"Площадь сечения: {sectional_area} мм2")
         return sectional_area
 
     def get_perimeter_section(self):
@@ -261,8 +261,8 @@ class SteelFireStrength:
             else:
                 perimeter_section = 2 * \
                     float(h_mm) + 4 * float(b_mm) - 2 * float(s_mm)
-        log.info(
-            f"Периметр сечения: {perimeter_section} мм")
+        # log.info(
+        #     f"Периметр сечения: {perimeter_section} мм")
         return perimeter_section
 
     def get_moment_section_resistance(self):
@@ -282,8 +282,8 @@ class SteelFireStrength:
         #     with open(file="db_steel_channel.json", mode="r", encoding='utf-8') as file_op:
         #         db_steel_in = json.load(file_op)
         #         sec_area_cm2 = db_steel_in[profile][gost][sketch]['a_cm2']
-        log.info(
-            f"Момент сопротивления сечения: {moment_section_resistance} см3")
+        # log.info(
+        #     f"Момент сопротивления сечения: {moment_section_resistance} см3")
         return moment_section_resistance
 
     def get_moment_section_of_inertia(self):
@@ -305,20 +305,20 @@ class SteelFireStrength:
                 i_x_cm4 = db_steel_in[sketch][gost][profile]['i_x_cm4']
                 i_y_cm4 = db_steel_in[sketch][gost][profile]['i_y_cm4']
             moment_section_of_inertia = min(i_x_cm4, i_y_cm4)
-        log.info(
-            f"Момент инерции сечения: {moment_section_of_inertia} см4")
+        # log.info(
+        #     f"Момент инерции сечения: {moment_section_of_inertia} см4")
         return moment_section_of_inertia
 
     def get_reduced_thickness(self):
         sectional_area = self.get_sectional_area()
         perimeter_section = self.get_perimeter_section()
         ptm = sectional_area/perimeter_section
-        log.info(f"Приведенная толщина металла: {ptm} мм")
+        # log.info(f"Приведенная толщина металла: {ptm} мм")
         return ptm
 
     def get_loading(self):
         loading = float(self.n_load)  # кг
-        log.info(f"Усилие от нагрузки: {loading} кг")
+        # log.info(f"Усилие от нагрузки: {loading} кг")
         return loading
 
     def get_moment_load(self):
@@ -347,7 +347,7 @@ class SteelFireStrength:
             elif self.fixation == 'console':
                 moment_load = n_load * 100 * a_load
 
-        log.info(f"Изгибающий момент: {moment_load} кг*см")
+        # log.info(f"Изгибающий момент: {moment_load} кг*см")
         return moment_load
 
     def get_coef_strength(self):
@@ -355,15 +355,15 @@ class SteelFireStrength:
             property_steel_in = json.load(file_op)
         r_norm = float(
             property_steel_in[self.type_steel_element]["r_norm_kg_cm2"])
-        log.info(
-            f"Начальное нормативное сопротивление металла: {r_norm} kg/cm2")
+        # log.info(
+        #     f"Начальное нормативное сопротивление металла: {r_norm} kg/cm2")
         e_n_kg_cm2 = 2_100_000
         if self.type_loading == 'stretching_element':
             sectional_area = self.get_sectional_area() * 0.01
             n_load = float(self.get_loading())
             gamma = n_load / (sectional_area * r_norm)
-            log.info(
-                f"Коэффициент снижения предела текучести стали при растяжении: {gamma:.3f}")
+            # log.info(
+            #     f"Коэффициент снижения предела текучести стали при растяжении: {gamma:.3f}")
             return gamma
 
         elif self.type_loading == 'compression_element':
@@ -374,12 +374,12 @@ class SteelFireStrength:
             l_eff = float(self.get_effective_length()) * 0.1
             n_load = float(self.get_loading())
             gamma_t = n_load / (sectional_area * r_norm)
-            log.info(
-                f"Коэффициент снижения предела текучести стали при сжатии: {gamma_t:.3f} при нагрузке {n_load:.1f}")
+            # log.info(
+            #     f"Коэффициент снижения предела текучести стали при сжатии: {gamma_t:.3f} при нагрузке {n_load:.1f}")
             gamma_elasticity = (n_load * (l_eff ** 2)) / \
                 ((m.pi**2) * e_n_kg_cm2 * j_min)
-            log.info(
-                f"Коэффициент снижения модуля упругости стали при сжатии: {gamma_elasticity:.3f} при j_min {j_min:.2f} и l_eff {l_eff:.2f}")
+            # log.info(
+            #     f"Коэффициент снижения модуля упругости стали при сжатии: {gamma_elasticity:.3f} при j_min {j_min:.2f} и l_eff {l_eff:.2f}")
             return gamma_t, gamma_elasticity
 
         elif self.type_loading == 'bend_element':
@@ -387,8 +387,8 @@ class SteelFireStrength:
             moment_section_resistance = float(
                 self.get_moment_section_resistance())
             gamma = m_load / (moment_section_resistance * r_norm)
-            log.info(
-                f"Коэффициент снижения предела текучести стали при изгибе: {gamma:.3f}")
+            # log.info(
+            #     f"Коэффициент снижения предела текучести стали при изгибе: {gamma:.3f}")
             return gamma
 
     def get_crit_temp_steel(self):
@@ -413,8 +413,8 @@ class SteelFireStrength:
                                        bounds_error=False, fill_value=0)
                 t_critic_yt = float(temp_cor_yt(gamma_t))
                 t_critic_list.append(t_critic_yt)
-            log.info(
-                f"Критическая температура при сжатии от yt={gamma_t:.3f}: {t_critic_yt:.3f} С")
+            # log.info(
+            #     f"Критическая температура при сжатии от yt={gamma_t:.3f}: {t_critic_yt:.3f} С")
 
             if gamma_elasticity <= coef_elast[-1]:
                 t_critic_ye = temp[-1]
@@ -430,10 +430,10 @@ class SteelFireStrength:
             t_critic_list.sort()
             t_critic = t_critic_list.copy()[0]
 
-            log.info(
-                f"Критическая температура при сжатии от ye={gamma_elasticity:.3f}: {t_critic_ye:.3f} С")
+            # log.info(
+            #     f"Критическая температура при сжатии от ye={gamma_elasticity:.3f}: {t_critic_ye:.3f} С")
 
-            log.info(f"Критическая температура при сжатии: {t_critic:.3f} С")
+            # log.info(f"Критическая температура при сжатии: {t_critic:.3f} С")
 
         elif self.type_loading == 'stretching_element':
             gamma = self.get_coef_strength()
@@ -445,8 +445,8 @@ class SteelFireStrength:
                 temp_correl = interp1d(coef, temp, kind='slinear',
                                        bounds_error=False, fill_value=0)
                 t_critic = float(temp_correl(gamma))
-            log.info(
-                f"Критическая температура при растяжении: {t_critic:.3f} С")
+            # log.info(
+            #     f"Критическая температура при растяжении: {t_critic:.3f} С")
 
         elif self.type_loading == 'bend_element':
             gamma = self.get_coef_strength()
@@ -458,7 +458,7 @@ class SteelFireStrength:
                 temp_correl = interp1d(coef, temp, kind='slinear',
                                        bounds_error=False, fill_value=0)
                 t_critic = float(temp_correl(gamma))
-            log.info(f"Критическая температура при изгибе: {t_critic:.3f} С")
+            # log.info(f"Критическая температура при изгибе: {t_critic:.3f} С")
 
         # with open('app/infrastructure/init_data/init_data_thermal_steel.json', encoding='utf-8') as file_op:
         #     init_thermal_in = json.load(file_op)
@@ -516,7 +516,7 @@ class SteelFireStrength:
         perimeter = self.get_perimeter_section()
         len_element = self.len_elem
         surface_area = perimeter * len_element
-        log.info(f"Площадь поверхности элемента: {surface_area} м2")
+        # log.info(f"Площадь поверхности элемента: {surface_area} м2")
         return surface_area
 
     def get_output_strength(self):
@@ -775,7 +775,7 @@ class SteelFireResistance:
 
         # Определение времени прогрева от температуры
         time_fsr = float(t_fsr(self.t_critic))/60
-        log.info(f"Предел огнестойкости стального элемента: {time_fsr} мин")
+        # log.info(f"Предел огнестойкости стального элемента: {time_fsr} мин")
         return time_fsr
 
     def get_plot_steel(self):

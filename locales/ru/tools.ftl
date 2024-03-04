@@ -20,7 +20,7 @@ edit_tool_liquid = 📝 Редактировать
 edit_tool_liquid_guest = 🔓 Редактировать
 tool_liquid_result-text = Начальный массовый расход жидкости: <blockquote>{$mass_flow} кг/с</blockquote>
 
-plot_tool_liquid = График расхода
+plot_tool_liquid = 📉 График расхода
 
 tool_liquid_true = ✅ 0.9
 tool_liquid_false = ❌ 0.0
@@ -67,7 +67,7 @@ edit_tool_comp_gas_guest = 🔓 Редактировать
 tool_comp_gas_result-text = Начальный массовый расход газа: <blockquote>{$mass_flow} кг/с</blockquote>
 # Начальный объемный расход газа: <blockquote>{$vol_flow} м³/с</blockquote>
 
-plot_tool_comp_gas = График расхода
+plot_tool_comp_gas = 📉 График расхода
 
 tool_comp_gas_true = ✅ 0.9
 tool_comp_gas_false = ❌ 0.0

@@ -93,6 +93,10 @@ class FSMFireRiskForm(StatesGroup):
     edit_time_start_evacuation_ind = State()
 
 
+class FSMFireAccidentForm(StatesGroup):
+    edit_fire_accident_state = State()
+
+
 class FSMToolLiquidForm(StatesGroup):
     edit_state_liquid_density = State()
     edit_state_liquid_volume_vessel = State()

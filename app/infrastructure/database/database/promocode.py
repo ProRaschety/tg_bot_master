@@ -8,10 +8,9 @@ from app.infrastructure.database.models.promocode_model import PromocodeModel, P
 log = logging.getLogger(__name__)
 
 promocodes = [
-    {'PROMO': 'fireengin24'},
+    {'PROMO': 'cobra_tester'},
+    {'PROMO': 'fireenginstudent'},
     {'PROMO': 'fireengin2024'},
-    {'PROMO': 'fireengin01'},
-    {'PROMO': 'fireengin04'}
 ]
 
 
@@ -26,24 +25,23 @@ class _PromocodeDB:
             await self.connect.execute('''
                 CREATE TABLE IF NOT EXISTS promocodes(
                     id SERIAL PRIMARY KEY,
-                    promocode VARCHAR(20),
+                    promocode VARCHAR(20) UNIQUE,
                     created TIMESTAMPTZ DEFAULT NOW(),
                     valid_until DATE
                 );
             ''')
             log.info("Created table '%s'", self.__table_name__)
 
-    async def add_promocode_start(self) -> None:
+    async def update_promocode_start(self) -> None:
         async with self.connect.transaction():
             for promocode in promocodes:
                 await self.connect.execute('''
-                    INSERT INTO promocodes(promocode)
-                    VALUES($1) ON CONFLICT DO NOTHING;
-                ''', promocode['PROMO']
+                    INSERT INTO promocodes(promocode, created, valid_until)
+                    VALUES($1, $2, $3) ON CONFLICT DO NOTHING;
+                ''', promocode['PROMO'], datetime.utcnow(), datetime.utcnow()
                 )
-
                 log.info(
-                    "Promocode added. db='%s', promocode=%s",
+                    "Promocode update. db='%s', promocode=%s",
                     self.__table_name__, promocode
                 )
 
@@ -52,14 +50,12 @@ class _PromocodeDB:
             *,
             promocode: str
     ) -> None:
-
         async with self.connect.transaction():
             await self.connect.execute('''
-                INSERT INTO promocodes(promocode, created)
-                VALUES($1, $2) ON CONFLICT DO NOTHING;
-            ''', promocode, datetime.utcnow()
+                INSERT INTO promocodes(promocode, created, valid_until)
+                VALUES($1, $2, $3) ON CONFLICT DO NOTHING;
+            ''', promocode, datetime.utcnow(), datetime.utcnow()
                                        )
-
             log.info(
                 "Promocode added. db='%s', promocode=%s, date_time='%s'",
                 self.__table_name__, promocode, datetime.utcnow()
@@ -78,15 +74,16 @@ class _PromocodeDB:
             data = await cursor.fetchrow()
             return PromocodeModel(*data) if data else None
 
-    async def get_promocode_user_list(self) -> PromocodeList | None:
+    async def get_promocode_list(self) -> PromocodeList | None:
         async with self.connect.transaction():
             cursor = await self.connect.cursor('''
-                SELECT promocode
+                SELECT *
                 FROM promocodes;
             '''
                                                )
             data = await cursor.fetch(50)
-            return PromocodeList(data) if data else None
+            # return PromocodeList(data) if data else None
+            return data
 
     async def get_valid_promocode_user(self, promocode: str) -> bool:
         async with self.connect.transaction():

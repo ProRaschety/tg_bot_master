@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.gridspec as gridspec
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import inspect
+from datetime import datetime
 
 log = logging.getLogger(__name__)
 
@@ -102,21 +104,24 @@ def get_dict(list_: list) -> dict:
 def get_data_table(data, headers: str, label: str, results: bool | None = False, row_num: int | None = None) -> bytes:
     log.info("Таблица данных")
     rows = len(data)
+    if rows > 0:
+        data = data
+    else:
+        data = [{'id': '-', 'var': '-', 'unit_1': '-', 'unit_2': '-'}]
+    rows_keys = list(data[0].keys())
     cols = len(list(data[0]))
-    # log.info(f'rows:{rows}, cols:{cols}')
+    # log.info(
+    #     f'Ключи из словаря:{isinstance(data[0].get(rows_keys[2]), datetime)}')
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
     marg = 50
-    w = rows * marg + marg + (cols / 10)  # px
-    h = rows * marg  # px 450
+    rw = rows if rows > 7 else 7
+    w = rw * marg + marg + (cols / 10)  # px
+    h = rw * marg  # px 450
     left = 0.030
     bottom = 0.030
     right = 0.970
     top = 0.950
     hspace = 0.000
-    # xmin = 0.0
-    # ymin = 0.0
-    # xmax = cols  # rows 4.0
-    # ymax = 0.5
     margins = {
         "left": left,  # 0.030
         "bottom": bottom,  # 0.030
@@ -211,23 +216,22 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     if len(list(headers)) == 4:
         for row in range(rows):
             d = data[row]
-            fig_ax_2.text(x=0, y=row, s=d.get('id'),
+            fig_ax_2.text(x=0, y=row, s=d.get(rows_keys[0]),
                           va='center', ha='left', **ft_size)
-            # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
-            fig_ax_2.text(x=2.9, y=row, s=d.get('var'), va='center',
+            fig_ax_2.text(x=2.9, y=row, s=d.get(rows_keys[1]), va='center',
                           ha='right', weight='bold', **ft_size)
-            fig_ax_2.text(x=cols-step, y=row, s=d.get('unit_1'),
+            fig_ax_2.text(x=cols-step, y=row, s=d.get(rows_keys[2]) if not isinstance(d.get(rows_keys[2]), datetime) else d.get(rows_keys[2]).strftime("%Y-%m-%d"),
                           va='center', weight='bold', ha='center', **ft_size)
-            fig_ax_2.text(x=cols+step, y=row, s=d.get('unit_2'),
+            fig_ax_2.text(x=cols+step, y=row, s=d.get(rows_keys[3]) if not isinstance(d.get(rows_keys[2]), datetime) else d.get(rows_keys[3]).strftime("%Y-%m-%d"),
                           va='center', ha='right', **ft_size)
     else:
         for row in range(rows):
             d = data[row]
-            fig_ax_2.text(x=0, y=row, s=d.get('id'),
+            fig_ax_2.text(x=0, y=row, s=d.get(rows_keys[0]),
                           va='center', ha='left', **ft_size)
-            fig_ax_2.text(x=2.0, y=row, s=d.get('var'), va='center',
+            fig_ax_2.text(x=2.0, y=row, s=d.get(rows_keys[1]), va='center',
                           ha='center', weight='bold', **ft_size)
-            fig_ax_2.text(x=cols, y=row, s=d.get('unit_1'),
+            fig_ax_2.text(x=cols, y=row, s=d.get(rows_keys[2]),
                           va='center', ha='right', **ft_size)
 
     # выделите столбец, используя прямоугольную заплатку
