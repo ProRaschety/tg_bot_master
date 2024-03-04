@@ -59,7 +59,7 @@ async def get_promocode_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 
     promocodes = await db.promocode.get_promocode_list()
     promo_data = list(map(dict, promocodes))
-    # log.info(f"Промокоды: {promo_data}")
+    log.info(f"Промокоды: {promo_data}")
     headers = ('id', 'Ключ', 'Дата\nсоздания', 'Срок\nдействия')
     label = i18n.get_promocode.text()
     media = get_data_table(data=promo_data, headers=headers, label=label)
