@@ -27,7 +27,7 @@ class _PromocodeDB:
                     id SERIAL PRIMARY KEY,
                     promocode VARCHAR(20) UNIQUE,
                     created TIMESTAMPTZ DEFAULT NOW(),
-                    valid_until DATE
+                    valid_until TIMESTAMPTZ DEFAULT NOW()
                 );
             ''')
             log.info("Created table '%s'", self.__table_name__)
