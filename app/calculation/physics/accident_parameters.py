@@ -1,15 +1,19 @@
 import logging
+import io
 import json
 
 import math as m
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 from scipy.constants import physical_constants
-from scipy.interpolate import RectBivariateSpline
-from scipy.stats import norm
+from scipy.interpolate import RectBivariateSpline, interp1d
 
-# from app.calculation.physics._property_sub import FlowParameters
-from fluentogram import TranslatorRunner
+
+# from app.calculation.physics.physics_utils import compute_density_gas_phase
 
 log = logging.getLogger(__name__)
 
@@ -28,27 +32,7 @@ class AccidentParameters:
         head = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
         if self.type_accident == 'fire_pool':
             label = 'Пожар-пролива'
-        elif self.type_accident == 'fire_flash':
-            label = 'Пожар-вспышка'
-        elif self.type_accident == 'cloud_explosion':
-            label = 'Взрыв облака паров'
-        elif self.type_accident == 'horizontal_jet':
-            label = 'Горизонтальный факел'
-        elif self.type_accident == 'vertical_jet':
-            label = 'Вертикальный факел'
-        elif self.type_accident == 'fire_ball':
-            label = 'Огненный шар'
-        elif self.type_accident == 'bleve':
-            label = 'Взрыв резервуара'
-
-        if self.type_accident == 'fire_pool':
             data_table = [
-                {'id': 'Удельная теплота сгорания', 'var': 'Hсг',
-                    'unit_1': 36000, 'unit_2': 'кДж/кг'},
-                {'id': 'Плотность насыщенных паров топлива\nпри температуре кипения',
-                    'var': 'ρп', 'unit_1': 0.82, 'unit_2': 'кг/м\u00B3'},
-                {'id': 'Удельная массовая скорость выгорания топлива',
-                    'var': 'm', 'unit_1': 0.06, 'unit_2': 'кг/(м\u00B2×с)'},
                 {'id': 'Площадь пролива', 'var': 'F',  'unit_1': kwargs.get(
                     'accident_fire_pool_pool_area'), 'unit_2': 'м\u00B2'},
                 {'id': 'Скорость ветра', 'var': 'wₒ',
@@ -57,22 +41,31 @@ class AccidentParameters:
                     'unit_1': 1.25, 'unit_2': 'кг/м\u00B3'},
                 {'id': 'Темепература окружающей среды', 'var': 'tₒ', 'unit_1': kwargs.get(
                     'accident_fire_pool_temperature'), 'unit_2': '\u00B0С'},
+                {'id': 'Плотность насыщенных паров топлива\nпри температуре кипения',
+                    'var': 'ρп', 'unit_1': 0.82, 'unit_2': 'кг/м\u00B3'},
+                {'id': 'Удельная массовая скорость выгорания топлива',
+                    'var': 'm', 'unit_1': 0.06, 'unit_2': 'кг/(м\u00B2×с)'},
+                {'id': 'Удельная теплота сгорания', 'var': 'Hсг',
+                    'unit_1': 36000, 'unit_2': 'кДж/кг'},
                 {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_fire_pool_sub')}", 'unit_2': '-'}]
 
         elif self.type_accident == 'fire_flash':
+            label = 'Пожар-вспышка'
             data_table = [
+                {'id': 'Радиус пролива над которым образуется\nвзрывоопасная зона', 'var': 'r',
+                    'unit_1': kwargs.get('accident_fire_flash_radius_pool'), 'unit_2': 'м'},
                 {'id': 'Масса горючих газов (паров)\nпоступивших в окружающее пространство', 'var': 'mг',  'unit_1': kwargs.get(
                     'accident_fire_flash_mass_fuel'), 'unit_2': 'кг'},
-                {'id': 'Плотность горючих газов (паров)\nпри температуре окружающей среды',
-                    'var': 'ρг', 'unit_1': 0.82, 'unit_2': 'кг/м\u00B3'},
                 {'id': 'Нижний концентрационный предел\nраспространения пламени',
-                    'var': 'Cнкпр', 'unit_1': 1.5, 'unit_2': '% об.'},
+                    'var': 'Cнкпр', 'unit_1': kwargs.get('accident_fire_flash_nkpr'), 'unit_2': '% об.'},
                 {'id': 'Плотность окружающего воздуха', 'var': 'ρₒ',
                     'unit_1': 1.25, 'unit_2': 'кг/м\u00B3'},
                 {'id': 'Темепература окружающей среды', 'var': 'tₒ', 'unit_1': kwargs.get(
                     'accident_fire_flash_temperature'), 'unit_2': '\u00B0С'},
-                {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_fire_flash_sub')}", 'unit_2': '-'}]
+                {'id': 'Вещество', 'var': '-', 'unit_1': kwargs.get('accident_fire_flash_sub'), 'unit_2': '-'}]
+
         elif self.type_accident == 'cloud_explosion':
+            label = 'Взрыв облака паров'
             data_table = [
                 {'id': 'Масса горючих газов (паров)\nсодержащегося в облаке', 'var': 'mг',  'unit_1': kwargs.get(
                     'accident_cloud_explosion_mass_fuel'), 'unit_2': 'кг'},
@@ -83,7 +76,34 @@ class AccidentParameters:
                 {'id': 'Класс горючего вещества', 'var': 'β', 'unit_1': kwargs.get(
                     'accident_cloud_explosion_class_fuel'), 'unit_2': '-'},
                 {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_cloud_explosion_sub')}", 'unit_2': '-'}]
+
+        elif self.type_accident == 'horizontal_jet':
+            label = 'Горизонтальный факел'
+            jet = kwargs.get('accident_horizontal_jet_state')
+            data_table = [
+                {'id': 'Расстояние до облучаемого объекта', 'var': 'r',  'unit_1': kwargs.get(
+                    'accident_horizontal_jet_human_distance'), 'unit_2': 'м'},
+                {'id': 'Расход сжатого газа, паровой\nили жидкой фазы сжиженного газа',
+                    'var': 'G',  'unit_1': kwargs.get('accident_horizontal_jet_mass_rate'), 'unit_2': 'кг/с'},
+                {'id': 'Агрегатное состояние горючего вещества', 'var': 'K',
+                    'unit_1': 'Жидкая фаза' if jet == 'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
+                {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_horizontal_jet_sub')}", 'unit_2': '-'}]
+
+        elif self.type_accident == 'vertical_jet':
+            label = 'Вертикальный факел'
+            jet = kwargs.get(
+                'accident_vertical_jet_state')
+            data_table = [
+                {'id': 'Расстояние до облучаемого объекта', 'var': 'r',  'unit_1': kwargs.get(
+                    'accident_vertical_jet_human_distance'), 'unit_2': 'м'},
+                {'id': 'Расход сжатого газа, паровой\nили жидкой фазы сжиженного газа',
+                    'var': 'G',  'unit_1': kwargs.get('accident_vertical_jet_mass_rate'), 'unit_2': 'кг/с'},
+                {'id': 'Агрегатное состояние горючего вещества', 'var': 'K', 'unit_1': 'Жидкая фаза' if jet ==
+                    'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
+                {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_vertical_jet_sub')}", 'unit_2': '-'}]
+
         elif self.type_accident == 'fire_ball':
+            label = 'Огненный шар'
             data_table = [
                 {'id': 'Расстояние от облучаемого объекта до точки\nна поверхности земли непосредственно\nпод центром огненного шара', 'var': 'r',  'unit_1': kwargs.get(
                     'accident_fire_ball_human_distance'), 'unit_2': 'м'},
@@ -92,15 +112,42 @@ class AccidentParameters:
                 {'id': 'Высота центра огненного шара', 'var': 'H', 'unit_1': kwargs.get(
                     'accident_fire_ball_center'), 'unit_2': '-'},
                 {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_fire_ball_sub')}", 'unit_2': '-'}]
+
+        elif self.type_accident == 'bleve':
+            label = 'Взрыв резервуара'
+            data_table = [
+                {'id': 'Расстояние от центра резервуара', 'var': 'r', 'unit_1': kwargs.get(
+                    'accident_bleve_human_distance'), 'unit_2': 'м'},
+                {'id': 'Приведенная масса вещества',
+                    'var': 'mпр',  'unit_1': 1, 'unit_2': '-'},
+                {'id': 'Эффективная энергия взрыва',
+                    'var': 'Eeff',  'unit_1': 1, 'unit_2': '-'},
+                {'id': 'Масса горючего вещества,\nсодержащаяся в резервуаре', 'var': 'mг',  'unit_1': kwargs.get(
+                    'accident_bleve_mass_fuel'), 'unit_2': 'кг'},
+                {'id': 'Доля энергии волны давления',
+                    'var': 'k', 'unit_1': 0.5, 'unit_2': '-'},
+                {'id': 'Давление срабатывания\nпредохранительного устройства',
+                    'var': 'Pval', 'unit_1': 2000, 'unit_2': 'кПа'},
+                {'id': 'Температура жидкой фазы', 'var': 'T',
+                    'unit_1': 293, 'unit_2': 'K'},
+                {'id': 'Нормальная температура кипения',
+                    'var': 'Tb', 'unit_1': 111.65, 'unit_2': 'K'},
+                {'id': 'Удельная теплоемкость жидкой фазы',
+                    'var': 'Cp', 'unit_1': 2000, 'unit_2': 'Дж/кг*K'},
+                {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_bleve_sub')}", 'unit_2': '-'}]
+
         return data_table, head, label
 
-    def calc_radius_LCl(self):
-        pass
+    def compute_radius_LFL(self, density: int | float, mass: int | float, clfl: int | float):
+        return 7.80 * (mass / (density * clfl)) ** 0.33
 
-    def calc_overpres_inclosed(self,
-                               type_substance: str,
-                               evaporation_mass: int | float,
-                               free_volume: int | float, ) -> float:
+    def compute_height_LFL(self, density: int | float, mass: int | float, clfl: int | float):
+        return 0.26 * (mass / (density * clfl)) ** 0.33
+
+    def compute_overpres_inclosed(self,
+                                  type_substance: str,
+                                  evaporation_mass: int | float,
+                                  free_volume: int | float, ) -> float:
         """Вычисляет значение избыточного давления при сгорании паров горючих веществ"""
         # m_vap = evaporation_mass
 
@@ -114,10 +161,10 @@ class AccidentParameters:
 
         return overpres_inclosed
 
-    def calc_overpres_inopen(self,
-                             distance: int | float = 30,
-                             reduced_mass: int | float = 30,
-                             ) -> float:
+    def compute_overpres_inopen(self,
+                                distance: int | float = 30,
+                                reduced_mass: int | float = 30,
+                                ) -> float:
         """форм.(В.14) и (В.22) СП12 и форм.(П3.47) М404"""
         pi_1 = (0.8 * (reduced_mass ** 0.33)) / distance
         pi_2 = (3.0 * (reduced_mass ** 0.66)) / distance ** 2
@@ -196,3 +243,121 @@ class AccidentParameters:
             else:
                 u_front = 500
         return u_front
+
+    def compute_nonvelocity(self, wind: int | float, density_fuel: int | float, mass_burn_rate: int | float, eff_diameter: int | float):
+        return wind / (np.cbrt((mass_burn_rate * self.g * eff_diameter) / density_fuel))
+
+    def get_flame_deflection_angle(self, nonvelocity: int | float):
+        if nonvelocity > 1:
+            eta = m.acos(nonvelocity ** -0.5)
+        else:
+            eta = m.acos(1)
+        angle = float(m.degrees(eta))
+        return angle
+
+    def compute_lenght_flame_pool(self, nonvelocity: int | float, density_air: int | float, mass_burn_rate: int | float, eff_diameter: int | float):
+        if nonvelocity < 1:
+            lenght_flame = 42 * eff_diameter * \
+                (mass_burn_rate / (density_air * m.sqrt(self.g * eff_diameter))) ** 0.61
+        else:
+            lenght_flame = 55 * eff_diameter * \
+                ((mass_burn_rate / (density_air * m.sqrt(self.g * eff_diameter)))
+                 ** 0.67) * nonvelocity ** -0.21
+        return lenght_flame
+
+    def compute_surface_emissive_power(self, eff_diameter: int | float, subst: str):
+        if eff_diameter <= 10:
+            if subst == 'Бензин':
+                sep = 60
+            elif subst == 'Дизельное топливо':
+                sep = 40
+            elif subst == 'СПГ':
+                sep = 220
+            elif subst == 'СУГ':
+                sep = 80
+        elif 10 < eff_diameter < 50:
+            if subst == 'Бензин':
+                sep_1 = interp1d([1, 10, 20, 30, 40, 50], [
+                                 60, 60, 47, 35, 28, 25], 'linear')  # Бензин
+                sep = sep_1(eff_diameter)
+                # sep = round(0.0179 * eff_diameter ** 2 - 1.9614 * eff_diameter + 78.2, 2)
+            elif subst == 'Дизельное топливо':
+                sep_2 = interp1d([1, 10, 20, 30, 40, 50], [
+                                 40, 40, 32, 25, 21, 18], 'linear')  # ДТ
+                sep = sep_2(eff_diameter)
+                # sep = round(0.0179 * eff_diameter ** 2 - 1.9614 * eff_diameter + 78.2, 2)
+            elif subst == 'СПГ':
+                sep_3 = interp1d([1, 10, 20, 30, 40, 50], [220, 220, 180, 150, 130, 120],
+                                 'linear')  # СПГ ГОСТ Р 57431-2017
+                sep = sep_3(eff_diameter)
+            elif subst == 'СУГ':
+                sep_4 = interp1d([1, 10, 20, 30, 40, 50], [
+                                 80, 80, 63, 50, 43, 40], 'linear')  # СУГ
+                sep = sep_4(eff_diameter)
+        elif eff_diameter >= 50:
+            if subst == 'Бензин':
+                sep = 25
+            elif subst == 'Дизельное топливо':
+                sep = 18
+            elif subst == 'СПГ':
+                sep = 120
+            elif subst == 'СУГ':
+                sep = 40
+        else:
+            # для нефти и нефтепродуктов по ГОСТ 1510-2022
+            sep = 140 * m.exp(-0.12 * eff_diameter) + 20 * \
+                (1 - m.exp(-0.12 * eff_diameter))
+        return sep
+
+    def compute_heat_flux(self, eff_diameter: int | float, sep: int | float, lenght_flame: int | float, angle: int | float):
+        # Определение интенсивности теплового излучения, кВт/м2
+        # расстояние от центра лужи для расчета
+        x_lim = int(1 + lenght_flame * 5)
+        x_values = []
+        qf = []
+        for r in range(0, x_lim, 1):
+            x_values.append(r)
+            if r < 1 + eff_diameter * 0.5:
+                qf_f = sep
+            else:
+                a = 2 * lenght_flame / eff_diameter
+                b = 2 * r / eff_diameter
+
+                A = m.sqrt(a ** 2 + (b + 1) ** 2 - 2 *
+                           a * (b + 1) * m.sin(angle))
+                B = m.sqrt(a ** 2 + (b - 1) ** 2 - 2 *
+                           a * (b - 1) * m.sin(angle))
+                C = m.sqrt(1 + ((b ** 2) - 1) * m.cos(angle) ** 2)
+                D = m.sqrt((b - 1) / (b + 1))
+                E = (a * m.cos(angle)) / (b - a * m.sin(angle))
+                F = m.sqrt(b ** 2 - 1)
+                Fv = (1 / 3.14) * \
+                     (-E * m.atan(D) + E * ((a ** 2 + (b + 1) ** 2 - 2 * b * (1 + a * m.sin(angle))) / (A * B)) * m.atan(
+                         (A * D) / B) + (m.cos(angle) / C) * (m.atan((a * b - F ** 2 * m.sin(angle)) / (F * C)) +
+                                                              m.atan((F ** 2 * m.sin(angle)) / (F * C))))
+                Fh = (1 / 3.14) * \
+                     ((m.atan(1 / D)) +
+                      (m.sin(angle) / C) *
+                      (m.atan((a * b - F ** 2 * m.sin(angle)) / (F * C)) +
+                       m.atan((F ** 2 * m.sin(angle)) / (F * C))) -
+                      ((a ** 2 + (b + 1) ** 2 - 2 * (b + 1 + a * b * m.sin(angle))) / (A * B)) *
+                      m.atan((A * D) / B))
+
+                Fq = m.sqrt(Fv ** 2 + Fh ** 2)  # коэффициент облученности
+                # коэффициент пропускания атмосферы
+                t = m.exp(-0.0007 * (r - 0.5 * eff_diameter))
+                qf_f = float(sep * Fq * t)  # интенсивность теплового излучения
+
+            qf.append(qf_f)
+
+        return x_values, qf
+
+    def get_distance_at_sep(self, x_values, y_values, sep):
+        func_sep = interp1d(y_values, x_values, kind='linear',
+                            bounds_error=False, fill_value=0)
+        return func_sep(sep)
+
+    def get_sep_at_distance(self, x_values, y_values, distance):
+        func_distance = interp1d(x_values, y_values, kind='linear',
+                                 bounds_error=False, fill_value=0)
+        return func_distance(distance)

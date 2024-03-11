@@ -11,7 +11,7 @@ tool_comp_gas = Расход сжатого газа 💨
 tool_liq_gas = Расход сжиженного газа 💦
 tool_liq_gas_vap = 🚧 Расход паровой фазы ☁
 tool_liq_gas_liq = 🚧 Расход жидкой фазы 💧
-tool_fifth = 🔒 Пятый инстр
+tool_evaporation_rate = 🚧 Испарение жидкой фазы ♨
 tool_sixth = 🔒 Шестой инстр
 
 tool_liquid-text = Расход жидкости по уравнению П3.10 Методики 404

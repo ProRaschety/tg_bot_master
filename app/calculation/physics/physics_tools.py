@@ -33,6 +33,8 @@ class PhysicTool:
             label = 'Расход сжиженного газа'
         elif self.type_substance == 'comp_gas':
             label = 'Расход сжатого газа'
+        elif self.type_substance == 'evaporation_rate':
+            label = 'Испарение жидкой фазы'
         else:
             label = 'Расход паров жидкости'
 

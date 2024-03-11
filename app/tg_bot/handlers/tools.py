@@ -22,9 +22,8 @@ tools_router = Router()
 tools_router.message.filter(IsSubscriber())
 tools_router.callback_query.filter(IsSubscriber())
 
-kb_tools = [1, 'tool_liquid', 'tool_comp_gas', 'tool_liq_gas',
-            # 'tool_fifth', 'tool_sixth'
-            ]
+kb_tools = [1, 'tool_liquid', 'tool_comp_gas',
+            'tool_liq_gas', 'tool_evaporation_rate']
 
 SFilter_tool_liquid = [
     FSMToolLiquidForm.edit_state_liquid_density,
@@ -679,7 +678,7 @@ async def edit_tool_comp_gas_param_call(callback: CallbackQuery, bot: Bot, state
 
 
 @tools_router.callback_query(StateFilter(FSMToolCompGasForm.edit_state_comp_gas_temperature), F.data.in_(['ready']))
-async def edit_tool_comp_gas_temp_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def edit_tool_comp_gas_ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
     value = data.get("edit_tool_comp_gas_param")
     if value != '' and value != '.' and value != '-' and (float(value)) > -273.15:
@@ -708,7 +707,7 @@ async def edit_tool_comp_gas_temp_call(callback: CallbackQuery, bot: Bot, state:
 
 
 @tools_router.callback_query(F.data.in_(['tool_liq_gas', 'back_tool_liq_gas']))
-async def tools_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def tool_liq_gas_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
     text = i18n.tools.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(
@@ -716,5 +715,20 @@ async def tools_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRun
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'tool_liq_gas_vap', 'tool_liq_gas_liq', param_back=True, back_data='general_menu', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'tool_liq_gas_vap', 'tool_liq_gas_liq', param_back=True, back_data='back_tools', i18n=i18n))
+    await callback_data.answer('')
+
+"""____испарение_жидкой_фазы____"""
+
+
+@tools_router.callback_query(F.data.in_(['tool_evaporation_rate']))
+async def tool_evaporation_rate_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+    text = i18n.tools.text()
+    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    await bot.edit_message_media(
+        chat_id=callback_data.message.chat.id,
+        message_id=callback_data.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(param_back=True, back_data='back_tools', i18n=i18n))
     await callback_data.answer('')

@@ -106,8 +106,7 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     await state.update_data(data)
     # fc_build_data = fc_build.get_category_build(*info_area)
     text = i18n.category_build.text()
-    # media = get_picture_filling(
-    #     file_path='temp_files/temp/fire_category_logo.png')
+
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -116,8 +115,7 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         reply_markup=get_inline_cd_kb(1,
                                       'edit_category_build',
                                       'run_category_build',
-                                      'back_fire_category',
-                                      i18n=i18n))
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
     await callback.answer('')
 
 
@@ -465,7 +463,7 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'back_category_build', 'fire_category', i18n=i18n))
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_category_build'))
     await callback.answer('')
 
 
