@@ -39,5 +39,6 @@ saturated_fuel_vapor_density_at_boiling_point =
 wind_velocity =
     Скорость ветра
 
-specific_mass_fuel_burnout_rate =
-    Удельная массовая скорость выгорания топлива
+specific_mass_fuel_burning_rate =
+    Удельная массовая скорость
+    выгорания топлива

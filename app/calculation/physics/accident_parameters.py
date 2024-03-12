@@ -265,49 +265,77 @@ class AccidentParameters:
                  ** 0.67) * nonvelocity ** -0.21
         return lenght_flame
 
-    def compute_surface_emissive_power(self, eff_diameter: int | float, subst: str):
-        if eff_diameter <= 10:
-            if subst == 'Бензин':
-                sep = 60
-            elif subst == 'Дизельное топливо':
-                sep = 40
-            elif subst == 'СПГ':
-                sep = 220
-            elif subst == 'СУГ':
-                sep = 80
-        elif 10 < eff_diameter < 50:
-            if subst == 'Бензин':
-                sep_1 = interp1d([1, 10, 20, 30, 40, 50], [
-                                 60, 60, 47, 35, 28, 25], 'linear')  # Бензин
-                sep = sep_1(eff_diameter)
-                # sep = round(0.0179 * eff_diameter ** 2 - 1.9614 * eff_diameter + 78.2, 2)
-            elif subst == 'Дизельное топливо':
-                sep_2 = interp1d([1, 10, 20, 30, 40, 50], [
-                                 40, 40, 32, 25, 21, 18], 'linear')  # ДТ
-                sep = sep_2(eff_diameter)
-                # sep = round(0.0179 * eff_diameter ** 2 - 1.9614 * eff_diameter + 78.2, 2)
-            elif subst == 'СПГ':
-                sep_3 = interp1d([1, 10, 20, 30, 40, 50], [220, 220, 180, 150, 130, 120],
-                                 'linear')  # СПГ ГОСТ Р 57431-2017
-                sep = sep_3(eff_diameter)
-            elif subst == 'СУГ':
-                sep_4 = interp1d([1, 10, 20, 30, 40, 50], [
-                                 80, 80, 63, 50, 43, 40], 'linear')  # СУГ
-                sep = sep_4(eff_diameter)
-        elif eff_diameter >= 50:
-            if subst == 'Бензин':
-                sep = 25
-            elif subst == 'Дизельное топливо':
-                sep = 18
-            elif subst == 'СПГ':
-                sep = 120
-            elif subst == 'СУГ':
-                sep = 40
+    def compute_surface_emissive_power(self, eff_diameter: int | float, subst: str, heat_of_comb: int | float = None, lenght_flame: int | float = None, mass_burning_rate: int | float = None):
+        if heat_of_comb == None:
+            if eff_diameter <= 10:
+                if subst == 'gasoline':
+                    sep = 60
+                elif subst == 'diesel':
+                    sep = 40
+                elif subst == 'LNG':
+                    sep = 220
+                elif subst == 'LPG':
+                    sep = 80
+                elif subst == 'liq_hydrogen':
+                    sep = 150
+            elif 10 < eff_diameter < 50:
+                if subst == 'gasoline':
+                    sep_1 = interp1d([1, 10, 20, 30, 40, 50], [
+                        60, 60, 47, 35, 28, 25], 'linear')  # Бензин
+                    sep = sep_1(eff_diameter)
+                    # sep = round(0.0179 * eff_diameter ** 2 - 1.9614 * eff_diameter + 78.2, 2)
+                elif subst == 'diesel':
+                    sep_2 = interp1d([1, 10, 20, 30, 40, 50], [
+                        40, 40, 32, 25, 21, 18], 'linear')  # ДТ
+                    sep = sep_2(eff_diameter)
+                    # sep = round(0.0179 * eff_diameter ** 2 - 1.9614 * eff_diameter + 78.2, 2)
+                elif subst == 'LNG':
+                    sep_3 = interp1d([1, 10, 20, 30, 40, 50], [220, 220, 180, 150, 130, 120],
+                                     'linear')  # СПГ ГОСТ Р 57431-2017
+                    sep = sep_3(eff_diameter)
+                elif subst == 'LPG':
+                    sep_4 = interp1d([1, 10, 20, 30, 40, 50], [
+                        80, 80, 63, 50, 43, 40], 'linear')  # СУГ
+                    sep = sep_4(eff_diameter)
+                elif subst == 'liq_hydrogen':
+                    sep_5 = interp1d([1, 10, 20, 30, 40, 50], [
+                        150, 150, 120, 100, 90, 80], 'linear')  # Сжиженный водород
+                    sep = sep_5(eff_diameter)
+            elif eff_diameter >= 50:
+                if subst == 'gasoline':
+                    sep = 25
+                elif subst == 'diesel':
+                    sep = 18
+                elif subst == 'LNG':
+                    sep = 120
+                elif subst == 'LPG':
+                    sep = 40
+                elif subst == 'liq_hydrogen':
+                    sep = 80
+            else:
+                # для нефти и нефтепродуктов по ГОСТ 1510-2022
+                sep = 140 * m.exp(-0.12 * eff_diameter) + 20 * \
+                    (1 - m.exp(-0.12 * eff_diameter))
         else:
-            # для нефти и нефтепродуктов по ГОСТ 1510-2022
-            sep = 140 * m.exp(-0.12 * eff_diameter) + 20 * \
-                (1 - m.exp(-0.12 * eff_diameter))
+            sep = (0.4 * mass_burning_rate * heat_of_comb) / \
+                (1 + 4 * (lenght_flame / eff_diameter))
         return sep
+
+    def compute_mass_burning_rate(self, subst: str = None, heat_of_comb: int | float = None, Lg: int | float = None, Cp: int | float = None, Tb: int | float = None, Ta: int | float = None):
+        if heat_of_comb == None:
+            if subst == 'gasoline':
+                m = 0.06
+            elif subst == 'diesel':
+                m = 0.04
+            elif subst == 'LNG':
+                m = 0.08
+            elif subst == 'LPG':
+                m = 0.10
+            elif subst == 'liq_hydrogen':
+                m = 0.17
+        else:
+            m = (0.001 * heat_of_comb) / (Lg + Cp * (Tb - Ta))
+        return m
 
     def compute_heat_flux(self, eff_diameter: int | float, sep: int | float, lenght_flame: int | float, angle: int | float):
         # Определение интенсивности теплового излучения, кВт/м2
@@ -361,3 +389,30 @@ class AccidentParameters:
         func_distance = interp1d(x_values, y_values, kind='linear',
                                  bounds_error=False, fill_value=0)
         return func_distance(distance)
+
+    def get_coefficient_eta(self, velocity_air_flow: int | float = 0, temp_air: int | float = None):
+        if temp_air == None:
+            temp_air = self.temperature_celsius
+        x_temp = [10.0, 15.0, 20.0, 30.0, 35.0]
+        y_vel = [0.0, 0.1, 0.2, 0.5, 1.0]
+        eta = np.array([(1.0, 1.0, 1.0, 1.0, 1.0),
+                        (3.0, 2.6, 2.4, 1.8, 1.6),
+                        (4.6, 3.8, 3.5, 2.4, 2.3),
+                        (6.6, 5.7, 5.4, 3.6, 3.2),
+                        (10.0, 8.7, 7.7, 5.6, 4.6)])
+        f_eta = RectBivariateSpline(x_temp, y_vel, eta.T, kx=4, ky=4, s=1)
+        coefficient_eta = f_eta(temp_air, velocity_air_flow)
+        log.info(
+            f"При температуре: {temp_air} и скорости: {velocity_air_flow}, eta: {coefficient_eta[-1][-1]:.2f}")
+        return coefficient_eta[-1][-1]
+
+    def calc_evaporation_intencity_liquid(self, eta: int | float, molar_mass: int | float, vapor_pressure: int | float):
+        """Возвращает интенсивность испарения паров жидкости"""
+        return 10 ** -6 * eta * m.sqrt(molar_mass) * vapor_pressure
+
+    # def calc_saturated_vapor_pressure(self, temperature: int | float = None, a: int | float, b: int | float, ca: int | float):
+    #     """Возвращает давление насыщенных паров в кПа при заданной температуре в С"""
+    #     return 10 ** (a - (b / (temperature + ca)))
+
+    def calc_concentration_saturated_vapors_at_temperature(self, vapor_pressure: int | float):
+        return 100 * vapor_pressure / self.pressure_ambient * 0.001  # kPa

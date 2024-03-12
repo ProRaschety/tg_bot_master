@@ -17,6 +17,8 @@ edit_fire_pool =
     📝 Редактировать
 edit_fire_pool_guest =
     🔒 Редактировать
+edit_pool_substance =
+    Вещество
 back_fire_pool =
     ↩ Назад
 plot_fire_pool =
@@ -45,16 +47,18 @@ saturated_fuel_vapor_density_at_boiling_point =
 surface_density_thermal_radiation_flame =
     Среднеповерхностная плотность
     теплового излучения пламени
-pool_gasoline =
+gasoline =
     Бензин
-pool_diesel =
-    Дизельное топливо
-pool_LNG =
+diesel =
+    Дизельное
+    топливо
+LNG =
     СПГ
-pool_LPG =
+LPG =
     СУГ
-pool_hydrogen =
-    Водород
+liq_hydrogen =
+    Сжиженный
+    водород
 
 fire_flash =
     Пожар-вспышка

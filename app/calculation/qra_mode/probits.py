@@ -20,6 +20,74 @@ def compute_fatal_probability(probit_value: int | float = 0, normal_distribution
     return norm.cdf(probit_value, loc=normal_distribution_mean)
 
 
+def get_probity_ignition(type_sub: str, temperature_flash_C: int | float = 28, mass_flow_rate: int | float = None) -> \
+        tuple[float, float, float]:
+    """Условная вероятность мгновенного воспламенения и воспламенения с задержкой"""
+    if type_sub == 'ГГ':
+        """Для горючего газа"""
+        if mass_flow_rate != None:
+            if mass_flow_rate < 1:
+                prob_instant_ignition = 0.005
+                prob_instant_ignition_delay = 0.005
+                prob_comb_overpres_ignition = 0.080
+            elif mass_flow_rate >= 1 and mass_flow_rate < 50:
+                prob_instant_ignition = 0.035
+                prob_instant_ignition_delay = 0.036
+                prob_comb_overpres_ignition = 0.240
+            elif mass_flow_rate >= 50:
+                prob_instant_ignition = 0.150
+                prob_instant_ignition_delay = 0.176
+                prob_comb_overpres_ignition = 0.600
+        else:
+            prob_instant_ignition = 0.200
+            prob_instant_ignition_delay = 0.240
+            prob_comb_overpres_ignition = 0.600
+    elif type_sub != 'ГГ' and temperature_flash_C > 28:
+        """Для горючей и легковоспламеняющейся жидкости с Твсп > 28 C"""
+        if mass_flow_rate != None:
+            if mass_flow_rate < 1:
+                prob_instant_ignition = 0.005
+                prob_instant_ignition_delay = 0.005
+                prob_comb_overpres_ignition = 0.050
+            elif mass_flow_rate >= 1 and mass_flow_rate < 50:
+                prob_instant_ignition = 0.015
+                prob_instant_ignition_delay = 0.015
+                prob_comb_overpres_ignition = 0.050
+            elif mass_flow_rate >= 50:
+                prob_instant_ignition = 0.040
+                prob_instant_ignition_delay = 0.042
+                prob_comb_overpres_ignition = 0.050
+        else:
+            prob_instant_ignition = 0.050
+            prob_instant_ignition_delay = 0.061
+            prob_comb_overpres_ignition = 0.100
+    elif type_sub != 'ГГ' and temperature_flash_C <= 28:
+        """Для двухфазной смеси или горючей и легковоспламеняющейся жидкости с Твсп <=28 C"""
+        if mass_flow_rate != None:
+            if mass_flow_rate < 1:
+                prob_instant_ignition = 0.005
+                prob_instant_ignition_delay = 0.005
+                prob_comb_overpres_ignition = 0.080
+            elif mass_flow_rate >= 1 and mass_flow_rate < 50:
+                prob_instant_ignition = 0.035
+                prob_instant_ignition_delay = 0.036
+                prob_comb_overpres_ignition = 0.240
+            elif mass_flow_rate >= 50:
+                prob_instant_ignition = 0.150
+                prob_instant_ignition_delay = 0.176
+                prob_comb_overpres_ignition = 0.600
+        else:
+            prob_instant_ignition = 0.200
+            prob_instant_ignition_delay = 0.240
+            prob_comb_overpres_ignition = 0.600
+    else:
+        prob_instant_ignition = 0.200
+        prob_instant_ignition_delay = 0.240
+        prob_comb_overpres_ignition = 0.600
+
+    return (prob_instant_ignition, prob_instant_ignition_delay, prob_comb_overpres_ignition)
+
+
 class ProbabilityDefeat:
     def __init__(self):
         self.distance: float = 30

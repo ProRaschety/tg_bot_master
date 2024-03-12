@@ -508,6 +508,29 @@ class PhysicTool:
 
         return plot
 
+    def calc_lower_heat_combustion(self, molec_mass: int | float = None,
+                                   Cn: int | float = 0,
+                                   Hn: int | float = 0,
+                                   Oxn: int | float = 0,
+                                   Bn: int | float = 0,
+                                   Nn: int | float = 0,
+                                   Sin: int | float = 0,
+                                   Pn: int | float = 0,
+                                   Sn: int | float = 0,
+                                   Sen: int | float = 0,
+                                   Ten: int | float = 0):
+        C, H, N, S, P, Se, Te, Si, B, Ox = 12.0107, 1.00794, 14.0067, 32.065, 30.973762, 78.963, 127.603, 28.0855, 10.821, 15.9994
+        if molec_mass:
+            M = molec_mass
+        else:
+            M = C * Cn + H * Hn + N * Nn + S * Sn + P * Pn + \
+                Se * Sen + Te * Ten + Si * Sin + B * Bn + Ox * Oxn
+        heat_comb = 418 * ((81 * C * Cn + 246 * H * Hn + 26 * (N * Nn + S *
+                           Sn + P * Pn + Se * Sen + Te * Ten + Si * Sin + B * Bn - Ox * Oxn))/M)
+        log.info(f'M: {M}')
+        log.info(f'heat_comb: {heat_comb}')
+        return M, heat_comb
+
     def parse_phase_key(self, key):
         """
         Convert phase string identifier into value for phys library.
