@@ -390,9 +390,8 @@ class AccidentParameters:
                                  bounds_error=False, fill_value=0)
         return func_distance(distance)
 
-    def get_coefficient_eta(self, velocity_air_flow: int | float = 0, temp_air: int | float = None):
-        if temp_air == None:
-            temp_air = self.temperature_celsius
+    def get_coefficient_eta(self, velocity_air_flow: int | float = 0, temperature_air: int | float = None):
+
         x_temp = [10.0, 15.0, 20.0, 30.0, 35.0]
         y_vel = [0.0, 0.1, 0.2, 0.5, 1.0]
         eta = np.array([(1.0, 1.0, 1.0, 1.0, 1.0),
@@ -401,9 +400,9 @@ class AccidentParameters:
                         (6.6, 5.7, 5.4, 3.6, 3.2),
                         (10.0, 8.7, 7.7, 5.6, 4.6)])
         f_eta = RectBivariateSpline(x_temp, y_vel, eta.T, kx=4, ky=4, s=1)
-        coefficient_eta = f_eta(temp_air, velocity_air_flow)
+        coefficient_eta = f_eta(temperature_air, velocity_air_flow)
         log.info(
-            f"При температуре: {temp_air} и скорости: {velocity_air_flow}, eta: {coefficient_eta[-1][-1]:.2f}")
+            f"При температуре: {temperature_air} и скорости: {velocity_air_flow}, eta: {coefficient_eta[-1][-1]:.2f}")
         return coefficient_eta[-1][-1]
 
     def calc_evaporation_intencity_liquid(self, eta: int | float, molar_mass: int | float, vapor_pressure: int | float):

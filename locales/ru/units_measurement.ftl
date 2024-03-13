@@ -1,5 +1,9 @@
+kelvin =
+    K
+
 celsius =
     °С
+
 degree =
     град.
 

@@ -17,8 +17,6 @@ edit_fire_pool =
     📝 Редактировать
 edit_fire_pool_guest =
     🔒 Редактировать
-edit_pool_substance =
-    Вещество
 back_fire_pool =
     ↩ Назад
 plot_fire_pool =
@@ -33,6 +31,10 @@ probit_fire_pool =
     📈 Вероятность поражения
 probit_pool_label =
     График вероятности поражения
+edit_pool_substance =
+    Вещество
+edit_pool_area =
+    F
 pool_area =
     Площадь пролива
 pool_diameter =
@@ -59,6 +61,12 @@ LPG =
 liq_hydrogen =
     Сжиженный
     водород
+
+name_fire_pool_area =
+    Введите площадь пролива:
+
+edit_fire_pool-text = {$fire_pool_param}
+    <blockquote>{$edit_fire_pool}</blockquote>
 
 fire_flash =
     Пожар-вспышка

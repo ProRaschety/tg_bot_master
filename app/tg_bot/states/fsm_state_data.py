@@ -96,6 +96,8 @@ class FSMFireRiskForm(StatesGroup):
 class FSMFireAccidentForm(StatesGroup):
     edit_fire_accident_state = State()
 
+    edit_fire_pool_area_state = State()
+
 
 class FSMToolLiquidForm(StatesGroup):
     edit_state_liquid_density = State()

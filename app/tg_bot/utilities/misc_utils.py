@@ -114,7 +114,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     #     f'Ключи из словаря:{isinstance(data[0].get(rows_keys[2]), datetime)}')
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
     marg = 50
-    rw = rows if rows > 5 else 7
+    rw = rows if rows > 7 else 5
     w = rw * marg + marg + (cols / 10)  # px
     h = rw * marg  # px 450
     left = 0.030
@@ -139,9 +139,9 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     # heights = [xmax, xmax]
     gs = gridspec.GridSpec(
         ncols=1, nrows=2, width_ratios=widths, height_ratios=heights)
-    ft_label_size = {'fontname': 'Arial', 'fontsize': h*0.023}
-    ft_title_size = {'fontname': 'Arial', 'fontsize': h*0.020}
-    ft_size = {'fontname': 'Arial', 'fontsize': h*0.020}
+    ft_label_size = {'fontname': 'Arial', 'fontsize': h*0.023}  # h*0.023
+    ft_title_size = {'fontname': 'Arial', 'fontsize': h*0.020}  # h*0.020
+    ft_size = {'fontname': 'Arial', 'fontsize': h*0.020}  # h*0.020
 
     """____Первая часть таблицы____"""
     fig_ax_1 = fig.add_subplot(gs[0, 0])

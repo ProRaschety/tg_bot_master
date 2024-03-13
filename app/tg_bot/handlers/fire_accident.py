@@ -23,6 +23,8 @@ fire_accident_router = Router()
 fire_accident_router.message.filter(IsGuest())
 fire_accident_router.callback_query.filter(IsGuest())
 
+SFilter_fire_pool = [FSMFireAccidentForm.edit_fire_pool_area_state]
+
 kb_accidents = [1,
                 'fire_pool',
                 'fire_flash',
@@ -32,7 +34,9 @@ kb_accidents = [1,
                 'fire_ball',
                 'bleve',]
 
-kb_edit_pool = [1, 'edit_pool_substance']
+kb_edit_pool = [4,
+                'edit_pool_substance',
+                'edit_pool_area']
 
 
 @fire_accident_router.callback_query(F.data == 'back_typical_accidents')
@@ -68,6 +72,7 @@ async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 @fire_accident_router.callback_query(F.data.in_(['fire_pool', 'back_fire_pool']))
 async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
+    data.setdefault("edit_accident_fire_pool_param", "1")
     data.setdefault("accident_fire_pool_sub", "gasoline")
     data.setdefault("accident_fire_pool_molar_mass_fuel", "100")
     data.setdefault("accident_fire_pool_boiling_point_fuel", "180")
@@ -96,9 +101,9 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
             'accident_fire_pool_temperature'), 'unit_2': i18n.get('celsius')},
         {'id': i18n.get('specific_mass_fuel_burning_rate'),
             'var': 'm', 'unit_1': data.get('accident_fire_pool_mass_burning_rate'), 'unit_2': i18n.get('kg_per_m_square_in_sec')},
-        {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
-            'unit_1': data.get(
-            'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
+        # {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
+        #     'unit_1': data.get(
+        #     'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
         {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
 
     media = get_data_table(data=data_out, headers=headers, label=label)
@@ -118,12 +123,12 @@ async def edit_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(*kb_edit_pool, i18n=i18n, param_back=True, back_data='back_public', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(*kb_edit_pool, i18n=i18n, param_back=True, back_data='back_fire_pool', check_role=True, role=role))
     await callback.answer('')
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_pool_substance']))
-async def pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def pool_subst_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -132,10 +137,13 @@ async def pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
 
 
 @fire_accident_router.callback_query(F.data.in_(['gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen']))
-async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+async def fire_pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     call_data = callback.data
-    data = await state.get_data()
+    # data = await state.get_data()
+    f_pool = AccidentParameters(type_accident='fire_pool')
+    mass_burn_rate = f_pool.compute_mass_burning_rate(subst=call_data)
     await state.update_data(accident_fire_pool_sub=call_data)
+    await state.update_data(accident_fire_pool_mass_burning_rate=mass_burn_rate)
     data = await state.get_data()
     await state.update_data(data)
     data = await state.get_data()
@@ -157,9 +165,9 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
             'accident_fire_pool_temperature'), 'unit_2': i18n.get('celsius')},
         {'id': i18n.get('specific_mass_fuel_burning_rate'),
             'var': 'm', 'unit_1': data.get('accident_fire_pool_mass_burning_rate'), 'unit_2': i18n.get('kg_per_m_square_in_sec')},
-        {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
-            'unit_1': data.get(
-            'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
+        # {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
+        #     'unit_1': data.get(
+        #     'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
         {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
@@ -168,6 +176,106 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'edit_fire_pool', 'run_fire_pool', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data.in_(['edit_pool_area']))
+async def edit_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    log.info(callback.data)
+    if callback.data == 'edit_pool_area':
+        await state.set_state(FSMFireAccidentForm.edit_fire_pool_area_state)
+    data = await state.get_data()
+    state_data = await state.get_state()
+    if state_data == FSMFireAccidentForm.edit_fire_pool_area_state:
+        text = i18n.edit_fire_pool.text(fire_pool_param=i18n.get(
+            "name_fire_pool_area"), edit_fire_pool=data.get("accident_fire_pool_pool_area", 0))
+
+    kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
+          'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(3, *kb, i18n=i18n))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(StateFilter(*SFilter_fire_pool), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero', 'point', 'clear']))
+async def edit_fire_pool_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
+    if state_data == FSMFireAccidentForm.edit_fire_pool_area_state:
+        fire_pool_param = i18n.get("name_fire_pool_area")
+
+    edit_data = await state.get_data()
+    if callback.data == 'clear':
+        await state.update_data(edit_accident_fire_pool_param="")
+        edit_d = await state.get_data()
+        edit_data = edit_d.get('edit_accident_fire_pool_param', 1)
+        text = i18n.edit_fire_pool.text(
+            fire_pool_param=fire_pool_param, edit_fire_pool=edit_data)
+
+    else:
+        edit_param_1 = edit_data.get('edit_accident_fire_pool_param')
+        edit_sum = edit_param_1 + i18n.get(callback.data)
+        await state.update_data(edit_accident_fire_pool_param=edit_sum)
+        edit_data = await state.get_data()
+        edit_param = edit_data.get('edit_accident_fire_pool_param', 0)
+        text = i18n.edit_fire_pool.text(
+            fire_pool_param=fire_pool_param, edit_fire_pool=edit_param)
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
+
+
+@fire_accident_router.callback_query(StateFilter(*SFilter_fire_pool), F.data.in_(['ready']))
+async def edit_fire_pool_param_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    state_data = await state.get_state()
+    data = await state.get_data()
+    value = data.get("edit_accident_fire_pool_param")
+    if state_data == FSMFireAccidentForm.edit_fire_pool_area_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_fire_pool_pool_area=value)
+        else:
+            await state.update_data(accident_fire_pool_pool_area=10)
+
+    data = await state.get_data()
+    text = i18n.fire_pool.text()
+    subst = data.get('accident_fire_pool_sub')
+    air_density = compute_density_gas_phase(
+        molar_mass=28.97, temperature=float(data.get('accident_fire_pool_temperature')))
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('fire_pool')
+    data_out = [
+        {'id': i18n.get('pool_area'), 'var': 'F',  'unit_1': data.get(
+            'accident_fire_pool_pool_area'), 'unit_2': i18n.get('meter_square')},
+        {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
+            'unit_1': data.get('accident_fire_pool_vel_wind'), 'unit_2': i18n.get('m_per_sec')},
+        {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
+            'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
+        {'id': i18n.get('ambient_temperature'), 'var': 'tₒ', 'unit_1': data.get(
+            'accident_fire_pool_temperature'), 'unit_2': i18n.get('celsius')},
+        {'id': i18n.get('specific_mass_fuel_burning_rate'),
+            'var': 'm', 'unit_1': data.get('accident_fire_pool_mass_burning_rate'), 'unit_2': i18n.get('kg_per_m_square_in_sec')},
+        # {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
+        #     'unit_1': data.get(
+        #     'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
+        {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
+
+    media = get_data_table(data=data_out, headers=headers, label=label)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(*kb_edit_pool, i18n=i18n, param_back=True, back_data='back_fire_pool', check_role=True, role=role))
+
+    await state.update_data(edit_fire_pool_param='')
     await callback.answer('')
 
 
@@ -214,10 +322,10 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
             'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
         {'id': i18n.get('ambient_temperature'), 'var': 'tₒ', 'unit_1': data.get(
             'accident_fire_pool_temperature'), 'unit_2': i18n.get('celsius')},
-        {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
-            'unit_1': data.get(
-            'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
-        {'id': i18n.get('specific_mass_fuel_burnout_rate'),
+        # {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
+        #     'unit_1': data.get(
+        #     'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
+        {'id': i18n.get('specific_mass_fuel_burning_rate'),
             'var': 'm', 'unit_1': mass_burn_rate, 'unit_2': i18n.get('kg_per_m_square_in_sec')},
         {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
 
