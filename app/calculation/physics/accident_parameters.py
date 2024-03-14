@@ -32,22 +32,22 @@ class AccidentParameters:
         head = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
         if self.type_accident == 'fire_pool':
             label = 'Пожар-пролива'
-            data_table = [
-                {'id': 'Площадь пролива', 'var': 'F',  'unit_1': kwargs.get(
-                    'accident_fire_pool_pool_area'), 'unit_2': 'м\u00B2'},
-                {'id': 'Скорость ветра', 'var': 'wₒ',
-                    'unit_1': f"{float((kwargs.get('accident_fire_pool_vel_wind'))):.1f}", 'unit_2': 'м/с'},
-                {'id': 'Плотность окружающего воздуха', 'var': 'ρₒ',
-                    'unit_1': 1.25, 'unit_2': 'кг/м\u00B3'},
-                {'id': 'Темепература окружающей среды', 'var': 'tₒ', 'unit_1': kwargs.get(
-                    'accident_fire_pool_temperature'), 'unit_2': '\u00B0С'},
-                {'id': 'Плотность насыщенных паров топлива\nпри температуре кипения',
-                    'var': 'ρп', 'unit_1': 0.82, 'unit_2': 'кг/м\u00B3'},
-                {'id': 'Удельная массовая скорость выгорания топлива',
-                    'var': 'm', 'unit_1': 0.06, 'unit_2': 'кг/(м\u00B2×с)'},
-                {'id': 'Удельная теплота сгорания', 'var': 'Hсг',
-                    'unit_1': 36000, 'unit_2': 'кДж/кг'},
-                {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_fire_pool_sub')}", 'unit_2': '-'}]
+            # data_table = [
+            #     {'id': 'Площадь пролива', 'var': 'F',  'unit_1': kwargs.get(
+            #         'accident_fire_pool_pool_area'), 'unit_2': 'м\u00B2'},
+            #     {'id': 'Скорость ветра', 'var': 'wₒ',
+            #         'unit_1': f"{float((kwargs.get('accident_fire_pool_vel_wind'))):.1f}", 'unit_2': 'м/с'},
+            #     {'id': 'Плотность окружающего воздуха', 'var': 'ρₒ',
+            #         'unit_1': 1.25, 'unit_2': 'кг/м\u00B3'},
+            #     {'id': 'Темепература окружающей среды', 'var': 'tₒ', 'unit_1': kwargs.get(
+            #         'accident_fire_pool_temperature'), 'unit_2': '\u00B0С'},
+            #     {'id': 'Плотность насыщенных паров топлива\nпри температуре кипения',
+            #         'var': 'ρп', 'unit_1': 0.82, 'unit_2': 'кг/м\u00B3'},
+            #     {'id': 'Удельная массовая скорость выгорания топлива',
+            #         'var': 'm', 'unit_1': 0.06, 'unit_2': 'кг/(м\u00B2×с)'},
+            #     {'id': 'Удельная теплота сгорания', 'var': 'Hсг',
+            #         'unit_1': 36000, 'unit_2': 'кДж/кг'},
+            #     {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_fire_pool_sub')}", 'unit_2': '-'}]
 
         elif self.type_accident == 'fire_flash':
             label = 'Пожар-вспышка'
@@ -113,29 +113,6 @@ class AccidentParameters:
                     'accident_fire_ball_center'), 'unit_2': '-'},
                 {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_fire_ball_sub')}", 'unit_2': '-'}]
 
-        elif self.type_accident == 'bleve':
-            label = 'Взрыв резервуара'
-            data_table = [
-                {'id': 'Расстояние от центра резервуара', 'var': 'r', 'unit_1': kwargs.get(
-                    'accident_bleve_human_distance'), 'unit_2': 'м'},
-                {'id': 'Приведенная масса вещества',
-                    'var': 'mпр',  'unit_1': 1, 'unit_2': '-'},
-                {'id': 'Эффективная энергия взрыва',
-                    'var': 'Eeff',  'unit_1': 1, 'unit_2': '-'},
-                {'id': 'Масса горючего вещества,\nсодержащаяся в резервуаре', 'var': 'mг',  'unit_1': kwargs.get(
-                    'accident_bleve_mass_fuel'), 'unit_2': 'кг'},
-                {'id': 'Доля энергии волны давления',
-                    'var': 'k', 'unit_1': 0.5, 'unit_2': '-'},
-                {'id': 'Давление срабатывания\nпредохранительного устройства',
-                    'var': 'Pval', 'unit_1': 2000, 'unit_2': 'кПа'},
-                {'id': 'Температура жидкой фазы', 'var': 'T',
-                    'unit_1': 293, 'unit_2': 'K'},
-                {'id': 'Нормальная температура кипения',
-                    'var': 'Tb', 'unit_1': 111.65, 'unit_2': 'K'},
-                {'id': 'Удельная теплоемкость жидкой фазы',
-                    'var': 'Cp', 'unit_1': 2000, 'unit_2': 'Дж/кг*K'},
-                {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_bleve_sub')}", 'unit_2': '-'}]
-
         return data_table, head, label
 
     def compute_radius_LFL(self, density: int | float, mass: int | float, clfl: int | float):
@@ -170,13 +147,15 @@ class AccidentParameters:
         pi_2 = (3.0 * (reduced_mass ** 0.66)) / distance ** 2
         pi_3 = (5.0 * reduced_mass) / distance ** 3
         overpres_inopen = self.pressure_ambient * (pi_1 + pi_2 + pi_3)
-
         impuls_inopen = (123 * reduced_mass) / distance
 
-        log.info(
-            f"dP = {overpres_inopen:.2f} kPa, i+ = {impuls_inopen:.2f} Pa*c")
-
         return overpres_inopen, impuls_inopen
+
+    def compute_redused_mass(self, expl_energy: int | float):
+        return (expl_energy / 4.52) / 1_000_000
+
+    def compute_expl_energy(self, k: int | float, Cp: int | float, mass: int | float, temp_liquid: int | float, boiling_point: int | float):
+        return k * Cp * mass * (temp_liquid - boiling_point)
 
     def _get_cloud_combustion_mode(self, fuel_class: int = 1, space_class: int = 1):
         if fuel_class == 1 and space_class == 1:

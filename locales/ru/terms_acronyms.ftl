@@ -25,6 +25,10 @@ ambient_air_density =
 specific_heat_of_combustion =
     Удельная теплота сгорания
 
+specific_heat_capacity_liquid_phase =
+    Удельная теплоемкость
+    жидкой фазы
+
 lower_concentration_limit_of_flame_propagation =
     Нижний концентрационный предел
     распространения пламени
@@ -42,3 +46,12 @@ wind_velocity =
 specific_mass_fuel_burning_rate =
     Удельная массовая скорость
     выгорания топлива
+
+boiling_point =
+    Температура кипения
+
+overpressure =
+    Избыточное давление
+
+impuls_overpressure =
+    Импульс

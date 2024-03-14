@@ -32,7 +32,7 @@ kb_accidents = [1,
                 'horizontal_jet',
                 'vertical_jet',
                 'fire_ball',
-                'bleve',]
+                'accident_bleve',]
 
 kb_edit_pool = [4,
                 'edit_pool_substance',
@@ -274,8 +274,7 @@ async def edit_fire_pool_param_call(callback: CallbackQuery, bot: Bot, state: FS
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(*kb_edit_pool, i18n=i18n, param_back=True, back_data='back_fire_pool', check_role=True, role=role))
-
-    await state.update_data(edit_fire_pool_param='')
+    await state.update_data(edit_accident_fire_pool_param='')
     await callback.answer('')
 
 
@@ -562,21 +561,106 @@ async def fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data == 'bleve')
+@fire_accident_router.callback_query(F.data.in_(['accident_bleve', 'back_accident_bleve']))
 async def bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
-    data.setdefault("accident_bleve_sub", "Метан")
+    data.setdefault("accident_bleve_sub", "LPG")
     data.setdefault("accident_bleve_mass_fuel", "1000")
+    data.setdefault("accident_bleve_temperature_liquid_phase", "293")
+    data.setdefault("accident_bleve_boiling_point", "-50")
+    data.setdefault("accident_bleve_energy_fraction", "0.5")
+    data.setdefault("accident_bleve_heat_capacity_liquid_phase", "2000")
+    data.setdefault("accident_bleve_", "20")
     data.setdefault("accident_bleve_human_distance", "30")
 
-    text = i18n.bleve.text()
-    f_bleve = AccidentParameters(type_accident=callback.data)
-    data_out, headers, label = f_bleve.get_init_data(**data)
+    subst = data.get('accident_bleve_sub')
+    coef_k = float(data.get("accident_bleve_energy_fraction"))
+    heat_capacity = float(
+        data.get('accident_bleve_heat_capacity_liquid_phase'))
+    mass = float(data.get('accident_bleve_mass_fuel'))
+    temp_liq = float(data.get('accident_bleve_temperature_liquid_phase'))
+    boiling_point = float(data.get('accident_bleve_boiling_point'))
+    acc_bleve = AccidentParameters(type_accident='accident_bleve')
+    expl_energy = acc_bleve.compute_expl_energy(
+        k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('accident_bleve')
+    data_out = [
+        {'id': i18n.get('effective_explosion_energy'), 'var': 'Eeff',
+            'unit_1': f"{expl_energy:.2e}", 'unit_2': '-'},
+        {'id': i18n.get('pressure_wave_energy_fraction'), 'var': 'k',
+            'unit_1': coef_k, 'unit_2': '-'},
+        # {'id': i18n.get('distance_bleve'), 'var': 'r',  'unit_1': data.get(
+        #     'accident_bleve_human_distance'), 'unit_2': i18n.get('meter')},
+        {'id': i18n.get('mass_liquid_phase'), 'var': 'm',
+            'unit_1': mass, 'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('temperature_liquid_phase'), 'var': 'Tₒ',
+         'unit_1': temp_liq, 'unit_2': i18n.get('kelvin')},
+        {'id': i18n.get('boiling_point'),
+            'var': 'Tb', 'unit_1': boiling_point, 'unit_2': i18n.get('kelvin')},
+        {'id': i18n.get('specific_heat_capacity_liquid_phase'), 'var': 'Cp',
+         'unit_1': heat_capacity, 'unit_2': i18n.get('J_per_kg_in_kelvin')},
+        {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
+    text = i18n.accident_bleve.text()
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_bleve', 'run_bleve', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(1, 'edit_accident_bleve', 'run_accident_bleve', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
+    await state.update_data(data)
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data == 'run_accident_bleve')
+async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    data = await state.get_data()
+    subst = data.get('accident_bleve_sub')
+    coef_k = float(data.get("accident_bleve_energy_fraction"))
+    heat_capacity = float(
+        data.get('accident_bleve_heat_capacity_liquid_phase'))
+    mass = float(data.get('accident_bleve_mass_fuel'))
+    temp_liq = float(data.get('accident_bleve_temperature_liquid_phase'))
+    boiling_point = float(data.get('accident_bleve_boiling_point'))
+    acc_bleve = AccidentParameters(type_accident='accident_bleve')
+    expl_energy = acc_bleve.compute_expl_energy(
+        k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
+    reduced_mass = acc_bleve.compute_redused_mass(expl_energy=expl_energy)
+    overpres, impuls = acc_bleve.compute_overpres_inopen(
+        distance=30, reduced_mass=reduced_mass)
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('accident_bleve')
+    data_out = [
+        {'id': i18n.get('impuls_overpressure'), 'var': 'I',
+         'unit_1': f"{impuls:.2e}", 'unit_2': i18n.get('pascal_in_sec')},
+        {'id': i18n.get('overpressure'), 'var': 'P',
+         'unit_1': f"{overpres:.2e}", 'unit_2': i18n.get('pascal')},
+        {'id': i18n.get('distance_bleve'), 'var': 'r',  'unit_1': data.get(
+            'accident_bleve_human_distance'), 'unit_2': i18n.get('meter')},
+
+        {'id': i18n.get('effective_explosion_energy'), 'var': 'Eeff',
+            'unit_1': f"{expl_energy:.2e}", 'unit_2': '-'},
+        {'id': i18n.get('pressure_wave_energy_fraction'), 'var': 'k',
+            'unit_1': coef_k, 'unit_2': '-'},
+        {'id': i18n.get('mass_liquid_phase'), 'var': 'm',
+            'unit_1': mass, 'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('temperature_liquid_phase'), 'var': 'Tₒ',
+         'unit_1': temp_liq, 'unit_2': i18n.get('kelvin')},
+        {'id': i18n.get('boiling_point'),
+            'var': 'Tb', 'unit_1': boiling_point, 'unit_2': i18n.get('kelvin')},
+        {'id': i18n.get('specific_heat_capacity_liquid_phase'), 'var': 'Cp',
+         'unit_1': heat_capacity, 'unit_2': i18n.get('J_per_kg_in_kelvin')},
+        {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
+    text = i18n.accident_bleve.text()
+    media = get_data_table(data=data_out, headers=headers,
+                           label=label, results=True, row_num=8)
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=True, role=role))
     await callback.answer('')

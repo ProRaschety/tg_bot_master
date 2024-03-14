@@ -46,5 +46,17 @@ J_per_kg =
 kJ_per_kg =
     кДж/кг
 
+J_per_kg_in_kelvin =
+    Дж/(кг×К)
+
+pascal =
+    Па
+
+kilopascal =
+    кПа
+
+pascal_in_sec =
+    Па×с
+
 percent_volume =
     % об.
