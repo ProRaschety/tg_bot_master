@@ -117,6 +117,8 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     rw = rows if rows > 7 else 5
     w = rw * marg + marg + (cols / 10)  # px
     h = rw * marg  # px 450
+    # w = 650 + (cols * 10)
+    # h = 450 + (rows * 10)
     left = 0.030
     bottom = 0.030
     right = 0.970
@@ -135,13 +137,13 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     fig.subplots_adjust(**margins)
     # plt.style.use('Solarize_Light2')
     widths = [1]
-    heights = [0.20, 7.8]
+    heights = [0.20, rows]  # 0.20, 7.8
     # heights = [xmax, xmax]
     gs = gridspec.GridSpec(
         ncols=1, nrows=2, width_ratios=widths, height_ratios=heights)
-    ft_label_size = {'fontname': 'Arial', 'fontsize': h*0.023}  # h*0.023
+    ft_label_size = {'fontname': 'Arial', 'fontsize': h*0.024}  # h*0.023
     ft_title_size = {'fontname': 'Arial', 'fontsize': h*0.020}  # h*0.020
-    ft_size = {'fontname': 'Arial', 'fontsize': h*0.020}  # h*0.020
+    ft_size = {'fontname': 'Arial', 'fontsize': h*0.021}  # h*0.020
 
     """____Первая часть таблицы____"""
     fig_ax_1 = fig.add_subplot(gs[0, 0])
@@ -153,7 +155,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     # fig_ax_1.plot()
     fig_ax_1.axis('off')
     fig_ax_1.set_xlim(0.0, x_bound_right)
-    fig_ax_1.set_ylim(-0.250, 0.3)
+    fig_ax_1.set_ylim(-0.25, 0.25)
     fig_ax_1.text(x=0.0, y=0.0, s=label, weight='bold',
                   ha='left', **ft_label_size)
     fig_ax_1.plot([0, x_bound_right], [-0.25, -0.25],
@@ -167,9 +169,10 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     """____Вторая часть таблицы____"""
     fig_ax_2 = fig.add_subplot(gs[1, 0])
     fig_ax_2.set_xlim(0.0, (cols + step) if cols == 4 else 3)  # +0.5
-    fig_ax_2.set_ylim(-0.5, (rows + 0.3))
+    # fig_ax_2.set_ylim(-0.5, (rows + 0.3))
+    fig_ax_2.set_ylim(-0.5, rows)
     # добавить заголовки столбцов на высоте y=..., чтобы уменьшить пространство до первой строки данных
-    hor_up_line = rows-0.25
+    hor_up_line = rows - 0.4
     if len(list(headers)) == 4:
         fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
                       weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
@@ -207,6 +210,9 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
             fig_ax_2.plot([0.0, cols+step], [row - step, row - step],
                           ls=':', lw=h*0.002, c='black')
         # основной разделитель заголовка
+        # fig_ax_2.plot([0, cols + step], [rows+step-0.35, rows+step-0.35],
+        #               lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
+
         fig_ax_2.plot([0, cols + step], [rows-step, rows-step],
                       lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
         fig_ax_2.plot([0, cols + step], [- step, - step], lw=h*0.010,
@@ -236,9 +242,9 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
 
     # выделите столбец, используя прямоугольную заплатку
     if len(list(headers)) == 4:
-        rect = patches.Rectangle((cols - (step*2), -step),  # нижняя левая начальная позиция (x,y)
-                                 width=0.97,
-                                 height=hor_up_line+0.95,
+        rect = patches.Rectangle((cols - 1.0, -step),  # нижняя левая начальная позиция (x,y)
+                                 width=1.0,
+                                 height=rows + step - 0.1,
                                  ec='none',
                                  color=(0.9372, 0.9098, 0.8353, 1.0),
                                  alpha=1.0,
@@ -246,7 +252,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     else:
         rect = patches.Rectangle((cols-(step*cols), -step),  # нижняя левая начальная позиция (x,y)
                                  width=1.00,
-                                 height=hor_up_line+0.95,
+                                 height=rows + step - 0.1,
                                  ec='none',
                                  color=(0.9372, 0.9098, 0.8353, 1.0),
                                  alpha=1.0,

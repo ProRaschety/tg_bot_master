@@ -155,7 +155,7 @@ class AccidentParameters:
         return (expl_energy / 4.52) / 1_000_000
 
     def compute_expl_energy(self, k: int | float, Cp: int | float, mass: int | float, temp_liquid: int | float, boiling_point: int | float):
-        return k * Cp * mass * (temp_liquid - boiling_point)
+        return k * Cp * mass * (temp_liquid - (boiling_point + self.K))
 
     def _get_cloud_combustion_mode(self, fuel_class: int = 1, space_class: int = 1):
         if fuel_class == 1 and space_class == 1:

@@ -29,7 +29,8 @@ kg_per_m_cub =
     кг/м³
 
 kg_per_m_square_in_sec =
-    кг/(м²×с)
+    кг
+    /(м²×с)
 
 watt_per_meter_square =
     Вт/м²
@@ -47,7 +48,8 @@ kJ_per_kg =
     кДж/кг
 
 J_per_kg_in_kelvin =
-    Дж/(кг×К)
+    Дж
+    /(кг×К)
 
 pascal =
     Па
