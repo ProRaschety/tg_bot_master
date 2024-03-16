@@ -24,7 +24,8 @@ fire_accident_router.message.filter(IsGuest())
 fire_accident_router.callback_query.filter(IsGuest())
 
 SFilter_fire_pool = [FSMFireAccidentForm.edit_fire_pool_area_state]
-SFilter_fire_flash = [FSMFireAccidentForm.edit_fire_flash_mass_state]
+SFilter_fire_flash = [FSMFireAccidentForm.edit_fire_flash_mass_state,
+                      FSMFireAccidentForm.edit_fire_flash_lcl_state]
 SFilter_bleve = [FSMFireAccidentForm.edit_bleve_mass_state]
 
 kb_accidents = [1,
@@ -41,7 +42,8 @@ kb_edit_pool = [4,
                 'edit_pool_area']
 
 kb_edit_flash = [4,
-                 'edit_flash_mass']
+                 'edit_flash_mass',
+                 'edit_flash_lcl']
 
 kb_edit_bleve = [4,
                  'edit_bleve_mass']
@@ -337,7 +339,7 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
 
     media = get_data_table(data=data_out, headers=headers,
-                           label=label, results=True, row_num=7)
+                           label=label, results=True, row_num=6)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -374,7 +376,7 @@ async def plot_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     dist_43 = f_pool.get_sep_at_distance(x_values=x, y_values=y, distance=43)
     # log.info(f'4.0 кВт на раст. м: {sep_4} = {dist_43}')
     # text_annotate = f"Тепловой поток: {max(y):.2f} кВт/м²\nПросто текст"
-    media = get_plot_graph(x_values=x, y_values=y, label=i18n.get('plot_pool_label'), x_label=i18n.get('x_pool_label'), y_label=i18n.get('y_pool_label'),
+    media = get_plot_graph(x_values=x, y_values=y, label=i18n.get('plot_pool_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_pool_label'),
                            add_legend=True, loc_legend=1)
 
     await bot.edit_message_media(
@@ -392,7 +394,7 @@ async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     data.setdefault("edit_accident_fire_flash_param", "1")
     data.setdefault("accident_fire_flash_sub", "gasoline")
     data.setdefault("accident_fire_flash_temperature", "20")
-    data.setdefault("accident_fire_flash_nkpr", "1.4")
+    data.setdefault("accident_fire_flash_lcl", "1.4")
     data.setdefault("accident_fire_flash_mass_fuel", "5")
     data.setdefault("accident_fire_flash_molar_mass_fuel", "100")
     data.setdefault("accident_fire_flash_radius_pool", "1")
@@ -410,8 +412,8 @@ async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
             'unit_1': data.get('accident_fire_flash_radius_pool'), 'unit_2': i18n.get('meter')},
         {'id': i18n.get('mass_of_flammable_gases_entering_the_surrounding_space'), 'var': 'mг',  'unit_1': data.get(
             'accident_fire_flash_mass_fuel'), 'unit_2': i18n.get('kilogram')},
-        {'id': i18n.get('saturated_fuel_vapor_density_at_boiling_point'),
-            'var': 'Cнкпр', 'unit_1': data.get('accident_fire_flash_nkpr'), 'unit_2': i18n.get('percent_volume')},
+        {'id': i18n.get('lower_concentration_limit_of_flame_propagation'),
+            'var': 'Cнкпр', 'unit_1': data.get('accident_fire_flash_lcl'), 'unit_2': i18n.get('percent_volume')},
         {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
             'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
         {'id': i18n.get('ambient_temperature'), 'var': 'tₒ', 'unit_1': data.get(
@@ -439,16 +441,20 @@ async def edit_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data.in_(['edit_flash_mass']))
+@fire_accident_router.callback_query(F.data.in_(['edit_flash_mass', 'edit_flash_lcl']))
 async def edit_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     if callback.data == 'edit_flash_mass':
         await state.set_state(FSMFireAccidentForm.edit_fire_flash_mass_state)
+    elif callback.data == 'edit_flash_lcl':
+        await state.set_state(FSMFireAccidentForm.edit_fire_flash_lcl_state)
     data = await state.get_data()
     state_data = await state.get_state()
     if state_data == FSMFireAccidentForm.edit_fire_flash_mass_state:
         text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
             "name_fire_flash_mass"), edit_fire_flash=data.get("accident_fire_flash_mass_fuel", 0))
-
+    elif state_data == FSMFireAccidentForm.edit_fire_flash_lcl_state:
+        text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
+            "name_fire_flash_lcl"), edit_fire_flash=data.get("accident_fire_flash_lcl", 0))
     kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
           'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
 
@@ -465,6 +471,8 @@ async def edit_fire_flash_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
     state_data = await state.get_state()
     if state_data == FSMFireAccidentForm.edit_fire_flash_mass_state:
         fire_flash_param = i18n.get("name_fire_flash_mass")
+    elif state_data == FSMFireAccidentForm.edit_fire_flash_lcl_state:
+        fire_flash_param = i18n.get("name_fire_flash_lcl")
 
     edit_data = await state.get_data()
     if callback.data == 'clear':
@@ -500,10 +508,17 @@ async def edit_fire_flash_param_call(callback: CallbackQuery, bot: Bot, state: F
             await state.update_data(accident_fire_flash_mass_fuel=value)
         else:
             await state.update_data(accident_fire_flash_mass_fuel=10)
+    elif state_data == FSMFireAccidentForm.edit_fire_flash_lcl_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_fire_flash_lcl=value)
+        else:
+            await state.update_data(accident_fire_flash_lcl=1.4)
+
     data = await state.get_data()
     text = i18n.fire_flash.text()
     subst = data.get('accident_fire_flash_sub')
     # f_flash = AccidentParameters(type_accident='fire_flash')
+    lcl = data.get('accident_fire_flash_lcl')
     air_density = compute_density_gas_phase(
         molar_mass=28.97, temperature=float(data.get('accident_fire_flash_temperature')))
     headers = (i18n.get('name'), i18n.get('variable'),
@@ -515,7 +530,7 @@ async def edit_fire_flash_param_call(callback: CallbackQuery, bot: Bot, state: F
         {'id': i18n.get('mass_of_flammable_gases_entering_the_surrounding_space'), 'var': 'mг',  'unit_1': data.get(
             'accident_fire_flash_mass_fuel'), 'unit_2': i18n.get('kilogram')},
         {'id': i18n.get('saturated_fuel_vapor_density_at_boiling_point'),
-            'var': 'Cнкпр', 'unit_1': data.get('accident_fire_flash_nkpr'), 'unit_2': i18n.get('percent_volume')},
+            'var': 'Cнкпр', 'unit_1': f"{lcl:.2f}", 'unit_2': i18n.get('percent_volume')},
         {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
             'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
         {'id': i18n.get('ambient_temperature'), 'var': 'tₒ', 'unit_1': data.get(
@@ -540,7 +555,7 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     subst = data.get('accident_fire_flash_sub')
     rad_pool = float(data.get('accident_fire_flash_radius_pool'))
     mass = float(data.get('accident_fire_flash_mass_fuel'))
-    clfl = float(data.get('accident_fire_flash_nkpr'))
+    lcl = float(data.get('accident_fire_flash_lcl'))
     temperature = float(data.get('accident_fire_flash_temperature'))
     molar_mass = float(data.get(
         'accident_fire_flash_molar_mass_fuel'))
@@ -551,9 +566,9 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     #     molar_mass=28.97, temperature=float(data.get('accident_fire_flash_temperature')))
     f_flash = AccidentParameters(type_accident='fire_flash')
     radius_LFL = f_flash.compute_radius_LFL(
-        density=density_fuel, mass=mass, clfl=clfl)
+        density=density_fuel, mass=mass, clfl=lcl)
     height_LFL = f_flash.compute_height_LFL(
-        density=density_fuel, mass=mass, clfl=clfl)
+        density=density_fuel, mass=mass, clfl=lcl)
 
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
@@ -572,7 +587,7 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         {'id': i18n.get('mass_of_flammable_gases_entering_the_surrounding_space'),
          'var': 'mг',  'unit_1': mass, 'unit_2': i18n.get('kilogram')},
         {'id': i18n.get('lower_concentration_limit_of_flame_propagation'),
-            'var': i18n.get('lower_concentration_limit'), 'unit_1': clfl, 'unit_2': i18n.get('percent_volume')},
+            'var': i18n.get('lower_concentration_limit'), 'unit_1': f"{lcl:.2f}", 'unit_2': i18n.get('percent_volume')},
         # {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
         #     'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
         {'id': i18n.get('ambient_temperature'), 'var': 'tₒ',
@@ -580,7 +595,7 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
 
     media = get_data_table(data=data_out, headers=headers,
-                           label=label, results=True, row_num=5)
+                           label=label, results=True, row_num=4)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -761,7 +776,7 @@ async def edit_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data == 'run_accident_bleve')
+@fire_accident_router.callback_query(F.data.in_(['run_accident_bleve']))
 async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     subst = data.get('accident_bleve_sub')
@@ -776,17 +791,20 @@ async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
     reduced_mass = acc_bleve.compute_redused_mass(expl_energy=expl_energy)
     overpres, impuls = acc_bleve.compute_overpres_inopen(
-        reduced_mass=reduced_mass)
+        distance=30, reduced_mass=reduced_mass)
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('accident_bleve')
     data_out = [
-        {'id': i18n.get('impuls_overpressure'), 'var': 'I',
+        {'id': i18n.get('impuls_overpressure'), 'var': 'I+',
          'unit_1': f"{impuls:.2e}", 'unit_2': i18n.get('pascal_in_sec')},
-        {'id': i18n.get('overpressure'), 'var': 'P',
+        {'id': i18n.get('overpressure'), 'var': 'ΔP',
          'unit_1': f"{overpres:.2e}", 'unit_2': i18n.get('pascal')},
         {'id': i18n.get('distance_bleve'), 'var': 'r',  'unit_1': data.get(
             'accident_bleve_human_distance'), 'unit_2': i18n.get('meter')},
+
+        {'id': i18n.get('reduced_mass_liquid_phase'), 'var': 'mпр',
+            'unit_1': f"{reduced_mass:.2f}", 'unit_2': '-'},
 
         {'id': i18n.get('effective_explosion_energy'), 'var': 'Eeff',
             'unit_1': f"{expl_energy:.2e}", 'unit_2': '-'},
@@ -803,13 +821,77 @@ async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
     text = i18n.accident_bleve.text()
     media = get_data_table(data=data_out, headers=headers,
-                           label=label, results=True, row_num=8)
+                           label=label, results=True, row_num=6)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(1, 'plot_accident_bleve_pressure', 'plot_accident_bleve_impuls', i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=True, role=role))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data == 'plot_accident_bleve_pressure')
+async def plot_accident_bleve_pressure_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    data = await state.get_data()
+    text = i18n.accident_bleve.text()
+
+    subst = data.get('accident_bleve_sub')
+    coef_k = float(data.get("accident_bleve_energy_fraction"))
+    heat_capacity = float(
+        data.get('accident_bleve_heat_capacity_liquid_phase'))
+    mass = float(data.get('accident_bleve_mass_fuel'))
+    temp_liq = float(data.get('accident_bleve_temperature_liquid_phase'))
+    boiling_point = float(data.get('accident_bleve_boiling_point'))
+    acc_bleve = AccidentParameters(type_accident='accident_bleve')
+    expl_energy = acc_bleve.compute_expl_energy(
+        k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
+    reduced_mass = acc_bleve.compute_redused_mass(expl_energy=expl_energy)
+    overpres, impuls, dist = acc_bleve.compute_overpres_inopen(
+        reduced_mass=reduced_mass)
+    media = get_plot_graph(x_values=dist, y_values=overpres, ylim=100000, label=i18n.get('plot_pressure_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('plot_pressure_legend'),
+                           add_legend=True, loc_legend=1)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1,
+                                      #   'plot_accident_bleve_pressure',
+                                      'plot_accident_bleve_impuls', i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=True, role=role))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data == 'plot_accident_bleve_impuls')
+async def plot_accident_bleve_impuls_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    data = await state.get_data()
+    text = i18n.accident_bleve.text()
+
+    subst = data.get('accident_bleve_sub')
+    coef_k = float(data.get("accident_bleve_energy_fraction"))
+    heat_capacity = float(
+        data.get('accident_bleve_heat_capacity_liquid_phase'))
+    mass = float(data.get('accident_bleve_mass_fuel'))
+    temp_liq = float(data.get('accident_bleve_temperature_liquid_phase'))
+    boiling_point = float(data.get('accident_bleve_boiling_point'))
+    acc_bleve = AccidentParameters(type_accident='accident_bleve')
+    expl_energy = acc_bleve.compute_expl_energy(
+        k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
+    reduced_mass = acc_bleve.compute_redused_mass(expl_energy=expl_energy)
+    overpres, impuls, dist = acc_bleve.compute_overpres_inopen(
+        reduced_mass=reduced_mass)
+    media = get_plot_graph(x_values=dist, y_values=impuls, ylim=max(impuls), label=i18n.get('plot_impuls_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('plot_impuls_legend'),
+                           add_legend=True, loc_legend=1)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1,
+                                      'plot_accident_bleve_pressure',
+                                      i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=True, role=role))
     await callback.answer('')
 
 

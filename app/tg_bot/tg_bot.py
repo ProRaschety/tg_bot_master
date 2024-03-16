@@ -3,6 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.enums import ParseMode
+from aiogram.utils.i18n import ConstI18nMiddleware, I18n
 
 from fluentogram import TranslatorHub
 
@@ -79,8 +80,11 @@ async def main():
     dp.include_router(fire_accident_router)
     dp.include_router(other_router)
 
+    # i18n = I18n(path="locales", default_locale="ru", domain="i18n_example_bot")
+
     dp.update.middleware(DataBaseMiddleware())
     dp.update.middleware(RoleMiddleware())
+    # dp.update.middleware(ConstI18nMiddleware(locale='en', i18n=i18n))
     dp.update.middleware(TranslatorRunnerMiddleware())
 
     # пропускаем накопившиеся апдейты, настраиваем Меню и запускаем polling

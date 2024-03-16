@@ -110,15 +110,12 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
         data = [{'id': '-', 'var': '-', 'unit_1': '-', 'unit_2': '-'}]
     rows_keys = list(data[0].keys())
     cols = len(list(data[0]))
-    # log.info(
-    #     f'Ключи из словаря:{isinstance(data[0].get(rows_keys[2]), datetime)}')
+
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
     marg = 50
-    rw = rows if rows > 7 else 5
-    w = rw * marg + marg + (cols / 10)  # px
-    h = rw * marg  # px 450
-    # w = 650 + (cols * 10)
-    # h = 450 + (rows * 10)
+    h = rows * marg  # px 450
+    W, H = (cols + (rows - cols), rows)
+
     left = 0.030
     bottom = 0.030
     right = 0.970
@@ -132,7 +129,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
         "hspace": hspace  # 0.200
     }
 
-    fig = plt.figure(figsize=(w / px, h / px),
+    fig = plt.figure(figsize=(W, H),
                      dpi=300, constrained_layout=False)
     fig.subplots_adjust(**margins)
     # plt.style.use('Solarize_Light2')
@@ -141,25 +138,25 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     # heights = [xmax, xmax]
     gs = gridspec.GridSpec(
         ncols=1, nrows=2, width_ratios=widths, height_ratios=heights)
-    ft_label_size = {'fontname': 'Arial', 'fontsize': h*0.024}  # h*0.023
-    ft_title_size = {'fontname': 'Arial', 'fontsize': h*0.020}  # h*0.020
-    ft_size = {'fontname': 'Arial', 'fontsize': h*0.021}  # h*0.020
+    ft_label_size = {'fontname': 'Arial', 'fontsize': H*2.0}  # h*0.023
+    ft_title_size = {'fontname': 'Arial', 'fontsize': H*1.8}  # h*0.020
+    ft_size = {'fontname': 'Arial', 'fontsize': H*1.9}  # h*0.020
 
     """____Первая часть таблицы____"""
     fig_ax_1 = fig.add_subplot(gs[0, 0])
+
     logo = plt.imread('temp_files/temp/logo.png')
     # logo = image.imread('temp_files/temp/logo.png')
     x_bound_right = 0.9
-    zoom = h*0.000080
-    step = 0.5
-    # fig_ax_1.plot()
+    zoom = H*0.000080 * px
+
     fig_ax_1.axis('off')
     fig_ax_1.set_xlim(0.0, x_bound_right)
     fig_ax_1.set_ylim(-0.25, 0.25)
     fig_ax_1.text(x=0.0, y=0.0, s=label, weight='bold',
                   ha='left', **ft_label_size)
     fig_ax_1.plot([0, x_bound_right], [-0.25, -0.25],
-                  lw=(h*0.000080) * 50, color=(0.913, 0.380, 0.082, 1.0))
+                  lw=(H*0.000080 * px) * 50, color=(0.913, 0.380, 0.082, 1.0))
     imagebox = OffsetImage(logo, zoom=zoom,
                            dpi_cor=True, resample=False, filternorm=False)
     ab = AnnotationBbox(imagebox, (x_bound_right - zoom * 0.1, 0.0),  frameon=False,
@@ -168,99 +165,97 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
 
     """____Вторая часть таблицы____"""
     fig_ax_2 = fig.add_subplot(gs[1, 0])
-    fig_ax_2.set_xlim(0.0, (cols + step) if cols == 4 else 3)  # +0.5
-    # fig_ax_2.set_ylim(-0.5, (rows + 0.3))
-    fig_ax_2.set_ylim(-0.5, rows)
+    step = 0.5
+    ax2_xmax = (cols + step + step) if cols == 4 else cols + step
+    ax2_ymax = (rows + step * 1.5)  # if cols == 4 else rows + step
+    hor_up_line = (rows + step * 1.25)  # if cols == 4 else rows - step + 0.125
+    fig_ax_2.set_xlim(0.0, ax2_xmax)
+    fig_ax_2.set_ylim(step, ax2_ymax + step / 2)
+
     # добавить заголовки столбцов на высоте y=..., чтобы уменьшить пространство до первой строки данных
-    hor_up_line = rows - 0.4
     if len(list(headers)) == 4:
         fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
                       weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=2.9, y=hor_up_line, s=headers[1],
-                      weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=cols-step, y=hor_up_line, s=headers[2],
+        fig_ax_2.text(x=cols-step * 2, y=hor_up_line, s=headers[1],
                       weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=cols+step, y=hor_up_line, s=headers[3],
+        fig_ax_2.text(x=cols, y=hor_up_line, s=headers[2],
+                      weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+        fig_ax_2.text(x=ax2_xmax, y=hor_up_line, s=headers[3],
                       weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
     else:
         fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
                       weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=2.0, y=hor_up_line, s=headers[1],
+        fig_ax_2.text(x=cols - step, y=hor_up_line, s=headers[1],
                       weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
-        fig_ax_2.text(x=cols, y=hor_up_line, s=headers[2],
+        fig_ax_2.text(x=ax2_xmax, y=hor_up_line, s=headers[2],
                       weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
 
+    # линия сетки и основной разделитель заголовка
     if results:
-        # линия сетки
-        for row in range(1, rows):
-            fig_ax_2.plot([0.0, cols+step], [row - step, row - step],
+        for row in range(1, rows + 1):
+            fig_ax_2.plot([0.0, ax2_xmax], [row - step, row - step],
                           ls=':', lw=h*0.002, c='black')
         # основной разделитель заголовка
-        fig_ax_2.plot([0, cols + step], [rows-step, rows-step],
+        fig_ax_2.plot([0, ax2_xmax], [rows+step, rows+step],
                       lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
-        fig_ax_2.plot([0, cols + step], [rows - row_num + step, rows - row_num + step],
+        fig_ax_2.plot([0, ax2_xmax], [rows - row_num + step, rows - row_num + step],
                       lw=h*0.005,
                       color=(0.4941, 0.5686, 0.5843, 1.0))
-        fig_ax_2.plot([0, cols + step], [- step, - step],
+        fig_ax_2.plot([0, ax2_xmax], [step, step],
                       lw=h*0.010,
                       color=(0.4941, 0.5686, 0.5843, 1.0))
     else:
         # линия сетки
-        for row in range(1, rows):
-            fig_ax_2.plot([0.0, cols+step], [row - step, row - step],
+        for row in range(1, rows + 1):
+            fig_ax_2.plot([0.0, ax2_xmax], [row - step, row - step],
                           ls=':', lw=h*0.002, c='black')
         # основной разделитель заголовка
-        # fig_ax_2.plot([0, cols + step], [rows+step-0.35, rows+step-0.35],
-        #               lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
-
-        fig_ax_2.plot([0, cols + step], [rows-step, rows-step],
+        fig_ax_2.plot([0, ax2_xmax], [rows+step, rows+step],
                       lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
-        fig_ax_2.plot([0, cols + step], [- step, - step], lw=h*0.010,
+        fig_ax_2.plot([0, ax2_xmax], [step, step], lw=h*0.010,
                       color=(0.4941, 0.5686, 0.5843, 1.0))
 
     # заполнение таблицы данных
     if len(list(headers)) == 4:
-        for row in range(rows):
-            d = data[row]
+        for row in range(1, rows + 1):
+            d = data[row - 1]
             fig_ax_2.text(x=0, y=row, s=d.get(rows_keys[0]),
                           va='center', ha='left', **ft_size)
-            fig_ax_2.text(x=2.9, y=row, s=d.get(rows_keys[1]), va='center',
-                          ha='right', weight='bold', **ft_size)
-            fig_ax_2.text(x=cols-step, y=row, s=d.get(rows_keys[2]) if not isinstance(d.get(rows_keys[2]), datetime) else d.get(rows_keys[2]).strftime("%Y-%m-%d"),
+            fig_ax_2.text(x=cols-step * 2, y=row, s=d.get(rows_keys[1]), va='center',
+                          ha='center', weight='bold', **ft_size)
+            fig_ax_2.text(x=cols, y=row, s=d.get(rows_keys[2]) if not isinstance(d.get(rows_keys[2]), datetime) else d.get(rows_keys[2]).strftime("%Y-%m-%d"),
                           va='center', weight='bold', ha='center', **ft_size)
-            fig_ax_2.text(x=cols+step, y=row, s=d.get(rows_keys[3]) if not isinstance(d.get(rows_keys[2]), datetime) else d.get(rows_keys[3]).strftime("%Y-%m-%d"),
+            fig_ax_2.text(x=ax2_xmax, y=row, s=d.get(rows_keys[3]) if not isinstance(d.get(rows_keys[2]), datetime) else d.get(rows_keys[3]).strftime("%Y-%m-%d"),
                           va='center', ha='right', **ft_size)
     else:
-        for row in range(rows):
-            d = data[row]
+        for row in range(rows + 1):
+            d = data[row - 1]
             fig_ax_2.text(x=0, y=row, s=d.get(rows_keys[0]),
                           va='center', ha='left', **ft_size)
-            fig_ax_2.text(x=2.0, y=row, s=d.get(rows_keys[1]), va='center',
+            fig_ax_2.text(x=cols - step, y=row, s=d.get(rows_keys[1]), va='center',
                           ha='center', weight='bold', **ft_size)
-            fig_ax_2.text(x=cols, y=row, s=d.get(rows_keys[2]),
+            fig_ax_2.text(x=ax2_xmax, y=row, s=d.get(rows_keys[2]),
                           va='center', ha='right', **ft_size)
 
     # выделите столбец, используя прямоугольную заплатку
     if len(list(headers)) == 4:
-        rect = patches.Rectangle((cols - 1.0, -step),  # нижняя левая начальная позиция (x,y)
-                                 width=1.0,
-                                 height=rows + step - 0.1,
+        rect = patches.Rectangle((cols - step, step),  # нижняя левая начальная позиция (x,y)
+                                 width=0.950,
+                                 height=ax2_ymax - step + 0.125,
                                  ec='none',
                                  color=(0.9372, 0.9098, 0.8353, 1.0),
                                  alpha=1.0,
                                  zorder=-1)
     else:
-        rect = patches.Rectangle((cols-(step*cols), -step),  # нижняя левая начальная позиция (x,y)
+        rect = patches.Rectangle((cols - step * 2, step),  # нижняя левая начальная позиция (x,y)
                                  width=1.00,
-                                 height=rows + step - 0.1,
+                                 height=ax2_ymax - step + 0.125,
                                  ec='none',
                                  color=(0.9372, 0.9098, 0.8353, 1.0),
                                  alpha=1.0,
                                  zorder=-1)
 
     fig_ax_2.add_patch(rect)
-    # fig_ax_2.set_title(label=label,
-    #              loc='left', fontsize=12, weight='bold')
     fig_ax_2.axis('off')
 
     buffer = io.BytesIO()
@@ -274,15 +269,15 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     return image_png
 
 
-def get_plot_graph(x_values, y_values, label, x_label, y_label, add_annotate: bool = False, text_annotate: str = None, add_legend: bool = False, loc_legend: int = 1, **kwargs):
+def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | float = None, add_annotate: bool = False, text_annotate: str = None, add_legend: bool = False, loc_legend: int = 1, **kwargs):
     # размеры рисунка в дюймах
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
-    w = 700  # px
-    h = 700  # px
-    left = 0.110
+    w = 650  # px
+    h = 650  # px
     bottom = 0.090
     right = 0.970
-    top = 0.900
+    left = 0.110 if ylim == None else 0.105
+    top = 0.900 if ylim == None else 0.890
     hspace = 0.100
     xmax = 4.0
     margins = {
@@ -334,11 +329,18 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, add_annotate: bo
     # fig_ax_2.scatter(time_fsr, Tcr, s=90, marker='o',
     #                  color=(0.9, 0.1, 0, 1))
     # Ось абсцисс Xaxis
+
     fig_ax_2.set_xlim(0.0, max(x_values) + max(x_values)*0.05)
     fig_ax_2.set_xlabel(xlabel=x_label, fontdict=None,
                         labelpad=None, weight='bold', loc='center', **ft_size)
     # Ось ординат Yaxis
-    fig_ax_2.set_ylim(0.0, max(y_values) + max(y_values)*0.05)
+    if ylim == None:
+        fig_ax_2.set_ylim(0.0, max(y_values) + max(y_values)*0.01)
+    else:
+        fig_ax_2.set_ylim(0.0, ylim)
+        fig_ax_2.ticklabel_format(
+            axis='y', style='sci', scilimits=(0, 2), useOffset=True)
+
     fig_ax_2.set_ylabel(ylabel=y_label,
                         fontdict=None, labelpad=None, weight='bold', loc='center', **ft_size)
 

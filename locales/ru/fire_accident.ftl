@@ -6,6 +6,17 @@ typical_accidents-text =
 back_typical_accidents =
     ↩ Назад
 
+plot_pressure_label =
+    Давление взрыва
+plot_impuls_label =
+    Импульс волны давления
+plot_pressure_legend =
+    Давление взрыва, Па
+plot_impuls_legend =
+    Импульс волны давления, Па×с
+distance_label =
+    Расстояние, м
+
 fire_pool =
     Пожар-пролива
 fire_pool-text =
@@ -23,8 +34,6 @@ plot_fire_pool =
     📉 Тепловой поток
 plot_pool_label =
     График теплового потока
-x_pool_label =
-    Расстояние, м
 y_pool_label =
     Интенсивность теплового потока, кВт/м²
 probit_fire_pool =
@@ -83,7 +92,7 @@ back_fire_flash =
     ↩ Назад
 mass_of_flammable_gases_entering_the_surrounding_space =
     Масса горючих газов (паров)
-    поступивших в окружающее пространство
+    в окружающем пространстве
 radius_of_the_strait_above_which_an_explosive_zone_is_formed =
     Радиус пролива над которым
     образуется взрывоопасная зона
@@ -103,8 +112,8 @@ radius_Rf =
     Rf
 radius_zone_Rf =
     Радиус воздействия
-    высокотемпературных продуктов сгорания
-    паровоздушного облака при пожаре-вспышке
+    высокотемпературных продуктов
+    сгорания паровоздушного облака
 
 density_flammable_gases_at_ambient_temperature =
     Плотность горючих газов (паров)
@@ -112,9 +121,12 @@ density_flammable_gases_at_ambient_temperature =
 
 edit_flash_mass =
     m
-
+edit_flash_lcl =
+    Снкпр
 name_fire_flash_mass =
     Введите массу вещества:
+name_fire_flash_lcl =
+    Введите значение НКПР вещества:
 
 edit_fire_flash-text = {$fire_flash_param}
     <blockquote>{$edit_fire_flash}</blockquote>
@@ -193,33 +205,30 @@ edit_accident_bleve =
     📝 Редактировать
 edit_accident_bleve_guest =
     🔒 Редактировать
-
+plot_accident_bleve_pressure =
+    📉 Давление взрыва ΔP
+plot_accident_bleve_impuls =
+    📉 Импульс I⁺
 edit_bleve_mass =
     m
-
 name_bleve_mass =
     Введите массу вещества:
-
 edit_bleve-text = {$bleve_param}
     <blockquote>{$edit_bleve}</blockquote>
-
 distance_bleve =
     Расстояние
     от центра резервуара
-
 effective_explosion_energy =
     Эффективная энергия взрыва
-
 pressure_wave_energy_fraction =
     Доля энергии волны давления
-
+reduced_mass_liquid_phase =
+    Приведенная масса жидкой фазы
 mass_liquid_phase =
     Масса жидкой фазы
     в резервуаре
-
 temperature_liquid_phase =
     Температура жидкой фазы
-
 device_response_pressure =
     Давление срабатывания
     предохранительного устройства

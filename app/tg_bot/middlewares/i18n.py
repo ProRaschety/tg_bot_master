@@ -22,3 +22,15 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
         data['i18n'] = hub.get_translator_by_locale(user.language_code)
 
         return await handler(event, data)
+
+
+# class CustomI18nMiddleware(BaseMiddleware):
+
+#     async def __call__(
+#         self,
+#         handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+#         event: TelegramObject,
+#         data: Dict[str, Any]
+#     ) -> Any:
+
+#         return await handler(event, data)

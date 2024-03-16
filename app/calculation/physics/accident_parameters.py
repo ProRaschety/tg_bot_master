@@ -139,17 +139,32 @@ class AccidentParameters:
         return overpres_inclosed
 
     def compute_overpres_inopen(self,
-                                distance: int | float = 30,
-                                reduced_mass: int | float = 30,
-                                ) -> float:
+                                reduced_mass: int | float,
+                                distance: int | float = None,
+                                ):
         """форм.(В.14) и (В.22) СП12 и форм.(П3.47) М404"""
-        pi_1 = (0.8 * (reduced_mass ** 0.33)) / distance
-        pi_2 = (3.0 * (reduced_mass ** 0.66)) / distance ** 2
-        pi_3 = (5.0 * reduced_mass) / distance ** 3
-        overpres_inopen = self.pressure_ambient * (pi_1 + pi_2 + pi_3)
-        impuls_inopen = (123 * reduced_mass) / distance
-
-        return overpres_inopen, impuls_inopen
+        if distance == None:
+            x_lim = 30 if reduced_mass < 5 else 50
+            dist = []
+            overpres = []
+            impuls = []
+            for x in range(1, x_lim, 1):
+                dist.append(x)
+                pi_1 = (0.8 * (reduced_mass ** 0.33)) / x
+                pi_2 = (3.0 * (reduced_mass ** 0.66)) / x ** 2
+                pi_3 = (5.0 * reduced_mass) / x ** 3
+                overpres_inopen = self.pressure_ambient * (pi_1 + pi_2 + pi_3)
+                overpres.append(overpres_inopen)
+                impuls_inopen = (123 * reduced_mass) / x
+                impuls.append(impuls_inopen)
+            return overpres, impuls, dist
+        else:
+            pi_1 = (0.8 * (reduced_mass ** 0.33)) / distance
+            pi_2 = (3.0 * (reduced_mass ** 0.66)) / distance ** 2
+            pi_3 = (5.0 * reduced_mass) / distance ** 3
+            overpres_inopen = self.pressure_ambient * (pi_1 + pi_2 + pi_3)
+            impuls_inopen = (123 * reduced_mass) / distance
+            return overpres_inopen, impuls_inopen
 
     def compute_redused_mass(self, expl_energy: int | float):
         return (expl_energy / 4.52) / 1_000_000

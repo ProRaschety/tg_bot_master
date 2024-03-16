@@ -129,14 +129,13 @@ async def process_set_level(message: Message, bot: Bot, state: FSMContext, i18n:
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=message.chat.id)
-    dict_role = {'guest': 'Гость',
-                 'subscriber': 'Подписчик',
-                 'comrade': 'Коллега',
-                 'admin': 'Администратор',
-                 'owner': 'Владелец'}
-
-    text = i18n.setlevel.text(role_user=dict_role.get(
-        str(user_record.role), 'Неизвестно'))
+    # dict_role = {'guest': 'Гость',
+    #              'subscriber': 'Подписчик',
+    #              'comrade': 'Коллега',
+    #              'admin': 'Администратор',
+    #              'owner': 'Владелец'}
+    dict_role = i18n.get(user_record.role)
+    text = i18n.setlevel.text(role_user=dict_role)
 
     if role == 'subscriber':
         keyboad = ['select_tariff', 'enter_promo_code', 'general_menu']
@@ -155,14 +154,14 @@ async def back_setlevel_call(callback: CallbackQuery, bot: Bot, state: FSMContex
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
-    dict_role = {'guest': 'Гость',
-                 'subscriber': 'Подписчик',
-                 'comrade': 'Коллега',
-                 'admin': 'Администратор',
-                 'owner': 'Владелец'}
+    # dict_role = {'guest': 'Гость',
+    #              'subscriber': 'Подписчик',
+    #              'comrade': 'Коллега',
+    #              'admin': 'Администратор',
+    #              'owner': 'Владелец'}
 
-    text = i18n.setlevel.text(role_user=dict_role.get(
-        str(user_record.role), 'Неизвестно'))
+    dict_role = i18n.get(user_record.role)
+    text = i18n.setlevel.text(role_user=dict_role)
     if role == 'subscriber':
         keyboad = ['select_tariff', 'enter_promo_code', 'general_menu']
     else:
@@ -224,14 +223,13 @@ async def cansel_enter_promo_code_call(callback: CallbackQuery, bot: Bot, state:
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
-    dict_role = {'guest': 'Гость',
-                 'subscriber': 'Подписчик',
-                 'comrade': 'Коллега',
-                 'admin': 'Администратор',
-                 'owner': 'Владелец'}
-
-    text = i18n.setlevel.text(role_user=dict_role.get(
-        str(user_record.role), 'Неизвестно'))
+    # dict_role = {'guest': 'Гость',
+    #              'subscriber': 'Подписчик',
+    #              'comrade': 'Коллега',
+    #              'admin': 'Администратор',
+    #              'owner': 'Владелец'}
+    dict_role = i18n.get(user_record.role)
+    text = i18n.setlevel.text(role_user=dict_role)
     if role == 'subscriber':
         keyboad = ['select_tariff', 'enter_promo_code', 'general_menu']
     else:
@@ -269,17 +267,5 @@ async def process_get_admin_contacts(message: Message, state: FSMContext, i18n: 
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
         caption=text, reply_markup=get_inline_url_kb(1, i18n=i18n, param_back=True, back_data="general_menu", ** dict_kb))
-    await state.set_state(state=None)
-    await message.delete()
-
-
-@user_router.message(Command(commands=["cansel"]), StateFilter(default_state))
-async def process_cancel_command(message: Message, i18n: TranslatorRunner) -> None:
-    await message.answer(text=i18n.cansel.input())
-
-
-@user_router.message(Command(commands=["cansel"]), ~StateFilter(default_state))
-async def process_cancel_command_state(message: Message, i18n: TranslatorRunner, state: FSMContext) -> None:
-    await message.answer(text=i18n.cansel.state())
     await state.set_state(state=None)
     await message.delete()
