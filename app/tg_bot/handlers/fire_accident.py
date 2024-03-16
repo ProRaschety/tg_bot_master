@@ -518,7 +518,7 @@ async def edit_fire_flash_param_call(callback: CallbackQuery, bot: Bot, state: F
     text = i18n.fire_flash.text()
     subst = data.get('accident_fire_flash_sub')
     # f_flash = AccidentParameters(type_accident='fire_flash')
-    lcl = data.get('accident_fire_flash_lcl')
+    lcl = float(data.get('accident_fire_flash_lcl'))
     air_density = compute_density_gas_phase(
         molar_mass=28.97, temperature=float(data.get('accident_fire_flash_temperature')))
     headers = (i18n.get('name'), i18n.get('variable'),
