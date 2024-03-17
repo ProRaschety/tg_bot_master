@@ -26,7 +26,8 @@ fire_accident_router.callback_query.filter(IsGuest())
 SFilter_fire_pool = [FSMFireAccidentForm.edit_fire_pool_area_state]
 SFilter_fire_flash = [FSMFireAccidentForm.edit_fire_flash_mass_state,
                       FSMFireAccidentForm.edit_fire_flash_lcl_state]
-SFilter_bleve = [FSMFireAccidentForm.edit_bleve_mass_state]
+SFilter_bleve = [FSMFireAccidentForm.edit_bleve_mass_state,
+                 FSMFireAccidentForm.edit_bleve_distance_state]
 
 kb_accidents = [1,
                 'fire_pool',
@@ -46,7 +47,8 @@ kb_edit_flash = [4,
                  'edit_flash_lcl']
 
 kb_edit_bleve = [4,
-                 'edit_bleve_mass']
+                 'edit_bleve_mass',
+                 'edit_bleve_distance']
 
 
 @fire_accident_router.callback_query(F.data == 'back_typical_accidents')
@@ -701,8 +703,9 @@ async def bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
     data.setdefault("accident_bleve_boiling_point", "-50")
     data.setdefault("accident_bleve_energy_fraction", "0.5")
     data.setdefault("accident_bleve_heat_capacity_liquid_phase", "2000")
-    data.setdefault("accident_bleve_", "20")
-    data.setdefault("accident_bleve_human_distance", "30")
+    data.setdefault("accident_bleve_overpressure_on_30m", "5.0")
+    data.setdefault("accident_bleve_impuls_on_30m", "15.0")
+    data.setdefault("accident_bleve_distance", "30")
 
     subst = data.get('accident_bleve_sub')
     coef_k = float(data.get("accident_bleve_energy_fraction"))
@@ -718,12 +721,12 @@ async def bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('accident_bleve')
     data_out = [
+        {'id': i18n.get('distance_bleve'), 'var': 'r',  'unit_1': data.get(
+            'accident_bleve_distance'), 'unit_2': i18n.get('meter')},
         {'id': i18n.get('effective_explosion_energy'), 'var': 'Eeff',
             'unit_1': f"{expl_energy:.2e}", 'unit_2': '-'},
         {'id': i18n.get('pressure_wave_energy_fraction'), 'var': 'k',
             'unit_1': coef_k, 'unit_2': '-'},
-        # {'id': i18n.get('distance_bleve'), 'var': 'r',  'unit_1': data.get(
-        #     'accident_bleve_human_distance'), 'unit_2': i18n.get('meter')},
         {'id': i18n.get('mass_liquid_phase'), 'var': 'm',
             'unit_1': mass, 'unit_2': i18n.get('kilogram')},
         {'id': i18n.get('temperature_liquid_phase'), 'var': 'Tₒ',
@@ -755,16 +758,20 @@ async def edit_accident_bleve_call(callback: CallbackQuery, bot: Bot, state: FSM
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data.in_(['edit_bleve_mass']))
+@fire_accident_router.callback_query(F.data.in_(['edit_bleve_mass', 'edit_bleve_distance']))
 async def edit_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     if callback.data == 'edit_bleve_mass':
         await state.set_state(FSMFireAccidentForm.edit_bleve_mass_state)
+    elif callback.data == 'edit_bleve_distance':
+        await state.set_state(FSMFireAccidentForm.edit_bleve_distance_state)
     data = await state.get_data()
     state_data = await state.get_state()
     if state_data == FSMFireAccidentForm.edit_bleve_mass_state:
         text = i18n.edit_bleve.text(bleve_param=i18n.get(
             "name_bleve_mass"), edit_bleve=data.get("accident_bleve_mass_fuel", 0))
-
+    elif state_data == FSMFireAccidentForm.edit_bleve_distance_state:
+        text = i18n.edit_bleve.text(bleve_param=i18n.get(
+            "name_bleve_distance"), edit_bleve=data.get("accident_bleve_distance", 0))
     kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
           'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
 
@@ -786,12 +793,13 @@ async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     mass = float(data.get('accident_bleve_mass_fuel'))
     temp_liq = float(data.get('accident_bleve_temperature_liquid_phase'))
     boiling_point = float(data.get('accident_bleve_boiling_point'))
+    distance = float(data.get('accident_bleve_distance'))
     acc_bleve = AccidentParameters(type_accident='accident_bleve')
     expl_energy = acc_bleve.compute_expl_energy(
         k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
     reduced_mass = acc_bleve.compute_redused_mass(expl_energy=expl_energy)
     overpres, impuls = acc_bleve.compute_overpres_inopen(
-        distance=30, reduced_mass=reduced_mass)
+        distance=distance, reduced_mass=reduced_mass)
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('accident_bleve')
@@ -800,12 +808,11 @@ async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
          'unit_1': f"{impuls:.2e}", 'unit_2': i18n.get('pascal_in_sec')},
         {'id': i18n.get('overpressure'), 'var': 'ΔP',
          'unit_1': f"{overpres:.2e}", 'unit_2': i18n.get('pascal')},
-        {'id': i18n.get('distance_bleve'), 'var': 'r',  'unit_1': data.get(
-            'accident_bleve_human_distance'), 'unit_2': i18n.get('meter')},
-
         {'id': i18n.get('reduced_mass_liquid_phase'), 'var': 'mпр',
             'unit_1': f"{reduced_mass:.2f}", 'unit_2': '-'},
 
+        {'id': i18n.get('distance_bleve'), 'var': 'r',  'unit_1': data.get(
+            'accident_bleve_distance'), 'unit_2': i18n.get('meter')},
         {'id': i18n.get('effective_explosion_energy'), 'var': 'Eeff',
             'unit_1': f"{expl_energy:.2e}", 'unit_2': '-'},
         {'id': i18n.get('pressure_wave_energy_fraction'), 'var': 'k',
@@ -821,13 +828,16 @@ async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
     text = i18n.accident_bleve.text()
     media = get_data_table(data=data_out, headers=headers,
-                           label=label, results=True, row_num=6)
+                           label=label, results=True, row_num=8)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'plot_accident_bleve_pressure', 'plot_accident_bleve_impuls', i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=True, role=role))
+
+    await state.update_data(accident_bleve_overpressure_on_30m=overpres)
+    await state.update_data(accident_bleve_impuls_on_30m=impuls)
     await callback.answer('')
 
 
@@ -843,13 +853,25 @@ async def plot_accident_bleve_pressure_call(callback: CallbackQuery, bot: Bot, s
     mass = float(data.get('accident_bleve_mass_fuel'))
     temp_liq = float(data.get('accident_bleve_temperature_liquid_phase'))
     boiling_point = float(data.get('accident_bleve_boiling_point'))
+    overpresure_30 = round(
+        float(data.get('accident_bleve_overpressure_on_30m')), 2)
+    distance = float(data.get('accident_bleve_distance'))
     acc_bleve = AccidentParameters(type_accident='accident_bleve')
     expl_energy = acc_bleve.compute_expl_energy(
         k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
     reduced_mass = acc_bleve.compute_redused_mass(expl_energy=expl_energy)
     overpres, impuls, dist = acc_bleve.compute_overpres_inopen(
-        reduced_mass=reduced_mass)
-    media = get_plot_graph(x_values=dist, y_values=overpres, ylim=100000, label=i18n.get('plot_pressure_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('plot_pressure_legend'),
+        reduced_mass=reduced_mass, distance_run=True, distance=distance)
+
+    unit_p = i18n.get('pascal')
+    text_annotate = f"ΔP = {overpresure_30:.2e} {unit_p}"
+
+    media = get_plot_graph(x_values=dist, y_values=overpres, ylim=overpresure_30 * 3.5,
+                           add_annotate=True,
+                           text_annotate=text_annotate, x_ann=distance, y_ann=overpresure_30,
+                           label=i18n.get('plot_pressure_label'),
+                           x_label=i18n.get('distance_label'),
+                           y_label=i18n.get('plot_pressure_legend'),
                            add_legend=True, loc_legend=1)
 
     await bot.edit_message_media(
@@ -875,13 +897,23 @@ async def plot_accident_bleve_impuls_call(callback: CallbackQuery, bot: Bot, sta
     mass = float(data.get('accident_bleve_mass_fuel'))
     temp_liq = float(data.get('accident_bleve_temperature_liquid_phase'))
     boiling_point = float(data.get('accident_bleve_boiling_point'))
+    impuls_30 = round(
+        float(data.get('accident_bleve_impuls_on_30m')), 2)
+    distance = float(data.get('accident_bleve_distance'))
     acc_bleve = AccidentParameters(type_accident='accident_bleve')
     expl_energy = acc_bleve.compute_expl_energy(
         k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
     reduced_mass = acc_bleve.compute_redused_mass(expl_energy=expl_energy)
     overpres, impuls, dist = acc_bleve.compute_overpres_inopen(
-        reduced_mass=reduced_mass)
-    media = get_plot_graph(x_values=dist, y_values=impuls, ylim=max(impuls), label=i18n.get('plot_impuls_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('plot_impuls_legend'),
+        reduced_mass=reduced_mass, distance_run=True, distance=distance)
+
+    unit_i = i18n.get('pascal_in_sec')
+    text_annotate = f"I+ = {impuls_30:.2e} {unit_i}"
+
+    media = get_plot_graph(x_values=dist, y_values=impuls, ylim=impuls_30 * 3.5,
+                           add_annotate=True,
+                           text_annotate=text_annotate, x_ann=distance, y_ann=impuls_30,
+                           label=i18n.get('plot_impuls_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('plot_impuls_legend'),
                            add_legend=True, loc_legend=1)
 
     await bot.edit_message_media(
@@ -900,6 +932,8 @@ async def edit_bleve_in_call(callback: CallbackQuery, bot: Bot, state: FSMContex
     state_data = await state.get_state()
     if state_data == FSMFireAccidentForm.edit_bleve_mass_state:
         bleve_param = i18n.get("name_bleve_mass")
+    elif state_data == FSMFireAccidentForm.edit_bleve_distance_state:
+        bleve_param = i18n.get("name_bleve_distance")
 
     edit_data = await state.get_data()
     if callback.data == 'clear':
@@ -935,7 +969,11 @@ async def edit_bleve_param_call(callback: CallbackQuery, bot: Bot, state: FSMCon
             await state.update_data(accident_bleve_mass_fuel=value)
         else:
             await state.update_data(accident_bleve_mass_fuel=10)
-
+    elif state_data == FSMFireAccidentForm.edit_bleve_distance_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_bleve_distance=value)
+        else:
+            await state.update_data(accident_bleve_distance=30)
     data = await state.get_data()
     subst = data.get('accident_bleve_sub')
     coef_k = float(data.get("accident_bleve_energy_fraction"))
@@ -951,12 +989,12 @@ async def edit_bleve_param_call(callback: CallbackQuery, bot: Bot, state: FSMCon
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('accident_bleve')
     data_out = [
+        {'id': i18n.get('distance_bleve'), 'var': 'r',  'unit_1': data.get(
+            'accident_bleve_distance'), 'unit_2': i18n.get('meter')},
         {'id': i18n.get('effective_explosion_energy'), 'var': 'Eeff',
             'unit_1': f"{expl_energy:.2e}", 'unit_2': '-'},
         {'id': i18n.get('pressure_wave_energy_fraction'), 'var': 'k',
             'unit_1': coef_k, 'unit_2': '-'},
-        # {'id': i18n.get('distance_bleve'), 'var': 'r',  'unit_1': data.get(
-        #     'accident_bleve_human_distance'), 'unit_2': i18n.get('meter')},
         {'id': i18n.get('mass_liquid_phase'), 'var': 'm',
             'unit_1': mass, 'unit_2': i18n.get('kilogram')},
         {'id': i18n.get('temperature_liquid_phase'), 'var': 'Tₒ',

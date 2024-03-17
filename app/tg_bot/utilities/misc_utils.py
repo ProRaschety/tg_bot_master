@@ -269,14 +269,16 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     return image_png
 
 
-def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | float = None, add_annotate: bool = False, text_annotate: str = None, add_legend: bool = False, loc_legend: int = 1, **kwargs):
+def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | float = None,
+                   add_annotate: bool = False, text_annotate: str = None, x_ann: int | float = None, y_ann: int | float = None,
+                   add_legend: bool = False, loc_legend: int = 1, **kwargs):
     # размеры рисунка в дюймах
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
     w = 650  # px
     h = 650  # px
     bottom = 0.090
     right = 0.970
-    left = 0.110 if ylim == None else 0.105
+    left = 0.110 if ylim == None else 0.100
     top = 0.900 if ylim == None else 0.890
     hspace = 0.100
     xmax = 4.0
@@ -345,8 +347,21 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | floa
                         fontdict=None, labelpad=None, weight='bold', loc='center', **ft_size)
 
     if add_annotate:
+        fig_ax_2.hlines(y=y_ann, xmin=0, xmax=x_ann*0.99, linestyle='--',
+                        linewidth=1, color=(0.1, 0.1, 0, 1.0))
+
+        fig_ax_2.vlines(x=x_ann, ymin=0, ymax=y_ann*0.99, linestyle='--',
+                        linewidth=1, color=(0.1, 0.1, 0, 1.0))
+
+        fig_ax_2.scatter(x_ann, y_ann, s=90, marker='o',
+                         color=(0.9, 0.1, 0.0, 0.90))
+
         fig_ax_2.annotate(text_annotate,
-                          xy=(0, max(y_values)), xycoords='data', xytext=(max(x_values)*0.03, 0), textcoords='data', weight='bold', **ft_size)
+                          xy=(0, ylim),
+                          xytext=(x_ann + (x_ann / 50),
+                                  y_ann + (y_ann / 50)),
+                          xycoords='data', textcoords='data', weight='bold', **ft_size)
+
     if add_legend:
         fig_ax_2.legend(fontsize=12, framealpha=0.95,
                         facecolor="w", loc=loc_legend)

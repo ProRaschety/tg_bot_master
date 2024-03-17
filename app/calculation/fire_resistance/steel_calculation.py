@@ -864,6 +864,7 @@ class SteelFireResistance:
                       label=f'{rl}', color=(0.9, 0.1, 0, 0.9))
         fig_ax_2.plot(x_t, Tst, '-', linewidth=3,
                       label=label_plot_Tst, color=(0, 0, 0, 0.9))
+
         fig_ax_2.hlines(y=Tcr, xmin=0, xmax=time_fsr*0.96, linestyle='--',
                         linewidth=1, color=(0.1, 0.1, 0, 1.0))
         fig_ax_2.vlines(x=time_fsr, ymin=0, ymax=Tcr*0.98, linestyle='--',

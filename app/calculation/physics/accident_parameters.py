@@ -140,15 +140,16 @@ class AccidentParameters:
 
     def compute_overpres_inopen(self,
                                 reduced_mass: int | float,
+                                distance_run: bool = False,
                                 distance: int | float = None,
                                 ):
         """форм.(В.14) и (В.22) СП12 и форм.(П3.47) М404"""
-        if distance == None:
-            x_lim = 30 if reduced_mass < 5 else 50
+        if distance_run:
+            x_lim = int(distance + distance)
             dist = []
             overpres = []
             impuls = []
-            for x in range(1, x_lim, 1):
+            for x in range(1, x_lim + 5, 1):
                 dist.append(x)
                 pi_1 = (0.8 * (reduced_mass ** 0.33)) / x
                 pi_2 = (3.0 * (reduced_mass ** 0.66)) / x ** 2

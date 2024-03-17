@@ -213,11 +213,16 @@ edit_bleve_mass =
     m
 name_bleve_mass =
     Введите массу вещества:
+edit_bleve_distance =
+    r
+name_bleve_distance =
+    Введите расстояние от центра взрыва:
+
 edit_bleve-text = {$bleve_param}
     <blockquote>{$edit_bleve}</blockquote>
 distance_bleve =
     Расстояние
-    от центра резервуара
+    от центра взрыва
 effective_explosion_energy =
     Эффективная энергия взрыва
 pressure_wave_energy_fraction =

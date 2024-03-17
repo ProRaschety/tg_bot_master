@@ -100,6 +100,7 @@ class FSMFireAccidentForm(StatesGroup):
     edit_fire_flash_mass_state = State()
     edit_fire_flash_lcl_state = State()
     edit_bleve_mass_state = State()
+    edit_bleve_distance_state = State()
 
 
 class FSMToolLiquidForm(StatesGroup):

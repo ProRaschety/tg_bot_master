@@ -8,7 +8,7 @@ value =
     Значение
 
 unit =
-    Ед.изм.
+    Ед.
 
 variable =
     Переменная
@@ -30,14 +30,16 @@ specific_heat_capacity_liquid_phase =
     жидкой фазы
 
 lower_concentration_limit_of_flame_propagation =
-    Нижний концентрационный предел
+    Нижний
+    концентрационный предел
     распространения пламени
 
 lower_concentration_limit =
     Cнкпр
 
 saturated_fuel_vapor_density_at_boiling_point =
-    Плотность насыщенных паров топлива
+    Плотность насыщенных паров
+    горючего вещества
     при температуре кипения
 
 wind_velocity =
