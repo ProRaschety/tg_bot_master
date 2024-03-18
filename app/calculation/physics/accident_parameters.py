@@ -30,41 +30,7 @@ class AccidentParameters:
 
     def get_init_data(self, *args, **kwargs):
         head = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
-        if self.type_accident == 'fire_pool':
-            label = 'Пожар-пролива'
-            # data_table = [
-            #     {'id': 'Площадь пролива', 'var': 'F',  'unit_1': kwargs.get(
-            #         'accident_fire_pool_pool_area'), 'unit_2': 'м\u00B2'},
-            #     {'id': 'Скорость ветра', 'var': 'wₒ',
-            #         'unit_1': f"{float((kwargs.get('accident_fire_pool_vel_wind'))):.1f}", 'unit_2': 'м/с'},
-            #     {'id': 'Плотность окружающего воздуха', 'var': 'ρₒ',
-            #         'unit_1': 1.25, 'unit_2': 'кг/м\u00B3'},
-            #     {'id': 'Темепература окружающей среды', 'var': 'tₒ', 'unit_1': kwargs.get(
-            #         'accident_fire_pool_temperature'), 'unit_2': '\u00B0С'},
-            #     {'id': 'Плотность насыщенных паров топлива\nпри температуре кипения',
-            #         'var': 'ρп', 'unit_1': 0.82, 'unit_2': 'кг/м\u00B3'},
-            #     {'id': 'Удельная массовая скорость выгорания топлива',
-            #         'var': 'm', 'unit_1': 0.06, 'unit_2': 'кг/(м\u00B2×с)'},
-            #     {'id': 'Удельная теплота сгорания', 'var': 'Hсг',
-            #         'unit_1': 36000, 'unit_2': 'кДж/кг'},
-            #     {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_fire_pool_sub')}", 'unit_2': '-'}]
-
-        elif self.type_accident == 'fire_flash':
-            label = 'Пожар-вспышка'
-            data_table = [
-                {'id': 'Радиус пролива над которым образуется\nвзрывоопасная зона', 'var': 'r',
-                    'unit_1': kwargs.get('accident_fire_flash_radius_pool'), 'unit_2': 'м'},
-                {'id': 'Масса горючих газов (паров)\nпоступивших в окружающее пространство', 'var': 'mг',  'unit_1': kwargs.get(
-                    'accident_fire_flash_mass_fuel'), 'unit_2': 'кг'},
-                {'id': 'Нижний концентрационный предел\nраспространения пламени',
-                    'var': 'Cнкпр', 'unit_1': kwargs.get('accident_fire_flash_nkpr'), 'unit_2': '% об.'},
-                {'id': 'Плотность окружающего воздуха', 'var': 'ρₒ',
-                    'unit_1': 1.25, 'unit_2': 'кг/м\u00B3'},
-                {'id': 'Темепература окружающей среды', 'var': 'tₒ', 'unit_1': kwargs.get(
-                    'accident_fire_flash_temperature'), 'unit_2': '\u00B0С'},
-                {'id': 'Вещество', 'var': '-', 'unit_1': kwargs.get('accident_fire_flash_sub'), 'unit_2': '-'}]
-
-        elif self.type_accident == 'cloud_explosion':
+        if self.type_accident == 'cloud_explosion':
             label = 'Взрыв облака паров'
             data_table = [
                 {'id': 'Масса горючих газов (паров)\nсодержащегося в облаке', 'var': 'mг',  'unit_1': kwargs.get(
@@ -101,17 +67,6 @@ class AccidentParameters:
                 {'id': 'Агрегатное состояние горючего вещества', 'var': 'K', 'unit_1': 'Жидкая фаза' if jet ==
                     'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
                 {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_vertical_jet_sub')}", 'unit_2': '-'}]
-
-        elif self.type_accident == 'fire_ball':
-            label = 'Огненный шар'
-            data_table = [
-                {'id': 'Расстояние от облучаемого объекта до точки\nна поверхности земли непосредственно\nпод центром огненного шара', 'var': 'r',  'unit_1': kwargs.get(
-                    'accident_fire_ball_human_distance'), 'unit_2': 'м'},
-                {'id': 'Масса горючих газов (паров)\nсодержащегося в облаке', 'var': 'mг',  'unit_1': kwargs.get(
-                    'accident_fire_ball_mass_fuel'), 'unit_2': 'кг'},
-                {'id': 'Высота центра огненного шара', 'var': 'H', 'unit_1': kwargs.get(
-                    'accident_fire_ball_center'), 'unit_2': '-'},
-                {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_fire_ball_sub')}", 'unit_2': '-'}]
 
         return data_table, head, label
 
@@ -163,9 +118,9 @@ class AccidentParameters:
             pi_1 = (0.8 * (reduced_mass ** 0.33)) / distance
             pi_2 = (3.0 * (reduced_mass ** 0.66)) / distance ** 2
             pi_3 = (5.0 * reduced_mass) / distance ** 3
-            overpres_inopen = self.pressure_ambient * (pi_1 + pi_2 + pi_3)
-            impuls_inopen = (123 * reduced_mass) / distance
-            return overpres_inopen, impuls_inopen
+            overpres = self.pressure_ambient * (pi_1 + pi_2 + pi_3)
+            impuls = (123 * reduced_mass) / distance
+            return overpres, impuls
 
     def compute_redused_mass(self, expl_energy: int | float):
         return (expl_energy / 4.52) / 1_000_000
@@ -374,6 +329,22 @@ class AccidentParameters:
             qf.append(qf_f)
 
         return x_values, qf
+
+    def compute_fire_ball_diameter(self, mass: int | float):
+        return 6.48 * (mass ** 0.325)
+
+    def compute_fire_ball_existence_time(self, mass: int | float):
+        return 0.852 * (mass ** 0.260)
+
+    def compute_fire_ball_view_factor(self, eff_diameter: int | float,
+                                      height: int | float,
+                                      distance: int | float):
+        return (eff_diameter ** 2) / (4 * (height ** 2 + distance ** 2))
+
+    def compute_fire_ball_atmospheric_transmittance(self, eff_diameter: int | float,
+                                                    height: int | float,
+                                                    distance: int | float):
+        return m.exp((-7.0 * 0.0001) * ((m.sqrt(height ** 2 + distance ** 2)) - ((eff_diameter ** 2) / 2)))
 
     def get_distance_at_sep(self, x_values, y_values, sep):
         func_sep = interp1d(y_values, x_values, kind='linear',

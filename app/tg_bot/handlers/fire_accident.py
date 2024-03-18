@@ -23,9 +23,15 @@ fire_accident_router = Router()
 fire_accident_router.message.filter(IsGuest())
 fire_accident_router.callback_query.filter(IsGuest())
 
-SFilter_fire_pool = [FSMFireAccidentForm.edit_fire_pool_area_state]
+SFilter_fire_pool = [FSMFireAccidentForm.edit_fire_pool_area_state,
+                     FSMFireAccidentForm.edit_fire_pool_distance_state]
+
 SFilter_fire_flash = [FSMFireAccidentForm.edit_fire_flash_mass_state,
                       FSMFireAccidentForm.edit_fire_flash_lcl_state]
+
+SFilter_fire_ball = [FSMFireAccidentForm.edit_fire_ball_mass_state,
+                     FSMFireAccidentForm.edit_fire_ball_distance_state]
+
 SFilter_bleve = [FSMFireAccidentForm.edit_bleve_mass_state,
                  FSMFireAccidentForm.edit_bleve_distance_state]
 
@@ -40,7 +46,13 @@ kb_accidents = [1,
 
 kb_edit_pool = [4,
                 'edit_pool_substance',
-                'edit_pool_area']
+                'edit_pool_area',
+                'edit_pool_distance']
+
+kb_edit_ball = [4,
+                'edit_ball_mass',
+                'edit_ball_distance']
+
 
 kb_edit_flash = [4,
                  'edit_flash_mass',
@@ -93,6 +105,7 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     data.setdefault("accident_fire_pool_temperature", "20")
     data.setdefault("accident_fire_pool_vel_wind", "0")
     data.setdefault("accident_fire_pool_pool_area", "314")
+    data.setdefault("accident_fire_pool_distance", "30")
     await state.update_data(data)
     data = await state.get_data()
     text = i18n.fire_pool.text()
@@ -103,6 +116,8 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('fire_pool')
     data_out = [
+        {'id': i18n.get('pool_distance'), 'var': 'r',  'unit_1': data.get(
+            'accident_fire_pool_distance'), 'unit_2': i18n.get('meter')},
         {'id': i18n.get('pool_area'), 'var': 'F',  'unit_1': data.get(
             'accident_fire_pool_pool_area'), 'unit_2': i18n.get('meter_square')},
         {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
@@ -191,17 +206,20 @@ async def fire_pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data.in_(['edit_pool_area']))
+@fire_accident_router.callback_query(F.data.in_(['edit_pool_area', 'edit_pool_distance']))
 async def edit_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    log.info(callback.data)
     if callback.data == 'edit_pool_area':
         await state.set_state(FSMFireAccidentForm.edit_fire_pool_area_state)
+    elif callback.data == 'edit_pool_distance':
+        await state.set_state(FSMFireAccidentForm.edit_fire_pool_distance_state)
     data = await state.get_data()
     state_data = await state.get_state()
     if state_data == FSMFireAccidentForm.edit_fire_pool_area_state:
         text = i18n.edit_fire_pool.text(fire_pool_param=i18n.get(
             "name_fire_pool_area"), edit_fire_pool=data.get("accident_fire_pool_pool_area", 0))
-
+    elif state_data == FSMFireAccidentForm.edit_fire_pool_distance_state:
+        text = i18n.edit_fire_pool.text(fire_pool_param=i18n.get(
+            "name_fire_pool_distance"), edit_fire_pool=data.get("accident_fire_pool_distance", 0))
     kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
           'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
 
@@ -218,6 +236,8 @@ async def edit_fire_pool_in_call(callback: CallbackQuery, bot: Bot, state: FSMCo
     state_data = await state.get_state()
     if state_data == FSMFireAccidentForm.edit_fire_pool_area_state:
         fire_pool_param = i18n.get("name_fire_pool_area")
+    elif state_data == FSMFireAccidentForm.edit_fire_pool_distance_state:
+        fire_pool_param = i18n.get("name_fire_pool_distance")
 
     edit_data = await state.get_data()
     if callback.data == 'clear':
@@ -253,7 +273,11 @@ async def edit_fire_pool_param_call(callback: CallbackQuery, bot: Bot, state: FS
             await state.update_data(accident_fire_pool_pool_area=value)
         else:
             await state.update_data(accident_fire_pool_pool_area=10)
-
+    elif state_data == FSMFireAccidentForm.edit_fire_pool_distance_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_fire_pool_distance=value)
+        else:
+            await state.update_data(accident_fire_pool_distance=10)
     data = await state.get_data()
     text = i18n.fire_pool.text()
     subst = data.get('accident_fire_pool_sub')
@@ -263,6 +287,8 @@ async def edit_fire_pool_param_call(callback: CallbackQuery, bot: Bot, state: FS
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('fire_pool')
     data_out = [
+        {'id': i18n.get('pool_distance'), 'var': 'r',  'unit_1': data.get(
+            'accident_fire_pool_distance'), 'unit_2': i18n.get('meter')},
         {'id': i18n.get('pool_area'), 'var': 'F',  'unit_1': data.get(
             'accident_fire_pool_pool_area'), 'unit_2': i18n.get('meter_square')},
         {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
@@ -295,6 +321,7 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
     data = await state.get_data()
     text = i18n.fire_pool.text()
     subst = data.get('accident_fire_pool_sub')
+    distance = float(data.get('accident_fire_pool_distance'))
     diameter = compute_characteristic_diameter(
         area=float(data.get("accident_fire_pool_pool_area")))
     air_density = compute_density_gas_phase(
@@ -324,7 +351,8 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
             'unit_1': f"{diameter:.2f}", 'unit_2': i18n.get('meter')},
         {'id': i18n.get('saturated_fuel_vapor_density_at_boiling_point'), 'var': 'ρп',
             'unit_1': f"{fuel_density:.3f}", 'unit_2': i18n.get('kg_per_m_cub')},
-
+        {'id': i18n.get('pool_distance'), 'var': 'r',
+         'unit_1': distance, 'unit_2': i18n.get('meter')},
         {'id': i18n.get('pool_area'), 'var': 'F',  'unit_1': data.get(
             'accident_fire_pool_pool_area'), 'unit_2': i18n.get('meter_square')},
         {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
@@ -341,7 +369,7 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
 
     media = get_data_table(data=data_out, headers=headers,
-                           label=label, results=True, row_num=6)
+                           label=label, results=True, row_num=7)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -356,6 +384,7 @@ async def plot_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     data = await state.get_data()
     text = i18n.fire_pool.text()
     subst = data.get('accident_fire_pool_sub')
+    distance = float(data.get('accident_fire_pool_distance'))
     diameter = compute_characteristic_diameter(
         area=float(data.get("accident_fire_pool_pool_area")))
     f_pool = AccidentParameters(type_accident='fire_pool')
@@ -374,11 +403,16 @@ async def plot_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         eff_diameter=diameter, subst=subst)
     x, y = f_pool.compute_heat_flux(
         eff_diameter=diameter, sep=sep, lenght_flame=flame_lenght, angle=flame_angle)
-    sep_4 = f_pool.get_distance_at_sep(x_values=x, y_values=y, sep=4)
-    dist_43 = f_pool.get_sep_at_distance(x_values=x, y_values=y, distance=43)
-    # log.info(f'4.0 кВт на раст. м: {sep_4} = {dist_43}')
-    # text_annotate = f"Тепловой поток: {max(y):.2f} кВт/м²\nПросто текст"
-    media = get_plot_graph(x_values=x, y_values=y, label=i18n.get('plot_pool_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_pool_label'),
+
+    # dist_num = f_pool.get_distance_at_sep(x_values=x, y_values=y, sep=4)
+    sep_num = f_pool.get_sep_at_distance(
+        x_values=x, y_values=y, distance=distance + diameter / 2)
+
+    unit_sep = i18n.get('kwatt_per_meter_square')
+    text_annotate = f" q= {sep_num:.1f} {unit_sep}"
+    media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
+                           add_annotate=True, text_annotate=text_annotate, x_ann=distance + diameter / 2, y_ann=sep_num,
+                           label=i18n.get('plot_pool_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_pool_label'),
                            add_legend=True, loc_legend=1)
 
     await bot.edit_message_media(
@@ -672,17 +706,47 @@ async def vertical_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data == 'fire_ball')
+@fire_accident_router.callback_query(F.data.in_(['fire_ball', 'back_fire_ball']))
 async def fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
-    data.setdefault("accident_fire_ball_sub", "Метан")
-    data.setdefault("accident_fire_ball_center", "50")
+    data.setdefault("edit_accident_fire_ball_param", "1")
+    data.setdefault("accident_fire_ball_sub", "LNG")
+    data.setdefault("accident_fire_ball_sep", "350")
+    data.setdefault("accident_fire_ball_height_center", "50")
     data.setdefault("accident_fire_ball_mass_fuel", "500")
-    data.setdefault("accident_fire_ball_human_distance", "30")
-
+    data.setdefault("accident_fire_ball_distance", "100")
+    data.setdefault("accident_fire_ball_existence_time", "10")
+    data.setdefault("accident_fire_ball_atmospheric_transmittance", "1")
+    await state.update_data(data)
+    data = await state.get_data()
     text = i18n.fire_ball.text()
-    f_ball = AccidentParameters(type_accident=callback.data)
-    data_out, headers, label = f_ball.get_init_data(**data)
+
+    subst = data.get('accident_fire_ball_sub')
+    mass = float(data.get('accident_fire_ball_mass_fuel'))
+
+    f_ball = AccidentParameters(type_accident='fire_ball')
+
+    ts = f_ball.compute_fire_ball_existence_time(mass=mass)
+    d = f_ball.compute_fire_ball_diameter(mass=mass)
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('fire_ball')
+    data_out = [
+        {'id': i18n.get('ball_distance'), 'var': 'r',  'unit_1': data.get(
+            'accident_fire_ball_distance'), 'unit_2': i18n.get('meter')},
+        {'id': i18n.get('ball_height_center'), 'var': 'H',
+            'unit_1': f"{d:.2f}", 'unit_2': i18n.get('meter')},
+        {'id': i18n.get('ball_diameter'), 'var': 'Ds',
+            'unit_1': f"{d:.2f}", 'unit_2': i18n.get('meter')},
+        {'id': i18n.get('ball_existence_time'), 'var': 'ts',
+            'unit_1': f"{ts:.2f}", 'unit_2': i18n.get('second')},
+        {'id': i18n.get('ball_mass_fuel'), 'var': 'm',
+         'unit_1': mass, 'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('surface_density_thermal_radiation_flame'),
+            'var': 'Ef', 'unit_1': data.get('accident_fire_ball_sep'), 'unit_2': i18n.get('kwatt_per_meter_square')},
+        {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
+
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -690,6 +754,183 @@ async def fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'edit_fire_ball', 'run_fire_ball', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data.in_(['edit_fire_ball']))
+async def edit_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    await state.set_state(state=None)
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=get_inline_cd_kb(*kb_edit_ball, i18n=i18n, param_back=True, back_data='back_fire_ball', check_role=True, role=role))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data.in_(['edit_ball_mass', 'edit_ball_distance']))
+async def edit_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    if callback.data == 'edit_ball_mass':
+        await state.set_state(FSMFireAccidentForm.edit_fire_ball_mass_state)
+    elif callback.data == 'edit_ball_distance':
+        await state.set_state(FSMFireAccidentForm.edit_fire_ball_distance_state)
+    data = await state.get_data()
+    state_data = await state.get_state()
+    if state_data == FSMFireAccidentForm.edit_fire_ball_mass_state:
+        text = i18n.edit_fire_ball.text(fire_ball_param=i18n.get(
+            "name_fire_ball_mass"), edit_fire_ball=data.get("accident_fire_ball_mass_fuel", 0))
+    elif state_data == FSMFireAccidentForm.edit_fire_ball_distance_state:
+        text = i18n.edit_fire_ball.text(fire_ball_param=i18n.get(
+            "name_fire_ball_distance"), edit_fire_ball=data.get("accident_fire_ball_distance", 0))
+    kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
+          'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(3, *kb, i18n=i18n))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data == 'run_fire_ball')
+async def run_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    data = await state.get_data()
+    text = i18n.fire_ball.text()
+    subst = data.get('accident_fire_ball_sub')
+    mass = float(data.get('accident_fire_ball_mass_fuel'))
+    distance = float(data.get('accident_fire_ball_distance'))
+    sep = float(data.get('accident_fire_ball_sep'))
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('fire_ball')
+
+    f_ball = AccidentParameters(type_accident='fire_ball')
+    ts = f_ball.compute_fire_ball_existence_time(mass=mass)
+    d = f_ball.compute_fire_ball_diameter(mass=mass)
+
+    fq = f_ball.compute_fire_ball_view_factor(
+        eff_diameter=d, height=d, distance=distance)
+    t = f_ball.compute_fire_ball_atmospheric_transmittance(
+        eff_diameter=d, height=d, distance=distance)
+    q = sep * fq * t
+
+    data_out = [
+        {'id': i18n.get('ball_heat_flux'), 'var': 'q',
+         'unit_1': f"{q:.2f}", 'unit_2': i18n.get('kwatt_per_meter_square')},
+        {'id': i18n.get('ball_atmospheric_transmittance'),
+         'var': 't',  'unit_1': f"{t:.2f}", 'unit_2': '-'},
+        {'id': i18n.get('ball_view_factor'), 'var': 'Fq',
+         'unit_1': f"{fq:.2f}", 'unit_2': '-'},
+        {'id': i18n.get('ball_distance'), 'var': 'r',  'unit_1': data.get(
+            'accident_fire_ball_distance'), 'unit_2': i18n.get('meter')},
+        {'id': i18n.get('ball_height_center'), 'var': 'H',
+            'unit_1': f"{d:.2f}", 'unit_2': i18n.get('meter')},
+        {'id': i18n.get('ball_diameter'), 'var': 'Ds',
+            'unit_1': f"{d:.2f}", 'unit_2': i18n.get('meter')},
+        {'id': i18n.get('ball_existence_time'), 'var': 'ts',
+            'unit_1': f"{ts:.2f}", 'unit_2': i18n.get('second')},
+        {'id': i18n.get('ball_mass_fuel'), 'var': 'm',
+         'unit_1': mass, 'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('surface_density_thermal_radiation_flame'),
+            'var': 'Ef', 'unit_1': data.get('accident_fire_ball_sep'), 'unit_2': i18n.get('kwatt_per_meter_square')},
+        {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
+
+    media = get_data_table(data=data_out, headers=headers,
+                           label=label, results=True, row_num=7)
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, 'plot_fire_ball', i18n=i18n, param_back=True, back_data='back_fire_ball', check_role=True, role=role))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(StateFilter(*SFilter_fire_ball), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero', 'point', 'clear']))
+async def edit_fire_ball_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
+    if state_data == FSMFireAccidentForm.edit_fire_ball_mass_state:
+        fire_ball_param = i18n.get("name_fire_ball_mass")
+    elif state_data == FSMFireAccidentForm.edit_fire_ball_distance_state:
+        fire_ball_param = i18n.get("name_fire_ball_distance")
+
+    edit_data = await state.get_data()
+    if callback.data == 'clear':
+        await state.update_data(edit_accident_fire_ball_param="")
+        edit_d = await state.get_data()
+        edit_data = edit_d.get('edit_accident_fire_ball_param', 1)
+        text = i18n.edit_fire_ball.text(
+            fire_ball_param=fire_ball_param, edit_fire_ball=edit_data)
+
+    else:
+        edit_param_1 = edit_data.get('edit_accident_fire_ball_param')
+        edit_sum = edit_param_1 + i18n.get(callback.data)
+        await state.update_data(edit_accident_fire_ball_param=edit_sum)
+        edit_data = await state.get_data()
+        edit_param = edit_data.get('edit_accident_fire_ball_param', 0)
+        text = i18n.edit_fire_ball.text(
+            fire_ball_param=fire_ball_param, edit_fire_ball=edit_param)
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
+
+
+@fire_accident_router.callback_query(StateFilter(*SFilter_fire_ball), F.data.in_(['ready']))
+async def edit_fire_ball_param_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    state_data = await state.get_state()
+    data = await state.get_data()
+    value = data.get("edit_accident_fire_ball_param")
+    if state_data == FSMFireAccidentForm.edit_fire_ball_mass_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_fire_ball_mass_fuel=value)
+        else:
+            await state.update_data(accident_fire_ball_mass_fuel=10)
+    elif state_data == FSMFireAccidentForm.edit_fire_ball_distance_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_fire_ball_distance=value)
+        else:
+            await state.update_data(accident_fire_ball_distance=10)
+    data = await state.get_data()
+    text = i18n.fire_ball.text()
+    subst = data.get('accident_fire_ball_sub')
+    mass = float(data.get('accident_fire_ball_mass_fuel'))
+
+    f_ball = AccidentParameters(type_accident='fire_ball')
+
+    ts = f_ball.compute_fire_ball_existence_time(mass=mass)
+    d = f_ball.compute_fire_ball_diameter(mass=mass)
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('fire_ball')
+    data_out = [
+        {'id': i18n.get('ball_distance'), 'var': 'r',  'unit_1': data.get(
+            'accident_fire_ball_distance'), 'unit_2': i18n.get('meter')},
+        {'id': i18n.get('ball_height_center'), 'var': 'H',
+            'unit_1': f"{d:.2f}", 'unit_2': i18n.get('meter')},
+        {'id': i18n.get('ball_diameter'), 'var': 'Ds',
+            'unit_1': f"{d:.2f}", 'unit_2': i18n.get('meter')},
+        {'id': i18n.get('ball_existence_time'), 'var': 'ts',
+            'unit_1': f"{ts:.2f}", 'unit_2': i18n.get('second')},
+        {'id': i18n.get('ball_mass_fuel'), 'var': 'm',
+         'unit_1': mass, 'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('surface_density_thermal_radiation_flame'),
+            'var': 'Ef', 'unit_1': data.get('accident_fire_ball_sep'), 'unit_2': i18n.get('kwatt_per_meter_square')},
+        {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
+
+    media = get_data_table(data=data_out, headers=headers, label=label)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(*kb_edit_ball, i18n=i18n, param_back=True, back_data='back_fire_ball', check_role=True, role=role))
+    await state.update_data(edit_accident_fire_ball_param='')
     await callback.answer('')
 
 
@@ -799,7 +1040,7 @@ async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
     reduced_mass = acc_bleve.compute_redused_mass(expl_energy=expl_energy)
     overpres, impuls = acc_bleve.compute_overpres_inopen(
-        distance=distance, reduced_mass=reduced_mass)
+        reduced_mass=reduced_mass, distance=distance)
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('accident_bleve')
@@ -846,7 +1087,7 @@ async def plot_accident_bleve_pressure_call(callback: CallbackQuery, bot: Bot, s
     data = await state.get_data()
     text = i18n.accident_bleve.text()
 
-    subst = data.get('accident_bleve_sub')
+    # subst = data.get('accident_bleve_sub')
     coef_k = float(data.get("accident_bleve_energy_fraction"))
     heat_capacity = float(
         data.get('accident_bleve_heat_capacity_liquid_phase'))
@@ -864,7 +1105,7 @@ async def plot_accident_bleve_pressure_call(callback: CallbackQuery, bot: Bot, s
         reduced_mass=reduced_mass, distance_run=True, distance=distance)
 
     unit_p = i18n.get('pascal')
-    text_annotate = f"ΔP = {overpresure_30:.2e} {unit_p}"
+    text_annotate = f" ΔP = {overpresure_30:.2e} {unit_p}"
 
     media = get_plot_graph(x_values=dist, y_values=overpres, ylim=overpresure_30 * 3.5,
                            add_annotate=True,
@@ -890,7 +1131,7 @@ async def plot_accident_bleve_impuls_call(callback: CallbackQuery, bot: Bot, sta
     data = await state.get_data()
     text = i18n.accident_bleve.text()
 
-    subst = data.get('accident_bleve_sub')
+    # subst = data.get('accident_bleve_sub')
     coef_k = float(data.get("accident_bleve_energy_fraction"))
     heat_capacity = float(
         data.get('accident_bleve_heat_capacity_liquid_phase'))
@@ -908,9 +1149,9 @@ async def plot_accident_bleve_impuls_call(callback: CallbackQuery, bot: Bot, sta
         reduced_mass=reduced_mass, distance_run=True, distance=distance)
 
     unit_i = i18n.get('pascal_in_sec')
-    text_annotate = f"I+ = {impuls_30:.2e} {unit_i}"
+    text_annotate = f" I+ = {impuls_30:.2e} {unit_i}"
 
-    media = get_plot_graph(x_values=dist, y_values=impuls, ylim=impuls_30 * 3.5,
+    media = get_plot_graph(x_values=dist, y_values=impuls, ylim=impuls_30 * 4.0,
                            add_annotate=True,
                            text_annotate=text_annotate, x_ann=distance, y_ann=impuls_30,
                            label=i18n.get('plot_impuls_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('plot_impuls_legend'),

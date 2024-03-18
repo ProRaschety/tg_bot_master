@@ -16,6 +16,9 @@ meter_square =
 meter_cub =
     м³
 
+second =
+    с
+
 m_per_sec =
     м/с
 
