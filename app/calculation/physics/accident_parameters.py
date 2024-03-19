@@ -344,7 +344,27 @@ class AccidentParameters:
     def compute_fire_ball_atmospheric_transmittance(self, eff_diameter: int | float,
                                                     height: int | float,
                                                     distance: int | float):
-        return m.exp((-7.0 * 0.0001) * ((m.sqrt(height ** 2 + distance ** 2)) - ((eff_diameter ** 2) / 2)))
+        return m.exp((-7.0 * 0.0001) * (m.sqrt(height ** 2 + distance ** 2) - (eff_diameter / 2)))
+
+    def compute_heat_flux_fire_ball(self, diameter_ball: int | float, height: int | float, sep: int | float):
+        # Определение интенсивности теплового излучения, кВт/м2
+        # расстояние от центра огненного шара
+
+        x_lim = int(1 + height * 5)
+        x_values = []
+        qf = []
+        for r in range(0, x_lim, 1):
+            x_values.append(r)
+            # коэффициент облученности
+            Fq = diameter_ball ** 2 / (4 * (height ** 2 + r ** 2))
+            # коэффициент пропускания атмосферы
+            t = m.exp((-7.0 * 0.0001) *
+                      (m.sqrt(height ** 2 + r ** 2) - (diameter_ball / 2)))
+            qf_f = float(sep * Fq * t)  # интенсивность теплового излучения
+
+            qf.append(qf_f)
+
+        return x_values, qf
 
     def get_distance_at_sep(self, x_values, y_values, sep):
         func_sep = interp1d(y_values, x_values, kind='linear',

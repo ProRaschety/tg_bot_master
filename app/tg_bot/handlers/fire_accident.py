@@ -819,9 +819,9 @@ async def run_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         {'id': i18n.get('ball_heat_flux'), 'var': 'q',
          'unit_1': f"{q:.2f}", 'unit_2': i18n.get('kwatt_per_meter_square')},
         {'id': i18n.get('ball_atmospheric_transmittance'),
-         'var': 't',  'unit_1': f"{t:.2f}", 'unit_2': '-'},
+         'var': 'τ',  'unit_1': f"{t:.2f}", 'unit_2': '-'},
         {'id': i18n.get('ball_view_factor'), 'var': 'Fq',
-         'unit_1': f"{fq:.2f}", 'unit_2': '-'},
+         'unit_1': f"{fq:.3f}", 'unit_2': '-'},
         {'id': i18n.get('ball_distance'), 'var': 'r',  'unit_1': data.get(
             'accident_fire_ball_distance'), 'unit_2': i18n.get('meter')},
         {'id': i18n.get('ball_height_center'), 'var': 'H',
@@ -931,6 +931,41 @@ async def edit_fire_ball_param_call(callback: CallbackQuery, bot: Bot, state: FS
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(*kb_edit_ball, i18n=i18n, param_back=True, back_data='back_fire_ball', check_role=True, role=role))
     await state.update_data(edit_accident_fire_ball_param='')
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data == 'plot_fire_ball')
+async def plot_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    data = await state.get_data()
+    text = i18n.fire_ball.text()
+
+    subst = data.get('accident_fire_ball_sub')
+    mass = float(data.get('accident_fire_ball_mass_fuel'))
+    sep = float(data.get('accident_fire_ball_sep'))
+    distance = float(data.get('accident_fire_ball_distance'))
+    f_ball = AccidentParameters(type_accident='fire_ball')
+    diameter_ball = f_ball.compute_fire_ball_diameter(mass=mass)
+
+    x, y = f_ball.compute_heat_flux_fire_ball(
+        diameter_ball=diameter_ball, height=diameter_ball, sep=sep)
+
+    # dist_num = f_ball.get_distance_at_sep(x_values=x, y_values=y, sep=4)
+    sep_num = f_ball.get_sep_at_distance(
+        x_values=x, y_values=y, distance=distance)
+
+    unit_sep = i18n.get('kwatt_per_meter_square')
+    text_annotate = f" q= {sep_num:.1f} {unit_sep}"
+    media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
+                           add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
+                           label=i18n.get('plot_ball_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_ball_label'),
+                           add_legend=True, loc_legend=1)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_ball', check_role=True, role=role))
     await callback.answer('')
 
 

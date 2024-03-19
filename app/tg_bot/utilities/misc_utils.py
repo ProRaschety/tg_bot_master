@@ -139,8 +139,8 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     gs = gridspec.GridSpec(
         ncols=1, nrows=2, width_ratios=widths, height_ratios=heights)
     ft_label_size = {'fontname': 'Arial', 'fontsize': H*2.0}  # h*0.023
-    ft_title_size = {'fontname': 'Arial', 'fontsize': H*1.8}  # h*0.020
-    ft_size = {'fontname': 'Arial', 'fontsize': H*1.9}  # h*0.020
+    ft_title_size = {'fontname': 'Arial', 'fontsize': H*1.7}  # h*0.020
+    ft_size = {'fontname': 'Arial', 'fontsize': H*1.7}  # h*0.020
 
     """____Первая часть таблицы____"""
     fig_ax_1 = fig.add_subplot(gs[0, 0])
