@@ -6,6 +6,7 @@ typical_accidents-text =
 back_typical_accidents =
     ↩ Назад
 
+
 plot_pressure_label =
     Давление взрыва
 plot_impuls_label =
@@ -19,6 +20,8 @@ distance_label =
 surface_density_thermal_radiation_flame =
     Среднеповерхностная плотность
     теплового излучения пламени
+
+
 
 fire_pool =
     Пожар-пролива
@@ -49,10 +52,14 @@ edit_pool_area =
     F
 edit_pool_distance =
     r
+edit_pool_wind =
+    w
 pool_area =
     Площадь пролива
 pool_diameter =
     Эффективный диаметр пролива
+pool_wind =
+    Скорость ветра
 pool_flame_angle =
     Угол наклона пламени
 pool_flame_lenght =
@@ -75,14 +82,16 @@ LPG =
 liq_hydrogen =
     Сжиженный
     водород
-
 name_fire_pool_area =
     Введите площадь пролива:
 name_fire_pool_distance =
     Введите расстояние от края пролива:
-
+name_fire_pool_wind =
+    Введите скорость ветра:
 edit_fire_pool-text = {$fire_pool_param}
     <blockquote>{$edit_fire_pool}</blockquote>
+
+
 
 fire_flash =
     Пожар-вспышка
@@ -121,11 +130,9 @@ radius_zone_Rf =
     Радиус воздействия
     высокотемпературных продуктов
     сгорания паровоздушного облака
-
 density_flammable_gases_at_ambient_temperature =
     Плотность горючих газов (паров)
     при температуре окружающей среды
-
 edit_flash_mass =
     m
 edit_flash_lcl =
@@ -134,9 +141,10 @@ name_fire_flash_mass =
     Введите массу вещества:
 name_fire_flash_lcl =
     Введите значение НКПР вещества:
-
 edit_fire_flash-text = {$fire_flash_param}
     <blockquote>{$edit_fire_flash}</blockquote>
+
+
 
 cloud_explosion =
     Взрыв облака паров
@@ -149,11 +157,14 @@ edit_cloud_explosion =
     📝 Редактировать
 edit_cloud_explosion_guest =
     🔒 Редактировать
-
 above_surface =
-    Над поверхностью
+    Над
+    землей
 on_surface =
-    На поверхности
+    На
+    земле
+
+
 
 horizontal_jet =
     Горизонтальный факел
@@ -167,6 +178,8 @@ edit_horizontal_jet =
 edit_horizontal_jet_guest =
     🔒 Редактировать
 
+
+
 vertical_jet =
     Вертикальный факел
 vertical_jet-text =
@@ -178,6 +191,8 @@ edit_vertical_jet =
     📝 Редактировать
 edit_vertical_jet_guest =
     🔒 Редактировать
+
+
 
 jet_state_liquid =
     Жидкая фаза 💧
@@ -243,6 +258,7 @@ ball_heat_flux =
     на расстоянии r
 
 
+
 accident_bleve =
     Взрыв резервуара
 accident_bleve-text =
@@ -269,7 +285,6 @@ edit_bleve_distance =
     r
 name_bleve_distance =
     Введите расстояние от центра взрыва:
-
 edit_bleve-text = {$bleve_param}
     <blockquote>{$edit_bleve}</blockquote>
 distance_bleve =

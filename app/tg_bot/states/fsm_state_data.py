@@ -98,6 +98,7 @@ class FSMFireAccidentForm(StatesGroup):
 
     edit_fire_pool_area_state = State()
     edit_fire_pool_distance_state = State()
+    edit_fire_pool_wind_state = State()
 
     edit_fire_flash_mass_state = State()
     edit_fire_flash_lcl_state = State()

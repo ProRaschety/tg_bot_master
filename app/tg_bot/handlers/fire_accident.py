@@ -16,7 +16,7 @@ from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table,
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm
 from app.calculation.physics.accident_parameters import AccidentParameters
-from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase
+from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel
 log = logging.getLogger(__name__)
 
 fire_accident_router = Router()
@@ -24,7 +24,8 @@ fire_accident_router.message.filter(IsGuest())
 fire_accident_router.callback_query.filter(IsGuest())
 
 SFilter_fire_pool = [FSMFireAccidentForm.edit_fire_pool_area_state,
-                     FSMFireAccidentForm.edit_fire_pool_distance_state]
+                     FSMFireAccidentForm.edit_fire_pool_distance_state,
+                     FSMFireAccidentForm.edit_fire_pool_wind_state]
 
 SFilter_fire_flash = [FSMFireAccidentForm.edit_fire_flash_mass_state,
                       FSMFireAccidentForm.edit_fire_flash_lcl_state]
@@ -47,6 +48,7 @@ kb_accidents = [1,
 kb_edit_pool = [4,
                 'edit_pool_substance',
                 'edit_pool_area',
+                'edit_pool_wind',
                 'edit_pool_distance']
 
 kb_edit_ball = [4,
@@ -103,7 +105,7 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     data.setdefault("accident_fire_pool_mass_burning_rate", "0.06")
     data.setdefault("accident_fire_pool_heat_of_combustion", "36000")
     data.setdefault("accident_fire_pool_temperature", "20")
-    data.setdefault("accident_fire_pool_vel_wind", "0")
+    data.setdefault("accident_fire_pool_wind", "0")
     data.setdefault("accident_fire_pool_pool_area", "314")
     data.setdefault("accident_fire_pool_distance", "30")
     await state.update_data(data)
@@ -121,7 +123,7 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         {'id': i18n.get('pool_area'), 'var': 'F',  'unit_1': data.get(
             'accident_fire_pool_pool_area'), 'unit_2': i18n.get('meter_square')},
         {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
-            'unit_1': data.get('accident_fire_pool_vel_wind'), 'unit_2': i18n.get('m_per_sec')},
+            'unit_1': data.get('accident_fire_pool_wind'), 'unit_2': i18n.get('m_per_sec')},
         {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
             'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
         {'id': i18n.get('ambient_temperature'), 'var': 'tₒ', 'unit_1': data.get(
@@ -167,10 +169,12 @@ async def pool_subst_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRun
 async def fire_pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     call_data = callback.data
     # data = await state.get_data()
-    f_pool = AccidentParameters(type_accident='fire_pool')
-    mass_burn_rate = f_pool.compute_mass_burning_rate(subst=call_data)
+    molar_mass, boling_point, m = get_property_fuel(subst=call_data)
     await state.update_data(accident_fire_pool_sub=call_data)
-    await state.update_data(accident_fire_pool_mass_burning_rate=mass_burn_rate)
+    await state.update_data(accident_fire_pool_molar_mass_fuel=molar_mass)
+    await state.update_data(accident_fire_pool_boiling_point_fuel=boling_point)
+    await state.update_data(accident_fire_pool_mass_burning_rate=m)
+
     data = await state.get_data()
     await state.update_data(data)
     data = await state.get_data()
@@ -206,12 +210,14 @@ async def fire_pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data.in_(['edit_pool_area', 'edit_pool_distance']))
+@fire_accident_router.callback_query(F.data.in_(['edit_pool_area', 'edit_pool_distance', 'edit_pool_wind']))
 async def edit_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     if callback.data == 'edit_pool_area':
         await state.set_state(FSMFireAccidentForm.edit_fire_pool_area_state)
     elif callback.data == 'edit_pool_distance':
         await state.set_state(FSMFireAccidentForm.edit_fire_pool_distance_state)
+    elif callback.data == 'edit_pool_wind':
+        await state.set_state(FSMFireAccidentForm.edit_fire_pool_wind_state)
     data = await state.get_data()
     state_data = await state.get_state()
     if state_data == FSMFireAccidentForm.edit_fire_pool_area_state:
@@ -220,6 +226,9 @@ async def edit_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     elif state_data == FSMFireAccidentForm.edit_fire_pool_distance_state:
         text = i18n.edit_fire_pool.text(fire_pool_param=i18n.get(
             "name_fire_pool_distance"), edit_fire_pool=data.get("accident_fire_pool_distance", 0))
+    elif state_data == FSMFireAccidentForm.edit_fire_pool_wind_state:
+        text = i18n.edit_fire_pool.text(fire_pool_param=i18n.get(
+            "name_fire_pool_wind"), edit_fire_pool=data.get("accident_fire_pool_wind", 0))
     kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
           'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
 
@@ -238,6 +247,8 @@ async def edit_fire_pool_in_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         fire_pool_param = i18n.get("name_fire_pool_area")
     elif state_data == FSMFireAccidentForm.edit_fire_pool_distance_state:
         fire_pool_param = i18n.get("name_fire_pool_distance")
+    elif state_data == FSMFireAccidentForm.edit_fire_pool_wind_state:
+        fire_pool_param = i18n.get("name_fire_pool_wind")
 
     edit_data = await state.get_data()
     if callback.data == 'clear':
@@ -278,6 +289,12 @@ async def edit_fire_pool_param_call(callback: CallbackQuery, bot: Bot, state: FS
             await state.update_data(accident_fire_pool_distance=value)
         else:
             await state.update_data(accident_fire_pool_distance=10)
+    elif state_data == FSMFireAccidentForm.edit_fire_pool_wind_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_fire_pool_wind=value)
+        else:
+            await state.update_data(accident_fire_pool_wind=0)
+
     data = await state.get_data()
     text = i18n.fire_pool.text()
     subst = data.get('accident_fire_pool_sub')
@@ -292,7 +309,7 @@ async def edit_fire_pool_param_call(callback: CallbackQuery, bot: Bot, state: FS
         {'id': i18n.get('pool_area'), 'var': 'F',  'unit_1': data.get(
             'accident_fire_pool_pool_area'), 'unit_2': i18n.get('meter_square')},
         {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
-            'unit_1': data.get('accident_fire_pool_vel_wind'), 'unit_2': i18n.get('m_per_sec')},
+            'unit_1': data.get('accident_fire_pool_wind'), 'unit_2': i18n.get('m_per_sec')},
         {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
             'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
         {'id': i18n.get('ambient_temperature'), 'var': 'tₒ', 'unit_1': data.get(
@@ -326,12 +343,12 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         area=float(data.get("accident_fire_pool_pool_area")))
     air_density = compute_density_gas_phase(
         molar_mass=28.97, temperature=float(data.get('accident_fire_pool_temperature')))
-    fuel_density = compute_density_gas_phase(molar_mass=float(data.get('accident_fire_pool_molar_mass_fuel')),
-                                             temperature=float(data.get('accident_fire_pool_boiling_point_fuel')))
+    fuel_density = compute_density_vapor_at_boiling(molar_mass=float(data.get('accident_fire_pool_molar_mass_fuel')),
+                                                    boiling_point=float(data.get('accident_fire_pool_boiling_point_fuel')))
     mass_burn_rate = float(data.get('accident_fire_pool_mass_burning_rate'))
     f_pool = AccidentParameters(type_accident='fire_pool')
     nonvelocity = f_pool.compute_nonvelocity(wind=float(data.get(
-        'accident_fire_pool_vel_wind')), density_fuel=fuel_density, mass_burn_rate=mass_burn_rate, eff_diameter=diameter)
+        'accident_fire_pool_wind')), density_fuel=fuel_density, mass_burn_rate=mass_burn_rate, eff_diameter=diameter)
     flame_angle = f_pool.get_flame_deflection_angle(nonvelocity=nonvelocity)
     flame_lenght = f_pool.compute_lenght_flame_pool(
         nonvelocity=nonvelocity, density_air=air_density, mass_burn_rate=mass_burn_rate, eff_diameter=diameter)
@@ -356,7 +373,7 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         {'id': i18n.get('pool_area'), 'var': 'F',  'unit_1': data.get(
             'accident_fire_pool_pool_area'), 'unit_2': i18n.get('meter_square')},
         {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
-            'unit_1': data.get('accident_fire_pool_vel_wind'), 'unit_2': i18n.get('m_per_sec')},
+            'unit_1': data.get('accident_fire_pool_wind'), 'unit_2': i18n.get('m_per_sec')},
         {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
             'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
         {'id': i18n.get('ambient_temperature'), 'var': 'tₒ', 'unit_1': data.get(
@@ -393,7 +410,7 @@ async def plot_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     mass_burn_rate = float(data.get('accident_fire_pool_mass_burning_rate'))
     f_pool = AccidentParameters(type_accident='fire_pool')
     nonvelocity = f_pool.compute_nonvelocity(wind=float(data.get(
-        'accident_fire_pool_vel_wind')), density_fuel=fuel_density, mass_burn_rate=mass_burn_rate, eff_diameter=diameter)
+        'accident_fire_pool_wind')), density_fuel=fuel_density, mass_burn_rate=mass_burn_rate, eff_diameter=diameter)
     flame_angle = f_pool.get_flame_deflection_angle(nonvelocity=nonvelocity)
     air_density = compute_density_gas_phase(
         molar_mass=28.97, temperature=float(data.get('accident_fire_pool_temperature')))
