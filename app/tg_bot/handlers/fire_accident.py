@@ -333,7 +333,7 @@ async def edit_fire_pool_param_call(callback: CallbackQuery, bot: Bot, state: FS
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data == 'run_fire_pool')
+@fire_accident_router.callback_query(F.data.in_(['run_fire_pool', 'run_fire_pool_guest']))
 async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     text = i18n.fire_pool.text()
@@ -392,7 +392,7 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_fire_pool', i18n=i18n, param_back=True, back_data='back_fire_pool', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(1, 'plot_fire_pool', i18n=i18n, param_back=True, back_data='back_fire_pool', check_role=False, role=role))
     await callback.answer('')
 
 
@@ -658,19 +658,53 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data == 'cloud_explosion')
+@fire_accident_router.callback_query(F.data.in_(['cloud_explosion', 'back_cloud_explosion']))
 async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
-    data.setdefault("accident_cloud_explosion_sub", "Метан")
-    data.setdefault("accident_cloud_explosion_class_fuel", "4")
-    data.setdefault("accident_cloud_explosion_class_space", "1")
-    data.setdefault("accident_cloud_explosion_mass_fuel", "500")
-    data.setdefault("accident_cloud_explosion_expl_cond",
-                    "above_surface")  # on_surface
-
+    data.setdefault("edit_accident_cloud_explosion_param", "1")
+    data.setdefault("accident_cloud_explosion_sub", "Бензин")
+    data.setdefault("accident_cloud_explosion_class_fuel", "3")
+    data.setdefault("accident_cloud_explosion_class_space", "3")
+    data.setdefault("accident_cloud_explosion_mass_fuel", "1890")
+    data.setdefault("accident_cloud_explosion_coef_z", "0.1")
+    data.setdefault("accident_cloud_explosion_heat_combustion", "44000")
+    data.setdefault("accident_cloud_explosion_expl_cond", "above_surface")
+    data.setdefault("accident_cloud_explosion_distance", "70")
+    await state.update_data(data)
+    data = await state.get_data()
     text = i18n.cloud_explosion.text()
-    cloud_exp = AccidentParameters(type_accident=callback.data)
-    data_out, headers, label = cloud_exp.get_init_data(**data)
+    subst = data.get('accident_cloud_explosion_sub')
+    mass = float(data.get('accident_cloud_explosion_mass_fuel'))
+    coef_z = float(data.get('accident_cloud_explosion_coef_z'))
+    class_fuel = int(data.get('accident_cloud_explosion_class_fuel'))
+    class_space = int(data.get('accident_cloud_explosion_class_space'))
+
+    cloud_exp = AccidentParameters(type_accident='cloud_explosion')
+    mode_expl = cloud_exp.get_mode_explosion(
+        class_fuel=class_fuel, class_space=class_space)
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('cloud_explosion')
+    data_out = [
+        {'id': i18n.get('cloud_explosion_mass_expl'),
+            'var': 'Mт', 'unit_1': f"{(mass * coef_z):.2f}", 'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('cloud_explosion_mode_expl'),
+            'var': '-', 'unit_1': f"{mode_expl:.0f}", 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_mass_fuel'),
+            'var': 'm', 'unit_1': f"{mass:.2f}", 'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('cloud_explosion_cond_ground'), 'var': '-',  'unit_1': i18n.get(data.get(
+            'accident_cloud_explosion_expl_cond')), 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_class_space'), 'var': '-',
+         'unit_1': data.get('accident_cloud_explosion_class_space'), 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_coefficient_z'),
+            'var': 'Z', 'unit_1': data.get('accident_cloud_explosion_coef_z'), 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_class_fuel'),
+            'var': 'β', 'unit_1': data.get('accident_cloud_explosion_class_fuel'), 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_heat_combustion'),
+            'var': 'Eуд', 'unit_1': data.get('accident_cloud_explosion_heat_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
+        {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
+
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -678,6 +712,63 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'edit_cloud_explosion', 'run_cloud_explosion', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data.in_(['run_cloud_explosion', 'run_cloud_explosion_guest']))
+async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    # data = await state.get_data()
+    # data.setdefault("edit_accident_cloud_explosion_param", "1")
+    # data.setdefault("accident_cloud_explosion_sub", "Бензин")
+    # data.setdefault("accident_cloud_explosion_class_fuel", "3")
+    # data.setdefault("accident_cloud_explosion_class_space", "3")
+    # data.setdefault("accident_cloud_explosion_mass_fuel", "1890")
+    # data.setdefault("accident_cloud_explosion_coef_z", "0.1")
+    # data.setdefault("accident_cloud_explosion_heat_combustion", "44000")
+    # data.setdefault("accident_cloud_explosion_expl_cond", "above_surface")
+    # data.setdefault("accident_cloud_explosion_distance", "70")
+    # await state.update_data(data)
+    data = await state.get_data()
+    text = i18n.cloud_explosion.text()
+    subst = data.get('accident_cloud_explosion_sub')
+    mass = float(data.get('accident_cloud_explosion_mass_fuel'))
+    coef_z = float(data.get('accident_cloud_explosion_coef_z'))
+    class_fuel = int(data.get('accident_cloud_explosion_class_fuel'))
+    class_space = int(data.get('accident_cloud_explosion_class_space'))
+
+    cloud_exp = AccidentParameters(type_accident='cloud_explosion')
+    mode_expl = cloud_exp.get_mode_explosion(
+        class_fuel=class_fuel, class_space=class_space)
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('cloud_explosion')
+    data_out = [
+        {'id': i18n.get('cloud_explosion_mass_expl'),
+            'var': 'Mт', 'unit_1': f"{(mass * coef_z):.2f}", 'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('cloud_explosion_mode_expl'),
+            'var': '-', 'unit_1': f"{mode_expl:.0f}", 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_mass_fuel'),
+            'var': 'm', 'unit_1': f"{mass:.2f}", 'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('cloud_explosion_cond_ground'), 'var': '-',  'unit_1': i18n.get(data.get(
+            'accident_cloud_explosion_expl_cond')), 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_class_space'), 'var': '-',
+         'unit_1': data.get('accident_cloud_explosion_class_space'), 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_coefficient_z'),
+            'var': 'Z', 'unit_1': data.get('accident_cloud_explosion_coef_z'), 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_class_fuel'),
+            'var': 'β', 'unit_1': data.get('accident_cloud_explosion_class_fuel'), 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_heat_combustion'),
+            'var': 'Eуд', 'unit_1': data.get('accident_cloud_explosion_heat_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
+        {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
+
+    media = get_data_table(data=data_out, headers=headers, label=label)
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, 'plot_accident_cloud_explosion_pressure', 'plot_accident_cloud_explosion_impuls', i18n=i18n, param_back=True, back_data='back_cloud_explosion', check_role=False, role=role))
     await callback.answer('')
 
 
@@ -809,7 +900,7 @@ async def edit_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data == 'run_fire_ball')
+@fire_accident_router.callback_query(F.data.in_(['run_fire_ball', 'run_fire_ball_guest']))
 async def run_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     text = i18n.fire_ball.text()
@@ -860,7 +951,7 @@ async def run_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_fire_ball', i18n=i18n, param_back=True, back_data='back_fire_ball', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(1, 'plot_fire_ball', i18n=i18n, param_back=True, back_data='back_fire_ball', check_role=False, role=role))
     await callback.answer('')
 
 
@@ -951,7 +1042,7 @@ async def edit_fire_ball_param_call(callback: CallbackQuery, bot: Bot, state: FS
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data == 'plot_fire_ball')
+@fire_accident_router.callback_query(F.data.in_(['plot_fire_ball']))
 async def plot_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     text = i18n.fire_ball.text()
@@ -1127,7 +1218,7 @@ async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_accident_bleve_pressure', 'plot_accident_bleve_impuls', i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(1, 'plot_accident_bleve_pressure', 'plot_accident_bleve_impuls', i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=False, role=role))
 
     await state.update_data(accident_bleve_overpressure_on_30m=overpres)
     await state.update_data(accident_bleve_impuls_on_30m=impuls)
@@ -1157,7 +1248,8 @@ async def plot_accident_bleve_pressure_call(callback: CallbackQuery, bot: Bot, s
         reduced_mass=reduced_mass, distance_run=True, distance=distance)
 
     unit_p = i18n.get('pascal')
-    text_annotate = f" ΔP = {overpresure_30:.2e} {unit_p}"
+    unit_p1 = i18n.get('kg_per_santimeter_square')
+    text_annotate = f" ΔP\n = {overpresure_30:.2e} {unit_p}\n = {(overpresure_30*0.000010197):.2e} {unit_p1}"
 
     media = get_plot_graph(x_values=dist, y_values=overpres, ylim=overpresure_30 * 3.5,
                            add_annotate=True,

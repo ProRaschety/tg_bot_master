@@ -32,6 +32,8 @@ run_fire_pool =
     ▶ Рассчитать
 edit_fire_pool =
     📝 Редактировать
+run_fire_pool_guest =
+    ▶ Рассчитать
 edit_fire_pool_guest =
     🔒 Редактировать
 back_fire_pool =
@@ -102,6 +104,8 @@ run_fire_flash =
     ▶ Рассчитать
 edit_fire_flash =
     📝 Редактировать
+run_fire_flash_guest =
+    ▶ Рассчитать
 edit_fire_flash_guest =
     🔒 Редактировать
 back_fire_flash =
@@ -155,14 +159,69 @@ run_cloud_explosion =
     ▶ Рассчитать
 edit_cloud_explosion =
     📝 Редактировать
+run_cloud_explosion_guest =
+    ▶ Рассчитать
 edit_cloud_explosion_guest =
     🔒 Редактировать
+plot_accident_cloud_explosion_pressure =
+    📉 Давление взрыва ΔP
+plot_accident_cloud_explosion_impuls =
+    📉 Импульс I⁺
+back_cloud_explosion =
+    ↩ Назад
 above_surface =
     Над
     землей
 on_surface =
     На
     земле
+
+cloud_explosion_heat_combustion =
+    Удельная теплота сгорания
+    горючего вещества
+cloud_explosion_coefficient_z =
+    Коэффициент участия горючего
+    во взрыве
+cloud_explosion_class_fuel =
+    Класс горючего вещества
+cloud_explosion_class_space =
+    Класс загроможденности
+    окружающего пространства
+cloud_explosion_cond_ground =
+    Расположение облака паров горючего
+    относительно поверхности земли
+cloud_explosion_mass_fuel =
+    Масса вышедшего газа (пара)
+    в окружающее пространство
+cloud_explosion_mode_expl =
+    Ожидаемый режим
+    сгорания облака
+cloud_explosion_distance =
+    Расстояние от центра
+    облака паров горючего
+cloud_explosion_mass_expl =
+    Масса горючих газов (паров)
+    участвующих во взрыве
+cloud_explosion_spec_heat_combustion =
+    Удельная теплота сгорания
+    при расчете энерговыделения
+cloud_explosion_stoichiometric_fuel =
+    Стехиометрическая концентрация
+    паров горючего
+cloud_explosion_efficient_energy_reserve =
+    Эффективный энергозапас
+    горючей смеси
+cloud_explosion_nondimensional_distance =
+    Безразмерное расстояние
+    от центра облака
+cloud_explosion_nondimensional_pressure =
+    Безразмерное давление
+cloud_explosion_nondimensional_impuls =
+    Безразмерный импульс
+    фазы сжатия
+
+edit_cloud_explosion-text = {$cloud_explosion_param}
+    <blockquote>{$edit_cloud_explosion}</blockquote>
 
 
 
@@ -175,6 +234,8 @@ run_horizontal_jet =
     ▶ Рассчитать
 edit_horizontal_jet =
     📝 Редактировать
+run_horizontal_jet_guest =
+    ▶ Рассчитать
 edit_horizontal_jet_guest =
     🔒 Редактировать
 
@@ -189,6 +250,8 @@ run_vertical_jet =
     ▶ Рассчитать
 edit_vertical_jet =
     📝 Редактировать
+run_vertical_jet_guest =
+    ▶ Рассчитать
 edit_vertical_jet_guest =
     🔒 Редактировать
 
@@ -214,6 +277,8 @@ run_fire_ball =
     ▶ Рассчитать
 edit_fire_ball =
     📝 Редактировать
+run_fire_ball_guest =
+    ▶ Рассчитать
 edit_fire_ball_guest =
     🔒 Редактировать
 plot_fire_ball =
@@ -271,6 +336,8 @@ run_accident_bleve =
     ▶ Рассчитать
 edit_accident_bleve =
     📝 Редактировать
+run_accident_bleve_guest =
+    ▶ Рассчитать
 edit_accident_bleve_guest =
     🔒 Редактировать
 plot_accident_bleve_pressure =

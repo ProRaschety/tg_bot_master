@@ -30,20 +30,8 @@ class AccidentParameters:
 
     def get_init_data(self, *args, **kwargs):
         head = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
-        if self.type_accident == 'cloud_explosion':
-            label = 'Взрыв облака паров'
-            data_table = [
-                {'id': 'Масса горючих газов (паров)\nсодержащегося в облаке', 'var': 'mг',  'unit_1': kwargs.get(
-                    'accident_cloud_explosion_mass_fuel'), 'unit_2': 'кг'},
-                {'id': 'Расположение облака паров горючего\nотносительно поверхности земли', 'var': '-',
-                    'unit_1': 'Над\nповерхностью' if kwargs.get('accident_cloud_explosion_expl_cond') == 'above_surface' else 'На\nповерхности', 'unit_2': '-'},
-                {'id': 'Класс пространства\nпо степени загроможденности',
-                    'var': '-', 'unit_1': kwargs.get('accident_cloud_explosion_class_space'), 'unit_2': '-'},
-                {'id': 'Класс горючего вещества', 'var': 'β', 'unit_1': kwargs.get(
-                    'accident_cloud_explosion_class_fuel'), 'unit_2': '-'},
-                {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_cloud_explosion_sub')}", 'unit_2': '-'}]
 
-        elif self.type_accident == 'horizontal_jet':
+        if self.type_accident == 'horizontal_jet':
             label = 'Горизонтальный факел'
             jet = kwargs.get('accident_horizontal_jet_state')
             data_table = [
@@ -390,6 +378,44 @@ class AccidentParameters:
         log.info(
             f"При температуре: {temperature_air} и скорости: {velocity_air_flow}, eta: {coefficient_eta[-1][-1]:.2f}")
         return coefficient_eta[-1][-1]
+
+    def get_mode_explosion(self, class_fuel: int = 1, class_space: int = 1):
+        mode_explosion = None
+        if class_fuel == 1:
+            if class_space == 1 or class_space == 2:
+                mode_explosion = 1
+            elif class_space == 2:
+                mode_explosion = 2
+            else:
+                mode_explosion = 3
+        elif class_fuel == 2:
+            if class_space == 1:
+                mode_explosion = 1
+            elif class_space == 2:
+                mode_explosion = 2
+            elif class_space == 3:
+                mode_explosion = 3
+            else:
+                mode_explosion = 4
+        elif class_fuel == 3:
+            if class_space == 1:
+                mode_explosion = 2
+            elif class_space == 2:
+                mode_explosion = 3
+            elif class_space == 3:
+                mode_explosion = 4
+            else:
+                mode_explosion = 5
+        elif class_fuel == 4:
+            if class_space == 1:
+                mode_explosion = 3
+            elif class_space == 2:
+                mode_explosion = 4
+            elif class_space == 3:
+                mode_explosion = 5
+            else:
+                mode_explosion = 6
+        return mode_explosion
 
     def calc_evaporation_intencity_liquid(self, eta: int | float, molar_mass: int | float, vapor_pressure: int | float):
         """Возвращает интенсивность испарения паров жидкости"""

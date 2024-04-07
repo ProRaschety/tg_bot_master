@@ -60,6 +60,9 @@ pascal =
 kilopascal =
     кПа
 
+kg_per_santimeter_square =
+    кгс/см²
+
 pascal_in_sec =
     Па×с
 

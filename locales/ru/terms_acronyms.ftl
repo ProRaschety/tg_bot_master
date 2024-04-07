@@ -49,6 +49,10 @@ specific_mass_fuel_burning_rate =
     Удельная массовая скорость
     выгорания топлива
 
+stoichiometric_coefficient_for_oxygen =
+    Стехиометрический коэффициент
+    при кислороде при сгорании
+
 boiling_point =
     Температура кипения
 
@@ -56,4 +60,12 @@ overpressure =
     Избыточное давление
 
 impuls_overpressure =
-    Импульс
+    Импульс фазы сжатия
+
+apparent_speed_of_flame_front =
+    Видимая скорость
+    фронта пламени
+
+max_speed_of_flame_front =
+    Максимальная скорость
+    фронта пламени
