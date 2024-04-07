@@ -1167,7 +1167,7 @@ async def edit_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data.in_(['run_accident_bleve']))
+@fire_accident_router.callback_query(F.data.in_(['run_accident_bleve', 'run_accident_bleve_guest']))
 async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     subst = data.get('accident_bleve_sub')
