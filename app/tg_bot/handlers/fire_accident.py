@@ -1266,7 +1266,7 @@ async def plot_accident_bleve_pressure_call(callback: CallbackQuery, bot: Bot, s
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       #   'plot_accident_bleve_pressure',
-                                      'plot_accident_bleve_impuls', i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=True, role=role))
+                                      'plot_accident_bleve_impuls', i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=False, role=role))
     await callback.answer('')
 
 
@@ -1308,7 +1308,7 @@ async def plot_accident_bleve_impuls_call(callback: CallbackQuery, bot: Bot, sta
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'plot_accident_bleve_pressure',
-                                      i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=True, role=role))
+                                      i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=False, role=role))
     await callback.answer('')
 
 
