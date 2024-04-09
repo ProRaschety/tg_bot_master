@@ -779,7 +779,7 @@ async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSM
             'var': 'E',
             'unit_1': f"{2 * (mass * coef_z) * (heat * beta) * 1000:.2e}",
             'unit_2': i18n.get('Joule')},
-        {'id': i18n.get('stoichiometric_coefficient_for_fuel'),
+        {'id': i18n.get('stoichiometric_coefficient_fuel'),
             'var': 'Cст',
             'unit_1': f"{stoichiometric_coef_fuel:.2f}",
             'unit_2': i18n.get('percent_volume')},
