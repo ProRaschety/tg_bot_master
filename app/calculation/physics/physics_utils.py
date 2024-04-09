@@ -55,3 +55,11 @@ def compute_density_vapor_at_boiling(molar_mass: int | float, boiling_point: int
     V = physical_constants.get(
         'molar volume of ideal gas (273.15 K, 101.325 kPa)')[0]  # 0.02241396954 m^3 mol^-1
     return molar_mass / ((V * 1000) * ((boiling_point + 273.15)/273.15))
+
+
+def compute_stoichiometric_coefficient_with_oxygen(n_C: int | float = 0, n_H: int | float = 0, n_X: int | float = 0, n_O: int | float = 0):
+    return n_C + ((n_H - n_X) / 4) - (n_O / 2)
+
+
+def compute_stoichiometric_coefficient_with_fuel(beta: int | float = 0):
+    return 100 / (1 + 4.84 * beta)

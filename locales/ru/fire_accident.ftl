@@ -182,8 +182,11 @@ cloud_explosion_heat_combustion =
 cloud_explosion_coefficient_z =
     Коэффициент участия горючего
     во взрыве
+cloud_explosion_correction_parameter =
+    Корректировочный параметр
 cloud_explosion_class_fuel =
-    Класс горючего вещества
+    Класс чувствительности горючего
+    к возбуждению взрывных процессов
 cloud_explosion_class_space =
     Класс загроможденности
     окружающего пространства

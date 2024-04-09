@@ -43,7 +43,8 @@ kwatt_per_meter_square =
 
 meter_cub_per_sec =
     м³/с
-
+Joule =
+    Дж
 J_per_kg =
     Дж/кг
 

@@ -16,7 +16,7 @@ from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table,
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm
 from app.calculation.physics.accident_parameters import AccidentParameters
-from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel
+from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel, compute_stoichiometric_coefficient_with_fuel, compute_stoichiometric_coefficient_with_oxygen
 log = logging.getLogger(__name__)
 
 fire_accident_router = Router()
@@ -664,6 +664,7 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     data.setdefault("edit_accident_cloud_explosion_param", "1")
     data.setdefault("accident_cloud_explosion_sub", "Бензин")
     data.setdefault("accident_cloud_explosion_class_fuel", "3")
+    data.setdefault("accident_cloud_explosion_correction_parameter", "1.0")
     data.setdefault("accident_cloud_explosion_class_space", "3")
     data.setdefault("accident_cloud_explosion_mass_fuel", "1890")
     data.setdefault("accident_cloud_explosion_coef_z", "0.1")
@@ -678,7 +679,7 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     coef_z = float(data.get('accident_cloud_explosion_coef_z'))
     class_fuel = int(data.get('accident_cloud_explosion_class_fuel'))
     class_space = int(data.get('accident_cloud_explosion_class_space'))
-
+    distance = float(data.get('accident_cloud_explosion_distance'))
     cloud_exp = AccidentParameters(type_accident='cloud_explosion')
     mode_expl = cloud_exp.get_mode_explosion(
         class_fuel=class_fuel, class_space=class_space)
@@ -687,8 +688,8 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('cloud_explosion')
     data_out = [
-        {'id': i18n.get('cloud_explosion_mass_expl'),
-            'var': 'Mт', 'unit_1': f"{(mass * coef_z):.2f}", 'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('cloud_explosion_distance'),
+            'var': 'R', 'unit_1': f"{distance:.1f}", 'unit_2': i18n.get('meter')},
         {'id': i18n.get('cloud_explosion_mode_expl'),
             'var': '-', 'unit_1': f"{mode_expl:.0f}", 'unit_2': '-'},
         {'id': i18n.get('cloud_explosion_mass_fuel'),
@@ -699,10 +700,12 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
          'unit_1': data.get('accident_cloud_explosion_class_space'), 'unit_2': '-'},
         {'id': i18n.get('cloud_explosion_coefficient_z'),
             'var': 'Z', 'unit_1': data.get('accident_cloud_explosion_coef_z'), 'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_correction_parameter'),
+            'var': 'βf', 'unit_1': data.get('accident_cloud_explosion_correction_parameter'), 'unit_2': '-'},
         {'id': i18n.get('cloud_explosion_class_fuel'),
-            'var': 'β', 'unit_1': data.get('accident_cloud_explosion_class_fuel'), 'unit_2': '-'},
+            'var': '-', 'unit_1': data.get('accident_cloud_explosion_class_fuel'), 'unit_2': '-'},
         {'id': i18n.get('cloud_explosion_heat_combustion'),
-            'var': 'Eуд', 'unit_1': data.get('accident_cloud_explosion_heat_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
+            'var': 'Eуд0', 'unit_1': data.get('accident_cloud_explosion_heat_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
         {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
 
     media = get_data_table(data=data_out, headers=headers, label=label)
@@ -717,17 +720,6 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
 
 @fire_accident_router.callback_query(F.data.in_(['run_cloud_explosion', 'run_cloud_explosion_guest']))
 async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    # data = await state.get_data()
-    # data.setdefault("edit_accident_cloud_explosion_param", "1")
-    # data.setdefault("accident_cloud_explosion_sub", "Бензин")
-    # data.setdefault("accident_cloud_explosion_class_fuel", "3")
-    # data.setdefault("accident_cloud_explosion_class_space", "3")
-    # data.setdefault("accident_cloud_explosion_mass_fuel", "1890")
-    # data.setdefault("accident_cloud_explosion_coef_z", "0.1")
-    # data.setdefault("accident_cloud_explosion_heat_combustion", "44000")
-    # data.setdefault("accident_cloud_explosion_expl_cond", "above_surface")
-    # data.setdefault("accident_cloud_explosion_distance", "70")
-    # await state.update_data(data)
     data = await state.get_data()
     text = i18n.cloud_explosion.text()
     subst = data.get('accident_cloud_explosion_sub')
@@ -735,32 +727,74 @@ async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSM
     coef_z = float(data.get('accident_cloud_explosion_coef_z'))
     class_fuel = int(data.get('accident_cloud_explosion_class_fuel'))
     class_space = int(data.get('accident_cloud_explosion_class_space'))
-
+    heat = float(data.get('accident_cloud_explosion_heat_combustion'))
+    beta = float(data.get('accident_cloud_explosion_correction_parameter'))
+    distance = float(data.get('accident_cloud_explosion_distance'))
+    stoichiometric_coef_oxygen = compute_stoichiometric_coefficient_with_oxygen(
+        n_C=6.911, n_H=12.168)
+    stoichiometric_coef_fuel = compute_stoichiometric_coefficient_with_fuel(
+        beta=stoichiometric_coef_oxygen)
     cloud_exp = AccidentParameters(type_accident='cloud_explosion')
     mode_expl = cloud_exp.get_mode_explosion(
         class_fuel=class_fuel, class_space=class_space)
-
+    nondimensional_distance = distance / \
+        (((2 * (mass * coef_z) * (heat * beta) * 1000) / (101325)) ** 0.333)
+    nondimensional_pressure = 0.37
+    nondimensional_impuls = 0.027
+    overpressure = 38000
+    impuls_overpressure = 45800
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('cloud_explosion')
     data_out = [
+        {'id': i18n.get('impuls_overpressure'),
+            'var': 'I+',
+            'unit_1': f"{impuls_overpressure:.2e}",
+            'unit_2': i18n.get('pascal_in_sec')},
+        {'id': i18n.get('overpressure'),
+            'var': 'ΔP',
+            'unit_1': f"{overpressure:.2e}",
+            'unit_2': i18n.get('pascal')},
+        {'id': i18n.get('cloud_explosion_nondimensional_impuls'),
+            'var': 'Ix',
+            'unit_1': f"{nondimensional_impuls:.3f}",
+            'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_nondimensional_pressure'),
+            'var': 'px1',
+            'unit_1': f"{nondimensional_pressure:.2f}",
+            'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_nondimensional_distance'),
+            'var': 'Rx',
+            'unit_1': f"{nondimensional_distance:.2f}",
+            'unit_2': '-'},
+        {'id': i18n.get('max_speed_of_flame_front'),
+            'var': 'u',
+            'unit_1': f"{200:.2f}",
+            'unit_2': i18n.get('m_per_sec')},
+        {'id': i18n.get('apparent_speed_of_flame_front'),
+            'var': 'uр',
+            'unit_1': f"{103.2:.2f}",
+            'unit_2': i18n.get('m_per_sec')},
+        {'id': i18n.get('cloud_explosion_efficient_energy_reserve'),
+            'var': 'E',
+            'unit_1': f"{2 * (mass * coef_z) * (heat * beta) * 1000:.2e}",
+            'unit_2': i18n.get('Joule')},
+        {'id': i18n.get('stoichiometric_coefficient_for_fuel'),
+            'var': 'Cст',
+            'unit_1': f"{stoichiometric_coef_fuel:.2f}",
+            'unit_2': i18n.get('percent_volume')},
+        {'id': i18n.get('stoichiometric_coefficient_for_oxygen'),
+            'var': 'β',
+            'unit_1': f"{stoichiometric_coef_oxygen:.3f}",
+            'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_spec_heat_combustion'),
+            'var': 'Eуд',
+            'unit_1': f"{(heat * beta):.1f}",
+            'unit_2': i18n.get('kJ_per_kg')},
         {'id': i18n.get('cloud_explosion_mass_expl'),
-            'var': 'Mт', 'unit_1': f"{(mass * coef_z):.2f}", 'unit_2': i18n.get('kilogram')},
-        {'id': i18n.get('cloud_explosion_mode_expl'),
-            'var': '-', 'unit_1': f"{mode_expl:.0f}", 'unit_2': '-'},
-        {'id': i18n.get('cloud_explosion_mass_fuel'),
-            'var': 'm', 'unit_1': f"{mass:.2f}", 'unit_2': i18n.get('kilogram')},
-        {'id': i18n.get('cloud_explosion_cond_ground'), 'var': '-',  'unit_1': i18n.get(data.get(
-            'accident_cloud_explosion_expl_cond')), 'unit_2': '-'},
-        {'id': i18n.get('cloud_explosion_class_space'), 'var': '-',
-         'unit_1': data.get('accident_cloud_explosion_class_space'), 'unit_2': '-'},
-        {'id': i18n.get('cloud_explosion_coefficient_z'),
-            'var': 'Z', 'unit_1': data.get('accident_cloud_explosion_coef_z'), 'unit_2': '-'},
-        {'id': i18n.get('cloud_explosion_class_fuel'),
-            'var': 'β', 'unit_1': data.get('accident_cloud_explosion_class_fuel'), 'unit_2': '-'},
-        {'id': i18n.get('cloud_explosion_heat_combustion'),
-            'var': 'Eуд', 'unit_1': data.get('accident_cloud_explosion_heat_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
-        {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
+            'var': 'Mт',
+            'unit_1': f"{(mass * coef_z):.1f}",
+            'unit_2': i18n.get('kilogram')}]
 
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
