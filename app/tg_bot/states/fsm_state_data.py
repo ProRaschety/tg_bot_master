@@ -134,3 +134,10 @@ class FSMToolCompGasForm(StatesGroup):
     edit_state_comp_gas_specific_heat_const_vol = State()
     edit_state_comp_gas_mu = State()
     edit_state_comp_gas_molar_mass = State()
+
+
+class FSMFrequencyForm(StatesGroup):
+    edit_area_to_frequency = State()
+    edit_type_to_table_1_3 = State()
+    edit_type_to_table_2_3 = State()
+    edit_type_to_table_2_4 = State()

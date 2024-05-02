@@ -27,6 +27,7 @@ class AccidentParameters:
         self.R = physical_constants.get('molar gas constant')[0]  # Дж/моль*К
         self.K = 273.15  # К
         self.g = physical_constants.get('standard acceleration of gravity')[0]
+        self.sound_speed = 340
 
     def get_init_data(self, *args, **kwargs):
         head = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
@@ -64,23 +65,6 @@ class AccidentParameters:
     def compute_height_LFL(self, density: int | float, mass: int | float, clfl: int | float):
         return 0.26 * (mass / (density * clfl)) ** 0.33
 
-    def compute_overpres_inclosed(self,
-                                  type_substance: str,
-                                  evaporation_mass: int | float,
-                                  free_volume: int | float, ) -> float:
-        """Вычисляет значение избыточного давления при сгорании паров горючих веществ"""
-        # m_vap = evaporation_mass
-
-        # vol_free = vol
-        # exp_pres_max = sub.sub_property.get("exp_pres_max_kPa", 900)
-        # coef_kn = 3
-        # density_vap = sub.calc_density_gas(temperature_gas=temp + self.K)
-        stoichiometric_concentration = sub.calc_stoichiometric_concentration()
-        overpres_inclosed = (exp_pres_max - self.pressure_ambient / 1000) * ((m_vap * coef_z) / (vol_free * density_vap)) * (100 / stoichiometric_concentration) * (
-            1 / coef_kn)
-
-        return overpres_inclosed
-
     def compute_overpres_inopen(self,
                                 reduced_mass: int | float,
                                 distance_run: bool = False,
@@ -115,72 +99,6 @@ class AccidentParameters:
 
     def compute_expl_energy(self, k: int | float, Cp: int | float, mass: int | float, temp_liquid: int | float, boiling_point: int | float):
         return k * Cp * mass * (temp_liquid - (boiling_point + self.K))
-
-    def _get_cloud_combustion_mode(self, fuel_class: int = 1, space_class: int = 1):
-        if fuel_class == 1 and space_class == 1:
-            cloud_combustion_mode = 1
-        elif fuel_class == 1 and space_class == 2:
-            cloud_combustion_mode = 1
-        elif fuel_class == 1 and space_class == 3:
-            cloud_combustion_mode = 2
-        elif fuel_class == 1 and space_class == 4:
-            cloud_combustion_mode = 3
-        elif fuel_class == 2 and space_class == 1:
-            cloud_combustion_mode = 1
-        elif fuel_class == 2 and space_class == 2:
-            cloud_combustion_mode = 2
-        elif fuel_class == 2 and space_class == 3:
-            cloud_combustion_mode = 3
-        elif fuel_class == 2 and space_class == 4:
-            cloud_combustion_mode = 4
-        elif fuel_class == 3 and space_class == 1:
-            cloud_combustion_mode = 2
-        elif fuel_class == 3 and space_class == 2:
-            cloud_combustion_mode = 3
-        elif fuel_class == 3 and space_class == 3:
-            cloud_combustion_mode = 4
-        elif fuel_class == 3 and space_class == 4:
-            cloud_combustion_mode = 5
-        elif fuel_class == 4 and space_class == 1:
-            cloud_combustion_mode = 3
-        elif fuel_class == 4 and space_class == 2:
-            cloud_combustion_mode = 4
-        elif fuel_class == 4 and space_class == 3:
-            cloud_combustion_mode = 5
-        elif fuel_class == 4 and space_class == 4:
-            cloud_combustion_mode = 6
-
-        return cloud_combustion_mode
-
-    def _compute_velocity_flame(self, cloud_combustion_mode: int = 1,  mass_gas_phase: int | float = 0):
-        # скорость фронта пламени
-        k1 = 43.0
-        k2 = 26.0
-        if cloud_combustion_mode == 1:
-            u_front = 500
-        elif cloud_combustion_mode == 6:
-            u_front = k2 * mass_gas_phase ** 0.166
-        elif cloud_combustion_mode == 5:
-            u_front = k1 * mass_gas_phase ** 0.166
-        elif cloud_combustion_mode == 4:
-            u_front = k1 * mass_gas_phase ** 0.166
-            if u_front > 200:
-                u_front = k1 * mass_gas_phase ** 0.166
-            else:
-                u_front = 200
-        elif cloud_combustion_mode == 3:
-            u_front = k1 * mass_gas_phase ** 0.166
-            if u_front > 300:
-                u_front = k1 * mass_gas_phase ** 0.166
-            else:
-                u_front = 300
-        elif cloud_combustion_mode == 2:
-            u_front = k1 * mass_gas_phase ** 0.166
-            if u_front > 500:
-                u_front = k1 * mass_gas_phase ** 0.166
-            else:
-                u_front = 500
-        return u_front
 
     def compute_nonvelocity(self, wind: int | float, density_fuel: int | float, mass_burn_rate: int | float, eff_diameter: int | float):
         return wind / (np.cbrt((mass_burn_rate * self.g * eff_diameter) / density_fuel))
@@ -354,31 +272,6 @@ class AccidentParameters:
 
         return x_values, qf
 
-    def get_distance_at_sep(self, x_values, y_values, sep):
-        func_sep = interp1d(y_values, x_values, kind='linear',
-                            bounds_error=False, fill_value=0)
-        return func_sep(sep)
-
-    def get_sep_at_distance(self, x_values, y_values, distance):
-        func_distance = interp1d(x_values, y_values, kind='linear',
-                                 bounds_error=False, fill_value=0)
-        return func_distance(distance)
-
-    def get_coefficient_eta(self, velocity_air_flow: int | float = 0, temperature_air: int | float = None):
-
-        x_temp = [10.0, 15.0, 20.0, 30.0, 35.0]
-        y_vel = [0.0, 0.1, 0.2, 0.5, 1.0]
-        eta = np.array([(1.0, 1.0, 1.0, 1.0, 1.0),
-                        (3.0, 2.6, 2.4, 1.8, 1.6),
-                        (4.6, 3.8, 3.5, 2.4, 2.3),
-                        (6.6, 5.7, 5.4, 3.6, 3.2),
-                        (10.0, 8.7, 7.7, 5.6, 4.6)])
-        f_eta = RectBivariateSpline(x_temp, y_vel, eta.T, kx=4, ky=4, s=1)
-        coefficient_eta = f_eta(temperature_air, velocity_air_flow)
-        log.info(
-            f"При температуре: {temperature_air} и скорости: {velocity_air_flow}, eta: {coefficient_eta[-1][-1]:.2f}")
-        return coefficient_eta[-1][-1]
-
     def get_mode_explosion(self, class_fuel: int = 1, class_space: int = 1):
         mode_explosion = None
         if class_fuel == 1:
@@ -416,6 +309,80 @@ class AccidentParameters:
             else:
                 mode_explosion = 6
         return mode_explosion
+
+    def compute_eff_energy_reserve(self, conc_fuel: int | float, stc_conc_fuel: int | float, mass_expl: int | float, spec_heat_comb: int | float):
+        """Эффективный энергозапас горючей смеси Е"""
+        return (mass_expl * spec_heat_comb * (stc_conc_fuel/conc_fuel)) if conc_fuel > stc_conc_fuel else mass_expl * spec_heat_comb
+
+    def compute_nondimensional_distance(self, distance: int | float, energy_reserve: int | float):
+        return distance / ((energy_reserve/self.pressure_ambient) ** (1/3))
+
+    def compute_velocity_flame(self, cloud_combustion_mode: int = 1,  mass_gas_phase: int | float = 0):
+        # скорость фронта пламени
+        k1 = 43.0
+        k2 = 26.0
+        if cloud_combustion_mode == 1:
+            u_front = 500
+        elif cloud_combustion_mode == 6:
+            u_front = k2 * mass_gas_phase ** 0.166
+        elif cloud_combustion_mode == 5:
+            u_front = k1 * mass_gas_phase ** 0.166
+        elif cloud_combustion_mode == 4:
+            u_front = k1 * mass_gas_phase ** 0.166
+            if u_front > 200:
+                u_front = k1 * mass_gas_phase ** 0.166
+            else:
+                u_front = 200
+        elif cloud_combustion_mode == 3:
+            u_front = k1 * mass_gas_phase ** 0.166
+            if u_front > 300:
+                u_front = k1 * mass_gas_phase ** 0.166
+            else:
+                u_front = 300
+        elif cloud_combustion_mode == 2:
+            u_front = k1 * mass_gas_phase ** 0.166
+            if u_front > 500:
+                u_front = k1 * mass_gas_phase ** 0.166
+            else:
+                u_front = 500
+        return u_front
+
+    def compute_nondimensional_pressure(self, mode_explosion: int, nondim_distance: int | float):
+        pass
+
+    def compute_nondimensional_impuls(self, mode_explosion: int, nondim_distance: int | float):
+        pass
+
+    def compute_overpres_inclosed(self, nondim_pressure: int | float):
+        pass
+
+    def compute_impuls_inclosed(self, nondim_impuls: int | float, energy_reserve: int | float):
+        pass
+
+    def get_distance_at_sep(self, x_values, y_values, sep):
+        func_sep = interp1d(y_values, x_values, kind='linear',
+                            bounds_error=False, fill_value=0)
+        return func_sep(sep)
+
+    def get_sep_at_distance(self, x_values, y_values, distance):
+        func_distance = interp1d(x_values, y_values, kind='linear',
+                                 bounds_error=False, fill_value=0)
+        return func_distance(distance)
+
+    def get_coefficient_eta(self, velocity_air_flow: int | float = 0, temperature_air: int | float = None):
+
+        x_temp = [10.0, 15.0, 20.0, 30.0, 35.0]
+        y_vel = [0.0, 0.1, 0.2, 0.5, 1.0]
+        eta = np.array([(1.0, 1.0, 1.0, 1.0, 1.0),
+                        (3.0, 2.6, 2.4, 1.8, 1.6),
+                        (4.6, 3.8, 3.5, 2.4, 2.3),
+                        (6.6, 5.7, 5.4, 3.6, 3.2),
+                        (10.0, 8.7, 7.7, 5.6, 4.6)])
+        f_eta = RectBivariateSpline(x_temp, y_vel, eta.T, kx=4, ky=4, s=1)
+        coefficient_eta = f_eta(temperature_air, velocity_air_flow)
+        log.info(
+            f"При температуре: {temperature_air} и скорости: {velocity_air_flow}, eta: {coefficient_eta[-1][-1]:.2f}")
+        return coefficient_eta[-1][-1]
 
     def calc_evaporation_intencity_liquid(self, eta: int | float, molar_mass: int | float, vapor_pressure: int | float):
         """Возвращает интенсивность испарения паров жидкости"""

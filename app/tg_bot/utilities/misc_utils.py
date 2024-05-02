@@ -101,7 +101,7 @@ def get_dict(list_: list) -> dict:
     return {first: get_dict(rest)} if rest else first
 
 
-def get_data_table(data, headers: str, label: str, results: bool | None = False, row_num: int | None = None) -> bytes:
+def get_data_table(data, headers: str, label: str, results: bool | None = False, row_num: int | None = None, sel_row_num: int = 0) -> bytes:
     log.info("Таблица данных")
     rows = len(data)
     if rows > 0:
@@ -401,6 +401,7 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | floa
     plt.close(fig)
 
     return plot
+
 
 # def get_plot_graph(data, add_annotate: bool = False, add_legend: bool = False, add_colorbar: bool = False, **kwargs) -> bytes:
 #     log.info("График данных")

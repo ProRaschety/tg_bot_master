@@ -75,9 +75,10 @@ class FireRisk:
                     'unit_1': kwargs.get('time_presence_ind', 0), 'unit_2': 'час/\nсутки'},
                 # {'id': 'Частота возникновения\nпожара в здании', 'var': 'Q',
                 #     'unit_1': f"{(fire_freq):.2e}", 'unit_2': '1/год'},
-                {'id': 'Частота возникновения пожара', 'var': 'Q',
-                 'unit_1': f"{(float(kwargs.get('fire_freq_ind', 0.04))):.2e}", 'unit_2': 'м\u00B2*1/год'},
-                {'id': 'Площадь помещения', 'var': 'Sпом', 'unit_1': kwargs.get('area_ind', 100), 'unit_2': 'м\u00B2'}]
+                {'id': 'Частота возникновения пожара', 'var': 'Qп',
+                 'unit_1': f"{float(kwargs.get('fire_frequency_industrial')):.2e}", 'unit_2': '1/год'},
+                # {'id': 'Площадь помещения', 'var': 'Sпом', 'unit_1': kwargs.get('edit_area_to_frequency', 100), 'unit_2': 'м\u00B2'}
+            ]
 
         return data_risk, head_risk, label_risk
 
@@ -151,6 +152,8 @@ class FireRisk:
                     'unit_1': kwargs.get('k_alarm_ind', 0.8), 'unit_2': '-'},
                 {'id': 'Вероятность работы АПТ', 'var': 'Dапт',
                     'unit_1': kwargs.get('k_efs_ind', 0.9), 'unit_2': '-'},
+                {'id': 'Частота возникновения пожара', 'var': 'Qп',
+                 'unit_1': f"{float(kwargs.get('fire_frequency_industrial')):.2e}", 'unit_2': '1/год'}
             ]
         return data_risk, head_risk, label_risk
 
@@ -275,3 +278,29 @@ class FireRisk:
         else:
             fire_risk = potencial_risk * probity_presence
         return fire_risk
+
+    def get_fire_frequency(self, area: int | float, type_building: str, type_table: str):
+        if type_table != 'table_2_4':
+            data = {"power_stations": 0.000022,
+                    "chemical_products_warehouses": 0.000012,
+                    "warehouses_for_multi_item_products": 0.000090,
+                    "tool_and_mechanical_workshops": 0.000006,
+                    "workshops_for_processing_synthetic_rubber": 0.000027,
+                    "foundries_and_smelting_shops": 0.000019,
+                    "meat_and_fish_products_processing_workshops": 0.000015,
+                    "hot_metal_rolling_shops": 0.000019,
+                    "textile_manufacturing": 0.000022,
+                    "administrative_buildings_of_industrial_facilities": 0.000012}
+            handbook_frequency = data.get(type_building, 0)
+            return area * handbook_frequency
+        else:
+            data = {'food_and_tobacco_industry_buildings': (0.00110, 0.60),
+                    'recycling_of_combustible_substances_chemical_industry': (0.00690, 0.46),
+                    'placement_of_electrical_equipment': (0.00610, 0.59),
+                    'vehicle_servicing': (0.00012, 0.86),
+                    'textile_industry': (0.00750, 0.35),
+                    'printing_enterprises_publishing_business': (0.00070, 0.91),
+                    'administrative_buildings_of_industrial_facilities': (0.00006, 0.90),
+                    'other_types_of_industrial_buildings': (0.00840, 0.41)}
+            handbook_frequency = data.get(type_building, (0, 0))
+            return handbook_frequency[0] * area ** handbook_frequency[1]

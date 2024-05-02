@@ -734,9 +734,11 @@ async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSM
         n_C=6.911, n_H=12.168)
     stoichiometric_coef_fuel = compute_stoichiometric_coefficient_with_fuel(
         beta=stoichiometric_coef_oxygen)
+
     cloud_exp = AccidentParameters(type_accident='cloud_explosion')
     mode_expl = cloud_exp.get_mode_explosion(
         class_fuel=class_fuel, class_space=class_space)
+
     nondimensional_distance = distance / \
         (((2 * (mass * coef_z) * (heat * beta) * 1000) / (101325)) ** 0.333)
     nondimensional_pressure = 0.37
@@ -1081,7 +1083,7 @@ async def plot_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     data = await state.get_data()
     text = i18n.fire_ball.text()
 
-    subst = data.get('accident_fire_ball_sub')
+    # subst = data.get('accident_fire_ball_sub')
     mass = float(data.get('accident_fire_ball_mass_fuel'))
     sep = float(data.get('accident_fire_ball_sep'))
     distance = float(data.get('accident_fire_ball_distance'))

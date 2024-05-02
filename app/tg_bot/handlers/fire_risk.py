@@ -423,7 +423,8 @@ async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("edit_industrial_param", "0")
-    data.setdefault("area_ind", "100.0")
+    # data.setdefault("area_ind", "100.0")
+    data.setdefault("edit_area_to_frequency", "1")
     data.setdefault("fire_freq_ind", "0.04")
     data.setdefault("k_efs_ind", "0.9")
     data.setdefault("time_presence_ind", "2.0")
@@ -436,6 +437,7 @@ async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     data.setdefault("k_smoke_ind", "0.8")
     data.setdefault("working_days_per_year_ind", "247")
     data.setdefault("emergency_escape_ind", "0.001")
+    data.setdefault("fire_frequency_industrial", "0.04")
 
     text = i18n.industrial.text()
     # frisk = FireRisk(type_obj='industrial')
@@ -759,9 +761,12 @@ async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
 
     elif state_data == FSMFireRiskForm.edit_area_ind:
         if value != '' and value != '.':
-            await state.update_data(area_ind=value)
+            # await state.update_data(area_ind=value)
+            await state.update_data(edit_area_to_frequency=value)
         else:
-            await state.update_data(area_ind=100)
+            await state.update_data(edit_area_to_frequency='10')
+            # await state.update_data(area_ind=100)
+
     elif state_data == FSMFireRiskForm.edit_fire_freq_ind:
         if value != '' and value != '.':
             await state.update_data(fire_freq_ind=value)
@@ -793,6 +798,7 @@ async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
         frisk = FireRisk(type_obj='industrial')
 
     data_out, headers, label = frisk.get_init_data(**data)
+
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -830,7 +836,7 @@ async def run_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         frisk = FireRisk(type_obj='industrial')
     data_out, headers, label = frisk.get_result_data(**data)
     media = get_data_table(data=data_out, headers=headers,
-                           label=label, results=True, row_num=5)
+                           label=label, results=True, row_num=6)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
