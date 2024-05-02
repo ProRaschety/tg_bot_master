@@ -34,7 +34,7 @@ SFilter_ind = [FSMFireRiskForm.edit_fire_freq_ind, FSMFireRiskForm.edit_time_pre
                FSMFireRiskForm.edit_probity_evac_ind, FSMFireRiskForm.edit_area_ind, FSMFireRiskForm.edit_work_days_ind,
                FSMFireRiskForm.edit_time_blocking_paths_ind, FSMFireRiskForm.edit_time_start_evacuation_ind, FSMFireRiskForm.edit_time_evacuation_ind]
 
-kb_ind = [4, 'area_ind', 'fire_freq_ind', 'time_presence_ind', 'working_days_per_year_ind',
+kb_ind = [4, 'fire_freq_ind', 'time_presence_ind', 'working_days_per_year_ind',
           'time_start_evacuation_ind', 'time_blocking_paths_ind', 'time_evacuation_ind', 'probity_evac_ind', 'emergency_escape_ind',
           'k_efs_ind', 'k_alarm_ind', 'k_evacuation_ind', 'k_smoke_ind']
 
@@ -769,9 +769,9 @@ async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
 
     elif state_data == FSMFireRiskForm.edit_fire_freq_ind:
         if value != '' and value != '.':
-            await state.update_data(fire_freq_ind=value)
+            await state.update_data(fire_frequency_industrial=value)
         else:
-            await state.update_data(fire_freq_ind=1.2*10**-5)
+            await state.update_data(fire_frequency_industrial=0.000012)
     elif state_data == FSMFireRiskForm.edit_time_blocking_paths_ind:
         if value != '' and value != '.':
             await state.update_data(time_blocking_paths_ind=value)
@@ -814,19 +814,19 @@ async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
 @fire_risk_router.callback_query(F.data.in_(['run_industrial', 'run_industrial_guest']))
 async def run_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
-    data.setdefault("area_ind", "100.0")
-    data.setdefault("fire_freq_ind", "0.04")
-    data.setdefault("k_efs_ind", "0.9")
-    data.setdefault("time_presence_ind", "2.0")
-    data.setdefault("probity_evacuation_ind", "0.999")
-    data.setdefault("time_evacuation_ind", "300")
-    data.setdefault("time_blocking_paths_ind", "600")
-    data.setdefault("time_start_evacuation_ind", "30")
-    data.setdefault("k_alarm_ind", "0.8")
-    data.setdefault("k_evacuation_ind", "0.8")
-    data.setdefault("k_smoke_ind", "0.8")
-    data.setdefault("working_days_per_year_ind", "0.8")
-    data.setdefault("emergency_escape_ind", "0.001")
+    # data.setdefault("area_ind", "100.0")
+    # data.setdefault("fire_freq_ind", "0.04")
+    # data.setdefault("k_efs_ind", "0.9")
+    # data.setdefault("time_presence_ind", "2.0")
+    # data.setdefault("probity_evacuation_ind", "0.999")
+    # data.setdefault("time_evacuation_ind", "300")
+    # data.setdefault("time_blocking_paths_ind", "600")
+    # data.setdefault("time_start_evacuation_ind", "30")
+    # data.setdefault("k_alarm_ind", "0.8")
+    # data.setdefault("k_evacuation_ind", "0.8")
+    # data.setdefault("k_smoke_ind", "0.8")
+    # data.setdefault("working_days_per_year_ind", "0.8")
+    # data.setdefault("emergency_escape_ind", "0.001")
 
     text = i18n.industrial.text()
     state_data = await state.get_state()
@@ -843,6 +843,6 @@ async def run_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'back_industrial', i18n=i18n))
-    await state.update_data(data)
+    # await state.update_data(data)
     await state.set_state(state=None)
     await callback.answer('')

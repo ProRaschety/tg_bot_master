@@ -2,7 +2,8 @@ one_per_year =
     1/год
 
 one_per_meter_square_in_year =
-    1/м²×год
+    1
+    /м²×год
 
 kelvin =
     K

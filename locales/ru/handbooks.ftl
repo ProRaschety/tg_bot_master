@@ -86,8 +86,8 @@ warehouses_for_multi_item_products =
 tool_and_mechanical_workshops =
     Инструментально-механические цеха
 workshops_for_processing_synthetic_rubber =
-    Цеха по обработке синтетического каучука
-    и искусственных волокон
+    Цеха по обработке синтетического
+    каучука и искусственных волокон
 foundries_and_smelting_shops =
     Литейные и плавильные цеха
 meat_and_fish_products_processing_workshops =

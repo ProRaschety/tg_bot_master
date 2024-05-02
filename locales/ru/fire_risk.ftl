@@ -19,7 +19,7 @@ run_industrial= ▶ Рассчитать
 edit_industrial = 📝 Редактировать
 
 area_ind = Sпом
-fire_freq_ind = Q
+fire_freq_ind = Qп
 time_presence_ind = tпр
 working_days_per_year_ind = Nрд
 probity_evac_ind = Рэп
