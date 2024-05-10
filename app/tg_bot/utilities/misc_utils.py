@@ -101,7 +101,7 @@ def get_dict(list_: list) -> dict:
     return {first: get_dict(rest)} if rest else first
 
 
-def get_data_table(data, headers: str, label: str, results: bool | None = False, row_num: int | None = None, sel_row_num: int = 0) -> bytes:
+def get_data_table(data, headers: str, label: str, column: int = 4, results: bool | None = False, row_num: int | None = None, sel_row_num: int = 0) -> bytes:
     log.info("Таблица данных")
     rows = len(data)
     if rows > 0:
@@ -130,7 +130,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     }
 
     fig = plt.figure(figsize=(W, H),
-                     dpi=300, constrained_layout=False)
+                     dpi=150, constrained_layout=False)
     fig.subplots_adjust(**margins)
     # plt.style.use('Solarize_Light2')
     widths = [1]
@@ -173,7 +173,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
     fig_ax_2.set_ylim(step, ax2_ymax + step / 2)
 
     # добавить заголовки столбцов на высоте y=..., чтобы уменьшить пространство до первой строки данных
-    if len(list(headers)) == 4:
+    if column == 4:
         fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
                       weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
         fig_ax_2.text(x=cols-step * 2, y=hor_up_line, s=headers[1],
@@ -216,19 +216,19 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
                       color=(0.4941, 0.5686, 0.5843, 1.0))
 
     # заполнение таблицы данных
-    if len(list(headers)) == 4:
+    if column == 4:
         for row in range(1, rows + 1):
             d = data[row - 1]
             fig_ax_2.text(x=0, y=row, s=d.get(rows_keys[0]),
                           va='center', ha='left', **ft_size)
-            fig_ax_2.text(x=cols-step * 2, y=row, s=d.get(rows_keys[1]), va='center',
+            fig_ax_2.text(x=cols - step * 2, y=row, s=d.get(rows_keys[1]), va='center',
                           ha='center', weight='bold', **ft_size)
             fig_ax_2.text(x=cols, y=row, s=d.get(rows_keys[2]) if not isinstance(d.get(rows_keys[2]), datetime) else d.get(rows_keys[2]).strftime("%Y-%m-%d"),
                           va='center', weight='bold', ha='center', **ft_size)
             fig_ax_2.text(x=ax2_xmax, y=row, s=d.get(rows_keys[3]) if not isinstance(d.get(rows_keys[2]), datetime) else d.get(rows_keys[3]).strftime("%Y-%m-%d"),
                           va='center', ha='right', **ft_size)
     else:
-        for row in range(rows + 1):
+        for row in range(1, rows + 1):
             d = data[row - 1]
             fig_ax_2.text(x=0, y=row, s=d.get(rows_keys[0]),
                           va='center', ha='left', **ft_size)
@@ -238,7 +238,7 @@ def get_data_table(data, headers: str, label: str, results: bool | None = False,
                           va='center', ha='right', **ft_size)
 
     # выделите столбец, используя прямоугольную заплатку
-    if len(list(headers)) == 4:
+    if column == 4:
         rect = patches.Rectangle((cols - step, step),  # нижняя левая начальная позиция (x,y)
                                  width=0.950,
                                  height=ax2_ymax - step + 0.125,

@@ -67,8 +67,7 @@ pool_flame_angle =
 pool_flame_lenght =
     Длина пламени
 saturated_fuel_vapor_density_at_boiling_point =
-    Плотность насыщенных паров
-    горючего вещества
+    Плотность паров горючего
     при температуре кипения
 pool_distance =
     Расстояние от края пролива
@@ -119,14 +118,12 @@ radius_of_the_strait_above_which_an_explosive_zone_is_formed =
 height_LFL =
     Zнкпр
 height_zone_LFL =
-    Высота зоны, ограничивающей область
-    концентраций, превышающих НКПР,
+    Высота зоны концентраций, превышающих НКПР,
     при неподвижной воздушной среде
 radius_LFL =
     Rнкпр
 radius_zone_LFL =
-    Высота зоны, ограничивающей область
-    концентраций, превышающих НКПР,
+    Радиус зоны концентраций, превышающих НКПР,
     при неподвижной воздушной среде
 radius_Rf =
     Rf
@@ -169,6 +166,8 @@ plot_accident_cloud_explosion_impuls =
     📉 Импульс I⁺
 back_cloud_explosion =
     ↩ Назад
+plot_cloud_explosion_pressure-text =
+    <blockquote></blockquote>
 above_surface =
     Над
     землей
@@ -226,6 +225,10 @@ cloud_explosion_nondimensional_impuls =
 edit_cloud_explosion-text = {$cloud_explosion_param}
     <blockquote>{$edit_cloud_explosion}</blockquote>
 
+plot_cloud_explosion_overpres_label =
+    График избыточого давления
+y_cloud_explosion_overpres_label =
+    Избыточное давление взрыва, Па
 
 
 horizontal_jet =

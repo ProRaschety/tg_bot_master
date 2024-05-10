@@ -454,7 +454,6 @@ async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'edit_industrial', 'run_industrial', i18n=i18n, param_back=True, back_data='back_fire_risks_calc', check_role=True, role=role))
     await state.update_data(data)
-    await callback.answer('')
 
 
 @fire_risk_router.callback_query(F.data.in_(['edit_industrial', 'edit_industrial_guest', 'stop_edit_industrial']))

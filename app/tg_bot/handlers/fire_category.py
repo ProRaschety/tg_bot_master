@@ -102,7 +102,8 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     fc_build = FireCategoryBuild()
     data_out, headers, label = fc_build.get_init_data_table(
         *info_area)
-    media = get_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(
+        data=data_out, headers=headers, label=label, column=3)
     await state.update_data(data)
     # fc_build_data = fc_build.get_category_build(*info_area)
     text = i18n.category_build.text()
@@ -192,7 +193,8 @@ async def edit_area_efs_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
     fc_build = FireCategoryBuild()
     data_out, headers, label = fc_build.get_init_data_table(
         *info_area)
-    media = get_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(
+        data=data_out, headers=headers, label=label, column=3)
     # fc_build_data = fc_build.get_category_build(*info_area)
     text = i18n.category_build.text()
     await bot.edit_message_media(
@@ -399,7 +401,8 @@ async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
     fc_build = FireCategoryBuild()
     data_out, headers, label = fc_build.get_init_data_table(
         *info_area)
-    media = get_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(
+        data=data_out, headers=headers, label=label, column=3)
     # fc_build_data = fc_build.get_category_build(*info_area)
     text = i18n.category_build.text()
     await bot.edit_message_media(
@@ -452,7 +455,8 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
     fc_build = FireCategoryBuild()
     data_out, headers, label = fc_build.get_init_data_table(
         *info_area)
-    media = get_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(
+        data=data_out, headers=headers, label=label, column=3)
     fc_build_data, cause = fc_build.get_category_build(*info_area)
     text = i18n.category_build_result.text(
         category_build=fc_build_data, cause=cause)
@@ -495,7 +499,8 @@ async def category_outdoor_installation_call(callback: CallbackQuery, bot: Bot, 
 
     fc_out_inst = FireCategoryOutInstall()
     data_out, headers, label = fc_out_inst.get_init_data_table()
-    media = get_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(
+        data=data_out, headers=headers, label=label, column=3)
 
     await state.update_data(data)
     await bot.edit_message_media(
@@ -522,7 +527,8 @@ async def run_category_outdoor_installation_call(callback: CallbackQuery, bot: B
     cat_out_inst = FireCategoryOutInstall()
     data_out, headers, label = cat_out_inst.get_init_data_table()
 
-    media = get_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(
+        data=data_out, headers=headers, label=label, column=3)
 
     category_out_inst = cat_out_inst.get_fire_hazard_categories()
 

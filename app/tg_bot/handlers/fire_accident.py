@@ -745,6 +745,7 @@ async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSM
     nondimensional_impuls = 0.027
     overpressure = 38000
     impuls_overpressure = 45800
+
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('cloud_explosion')
@@ -805,6 +806,57 @@ async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSM
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'plot_accident_cloud_explosion_pressure', 'plot_accident_cloud_explosion_impuls', i18n=i18n, param_back=True, back_data='back_cloud_explosion', check_role=False, role=role))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data.in_(['plot_accident_cloud_explosion_pressure']))
+async def plot_cloud_explosion_pres_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    data = await state.get_data()
+    text = i18n.plot_cloud_explosion_pressure.text()
+
+    subst = data.get('accident_cloud_explosion_sub')
+    mass = float(data.get('accident_cloud_explosion_mass_fuel'))
+    coef_z = float(data.get('accident_cloud_explosion_coef_z'))
+    class_fuel = int(data.get('accident_cloud_explosion_class_fuel'))
+    class_space = int(data.get('accident_cloud_explosion_class_space'))
+    heat = float(data.get('accident_cloud_explosion_heat_combustion'))
+    beta = float(data.get('accident_cloud_explosion_correction_parameter'))
+    distance = float(data.get('accident_cloud_explosion_distance'))
+    stoichiometric_coef_oxygen = compute_stoichiometric_coefficient_with_oxygen(
+        n_C=6.911, n_H=12.168)
+    stoichiometric_coef_fuel = compute_stoichiometric_coefficient_with_fuel(
+        beta=stoichiometric_coef_oxygen)
+
+    cloud_exp = AccidentParameters(type_accident='cloud_explosion')
+    mode_expl = cloud_exp.get_mode_explosion(
+        class_fuel=class_fuel, class_space=class_space)
+
+    f_ball = AccidentParameters(type_accident='fire_ball')
+    diameter_ball = f_ball.compute_fire_ball_diameter(mass=mass)
+
+    x, y = f_ball.compute_heat_flux_fire_ball(
+        diameter_ball=diameter_ball, height=diameter_ball, sep=350)
+
+    sep_num = f_ball.get_sep_at_distance(
+        x_values=x, y_values=y, distance=distance)
+
+    unit_sep = i18n.get('kilopascal')
+    text_annotate = f" ΔP= {sep_num:.1f} {unit_sep}"
+    media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
+                           add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
+                           label=i18n.get(
+                               'plot_cloud_explosion_overpres_label'),
+                           x_label=i18n.get('distance_label'),
+                           y_label=i18n.get(
+                               'y_cloud_explosion_overpres_label'),
+                           add_legend=True, loc_legend=1)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_cloud_explosion', check_role=True, role=role))
     await callback.answer('')
 
 
