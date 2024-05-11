@@ -403,6 +403,47 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | floa
     return plot
 
 
+def get_init_data_table(data, headers: str, label: str, column: int = 4, results: bool | None = False, row_num: int | None = None, sel_row_num: int = 0) -> bytes:
+    log.info("Таблица исходных данных")
+    rows = len(data)
+    if rows > 0:
+        data = data
+    else:
+        data = [{'id': '-', 'var': '-', 'unit_1': '-', 'unit_2': '-'}]
+    rows_keys = list(data[0].keys())
+    cols = len(list(data[0]))
+
+    px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
+    marg = 50
+    h = rows * marg  # px 450
+    W, H = (cols + (rows - cols), rows)
+    left = 0.030
+    bottom = 0.030
+    right = 0.970
+    top = 0.950
+    hspace = 0.000
+    margins = {
+        "left": left,  # 0.030
+        "bottom": bottom,  # 0.030
+        "right": right,  # 0.970
+        "top": top,  # 0.900
+        "hspace": hspace  # 0.200
+    }
+
+    fig = plt.figure(figsize=(W, H),
+                     dpi=150, constrained_layout=False)
+    fig.subplots_adjust(**margins)
+
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    buffer.close()
+    plt.cla()
+    plt.style.use('default')
+    plt.close(fig)
+    return image_png
+
 # def get_plot_graph(data, add_annotate: bool = False, add_legend: bool = False, add_colorbar: bool = False, **kwargs) -> bytes:
 #     log.info("График данных")
 #     # размеры рисунка в дюймах

@@ -315,7 +315,7 @@ async def k_smoke_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18
 async def k_efs_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     state_data = await state.get_state()
     call_data = callback.data
-    data = await state.get_data()
+    # data = await state.get_data()
     if call_data == 'k_efs_pub_true':
         await state.update_data(k_efs_pub=0.9)
     elif call_data == 'k_efs_pub_false':
@@ -341,7 +341,7 @@ async def k_efs_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
 async def k_alarm_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     state_data = await state.get_state()
     call_data = callback.data
-    data = await state.get_data()
+    # data = await state.get_data()
     if call_data == 'k_alarm_pub_true':
         await state.update_data(k_alarm_pub=0.8)
     elif call_data == 'k_alarm_pub_false':
@@ -367,7 +367,7 @@ async def k_alarm_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18
 async def k_evacuation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     state_data = await state.get_state()
     call_data = callback.data
-    data = await state.get_data()
+    # data = await state.get_data()
     if call_data == 'k_evacuation_pub_true':
         await state.update_data(k_evacuation_pub=0.8)
     elif call_data == 'k_evacuation_pub_false':
@@ -393,7 +393,7 @@ async def k_evacuation_call(callback: CallbackQuery, bot: Bot, state: FSMContext
 async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     state_data = await state.get_state()
     call_data = callback.data
-    data = await state.get_data()
+    # data = await state.get_data()
     if call_data == 'k_smoke_pub_true':
         await state.update_data(k_smoke_pub=0.8)
     elif call_data == 'k_smoke_pub_false':
@@ -519,7 +519,7 @@ async def emergency_escape_ind_call(callback: CallbackQuery, bot: Bot, state: FS
 @fire_risk_router.callback_query(F.data.in_(['k_efs_ind_true', 'k_efs_ind_true_095', 'k_efs_ind_false']))
 async def k_efs_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = callback.data
-    data = await state.get_data()
+    # data = await state.get_data()
     if call_data == 'k_efs_ind_true':
         await state.update_data(k_efs_ind=0.9)
     elif call_data == 'k_efs_ind_true_095':
@@ -544,7 +544,7 @@ async def k_efs_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
 @fire_risk_router.callback_query(F.data.in_(['k_alarm_ind_true', 'k_alarm_ind_false']))
 async def k_alarm_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = callback.data
-    data = await state.get_data()
+    # data = await state.get_data()
     if call_data == 'k_alarm_ind_true':
         await state.update_data(k_alarm_ind=0.8)
     elif call_data == 'k_alarm_ind_false':
@@ -567,7 +567,7 @@ async def k_alarm_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 @fire_risk_router.callback_query(F.data.in_(['k_evacuation_ind_true', 'k_evacuation_ind_false']))
 async def k_evacuation_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = callback.data
-    data = await state.get_data()
+    # data = await state.get_data()
     if call_data == 'k_evacuation_ind_true':
         await state.update_data(k_evacuation_ind=0.8)
     elif call_data == 'k_evacuation_ind_false':
@@ -590,7 +590,7 @@ async def k_evacuation_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSM
 @fire_risk_router.callback_query(F.data.in_(['k_smoke_ind_true', 'k_smoke_ind_false']))
 async def k_smoke_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = callback.data
-    data = await state.get_data()
+    # data = await state.get_data()
     if call_data == 'k_smoke_ind_true':
         await state.update_data(k_smoke_ind=0.8)
     elif call_data == 'k_smoke_ind_false':
@@ -613,7 +613,7 @@ async def k_smoke_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 @fire_risk_router.callback_query(F.data.in_(['emergency_escape_ind_true', 'emergency_escape_ind_false']))
 async def emergency_escape_ind_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     call_data = callback.data
-    data = await state.get_data()
+    # data = await state.get_data()
     if call_data == 'emergency_escape_ind_true':
         await state.update_data(emergency_escape_ind=0.03)
     elif call_data == 'emergency_escape_ind_false':

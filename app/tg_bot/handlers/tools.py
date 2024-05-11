@@ -82,7 +82,7 @@ async def tools_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRun
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(*kb_tools, param_back=True, back_data='general_menu', i18n=i18n))
-    await callback_data.answer('')
+
 
 """____жидкость____"""
 
@@ -101,7 +101,7 @@ async def tool_liquid_call(callback_data: CallbackQuery, bot: Bot, state: FSMCon
     data.setdefault("tool_liquid_hole_diameter", "0.1")
     data.setdefault("tool_liquid_hole_distance", "0.1")
     data.setdefault("tool_liquid_mu", "0.62")
-    # data.setdefault("tool_liquid_hole_area", "1")
+    data.setdefault("accident_horizontal_jet_mass_rate", "5")
 
     text = i18n.tool_liquid.text()
     ph_tool = PhysicTool(type_substance='liquid')
@@ -352,6 +352,7 @@ async def edit_tool_liquid_param_call(callback: CallbackQuery, bot: Bot, state: 
     await state.update_data(edit_tool_liquid_param='')
     await callback.answer('')
 
+
 """____сжатый_газ____"""
 
 
@@ -371,6 +372,7 @@ async def tool_comp_gas_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
     data.setdefault("tool_comp_gas_pres_init", "5000000")
     data.setdefault("tool_comp_gas_molar_mass", "0.002")
     data.setdefault("tool_comp_gas_specific_heat_const_vol", "10.24")
+    data.setdefault("accident_horizontal_jet_mass_rate", "5")
 
     text = i18n.tool_comp_gas.text()
     ph_tool = PhysicTool(type_substance='comp_gas')
@@ -415,7 +417,6 @@ async def run_tool_comp_gas_call(callback: CallbackQuery, state: FSMContext, bot
                                       'plot_tool_comp_gas',
                                       param_back=True, back_data='back_tool_comp_gas', i18n=i18n))
     await state.set_state(state=None)
-    await callback.answer('')
 
 
 @tools_router.callback_query(F.data.in_(['plot_tool_comp_gas']))
@@ -443,7 +444,6 @@ async def plot_tool_comp_gas_call(callback: CallbackQuery, state: FSMContext, bo
             file=media, filename="plot_tools"), caption=text),
         reply_markup=get_inline_cd_kb(param_back=True, back_data='back_tool_comp_gas', i18n=i18n))
     await state.set_state(state=None)
-    await callback.answer('')
 
 
 @tools_router.callback_query(F.data.in_(['edit_tool_comp_gas', 'edit_tool_comp_gas_guest', 'stop_edit_tool_comp_gas']))
