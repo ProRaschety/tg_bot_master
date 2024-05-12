@@ -416,7 +416,7 @@ async def table_th_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
                            label=label, results=True, row_num=8)
     end = time.time()
     total = end - start
-    print('Время выполнения функции: ', total)
+    log.info(f"Время выполнения функции: {total}")
 
     text = i18n.frequencies.text()
     await bot.edit_message_media(

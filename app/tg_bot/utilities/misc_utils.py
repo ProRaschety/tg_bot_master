@@ -156,7 +156,7 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
     fig_ax_1.text(x=0.0, y=0.0, s=label, weight='bold',
                   ha='left', **ft_label_size)
     fig_ax_1.plot([0, x_bound_right], [-0.25, -0.25],
-                  lw=(H*0.000080 * px) * 50, color=(0.913, 0.380, 0.082, 1.0))
+                  lw=zoom * 50, color=(0.913, 0.380, 0.082, 1.0))
     imagebox = OffsetImage(logo, zoom=zoom,
                            dpi_cor=True, resample=False, filternorm=False)
     ab = AnnotationBbox(imagebox, (x_bound_right - zoom * 0.1, 0.0),  frameon=False,

@@ -1052,13 +1052,7 @@ async def vertical_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext
             'var': '-',
             'unit_1': i18n.get(jet_state_phase),
             'unit_2': '-'}]
-
-    start = time.time()
     media = get_data_table(data=data_out, headers=headers, label=label)
-    end = time.time()
-    total = end - start
-    print('Время выполнения функции: ', total)
-
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
