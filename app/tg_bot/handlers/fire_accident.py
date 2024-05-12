@@ -1,4 +1,5 @@
 import logging
+import time
 
 from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
@@ -12,11 +13,12 @@ from fluentogram import TranslatorRunner
 # from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest
-from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph
+from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph, get_init_data_table
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm
 from app.calculation.physics.accident_parameters import AccidentParameters
 from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel, compute_stoichiometric_coefficient_with_fuel, compute_stoichiometric_coefficient_with_oxygen
+
 log = logging.getLogger(__name__)
 
 fire_accident_router = Router()
@@ -1051,7 +1053,12 @@ async def vertical_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext
             'unit_1': i18n.get(jet_state_phase),
             'unit_2': '-'}]
 
+    start = time.time()
     media = get_data_table(data=data_out, headers=headers, label=label)
+    end = time.time()
+    total = end - start
+    print('Время выполнения функции: ', total)
+
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,

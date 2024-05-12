@@ -266,6 +266,7 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
     plt.cla()
     plt.style.use('default')
     plt.close(fig)
+
     return image_png
 
 

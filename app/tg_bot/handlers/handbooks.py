@@ -1,4 +1,5 @@
 import logging
+import time
 
 from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
@@ -410,8 +411,13 @@ async def table_th_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
             'unit_1': f"{0.00110:.5f}",
             'unit_2': 0.60}]
 
+    start = time.time()
     media = get_data_table(data=data_out, headers=headers,
                            label=label, results=True, row_num=8)
+    end = time.time()
+    total = end - start
+    print('Время выполнения функции: ', total)
+
     text = i18n.frequencies.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
