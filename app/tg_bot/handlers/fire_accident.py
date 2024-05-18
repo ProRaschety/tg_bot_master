@@ -1,5 +1,4 @@
 import logging
-import time
 
 from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
@@ -118,9 +117,11 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     await state.update_data(data)
     data = await state.get_data()
     text = i18n.fire_pool.text()
+
     subst = data.get('accident_fire_pool_sub')
     air_density = compute_density_gas_phase(
         molar_mass=28.97, temperature=float(data.get('accident_fire_pool_temperature')))
+
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('fire_pool')

@@ -31,23 +31,23 @@ async def process_start_command(message: Message, state: FSMContext, i18n: Trans
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']
         text = i18n.start_subscriber.menu()
     elif role == "comrade":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
         text = i18n.start.menu()
     elif role == "admin":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel']
         text = i18n.start.menu()
     elif role == "owner":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
         text = i18n.start.menu()
     else:
-        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+        main_kb = ['handbooks', 'fds_tools', 'tools_guest', 'fire_resistance_guest',
                    'fire_risks', 'fire_category_guest']
         text = i18n.start_guest.menu()
     await message.answer_photo(
@@ -63,23 +63,23 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']
         text = i18n.start_subscriber.menu()
     elif role == "comrade":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
         text = i18n.start.menu()
     elif role == "admin":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel']
         text = i18n.start.menu()
     elif role == "owner":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
         text = i18n.start.menu()
     else:
-        main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
+        main_kb = ['handbooks', 'fds_tools', 'tools_guest', 'fire_resistance_guest',
                    'fire_risks', 'fire_category_guest']
         text = i18n.start_guest.menu()
     await bot.edit_message_media(
@@ -96,19 +96,19 @@ async def fire_resistance_guest_call(callback_data: CallbackQuery, bot: Bot, sta
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
     if role == "subscriber":
-        main_kb = ['handbooks', 'tools', 'fire_resistance_guest',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance_guest',
                    'fire_risks', 'fire_category']
         text = i18n.subscriber.menu(button=i18n.get(callback_data.data))
     elif role == "comrade":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category']
 
     elif role == "admin":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel']
         text = i18n.start.menu()
     elif role == "owner":
-        main_kb = ['handbooks', 'tools', 'fire_resistance',
+        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
                    'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
         text = i18n.start.menu()
     else:

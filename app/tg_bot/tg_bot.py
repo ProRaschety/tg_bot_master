@@ -3,7 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.enums import ParseMode
-from aiogram.utils.i18n import ConstI18nMiddleware, I18n
+# from aiogram.utils.i18n import ConstI18nMiddleware, I18n
 
 from fluentogram import TranslatorHub
 
@@ -26,6 +26,7 @@ from app.tg_bot.handlers.data_base_req import data_base_req_router
 from app.tg_bot.handlers.handbooks import handbooks_router
 from app.tg_bot.handlers.tools import tools_router
 from app.tg_bot.handlers.fire_accident import fire_accident_router
+from app.tg_bot.handlers.fds_tools import fds_tools_router
 from app.tg_bot.handlers.other import other_router
 
 
@@ -78,6 +79,7 @@ async def main():
     dp.include_router(tools_router)
     dp.include_router(data_base_req_router)
     dp.include_router(fire_accident_router)
+    dp.include_router(fds_tools_router)
     dp.include_router(other_router)
 
     # i18n = I18n(path="locales", default_locale="ru", domain="i18n_example_bot")

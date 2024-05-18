@@ -1,10 +1,15 @@
-fire_risks-text = <blockquote></blockquote>
+fire_risks-text =
+    <blockquote></blockquote>
 
-back_fire_risks = ↩ Назад
-back_fire_risks_calc = ↩ Назад
+back_fire_risks =
+    ↩ Назад
+back_fire_risks_calc =
+    ↩ Назад
 
-back_public = ↩ Назад
-back_industrial = ↩ Назад
+back_public =
+    ↩ Назад
+back_industrial =
+    ↩ Назад
 
 fire_risks_calculator = Калькулятор риска
 fire_risks_calculator-text = Калькулятор риска.

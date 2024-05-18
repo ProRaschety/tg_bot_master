@@ -272,7 +272,9 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
 
 def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | float = None,
                    add_annotate: bool = False, text_annotate: str = None, x_ann: int | float = None, y_ann: int | float = None,
-                   add_legend: bool = False, loc_legend: int = 1, **kwargs):
+                   add_legend: bool = False, loc_legend: int = 1,
+                   add_fill_between: bool = False, param_fill: int | float = None, label_fill: str = None,
+                   add_axhline: bool = False, label_axline: str = None, plot_color=(0.9, 0.1, 0, 0.9), **kwargs):
     # размеры рисунка в дюймах
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
     w = 650  # px
@@ -321,8 +323,9 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | floa
 
     """____Вторая часть таблицы____"""
     fig_ax_2 = fig.add_subplot(gs[0, 0])
-    fig_ax_2.plot(x_values, y_values, '-', linewidth=3,
-                  label=y_label, color=(0.9, 0.1, 0, 0.9))
+    fig_ax_2.plot(x_values, y_values, '-',
+                  #   linewidth=3,
+                  color=plot_color, **kwargs)
     # fig_ax_2.plot(abscissa, plot_second, '-', linewidth=3,
     #               label=text_legend_second, color=(0, 0, 0, 0.9))
     # fig_ax_2.hlines(y=Tcr, xmin=0, xmax=time_fsr*0.96, linestyle='--',
@@ -331,11 +334,12 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | floa
     #                 linewidth=1, color=(0.1, 0.1, 0, 1.0))
     # fig_ax_2.scatter(time_fsr, Tcr, s=90, marker='o',
     #                  color=(0.9, 0.1, 0, 1))
-    # Ось абсцисс Xaxis
 
+    # Ось абсцисс Xaxis
     fig_ax_2.set_xlim(0.0, max(x_values) + max(x_values)*0.05)
     fig_ax_2.set_xlabel(xlabel=x_label, fontdict=None,
                         labelpad=None, weight='bold', loc='center', **ft_size)
+
     # Ось ординат Yaxis
     if ylim == None:
         fig_ax_2.set_ylim(0.0, max(y_values) + max(y_values)*0.01)
@@ -343,29 +347,37 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | floa
         fig_ax_2.set_ylim(0.0, ylim)
         fig_ax_2.ticklabel_format(
             axis='y', style='sci', scilimits=(0, 2), useOffset=True)
-
     fig_ax_2.set_ylabel(ylabel=y_label,
                         fontdict=None, labelpad=None, weight='bold', loc='center', **ft_size)
 
     if add_annotate:
-        fig_ax_2.hlines(y=y_ann, xmin=0, xmax=x_ann*0.99, linestyle='--',
-                        linewidth=1, color=(0.1, 0.1, 0, 1.0))
-
-        fig_ax_2.vlines(x=x_ann, ymin=0, ymax=y_ann*0.99, linestyle='--',
-                        linewidth=1, color=(0.1, 0.1, 0, 1.0))
-
-        fig_ax_2.scatter(x_ann, y_ann, s=90, marker='o',
-                         color=(0.9, 0.1, 0.0, 0.90))
-
         fig_ax_2.annotate(text_annotate,
-                          xy=(0, ylim),
-                          xytext=(x_ann + (x_ann / 50),
-                                  y_ann + (y_ann / 50)),
+                          xy=(0, max(y_values) + max(y_values)
+                              * 0.01 if ylim == None else ylim),
+                          xytext=(x_ann + (x_ann / 50) if x_ann else min(x_values),
+                                  y_ann + (y_ann / 50) if y_ann else min(y_values)),
                           xycoords='data', textcoords='data', weight='bold', **ft_size)
 
-    if add_legend:
-        fig_ax_2.legend(fontsize=12, framealpha=0.95,
-                        facecolor="w", loc=loc_legend)
+        if y_ann:
+            fig_ax_2.hlines(y=y_ann, xmin=0, xmax=x_ann*0.99, linestyle='--',
+                            linewidth=1, color=(0.1, 0.1, 0, 1.0))
+        if x_ann:
+            fig_ax_2.vlines(x=x_ann, ymin=0, ymax=y_ann*0.99, linestyle='--',
+                            linewidth=1, color=(0.1, 0.1, 0, 1.0))
+        if y_ann and x_ann:
+            fig_ax_2.scatter(x_ann, y_ann, s=90, marker='o',
+                             color=(0.9, 0.1, 0.0, 0.90))
+
+    if add_axhline:
+        fig_ax_2.axhline(param_fill,
+                         color="red", linestyle="--", lw=1, label=f'{label_axline} ≥ {param_fill} м²/м²')
+
+    if add_fill_between:
+        fig_ax_2.fill_between(x_values,
+                              y_values,
+                              param_fill,
+                              where=[d > param_fill for d in y_values],
+                              color='red', alpha=0.25, label=label_fill)
 
     # Цветовая шкала
     # plt.colorbar()
@@ -386,6 +398,9 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | floa
                   linestyle=':',
                   linewidth=0.250)
 
+    if add_legend:
+        fig_ax_2.legend(fontsize=10, framealpha=0.95,
+                        facecolor="w", loc=loc_legend)
     # directory = get_temp_folder(fold_name='temp_pic')
     # name_plot = "".join(['fig_steel_fr_', str(self.chat_id), '.png'])
     # name_dir = '/'.join([directory, name_plot])

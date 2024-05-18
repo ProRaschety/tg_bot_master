@@ -17,7 +17,8 @@ from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
-from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph
+from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
+from app.tg_bot.utilities.tables import get_initial_data, get_result_data
 from app.tg_bot.states.fsm_state_data import FSMClimateForm, FSMFrequencyForm
 # from app.calculation.database_mode.substance import SubstanceDB
 from app.calculation.database_mode.climate import Climate
@@ -410,6 +411,9 @@ async def table_th_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
             'var': '○' if type_building != 'food_and_tobacco_industry_buildings' else '●',
             'unit_1': f"{0.00110:.5f}",
             'unit_2': 0.60}]
+
+    # data_out, headers, label = get_result_data(
+    #     type_building, area_to_frequencies, fire_frequency, data=data, label='frequencies_table_2_4', i18n=i18n)
 
     start = time.time()
     media = get_data_table(data=data_out, headers=headers,

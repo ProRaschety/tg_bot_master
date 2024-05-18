@@ -89,7 +89,7 @@ async def tools_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRun
 
 @tools_router.callback_query(F.data.in_(['tool_liquid', 'back_tool_liquid']))
 async def tool_liquid_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    state_data = await state.get_state()
+    # state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("edit_tool_liquid_param", "0")
     data.setdefault("tool_liquid_density", "1000")

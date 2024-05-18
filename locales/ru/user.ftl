@@ -29,6 +29,9 @@ link_1-text =
 handbooks =
     Справочники
 
+fds_tools =
+    Утилиты FDS
+
 tools =
     Инструменты
 tools_guest =
