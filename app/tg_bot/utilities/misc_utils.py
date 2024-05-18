@@ -354,7 +354,7 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | floa
         fig_ax_2.annotate(text_annotate,
                           xy=(0, max(y_values) + max(y_values)
                               * 0.01 if ylim == None else ylim),
-                          xytext=(x_ann + (x_ann / 50) if x_ann else 0.01,
+                          xytext=(x_ann + (x_ann / 50) if x_ann else 0.05,
                                   y_ann + (y_ann / 50) if y_ann else (min(y_values) + 0.01)),
                           xycoords='data', textcoords='data', weight='bold', **ft_size)
 
