@@ -7274,139 +7274,139 @@ class _ClimateDB:
         self.connect = connect
 
     async def create_table_regions(self) -> None:
-        async with self.connect.transaction():
-            await self.connect.execute('''
-                CREATE TABLE IF NOT EXISTS regions(
-                    id SERIAL PRIMARY KEY,
-                    region VARCHAR(50) NOT NULL UNIQUE
-                );
-            ''')
-            log.info("Created table '%s'", self.__table_regions__)
+        # async with self.connect.transaction():
+        await self.connect.execute('''
+            CREATE TABLE IF NOT EXISTS regions(
+                id SERIAL PRIMARY KEY,
+                region VARCHAR(50) NOT NULL UNIQUE
+            );
+        ''')
+        log.info("Created table '%s'", self.__table_regions__)
 
     async def create_table_cities(self) -> None:
-        async with self.connect.transaction():
-            await self.connect.execute('''
-                CREATE TABLE IF NOT EXISTS cities(
-                    id SERIAL PRIMARY KEY,
-                    regionid INTEGER references regions(id),
-                    city VARCHAR(30) NOT NULL UNIQUE,
-                    longitude REAL NOT NULL,
-                    latitude REAL NOT NULL
-                );
-            ''')
-            log.info("Created table '%s'", self.__table_cities__)
+        # async with self.connect.transaction():
+        await self.connect.execute('''
+            CREATE TABLE IF NOT EXISTS cities(
+                id SERIAL PRIMARY KEY,
+                regionid INTEGER references regions(id),
+                city VARCHAR(30) NOT NULL UNIQUE,
+                longitude REAL NOT NULL,
+                latitude REAL NOT NULL
+            );
+        ''')
+        log.info("Created table '%s'", self.__table_cities__)
 
     async def create_table_climate(self) -> None:
-        async with self.connect.transaction():
-            await self.connect.execute('''
-                CREATE TABLE IF NOT EXISTS climate(
-                    id SERIAL PRIMARY KEY,
-                    cityid INTEGER references cities(id) NOT NULL UNIQUE,
-                    CWind REAL,
-                    PWindE REAL,
-                    PWindN REAL,
-                    PWindNE REAL,
-                    PWindNW REAL,
-                    PWindS REAL,
-                    PWindSE REAL,
-                    PWindSW REAL,
-                    PWindW REAL,
-                    Temperature REAL,
-                    WindVelocity REAL
-                );
-            ''')
-            log.info("Created table '%s'", self.__table_climate__)
+        # async with self.connect.transaction():
+        await self.connect.execute('''
+            CREATE TABLE IF NOT EXISTS climate(
+                id SERIAL PRIMARY KEY,
+                cityid INTEGER references cities(id) NOT NULL UNIQUE,
+                CWind REAL,
+                PWindE REAL,
+                PWindN REAL,
+                PWindNE REAL,
+                PWindNW REAL,
+                PWindS REAL,
+                PWindSE REAL,
+                PWindSW REAL,
+                PWindW REAL,
+                Temperature REAL,
+                WindVelocity REAL
+            );
+        ''')
+        log.info("Created table '%s'", self.__table_climate__)
 
     async def add_regions(self) -> None:
-        async with self.connect.transaction():
-            for region in regions:
-                await self.connect.execute('''
-                    INSERT INTO regions(region)
-                    VALUES($1) ON CONFLICT DO NOTHING;
-                ''', region['REGION']
-                )
-            log.info("Region added. db='%s'", self.__table_regions__)
+        # async with self.connect.transaction():
+        for region in regions:
+            await self.connect.execute('''
+                INSERT INTO regions(region)
+                VALUES($1) ON CONFLICT DO NOTHING;
+            ''', region['REGION']
+            )
+        log.info("Region added. db='%s'", self.__table_regions__)
 
     async def add_cities(self) -> None:
-        async with self.connect.transaction():
-            for city in cities:
-                await self.connect.execute('''
-                    INSERT INTO cities(regionid, city, longitude, latitude)
-                    VALUES($1, $2, $3, $4) ON CONFLICT DO NOTHING;
-                ''', city['REGIONID'], city['CITY'], city['LONGITUDE'], city['LATITUDE']
-                )
-                # log.info(
-                #     "City added. db='%s', region=%s, city=%s, longitude=%d, latitude=%d",
-                #     self.__table_cities__, city['REGIONID'], city['CITY'], city['LONGITUDE'], city['LATITUDE']
-                # )
-            log.info("City added. db='%s'", self.__table_cities__)
+        # async with self.connect.transaction():
+        for city in cities:
+            await self.connect.execute('''
+                INSERT INTO cities(regionid, city, longitude, latitude)
+                VALUES($1, $2, $3, $4) ON CONFLICT DO NOTHING;
+            ''', city['REGIONID'], city['CITY'], city['LONGITUDE'], city['LATITUDE']
+            )
+            # log.info(
+            #     "City added. db='%s', region=%s, city=%s, longitude=%d, latitude=%d",
+            #     self.__table_cities__, city['REGIONID'], city['CITY'], city['LONGITUDE'], city['LATITUDE']
+            # )
+        log.info("City added. db='%s'", self.__table_cities__)
 
     async def add_climates(self) -> None:
-        async with self.connect.transaction():
-            for climate_data in climates:
-                await self.connect.execute('''
-                    INSERT INTO climate(CITYID, CWind, PWindE, PWindN,PWindNE,PWindNW,
-                    PWindS,PWindSE,PWindSW,PWindW,Temperature,WindVelocity)
-                    VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) ON CONFLICT DO NOTHING;
-                ''', climate_data['CITYID'], climate_data['CWind'], climate_data['PWindE'], climate_data['PWindN'],
-                    climate_data['PWindNE'], climate_data['PWindNW'], climate_data[
-                        'PWindS'], climate_data['PWindSE'], climate_data['PWindSW'],
-                    climate_data['PWindW'], climate_data['Temperature'], climate_data['WindVelocity']
-                )
-                # log.info(
-                #     "City added. db='%s', cityid=%s, CWind=%d, PWindE=%d, PWindN=%d, PWindNE=%d, PWindNW=%d, PWindS=%d, PWindSE=%d, PWindSW=%d, PWindW=%d, Temperature=%d, WindVelocity=%d",
-                #     self.__table_climate__, climate_data['CITYID'], climate_data[
-                #         'CWind'], climate_data['PWindE'], climate_data['PWindN'],
-                #     climate_data['PWindNE'], climate_data['PWindNW'], climate_data[
-                #         'PWindS'], climate_data['PWindSE'], climate_data['PWindSW'],
-                #     climate_data['PWindW'], climate_data['Temperature'], climate_data['WindVelocity']
-                # )
-            log.info("City added. db='%s'", self.__table_climate__)
+        # async with self.connect.transaction():
+        for climate_data in climates:
+            await self.connect.execute('''
+                INSERT INTO climate(CITYID, CWind, PWindE, PWindN,PWindNE,PWindNW,
+                PWindS,PWindSE,PWindSW,PWindW,Temperature,WindVelocity)
+                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) ON CONFLICT DO NOTHING;
+            ''', climate_data['CITYID'], climate_data['CWind'], climate_data['PWindE'], climate_data['PWindN'],
+                climate_data['PWindNE'], climate_data['PWindNW'], climate_data[
+                    'PWindS'], climate_data['PWindSE'], climate_data['PWindSW'],
+                climate_data['PWindW'], climate_data['Temperature'], climate_data['WindVelocity']
+            )
+            # log.info(
+            #     "City added. db='%s', cityid=%s, CWind=%d, PWindE=%d, PWindN=%d, PWindNE=%d, PWindNW=%d, PWindS=%d, PWindSE=%d, PWindSW=%d, PWindW=%d, Temperature=%d, WindVelocity=%d",
+            #     self.__table_climate__, climate_data['CITYID'], climate_data[
+            #         'CWind'], climate_data['PWindE'], climate_data['PWindN'],
+            #     climate_data['PWindNE'], climate_data['PWindNW'], climate_data[
+            #         'PWindS'], climate_data['PWindSE'], climate_data['PWindSW'],
+            #     climate_data['PWindW'], climate_data['Temperature'], climate_data['WindVelocity']
+            # )
+        log.info("City added. db='%s'", self.__table_climate__)
 
     async def get_climate_region_list(self) -> dict:
-        async with self.connect.transaction():
-            cursor = await self.connect.cursor('''
-                SELECT id, region
-                FROM regions;
-            ''')
-            data = await cursor.fetch(100)
-            # log.info(data)
-            return data
-            # return ClimateRegion(data) if data else None
+        # async with self.connect.transaction():
+        cursor = await self.connect.cursor('''
+            SELECT id, region
+            FROM regions;
+        ''')
+        data = await cursor.fetch(100)
+        # log.info(data)
+        return data
+        # return ClimateRegion(data) if data else None
 
     async def get_climate_cities_list(self, *, region: str) -> dict:
-        async with self.connect.transaction():
-            cursor = await self.connect.cursor('''
-                SELECT cities.id, cities.city
-                FROM cities
-                JOIN regions ON cities.regionid = regions.id
-                WHERE regions.region=$1;
-            ''', region
-                                               )
-            data = await cursor.fetch(100)
-            # log.info(data)
-            return data
+        # async with self.connect.transaction():
+        cursor = await self.connect.cursor('''
+            SELECT cities.id, cities.city
+            FROM cities
+            JOIN regions ON cities.regionid = regions.id
+            WHERE regions.region=$1;
+        ''', region
+                                           )
+        data = await cursor.fetch(100)
+        # log.info(data)
+        return data
 
     async def get_climate_cities(self) -> dict:
-        async with self.connect.transaction():
-            cursor = await self.connect.cursor('''
-                SELECT cities.id, cities.city
-                FROM cities
-                JOIN regions ON cities.regionid = regions.id;
-            ''')
-            data = await cursor.fetch(320)
-            # log.info(data)
-            return data
+        # async with self.connect.transaction():
+        cursor = await self.connect.cursor('''
+            SELECT cities.id, cities.city
+            FROM cities
+            JOIN regions ON cities.regionid = regions.id;
+        ''')
+        data = await cursor.fetch(320)
+        # log.info(data)
+        return data
 
     async def get_climate_record(self, *, city: str) -> ClimateModel | None:
-        async with self.connect.transaction():
-            cursor = await self.connect.cursor('''
-                SELECT regions.region, cities.city, climate.cwind, climate.pwinde, climate.pwindn, climate.pwindne, climate.pwindnw, climate.pwinds, climate.pwindse, climate.pwindsw,climate.pwindw, climate.temperature, climate.windvelocity
-                FROM climate
-                JOIN cities ON climate.cityid = cities.id
-                JOIN regions ON regions.id = cities.regionid
-                WHERE cities.city=$1;
-            ''', city
-                                               )
-            data = await cursor.fetchrow()
-            return ClimateModel(**data) if data else None
+        # async with self.connect.transaction():
+        cursor = await self.connect.cursor('''
+            SELECT regions.region, cities.city, climate.cwind, climate.pwinde, climate.pwindn, climate.pwindne, climate.pwindnw, climate.pwinds, climate.pwindse, climate.pwindsw,climate.pwindw, climate.temperature, climate.windvelocity
+            FROM climate
+            JOIN cities ON climate.cityid = cities.id
+            JOIN regions ON regions.id = cities.regionid
+            WHERE cities.city=$1;
+        ''', city
+                                           )
+        data = await cursor.fetchrow()
+        return ClimateModel(**data) if data else None

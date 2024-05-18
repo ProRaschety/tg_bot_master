@@ -20,3 +20,12 @@ colon = ;
 ready = 💾
 clear = del
 minus = -
+
+request_start-text =
+    Запрос обрабатывается ⏳
+
+request_stop-text =
+   Запрос обработан ⌛
+
+graph_is_drawn-text =
+    Рисуется график 🎨

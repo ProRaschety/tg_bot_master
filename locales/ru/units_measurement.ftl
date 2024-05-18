@@ -20,6 +20,9 @@ meter =
 meter_square =
     м²
 
+meter_square_per_meter_square =
+    м²/м²
+
 meter_cub =
     м³
 

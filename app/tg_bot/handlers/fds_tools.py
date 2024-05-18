@@ -68,22 +68,37 @@ async def fds_tools_density_call(callback_data: CallbackQuery, bot: Bot, state: 
 @fds_tools_router.message(StateFilter(FSMFDSForm.accept_document_state))
 async def input_fds_tools_document(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     fds_tools_doc = message.document.file_id
+    await state.update_data(fds_tools_doc=fds_tools_doc)
     await message.delete()
-    # await state.set_state(state=None)
+    data = await state.get_data()
+    message_id = data.get('fds_tools_mes_id')
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=message.chat.id,
+        message_id=message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_fds_tools'))
+
     path = rf"temp_files\temp_data\{str(message.chat.id) + '_fds_tools'}.tsv"
     await bot.download(file=fds_tools_doc, destination=path)
-
-    await state.update_data(fds_tools_doc=fds_tools_doc)
-    data = await state.get_data()
-
-    message_id = data.get('fds_tools_mes_id')
-
-    # text = i18n.fds_tools_document.text()
-    text = i18n.fds_tools.text()
+    text = i18n.request_stop.text()
+    await bot.edit_message_caption(
+        chat_id=message.chat.id,
+        message_id=message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_fds_tools'))
 
     fds = FDSTools()
     times, densities, total_delta_sum = fds.open_file(
         file_paths=path)
+
+    text = i18n.graph_is_drawn.text()
+    await bot.edit_message_caption(
+        chat_id=message.chat.id,
+        message_id=message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_fds_tools'))
+
     plot_data = {"linewidth": 0.5, "drawstyle": "steps-post", "marker": 'o', "markersize": 0.5, "markeredgewidth": 1,
                  "markerfacecolor": "#1f77b4ff", 'markeredgecolor': "#1f77b4ff"}
     media = get_plot_graph(x_values=times,
@@ -95,9 +110,8 @@ async def input_fds_tools_document(message: Message, bot: Bot, state: FSMContext
                            add_annotate=True, text_annotate=f"Время существования скоплений (tск*): {total_delta_sum:.1f} сек",
                            add_fill_between=True, param_fill=0.5, label_fill='Зона критической плотности', add_axhline=True, label_axline='Критическая плотность', plot_color="#00FF00ff", **plot_data)
 
-    # media = FSInputFile(r'temp_files/temp/fds_tools_logo.mp4')
+    text = i18n.fds_tools.text()
     await bot.edit_message_media(
-        # await bot.edit_message_caption(
         chat_id=message.chat.id,
         message_id=message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
@@ -105,16 +119,6 @@ async def input_fds_tools_document(message: Message, bot: Bot, state: FSMContext
             caption=text),
         reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_fds_tools'))
 
-    # media=InputMediaAnimation(media=media, caption=text),
-    # reply_markup=get_inline_cd_kb(1, 'fds_tools_density_plot', i18n=i18n, param_back=True, back_data='back_fds_tools'))
-
-    # media = r'temp_files/temp/fds_tools_logo.png'
-    # await bot.edit_message_media(
-    #     chat_id=message.chat.id,
-    #     message_id=message_id,
-    #     media=InputMediaPhoto(media=BufferedInputFile(
-    #         file=media, filename="pic_filling"), caption=text),
-    #     reply_markup=get_inline_cd_kb(1, 'fds_tools_density_plot', i18n=i18n, param_back=True, back_data='back_fds_tools'))
     await state.set_state(state=None)
 
 
