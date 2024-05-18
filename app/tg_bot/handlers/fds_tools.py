@@ -1,5 +1,4 @@
 import logging
-import csv
 
 from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
