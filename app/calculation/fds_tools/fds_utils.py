@@ -129,9 +129,6 @@ class FDSTools:
 
         return size_of_cubic_grid_cell
 
-    def compute_human_densities(self):
-        pass
-
     def clean_and_convert_float(self, number_str):
         number_str = number_str.strip().split(' ')[0]
         return float(number_str.replace(',', '.'))
@@ -155,7 +152,7 @@ class FDSTools:
             deltas.append(delta)
         return sum(deltas), first_time_exceeded, last_time_exceeded
 
-    def process_data(self, file_paths, density_threshold=0.5):
+    def compute_human_densities(self, file_paths, density_threshold=0.5):
         evac_times = []
         current_max_density = 0.0
         time = None
@@ -189,7 +186,7 @@ class FDSTools:
     def open_file(self, file_paths):
         log.info("Утилита FDS. График плотности людского потока")
         density_threshold = 0.5
-        evac_times, total_delta_sum, first_time_exceeded, last_time_exceeded = self.process_data(
+        evac_times, total_delta_sum, first_time_exceeded, last_time_exceeded = self.compute_human_densities(
             file_paths, density_threshold)
         try:
             times, densities = zip(*evac_times)

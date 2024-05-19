@@ -12,11 +12,11 @@ from fluentogram import TranslatorRunner
 # from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest
-from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph, get_init_data_table
+from app.tg_bot.utilities.misc_utils import get_picture_filling, get_plot_graph
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.states.fsm_state_data import FSMFDSForm
-from app.calculation.physics.accident_parameters import AccidentParameters
 from app.calculation.fds_tools.fds_utils import FDSTools
+
 
 log = logging.getLogger(__name__)
 
@@ -48,10 +48,8 @@ async def fds_tools_density_call(callback_data: CallbackQuery, bot: Bot, state: 
     chat_id = str(callback_data.message.chat.id)
     message_id = callback_data.message.message_id
     await state.update_data(chat_id=chat_id, fds_tools_mes_id=message_id)
-
     text = i18n.fds_tools_density.text()
     # media = get_picture_filling(file_path='temp_files/temp/fds_tools_dencity.png')
-
     media = BufferedInputFile(
         file=get_picture_filling(file_path='temp_files/temp/fds_tools_dencity.png'), filename="pic_filling")
 
@@ -61,7 +59,6 @@ async def fds_tools_density_call(callback_data: CallbackQuery, bot: Bot, state: 
         # media=InputMediaAnimation(media=media, caption=text),
         media=InputMediaPhoto(media=media, caption=text),
         reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_fds_tools'))
-
     await state.set_state(FSMFDSForm.accept_document_state)
 
 

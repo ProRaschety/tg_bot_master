@@ -119,7 +119,8 @@ class FireRisk:
                     'unit_1': kwargs.get('time_presence_pub', 0.000), 'unit_2': 'ч'},
                 {'id': 'Частота возникновения пожара', 'var': 'Qп', 'unit_1': f"{fire_freq:.2e}", 'unit_2': '1/год'}]
         else:
-            fire_freq = self._get_frequency_of_fire(**kwargs)
+            # fire_freq = self._get_frequency_of_fire(**kwargs)
+            fire_freq = float(kwargs.get('fire_frequency_industrial'))
             probity_efs = self._calc_probity_fire_protec_system(**kwargs)
             probity_presence = self._calc_probity_presence(**kwargs)
             probity_evac = self._calc_probity_evacuation(**kwargs)
@@ -142,8 +143,8 @@ class FireRisk:
                     'unit_1': f"{probity_presence:.3f}", 'unit_2': '-'},
                 {'id': 'Вероятность эвакуации из здания', 'var': 'Рэ',
                     'unit_1': f"{probity_evac:.3f}", 'unit_2': '-'},
-                {'id': 'Частота реализации в течение года\nj-го сценария пожара', 'var': 'Qj',
-                    'unit_1': f"{fire_freq:.2e}", 'unit_2': '1/год'},
+                # {'id': 'Частота реализации в течение года\nj-го сценария пожара', 'var': 'Qj',
+                #     'unit_1': f"{fire_freq:.2e}", 'unit_2': '1/год'},
                 {'id': 'Вероятность работы ПДЗ', 'var': 'Dпдз',
                     'unit_1': kwargs.get('k_smoke_ind', 0.8), 'unit_2': '-'},
                 {'id': 'Вероятность работы СОУЭ', 'var': 'Dсоуэ',
@@ -152,10 +153,13 @@ class FireRisk:
                     'unit_1': kwargs.get('k_alarm_ind', 0.8), 'unit_2': '-'},
                 {'id': 'Вероятность работы АПТ', 'var': 'Dапт',
                     'unit_1': kwargs.get('k_efs_ind', 0.9), 'unit_2': '-'},
-                {'id': 'Частота возникновения пожара', 'var': 'Qп',
-                 'unit_1': f"{float(kwargs.get('fire_frequency_industrial')):.2e}", 'unit_2': '1/год'}
+
+                {'id': 'Частота реализации в течение года\nj-го сценария пожара', 'var': 'Qj',
+                    'unit_1': f"{fire_freq:.2e}", 'unit_2': '1/год'},
+                # {'id': 'Частота возникновения пожара', 'var': 'Qп',
+                #  'unit_1': f"{float(kwargs.get('fire_frequency_industrial')):.2e}", 'unit_2': '1/год'}
             ]
-        return data_risk, head_risk, label_risk
+        return data_risk, head_risk, label_risk, ind_risk
 
     def _get_frequency_of_fire(self, **kwargs):
         if self.type_obj == 'public':

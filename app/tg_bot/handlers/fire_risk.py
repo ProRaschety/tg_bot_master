@@ -125,6 +125,13 @@ async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n
 
 @fire_risk_router.callback_query(F.data.in_(['run_public', 'run_public_guest']))
 async def run_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1, 'edit_public', i18n=i18n, param_back=True, back_data='back_fire_risks_calc', check_role=True, role=role))
+
     state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("fire_freq_pub", "0.04")
@@ -138,14 +145,18 @@ async def run_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     data.setdefault("k_alarm_pub", "0.8")
     data.setdefault("k_evacuation_pub", "0.8")
     data.setdefault("k_smoke_pub", "0.8")
-    text = i18n.public.text()
+
     if state_data == FSMFireRiskForm.edit_probity_evac_pub:
         frisk = FireRisk(type_obj='public', prob_evac=True)
     else:
         frisk = FireRisk(type_obj='public')
-    data_out, headers, label = frisk.get_result_data(**data)
+    data_out, headers, label, ind_risk = frisk.get_result_data(**data)
     media = get_data_table(data=data_out, headers=headers,
                            label=label, results=True, row_num=9)
+    if ind_risk > 0.000001:
+        text = i18n.public_excess.text()
+    else:
+        text = i18n.public_not_exceed.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -420,6 +431,13 @@ async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
 
 @fire_risk_router.callback_query(F.data.in_(['industrial', 'back_industrial']))
 async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1, 'edit_industrial', 'run_industrial', i18n=i18n, param_back=True, back_data='back_fire_risks_calc', check_role=True, role=role))
+
     state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("edit_industrial_param", "0")
@@ -733,6 +751,13 @@ async def edit_ind_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext
 
 @fire_risk_router.callback_query(StateFilter(*SFilter_ind), F.data.in_(['ready']))
 async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(*kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
+
     state_data = await state.get_state()
     data = await state.get_data()
     value = data.get("edit_industrial_param")
@@ -813,29 +838,30 @@ async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
 @fire_risk_router.callback_query(F.data.in_(['run_industrial', 'run_industrial_guest']))
 async def run_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
-    # data.setdefault("area_ind", "100.0")
-    # data.setdefault("fire_freq_ind", "0.04")
-    # data.setdefault("k_efs_ind", "0.9")
-    # data.setdefault("time_presence_ind", "2.0")
-    # data.setdefault("probity_evacuation_ind", "0.999")
-    # data.setdefault("time_evacuation_ind", "300")
-    # data.setdefault("time_blocking_paths_ind", "600")
-    # data.setdefault("time_start_evacuation_ind", "30")
-    # data.setdefault("k_alarm_ind", "0.8")
-    # data.setdefault("k_evacuation_ind", "0.8")
-    # data.setdefault("k_smoke_ind", "0.8")
-    # data.setdefault("working_days_per_year_ind", "0.8")
-    # data.setdefault("emergency_escape_ind", "0.001")
 
-    text = i18n.industrial.text()
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1, 'back_industrial', i18n=i18n))
+
     state_data = await state.get_state()
     if state_data == FSMFireRiskForm.edit_probity_evac_ind:
         frisk = FireRisk(type_obj='industrial', prob_evac=True)
     else:
         frisk = FireRisk(type_obj='industrial')
-    data_out, headers, label = frisk.get_result_data(**data)
+    data_out, headers, label, ind_risk = frisk.get_result_data(**data)
     media = get_data_table(data=data_out, headers=headers,
-                           label=label, results=True, row_num=6)
+                           label=label, results=True, row_num=5)
+
+    if ind_risk > 0.0001:
+        text = i18n.industrial_excess_second.text()
+    elif ind_risk > 0.000001:
+        text = i18n.industrial_excess_first.text()
+    else:
+        text = i18n.industrial_not_exceed.text()
+
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
