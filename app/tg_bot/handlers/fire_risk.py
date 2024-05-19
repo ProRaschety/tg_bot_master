@@ -682,7 +682,7 @@ async def edit_ind_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
             "name_probity_evac_ind"), edit_industrial=data.get("probity_evacuation_ind", 0))
     elif state_data == FSMFireRiskForm.edit_fire_freq_ind:
         text = i18n.edit_industrial.text(industrial_param=i18n.get(
-            "name_fire_freq_ind"), edit_industrial=data.get("fire_freq_ind", 0))
+            "name_fire_freq_ind"), edit_industrial=data.get("fire_frequency_industrial", 0))
     elif state_data == FSMFireRiskForm.edit_area_ind:
         text = i18n.edit_industrial.text(industrial_param=i18n.get(
             "name_area_ind"), edit_industrial=data.get("area_ind", 0))
@@ -795,7 +795,7 @@ async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
         if value != '' and value != '.':
             await state.update_data(fire_frequency_industrial=value)
         else:
-            await state.update_data(fire_frequency_industrial=0.000012)
+            await state.update_data(fire_frequency_industrial=data.get("fire_frequency_industrial", 0))
     elif state_data == FSMFireRiskForm.edit_time_blocking_paths_ind:
         if value != '' and value != '.':
             await state.update_data(time_blocking_paths_ind=value)
