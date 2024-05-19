@@ -4,13 +4,15 @@ import csv
 import io
 import pandas as pd
 import numpy as np
-# import matplotlib as mpl
+import inspect
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.gridspec as gridspec
+# from matplotlib import font_manager as fm, rcParams
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-import inspect
 from datetime import datetime
+
 
 log = logging.getLogger(__name__)
 
@@ -56,10 +58,6 @@ def get_csv_file(data, name_file) -> csv:
         print(f"Непредвиденная ошибка: {e}")
 
 
-# def get_txt_file(data, name_file):
-#     pass
-
-
 def get_csv_bt_file(data) -> bytes:
     output = io.StringIO()
     with output as file_w:
@@ -103,6 +101,10 @@ def get_dict(list_: list) -> dict:
 
 def get_data_table(data, headers: str, label: str, column: int = 4, results: bool | None = False, row_num: int | None = None, sel_row_num: int = 0) -> bytes:
     log.info("Таблица данных")
+    plt.rcParams['font.family'] = 'Montserrat'
+    # font_dirs = r"/app/tg_bot/fonts"  # The path to the custom font file.
+    # font_files = fm.findSystemFonts(fontpaths=font_dirs)
+    # log.info(f"font_files: {font_files}")
     rows = len(data)
     if rows > 0:
         data = data
@@ -138,9 +140,12 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
     # heights = [xmax, xmax]
     gs = gridspec.GridSpec(
         ncols=1, nrows=2, width_ratios=widths, height_ratios=heights)
-    ft_label_size = {'fontname': 'Arial', 'fontsize': H*2.0}  # h*0.023
-    ft_title_size = {'fontname': 'Arial', 'fontsize': H*1.7}  # h*0.020
-    ft_size = {'fontname': 'Arial', 'fontsize': H*1.7}  # h*0.020
+
+    # fpath =
+
+    ft_label_size = {'fontname': 'Montserrat', 'fontsize': H*2.0}  # h*0.023
+    ft_title_size = {'fontname': 'Montserrat', 'fontsize': H*1.7}  # h*0.020
+    ft_size = {'fontname': 'Montserrat', 'fontsize': H*1.7}  # h*0.020
 
     """____Первая часть таблицы____"""
     fig_ax_1 = fig.add_subplot(gs[0, 0])
