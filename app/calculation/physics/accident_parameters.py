@@ -44,18 +44,18 @@ class AccidentParameters:
                     'unit_1': 'Жидкая фаза' if jet == 'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
                 {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_horizontal_jet_sub')}", 'unit_2': '-'}]
 
-        elif self.type_accident == 'vertical_jet':
-            label = 'Вертикальный факел'
-            jet = kwargs.get(
-                'accident_vertical_jet_state')
-            data_table = [
-                {'id': 'Расстояние до облучаемого объекта', 'var': 'r',  'unit_1': kwargs.get(
-                    'accident_vertical_jet_human_distance'), 'unit_2': 'м'},
-                {'id': 'Расход сжатого газа, паровой\nили жидкой фазы сжиженного газа',
-                    'var': 'G',  'unit_1': kwargs.get('accident_vertical_jet_mass_rate'), 'unit_2': 'кг/с'},
-                {'id': 'Агрегатное состояние горючего вещества', 'var': 'K', 'unit_1': 'Жидкая фаза' if jet ==
-                    'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
-                {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_vertical_jet_sub')}", 'unit_2': '-'}]
+        # elif self.type_accident == 'vertical_jet':
+        #     label = 'Вертикальный факел'
+        #     jet = kwargs.get(
+        #         'accident_vertical_jet_state')
+        #     data_table = [
+        #         {'id': 'Расстояние до облучаемого объекта', 'var': 'r',  'unit_1': kwargs.get(
+        #             'accident_vertical_jet_human_distance'), 'unit_2': 'м'},
+        #         {'id': 'Расход сжатого газа, паровой\nили жидкой фазы сжиженного газа',
+        #             'var': 'G',  'unit_1': kwargs.get('accident_vertical_jet_mass_rate'), 'unit_2': 'кг/с'},
+        #         {'id': 'Агрегатное состояние горючего вещества', 'var': 'K', 'unit_1': 'Жидкая фаза' if jet ==
+        #             'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
+        #         {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_vertical_jet_sub')}", 'unit_2': '-'}]
 
         return data_table, head, label
 
@@ -193,10 +193,14 @@ class AccidentParameters:
             m = (0.001 * heat_of_comb) / (Lg + Cp * (Tb - Ta))
         return m
 
-    def compute_heat_flux(self, eff_diameter: int | float, sep: int | float, lenght_flame: int | float, angle: int | float):
+    def compute_heat_flux(self, eff_diameter: int | float, lenght_flame: int | float, sep: int | float = 200, angle: int | float = 0):
         # Определение интенсивности теплового излучения, кВт/м2
         # расстояние от центра лужи для расчета
-        x_lim = int(1 + lenght_flame * 5)
+        if sep != 200:
+            x_lim = int(eff_diameter + lenght_flame * 4)
+        else:
+            x_lim = int(eff_diameter + lenght_flame * 1.3)
+
         x_values = []
         qf = []
         for r in range(0, x_lim, 1):
@@ -256,7 +260,7 @@ class AccidentParameters:
         # Определение интенсивности теплового излучения, кВт/м2
         # расстояние от центра огненного шара
 
-        x_lim = int(1 + height * 5)
+        x_lim = int(height * 5)
         x_values = []
         qf = []
         for r in range(0, x_lim, 1):

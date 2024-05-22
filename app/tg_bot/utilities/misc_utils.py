@@ -101,7 +101,7 @@ def get_dict(list_: list) -> dict:
 
 def get_data_table(data, headers: str, label: str, column: int = 4, results: bool | None = False, row_num: int | None = None, sel_row_num: int = 0) -> bytes:
     log.info("Таблица данных")
-    plt.rcParams['font.family'] = 'Montserrat'
+    # plt.rcParams['font.family'] = 'Roboto'
     # font_dirs = r"/app/tg_bot/fonts"  # The path to the custom font file.
     # font_files = fm.findSystemFonts(fontpaths=font_dirs)
     # log.info(f"font_files: {font_files}")
@@ -143,9 +143,10 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
 
     # fpath =
 
-    ft_label_size = {'fontname': 'Montserrat', 'fontsize': H*2.0}  # h*0.023
-    ft_title_size = {'fontname': 'Montserrat', 'fontsize': H*1.7}  # h*0.020
-    ft_size = {'fontname': 'Montserrat', 'fontsize': H*1.7}  # h*0.020
+    ft_label_size = {'fontname': 'Arial',
+                     'fontsize': H*2.0}  # h*0.023
+    ft_title_size = {'fontname': 'Arial', 'fontsize': H*1.7}  # h*0.020
+    ft_size = {'fontname': 'Arial', 'fontsize': H*1.7}  # h*0.020
 
     """____Первая часть таблицы____"""
     fig_ax_1 = fig.add_subplot(gs[0, 0])
@@ -286,7 +287,7 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | floa
     h = 650  # px
     bottom = 0.090
     right = 0.970
-    left = 0.110 if ylim == None else 0.100
+    left = 0.110 if ylim == None else 0.115  # 0.100
     top = 0.900 if ylim == None else 0.890
     hspace = 0.100
     xmax = 4.0

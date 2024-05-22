@@ -12,7 +12,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuery, InlineQueryResultArticle, InputTextMessageContent, CallbackQuery, Message, BufferedInputFile, InputMediaPhoto, InputMediaDocument
 # from aiogram.utils.chat_action import ChatActionSender
-from aiogram.enums import ChatAction
+# from aiogram.enums import ChatAction
 
 from app.tg_bot.filters.filter_role import IsComrade
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
@@ -33,9 +33,9 @@ fire_res_router.callback_query.filter(IsComrade())
 
 @fire_res_router.callback_query(F.data == 'fire_resistance')
 async def fire_resistance_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    await callback_data.message.bot.send_chat_action(
-        chat_id=callback_data.message.chat.id,
-        action=ChatAction.TYPING)
+    # await callback_data.message.bot.send_chat_action(
+    #     chat_id=callback_data.message.chat.id,
+    #     action=ChatAction.TYPING)
     text = i18n.fire_resistance.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(
@@ -77,7 +77,7 @@ async def back_type_calc_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 
 @fire_res_router.callback_query(F.data.in_(['back_type_calc']), StateFilter(default_state))
-async def back_type_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def back_type_calc_defstate_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     text = i18n.type_of_calculation_steel.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(
@@ -92,7 +92,7 @@ async def back_type_calc_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 @fire_res_router.callback_query(F.data == 'back_steel_element')
 async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    chat_id = callback.message.chat.id
+    # chat_id = callback.message.chat.id
     text = i18n.type_of_calculation_steel.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(

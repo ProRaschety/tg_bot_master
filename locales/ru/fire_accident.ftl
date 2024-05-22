@@ -263,23 +263,43 @@ edit_vertical_jet_guest =
 back_vertical_jet =
     ↩ Назад
 
-jet_state_liquid_kb =
+plot_vertical_jet_label =
+    График теплового потока
+y_vertical_jet_label =
+    Интенсивность теплового потока, кВт/м²
+
+horizontal_jet_state_liquid_kb =
     Жидкая фаза 💧
-jet_state_comp_gas_kb =
+horizontal_jet_state_comp_gas_kb =
     Сжатый газ 💨
-jet_state_liq_gas_vap_kb =
+horizontal_jet_state_liq_gas_vap_kb =
     Паровая фаза ☁
 plot_horizontal_jet =
     📉 Тепловой поток
+
+vertical_jet_state_liquid_kb =
+    Жидкая фаза 💧
+vertical_jet_state_comp_gas_kb =
+    Сжатый газ 💨
+vertical_jet_state_liq_gas_vap_kb =
+    Паровая фаза ☁
 plot_vertical_jet =
     📉 Тепловой поток
 
-edit_jet_state =
+edit_hjet_state =
     Агрегатное состояние
     горючего вещества
-edit_jet_mass_rate =
+edit_hjet_mass_rate =
     Расход продукта
-edit_jet_distance =
+edit_hjet_distance =
+    Расстояние до облучаемого объекта
+
+edit_vjet_state =
+    Агрегатное состояние
+    горючего вещества
+edit_vjet_mass_rate =
+    Расход продукта
+edit_vjet_distance =
     Расстояние до облучаемого объекта
 
 jet_state_fuel =
@@ -304,10 +324,6 @@ hjet_flame_width =
     Ширина факела
 jet_human_distance =
     Расстояние до облучаемого объекта
-
-
-
-
 
 
 
