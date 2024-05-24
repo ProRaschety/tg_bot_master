@@ -13,7 +13,7 @@ from scipy.constants import physical_constants
 from scipy.interpolate import RectBivariateSpline, interp1d
 
 
-# from app.calculation.physics.physics_utils import compute_density_gas_phase
+from app.calculation.physics.physics_utils import compute_stoichiometric_coefficient_with_oxygen, compute_density_gas_phase
 
 log = logging.getLogger(__name__)
 
@@ -28,21 +28,22 @@ class AccidentParameters:
         self.K = 273.15  # К
         self.g = physical_constants.get('standard acceleration of gravity')[0]
         self.sound_speed = 340
+        self.heat_burn_specific = 44094000  # Дж/кг
 
-    def get_init_data(self, *args, **kwargs):
-        head = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
+    # def get_init_data(self, *args, **kwargs):
+    #     head = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
 
-        if self.type_accident == 'horizontal_jet':
-            label = 'Горизонтальный факел'
-            jet = kwargs.get('accident_horizontal_jet_state')
-            data_table = [
-                {'id': 'Расстояние до облучаемого объекта', 'var': 'r',  'unit_1': kwargs.get(
-                    'accident_horizontal_jet_human_distance'), 'unit_2': 'м'},
-                {'id': 'Расход сжатого газа, паровой\nили жидкой фазы сжиженного газа',
-                    'var': 'G',  'unit_1': kwargs.get('accident_horizontal_jet_mass_rate'), 'unit_2': 'кг/с'},
-                {'id': 'Агрегатное состояние горючего вещества', 'var': 'K',
-                    'unit_1': 'Жидкая фаза' if jet == 'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
-                {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_horizontal_jet_sub')}", 'unit_2': '-'}]
+    #     if self.type_accident == 'horizontal_jet':
+    #         label = 'Горизонтальный факел'
+    #         jet = kwargs.get('accident_horizontal_jet_state')
+    #         data_table = [
+    #             {'id': 'Расстояние до облучаемого объекта', 'var': 'r',  'unit_1': kwargs.get(
+    #                 'accident_horizontal_jet_human_distance'), 'unit_2': 'м'},
+    #             {'id': 'Расход сжатого газа, паровой\nили жидкой фазы сжиженного газа',
+    #                 'var': 'G',  'unit_1': kwargs.get('accident_horizontal_jet_mass_rate'), 'unit_2': 'кг/с'},
+    #             {'id': 'Агрегатное состояние горючего вещества', 'var': 'K',
+    #                 'unit_1': 'Жидкая фаза' if jet == 'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
+    #             {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_horizontal_jet_sub')}", 'unit_2': '-'}]
 
         # elif self.type_accident == 'vertical_jet':
         #     label = 'Вертикальный факел'
@@ -57,7 +58,7 @@ class AccidentParameters:
         #             'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
         #         {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_vertical_jet_sub')}", 'unit_2': '-'}]
 
-        return data_table, head, label
+        # return data_table, head, label
 
     def compute_radius_LFL(self, density: int | float, mass: int | float, clfl: int | float):
         return 7.80 * (mass / (density * clfl)) ** 0.33
@@ -72,7 +73,7 @@ class AccidentParameters:
                                 ):
         """форм.(В.14) и (В.22) СП12 и форм.(П3.47) М404"""
         if distance_run:
-            x_lim = int(distance + distance)
+            x_lim = int(distance * 2)
             dist = []
             overpres = []
             impuls = []
@@ -93,6 +94,75 @@ class AccidentParameters:
             overpres = self.pressure_ambient * (pi_1 + pi_2 + pi_3)
             impuls = (123 * reduced_mass) / distance
             return overpres, impuls
+
+    def compute_nondimensional_pressure(self, mode_explosion: int, nondim_distance: int | float):
+        pass
+
+    def compute_nondimensional_impuls(self, mode_explosion: int, nondim_distance: int | float):
+        pass
+
+    def compute_overpres_inclosed(self,
+                                  energy_reserve: int | float,
+                                  mode_explosion: int | None = None,
+                                  distance_run: bool = False,
+                                  distance: int | float = None,
+                                  subst: str = 'gas',
+                                  ufront: int | float = 500,
+                                  ):
+        """форм. (П3.39-П3.46) М404"""
+        if distance_run:
+            x_lim = int(distance * 2)
+            dist = []
+            overpres = []
+            impuls = []
+            if mode_explosion == 1:
+                for x in range(1, x_lim + 5, 1):
+                    dist.append(x)
+                    rx = distance / \
+                        ((energy_reserve / self.pressure_ambient) ** 1/3)
+                    px = m.exp(-1.124 - 1.66 * m.log(rx) - 0.260 *
+                               m.log(rx) ** 2) if rx >= 0.2 else 18
+                    overpres_inclosed = self.pressure_ambient * px
+                    ix = m.exp(-3.4217 - 0.898 * m.log(rx) - 0.0096 * (m.log(rx) ** 2)
+                               ) if rx >= 0.2 else m.exp(-3.4217 - 0.898 * m.log(0.14) - 0.0096 * (m.log(0.14) ** 2))
+                    impuls_inclosed = ix * \
+                        (self.pressure_ambient ** 2/3) * \
+                        ((energy_reserve ** 1/3)/self.sound_speed)
+
+                    overpres.append(overpres_inclosed)
+                    impuls.append(impuls_inclosed)
+            else:
+                sigma = 7.0 if subst == 'gas' else 4.0
+                w = (ufront / self.sound_speed) * ((sigma - 1) / sigma)
+                energy_res = energy_reserve if subst == 'gas' else energy_reserve * \
+                    ((sigma - 1) / sigma)
+                for x in range(1, x_lim + 5, 1):
+                    dist.append(x)
+                    rx = distance / \
+                        ((energy_res / self.pressure_ambient) ** 1/3)
+                    px = (ufront ** 2 / self.sound_speed ** 2) * ((sigma - 1) / sigma) * ((0.83 / 0.34) - (0.14 / 0.34)) if rx > 0.34 else (
+                        ufront ** 2 / self.sound_speed ** 2) * ((sigma - 1) / sigma) * ((0.83 / 0.34) - (0.14 / 0.34))
+                    overpres_inclosed = self.pressure_ambient * px
+
+                    ix = w * (1 - 0.4 * w) * ((0.06 / rx) + (0.01 / rx ** 2) - (0.0025 / rx ** 3)) if rx > 0.34 else w * (
+                        1 - 0.4 * w) * ((0.06 / 0.34) + (0.01 / 0.34 ** 2) - (0.0025 / 0.34 ** 3))
+                    impuls_inclosed = ix * \
+                        (self.pressure_ambient ** 2/3) * \
+                        ((energy_res ** 1/3)/self.sound_speed)
+
+                    overpres.append(overpres_inclosed)
+                    impuls.append(impuls_inclosed)
+
+            return overpres, impuls, dist
+
+        else:
+            px = 1
+            overpres = self.pressure_ambient * px
+            impuls = 1
+            return overpres, impuls
+
+    def compute_impuls_inclosed(self, nondim_impuls: int | float, energy_reserve: int | float):
+        pass
 
     def compute_redused_mass(self, expl_energy: int | float):
         return (expl_energy / 4.52) / 1_000_000
@@ -197,9 +267,9 @@ class AccidentParameters:
         # Определение интенсивности теплового излучения, кВт/м2
         # расстояние от центра лужи для расчета
         if sep != 200:
-            x_lim = int(eff_diameter + lenght_flame * 4)
+            x_lim = int(eff_diameter + lenght_flame * 5)
         else:
-            x_lim = int(eff_diameter + lenght_flame * 1.3)
+            x_lim = int(eff_diameter + lenght_flame * 1.5)
 
         x_values = []
         qf = []
@@ -276,6 +346,24 @@ class AccidentParameters:
 
         return x_values, qf
 
+    def compute_heat_jet_fire(self, lenght_flame: int | float, diameter: int | float = 0):
+        # Определение интенсивности теплового излучения, кВт/м2
+        # расстояние от источника истечения вещества
+        x_lim = int(lenght_flame * 2.5)
+        x_values = []
+        qf = []
+        for r in range(0, x_lim, 1):
+            x_values.append(r)
+            if r < lenght_flame * 1.5:
+                if r > lenght_flame and r <= lenght_flame * 1.5:
+                    qf_f = 10.0
+                else:
+                    qf_f = 200  # интенсивность теплового излучения
+            else:
+                qf_f = 0
+            qf.append(qf_f)
+        return x_values, qf
+
     def get_mode_explosion(self, class_fuel: int = 1, class_space: int = 1):
         mode_explosion = None
         if class_fuel == 1:
@@ -314,14 +402,22 @@ class AccidentParameters:
                 mode_explosion = 6
         return mode_explosion
 
-    def compute_eff_energy_reserve(self, conc_fuel: int | float, stc_conc_fuel: int | float, mass_expl: int | float, spec_heat_comb: int | float):
+    def compute_eff_energy_reserve(self, phi_fuel: int | float, phi_stc: int | float, mass_gas_phase: int | float, subst: str = 'gas', explosion_superficial: bool = False):
         """Эффективный энергозапас горючей смеси Е"""
-        return (mass_expl * spec_heat_comb * (stc_conc_fuel/conc_fuel)) if conc_fuel > stc_conc_fuel else mass_expl * spec_heat_comb
+        sigma = 7.0 if subst == 'gas' else 4.0
+        if subst == 'gas':
+            energy_reserve = mass_gas_phase * self.heat_burn_specific if phi_fuel <= phi_stc else mass_gas_phase * \
+                self.heat_burn_specific * (phi_stc / phi_fuel)
+        else:
+            energy_reserve = ((sigma - 1) / sigma) * mass_gas_phase * self.heat_burn_specific if phi_fuel <= phi_stc else (
+                (sigma - 1) / sigma) * mass_gas_phase * self.heat_burn_specific * (phi_stc / phi_fuel)
+
+        return energy_reserve * 2 if explosion_superficial else energy_reserve
 
     def compute_nondimensional_distance(self, distance: int | float, energy_reserve: int | float):
         return distance / ((energy_reserve/self.pressure_ambient) ** (1/3))
 
-    def compute_velocity_flame(self, cloud_combustion_mode: int = 1,  mass_gas_phase: int | float = 0):
+    def compute_velocity_flame(self, mass_gas_phase: int | float, cloud_combustion_mode: int = 1):
         # скорость фронта пламени
         k1 = 43.0
         k2 = 26.0
@@ -338,7 +434,7 @@ class AccidentParameters:
             else:
                 u_front = 200
         elif cloud_combustion_mode == 3:
-            u_front = k1 * mass_gas_phase ** 0.166
+            u_front = k1 * mass_gas_phase ** 1/6
             if u_front > 300:
                 u_front = k1 * mass_gas_phase ** 0.166
             else:
@@ -350,18 +446,6 @@ class AccidentParameters:
             else:
                 u_front = 500
         return u_front
-
-    def compute_nondimensional_pressure(self, mode_explosion: int, nondim_distance: int | float):
-        pass
-
-    def compute_nondimensional_impuls(self, mode_explosion: int, nondim_distance: int | float):
-        pass
-
-    def compute_overpres_inclosed(self, nondim_pressure: int | float):
-        pass
-
-    def compute_impuls_inclosed(self, nondim_impuls: int | float, energy_reserve: int | float):
-        pass
 
     def get_distance_at_sep(self, x_values, y_values, sep):
         func_sep = interp1d(y_values, x_values, kind='linear',

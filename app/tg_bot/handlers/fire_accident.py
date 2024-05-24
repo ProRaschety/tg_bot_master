@@ -692,12 +692,13 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     data.setdefault("accident_cloud_explosion_heat_combustion", "44000")
     data.setdefault("accident_cloud_explosion_expl_cond", "above_surface")
     data.setdefault("accident_cloud_explosion_distance", "70")
+    data.setdefault("accident_cloud_explosion_state_fuel", "gas")
     await state.update_data(data)
     data = await state.get_data()
     text = i18n.cloud_explosion.text()
-    subst = data.get('accident_cloud_explosion_sub')
+    subst = data.get('accident_cloud_explosion_state_fuel')
     mass = float(data.get('accident_cloud_explosion_mass_fuel'))
-    coef_z = float(data.get('accident_cloud_explosion_coef_z'))
+    # coef_z = float(data.get('accident_cloud_explosion_coef_z'))
     class_fuel = int(data.get('accident_cloud_explosion_class_fuel'))
     class_space = int(data.get('accident_cloud_explosion_class_space'))
     distance = float(data.get('accident_cloud_explosion_distance'))
@@ -727,7 +728,7 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
             'var': '-', 'unit_1': data.get('accident_cloud_explosion_class_fuel'), 'unit_2': '-'},
         {'id': i18n.get('cloud_explosion_heat_combustion'),
             'var': 'Eуд0', 'unit_1': data.get('accident_cloud_explosion_heat_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
-        {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
+        {'id': i18n.get('cloud_explosion_state_fuel'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
 
     media = get_data_table(data=data_out, headers=headers, label=label)
     await bot.edit_message_media(
@@ -751,10 +752,10 @@ async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSM
     heat = float(data.get('accident_cloud_explosion_heat_combustion'))
     beta = float(data.get('accident_cloud_explosion_correction_parameter'))
     distance = float(data.get('accident_cloud_explosion_distance'))
-    stoichiometric_coef_oxygen = compute_stoichiometric_coefficient_with_oxygen(
+    stc_coef_oxygen = compute_stoichiometric_coefficient_with_oxygen(
         n_C=6.911, n_H=12.168)
     stoichiometric_coef_fuel = compute_stoichiometric_coefficient_with_fuel(
-        beta=stoichiometric_coef_oxygen)
+        beta=stc_coef_oxygen)
 
     cloud_exp = AccidentParameters(type_accident='cloud_explosion')
     mode_expl = cloud_exp.get_mode_explosion(
@@ -809,7 +810,7 @@ async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSM
             'unit_2': i18n.get('percent_volume')},
         {'id': i18n.get('stoichiometric_coefficient_for_oxygen'),
             'var': 'β',
-            'unit_1': f"{stoichiometric_coef_oxygen:.3f}",
+            'unit_1': f"{stc_coef_oxygen:.3f}",
             'unit_2': '-'},
         {'id': i18n.get('cloud_explosion_spec_heat_combustion'),
             'var': 'Eуд',
@@ -841,7 +842,7 @@ async def plot_cloud_explosion_pres_call(callback: CallbackQuery, bot: Bot, stat
     data = await state.get_data()
     text = i18n.cloud_explosion.text()
 
-    subst = data.get('accident_cloud_explosion_sub')
+    subst = data.get('cloud_explosion_state_fuel')
     mass = float(data.get('accident_cloud_explosion_mass_fuel'))
     coef_z = float(data.get('accident_cloud_explosion_coef_z'))
     class_fuel = int(data.get('accident_cloud_explosion_class_fuel'))
@@ -849,27 +850,36 @@ async def plot_cloud_explosion_pres_call(callback: CallbackQuery, bot: Bot, stat
     heat = float(data.get('accident_cloud_explosion_heat_combustion'))
     beta = float(data.get('accident_cloud_explosion_correction_parameter'))
     distance = float(data.get('accident_cloud_explosion_distance'))
-    stoichiometric_coef_oxygen = compute_stoichiometric_coefficient_with_oxygen(
+    expl_sf = True if data.get(
+        'accident_cloud_explosion_expl_cond') == 'on_surface' else False
+    stc_coef_oxygen = compute_stoichiometric_coefficient_with_oxygen(
         n_C=6.911, n_H=12.168)
-    stoichiometric_coef_fuel = compute_stoichiometric_coefficient_with_fuel(
-        beta=stoichiometric_coef_oxygen)
+    stc_coef_fuel = compute_stoichiometric_coefficient_with_fuel(
+        beta=stc_coef_oxygen)
 
-    cloud_exp = AccidentParameters(type_accident='cloud_explosion')
+    cloud_exp = AccidentParameters()
+    eff_energy = cloud_exp.compute_eff_energy_reserve(
+        phi_fuel=stc_coef_fuel, phi_stc=stc_coef_fuel, mass_gas_phase=mass * coef_z, explosion_superficial=expl_sf)
     mode_expl = cloud_exp.get_mode_explosion(
         class_fuel=class_fuel, class_space=class_space)
+    ufront = cloud_exp.compute_velocity_flame(
+        cloud_combustion_mode=mode_expl, mass_gas_phase=mass * coef_z)
 
-    f_ball = AccidentParameters(type_accident='fire_ball')
-    diameter_ball = f_ball.compute_fire_ball_diameter(mass=mass)
+    overpres, impuls, dist = cloud_exp.compute_overpres_inclosed(
+        energy_reserve=eff_energy, distance_run=True, distance=distance)
 
-    x, y = f_ball.compute_heat_flux_fire_ball(
-        diameter_ball=diameter_ball, height=diameter_ball, sep=350)
+    # f_ball = AccidentParameters(type_accident='fire_ball')
+    # diameter_ball = f_ball.compute_fire_ball_diameter(mass=mass)
 
-    sep_num = f_ball.get_sep_at_distance(
-        x_values=x, y_values=y, distance=distance)
+    # x, y = f_ball.compute_heat_flux_fire_ball(
+    #     diameter_ball=diameter_ball, height=diameter_ball, sep=350)
+
+    sep_num = cloud_exp.get_sep_at_distance(
+        x_values=dist, y_values=overpres, distance=distance)
 
     unit_sep = i18n.get('kilopascal')
     text_annotate = f" ΔP= {sep_num:.1f} {unit_sep}"
-    media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
+    media = get_plot_graph(x_values=dist, y_values=overpres, ylim=max(overpres) + max(overpres) * 0.05,
                            add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
                            label=i18n.get(
                                'plot_cloud_explosion_overpres_label'),
@@ -942,8 +952,58 @@ async def horizontal_jet_call(callback: CallbackQuery, bot: Bot, state: FSMConte
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'edit_horizontal_jet',
-                                      #   'plot_horizontal_jet',
+                                      'plot_horizontal_jet',
                                       i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
+
+
+@fire_accident_router.callback_query(F.data.in_(['plot_horizontal_jet']))
+async def horizontal_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.graph_is_drawn.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      #   'edit_vertical_jet',
+                                      #   'plot_vertical_jet',
+                                      i18n=i18n, param_back=True, back_data='back_horizontal_jet', check_role=True, role=role))
+    data = await state.get_data()
+
+    text = i18n.horizontal_jet.text()
+
+    distance = float(data.get('accident_horizontal_jet_human_distance'))
+
+    jet_state_phase = data.get('accident_horizontal_jet_state')
+    k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
+    mass_rate = float(data.get('accident_horizontal_jet_mass_rate'))
+    lenght_flame = k_coef * mass_rate ** 0.4
+    # diameter_flame = 0.15 * lenght_flame
+
+    h_jet = AccidentParameters()
+    x, y = h_jet.compute_heat_jet_fire(lenght_flame=lenght_flame)
+
+    # dist_num = f_ball.get_distance_at_sep(x_values=x, y_values=y, sep=4)
+    sep_num = h_jet.get_sep_at_distance(
+        x_values=x, y_values=y, distance=distance)
+
+    unit_sep = i18n.get('kwatt_per_meter_square')
+
+    text_annotate = f" q= {sep_num:.1f} {unit_sep} "
+
+    media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
+                           add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
+                           label=i18n.get('plot_horizontal_jet_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_horizontal_jet_label'),
+                           add_legend=True, loc_legend=1)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1,
+                                      #   'edit_horizontal_jet',
+                                      #   'plot_horizontal_jet',
+                                      i18n=i18n, param_back=True, back_data='back_horizontal_jet', check_role=True, role=role))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_horizontal_jet']))
@@ -1169,11 +1229,6 @@ async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMCo
                                       #   'plot_vertical_jet',
                                       i18n=i18n, param_back=True, back_data='back_vertical_jet', check_role=True, role=role))
     data = await state.get_data()
-    # data.setdefault("accident_vertical_jet_sub", "Метан")
-    # data.setdefault("accident_vertical_jet_mass_rate", "5")
-    # data.setdefault("accident_vertical_jet_state", "jet_state_liq_gas_vap")
-    # data.setdefault("accident_vertical_jet_human_distance", "30")
-    # await state.update_data(data)
 
     text = i18n.vertical_jet.text()
 
@@ -1210,15 +1265,6 @@ async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMCo
                                       #   'edit_vertical_jet',
                                       #   'plot_vertical_jet',
                                       i18n=i18n, param_back=True, back_data='back_vertical_jet', check_role=True, role=role))
-
-
-@fire_accident_router.callback_query(F.data.in_(['edit_vertical_jet']))
-async def edit_vertical_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    await state.set_state(state=None)
-    await bot.edit_message_reply_markup(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(*kb_edit_vjet, i18n=i18n, param_back=True, back_data='back_vertical_jet', check_role=True, role=role))
 
 
 @fire_accident_router.callback_query(F.data.in_(['fire_ball', 'back_fire_ball']))
