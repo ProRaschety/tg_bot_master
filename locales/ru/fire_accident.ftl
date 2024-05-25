@@ -148,10 +148,13 @@ edit_fire_flash-text = {$fire_flash_param}
 
 
 cloud_explosion =
-    Взрыв облака паров
+    Взрывоопасное облако
 cloud_explosion-text =
-    Расчет параметров взрыва облака паров.
+    Расчет параметров взрыва облака
     🚧 <i>Находится в разработке</i>
+cloud_explosion_result-text =
+    Параметры взрыва облака
+    на расстоянии {$distance} м.
 run_cloud_explosion =
     ▶ Рассчитать
 edit_cloud_explosion =
@@ -233,8 +236,6 @@ edit_cloud_explosion-text = {$cloud_explosion_param}
 
 plot_cloud_explosion_overpres_label =
     График избыточого давления
-y_cloud_explosion_overpres_label =
-    Избыточное давление взрыва, Па
 
 
 horizontal_jet =

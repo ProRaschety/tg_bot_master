@@ -45,4 +45,8 @@ request_start-text =
 request_stop-text =
     Запрос обработан ⌛
 graph_is_drawn-text =
-    Рисуется график 🎨
+    Рисуется график ⏳
+calculation_start-text =
+    Расчет запущен ▶
+calculation_progress-text =
+    Выполняется расчет 🚨

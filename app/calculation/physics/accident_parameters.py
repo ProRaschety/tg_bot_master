@@ -116,50 +116,73 @@ class AccidentParameters:
             overpres = []
             impuls = []
             if mode_explosion == 1:
-                for x in range(1, x_lim + 5, 1):
+                for x in range(1, x_lim + 1, 1):
                     dist.append(x)
-                    rx = distance / \
-                        ((energy_reserve / self.pressure_ambient) ** 1/3)
-                    px = m.exp(-1.124 - 1.66 * m.log(rx) - 0.260 *
-                               m.log(rx) ** 2) if rx >= 0.2 else 18
+                    rx = x / \
+                        ((energy_reserve / self.pressure_ambient) ** 0.33333)
+                    px = m.exp(-1.124 - 1.66 * m.log(rx) + 0.260 *
+                               (m.log(rx) ** 2)) if rx >= 0.2 else 18
                     overpres_inclosed = self.pressure_ambient * px
                     ix = m.exp(-3.4217 - 0.898 * m.log(rx) - 0.0096 * (m.log(rx) ** 2)
                                ) if rx >= 0.2 else m.exp(-3.4217 - 0.898 * m.log(0.14) - 0.0096 * (m.log(0.14) ** 2))
                     impuls_inclosed = ix * \
-                        (self.pressure_ambient ** 2/3) * \
-                        ((energy_reserve ** 1/3)/self.sound_speed)
+                        (self.pressure_ambient ** 0.66666) * \
+                        ((energy_reserve ** 0.33333) / self.sound_speed)
 
                     overpres.append(overpres_inclosed)
                     impuls.append(impuls_inclosed)
             else:
                 sigma = 7.0 if subst == 'gas' else 4.0
-                w = (ufront / self.sound_speed) * ((sigma - 1) / sigma)
-                energy_res = energy_reserve if subst == 'gas' else energy_reserve * \
-                    ((sigma - 1) / sigma)
-                for x in range(1, x_lim + 5, 1):
+                sigma_st = (ufront ** 2) / (self.sound_speed ** 2)
+                sigma_nd = (sigma - 1) / sigma
+                w = (ufront / self.sound_speed) * sigma_nd
+                energy_res = energy_reserve if subst == 'gas' else energy_reserve * sigma_nd
+                for x in range(1, x_lim + 1, 1):
                     dist.append(x)
-                    rx = distance / \
-                        ((energy_res / self.pressure_ambient) ** 1/3)
-                    px = (ufront ** 2 / self.sound_speed ** 2) * ((sigma - 1) / sigma) * ((0.83 / 0.34) - (0.14 / 0.34)) if rx > 0.34 else (
-                        ufront ** 2 / self.sound_speed ** 2) * ((sigma - 1) / sigma) * ((0.83 / 0.34) - (0.14 / 0.34))
+                    rx = x / ((energy_res / self.pressure_ambient) ** 0.33333)
+                    px = sigma_st * sigma_nd * ((0.83 / rx) - (0.14 / rx ** 2)) if rx > 0.34\
+                        else sigma_st * sigma_nd * ((0.83 / 0.34) - (0.14 / 0.34 ** 2))
                     overpres_inclosed = self.pressure_ambient * px
-
                     ix = w * (1 - 0.4 * w) * ((0.06 / rx) + (0.01 / rx ** 2) - (0.0025 / rx ** 3)) if rx > 0.34 else w * (
                         1 - 0.4 * w) * ((0.06 / 0.34) + (0.01 / 0.34 ** 2) - (0.0025 / 0.34 ** 3))
                     impuls_inclosed = ix * \
-                        (self.pressure_ambient ** 2/3) * \
-                        ((energy_res ** 1/3)/self.sound_speed)
+                        (self.pressure_ambient ** 0.66666) * \
+                        ((energy_res ** 0.33333) / self.sound_speed)
 
                     overpres.append(overpres_inclosed)
                     impuls.append(impuls_inclosed)
 
-            return overpres, impuls, dist
+            return dist, overpres, impuls
 
         else:
-            px = 1
-            overpres = self.pressure_ambient * px
-            impuls = 1
-            return overpres, impuls
+            if mode_explosion == 1:
+                rx = distance / \
+                    ((energy_reserve / self.pressure_ambient) ** 0.33333)
+                px = m.exp(-1.124 - 1.66 * m.log(rx) + 0.260 *
+                           (m.log(rx) ** 2)) if rx >= 0.2 else 18
+                overpres = self.pressure_ambient * px
+                ix = m.exp(-3.4217 - 0.898 * m.log(rx) - 0.0096 * (m.log(rx) ** 2)
+                           ) if rx >= 0.2 else m.exp(-3.4217 - 0.898 * m.log(0.14) - 0.0096 * (m.log(0.14) ** 2))
+                impuls = ix * (self.pressure_ambient ** 0.66666) * \
+                    ((energy_reserve ** 0.33333) / self.sound_speed)
+                return rx, px, overpres, ix, impuls
+            else:
+                sigma = 7.0 if subst == 'gas' else 4.0
+                sigma_st = (ufront ** 2) / (self.sound_speed ** 2)
+                sigma_nd = (sigma - 1) / sigma
+                w = (ufront / self.sound_speed) * sigma_nd
+                energy_res = energy_reserve if subst == 'gas' else energy_reserve * sigma_nd
+                rx = distance / \
+                    ((energy_res / self.pressure_ambient) ** 0.33333)
+                px = sigma_st * sigma_nd * ((0.83 / rx) - (0.14 / rx ** 2)) if rx > 0.34 \
+                    else sigma_st * sigma_nd * ((0.83 / 0.34) - (0.14 / 0.34 ** 2))
+                overpres = self.pressure_ambient * px
+                ix = w * (1 - 0.4 * w) * ((0.06 / rx) + (0.01 / rx ** 2) - (0.0025 / rx ** 3)) if rx > 0.34 else w * (
+                    1 - 0.4 * w) * ((0.06 / 0.34) + (0.01 / 0.34 ** 2) - (0.0025 / 0.34 ** 3))
+                impuls = ix * \
+                    (self.pressure_ambient ** 0.66666) * \
+                    ((energy_res ** 0.33333) / self.sound_speed)
+            return rx, px, overpres, ix, impuls
 
     def compute_impuls_inclosed(self, nondim_impuls: int | float, energy_reserve: int | float):
         pass

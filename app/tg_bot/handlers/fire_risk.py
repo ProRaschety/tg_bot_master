@@ -756,7 +756,7 @@ async def edit_industrial_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(*kb_ind, i18n=i18n, param_back=True, back_data='back_industrial'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_industrial'))
 
     state_data = await state.get_state()
     data = await state.get_data()
