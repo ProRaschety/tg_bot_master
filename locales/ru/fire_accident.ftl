@@ -169,6 +169,8 @@ plot_accident_cloud_explosion_impuls =
     📉 Импульс I⁺
 back_cloud_explosion =
     ↩ Назад
+back_edit_cloud_explosion =
+    ↩ Назад
 plot_cloud_explosion_pressure-text =
     <blockquote></blockquote>
 above_surface =
@@ -178,8 +180,14 @@ on_surface =
     На
     земле
 
+
 cloud_explosion_state_fuel =
-    Агрегатное состояние горючего вещества
+    Агрегатное состояние
+    горючего вещества
+cloud_explosion_state_gas =
+    Газ/Пар
+cloud_explosion_state_dust =
+    Пыль
 gas =
     Газ/Пар
 dust =
@@ -230,6 +238,45 @@ cloud_explosion_nondimensional_pressure =
 cloud_explosion_nondimensional_impuls =
     Безразмерный импульс
     фазы сжатия
+
+edit_cloud_explosion_state =
+    Агрегатное состояние горючего вещества
+edit_cloud_explosion_correction_parameter =
+    β
+edit_cloud_explosion_stc_coef_oxygen =
+    k
+edit_cloud_explosion_class_fuel =
+    Класс горючего вещества
+class_fuel_first =
+    1
+class_fuel_second =
+    2
+class_fuel_third =
+    3
+class_fuel_fourth =
+    4
+edit_cloud_explosion_class_space =
+    Класс загроможденности пространства
+class_space_first =
+    I
+class_space_second =
+    II
+class_space_third =
+    III
+class_space_fourth =
+    IV
+
+edit_cloud_explosion_expl_cond =
+    Расположение взрывоопасного облака
+edit_cloud_explosion_coef_z =
+    Z
+edit_cloud_explosion_mass_fuel =
+    m
+edit_cloud_explosion_distance =
+    R
+
+
+
 
 edit_cloud_explosion-text = {$cloud_explosion_param}
     <blockquote>{$edit_cloud_explosion}</blockquote>

@@ -50,3 +50,5 @@ calculation_start-text =
     Расчет запущен ▶
 calculation_progress-text =
     Выполняется расчет 🚨
+update_data-text =
+    Обновление данных ⏳

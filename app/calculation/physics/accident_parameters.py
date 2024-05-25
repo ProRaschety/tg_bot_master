@@ -30,36 +30,6 @@ class AccidentParameters:
         self.sound_speed = 340
         self.heat_burn_specific = 44094000  # Дж/кг
 
-    # def get_init_data(self, *args, **kwargs):
-    #     head = ('Наименование', 'Параметр', 'Значение', 'Ед.изм.')
-
-    #     if self.type_accident == 'horizontal_jet':
-    #         label = 'Горизонтальный факел'
-    #         jet = kwargs.get('accident_horizontal_jet_state')
-    #         data_table = [
-    #             {'id': 'Расстояние до облучаемого объекта', 'var': 'r',  'unit_1': kwargs.get(
-    #                 'accident_horizontal_jet_human_distance'), 'unit_2': 'м'},
-    #             {'id': 'Расход сжатого газа, паровой\nили жидкой фазы сжиженного газа',
-    #                 'var': 'G',  'unit_1': kwargs.get('accident_horizontal_jet_mass_rate'), 'unit_2': 'кг/с'},
-    #             {'id': 'Агрегатное состояние горючего вещества', 'var': 'K',
-    #                 'unit_1': 'Жидкая фаза' if jet == 'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
-    #             {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_horizontal_jet_sub')}", 'unit_2': '-'}]
-
-        # elif self.type_accident == 'vertical_jet':
-        #     label = 'Вертикальный факел'
-        #     jet = kwargs.get(
-        #         'accident_vertical_jet_state')
-        #     data_table = [
-        #         {'id': 'Расстояние до облучаемого объекта', 'var': 'r',  'unit_1': kwargs.get(
-        #             'accident_vertical_jet_human_distance'), 'unit_2': 'м'},
-        #         {'id': 'Расход сжатого газа, паровой\nили жидкой фазы сжиженного газа',
-        #             'var': 'G',  'unit_1': kwargs.get('accident_vertical_jet_mass_rate'), 'unit_2': 'кг/с'},
-        #         {'id': 'Агрегатное состояние горючего вещества', 'var': 'K', 'unit_1': 'Жидкая фаза' if jet ==
-        #             'jet_state_liquid' else 'Паровая фаза' if jet == 'jet_state_liq_gas_vap' else 'Сжатый газ', 'unit_2': '-'},
-        #         {'id': 'Вещество', 'var': '-', 'unit_1': f"{kwargs.get('accident_vertical_jet_sub')}", 'unit_2': '-'}]
-
-        # return data_table, head, label
-
     def compute_radius_LFL(self, density: int | float, mass: int | float, clfl: int | float):
         return 7.80 * (mass / (density * clfl)) ** 0.33
 
@@ -94,12 +64,6 @@ class AccidentParameters:
             overpres = self.pressure_ambient * (pi_1 + pi_2 + pi_3)
             impuls = (123 * reduced_mass) / distance
             return overpres, impuls
-
-    def compute_nondimensional_pressure(self, mode_explosion: int, nondim_distance: int | float):
-        pass
-
-    def compute_nondimensional_impuls(self, mode_explosion: int, nondim_distance: int | float):
-        pass
 
     def compute_overpres_inclosed(self,
                                   energy_reserve: int | float,
@@ -183,9 +147,6 @@ class AccidentParameters:
                     (self.pressure_ambient ** 0.66666) * \
                     ((energy_res ** 0.33333) / self.sound_speed)
             return rx, px, overpres, ix, impuls
-
-    def compute_impuls_inclosed(self, nondim_impuls: int | float, energy_reserve: int | float):
-        pass
 
     def compute_redused_mass(self, expl_energy: int | float):
         return (expl_energy / 4.52) / 1_000_000
@@ -447,25 +408,25 @@ class AccidentParameters:
         if cloud_combustion_mode == 1:
             u_front = 500
         elif cloud_combustion_mode == 6:
-            u_front = k2 * mass_gas_phase ** 0.166
+            u_front = k2 * mass_gas_phase ** 0.1666
         elif cloud_combustion_mode == 5:
-            u_front = k1 * mass_gas_phase ** 0.166
+            u_front = k1 * mass_gas_phase ** 0.1666
         elif cloud_combustion_mode == 4:
-            u_front = k1 * mass_gas_phase ** 0.166
+            u_front = k1 * mass_gas_phase ** 0.1666
             if u_front > 200:
-                u_front = k1 * mass_gas_phase ** 0.166
+                u_front = k1 * mass_gas_phase ** 0.1666
             else:
                 u_front = 200
         elif cloud_combustion_mode == 3:
-            u_front = k1 * mass_gas_phase ** 1/6
+            u_front = k1 * mass_gas_phase ** 0.1666
             if u_front > 300:
-                u_front = k1 * mass_gas_phase ** 0.166
+                u_front = k1 * mass_gas_phase ** 0.1666
             else:
                 u_front = 300
         elif cloud_combustion_mode == 2:
-            u_front = k1 * mass_gas_phase ** 0.166
+            u_front = k1 * mass_gas_phase ** 0.1666
             if u_front > 500:
-                u_front = k1 * mass_gas_phase ** 0.166
+                u_front = k1 * mass_gas_phase ** 0.1666
             else:
                 u_front = 500
         return u_front
@@ -490,10 +451,10 @@ class AccidentParameters:
                         (6.6, 5.7, 5.4, 3.6, 3.2),
                         (10.0, 8.7, 7.7, 5.6, 4.6)])
         f_eta = RectBivariateSpline(x_temp, y_vel, eta.T, kx=4, ky=4, s=1)
-        coefficient_eta = f_eta(temperature_air, velocity_air_flow)
+        eta = f_eta(temperature_air, velocity_air_flow)
         log.info(
-            f"При температуре: {temperature_air} и скорости: {velocity_air_flow}, eta: {coefficient_eta[-1][-1]:.2f}")
-        return coefficient_eta[-1][-1]
+            f"При температуре: {temperature_air} и скорости: {velocity_air_flow}, eta: {eta[-1][-1]:.2f}")
+        return eta[-1][-1]
 
     def calc_evaporation_intencity_liquid(self, eta: int | float, molar_mass: int | float, vapor_pressure: int | float):
         """Возвращает интенсивность испарения паров жидкости"""

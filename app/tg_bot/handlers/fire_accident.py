@@ -74,6 +74,17 @@ kb_edit_bleve = [4,
                  'edit_bleve_mass',
                  'edit_bleve_distance']
 
+kb_edit_cloud_explosion = [1,
+                           'edit_cloud_explosion_state',
+                           'edit_cloud_explosion_correction_parameter',
+                           'edit_cloud_explosion_stc_coef_oxygen',
+                           'edit_cloud_explosion_class_fuel',
+                           'edit_cloud_explosion_class_space',
+                           'edit_cloud_explosion_expl_cond',
+                           'edit_cloud_explosion_coef_z',
+                           'edit_cloud_explosion_mass_fuel',
+                           'edit_cloud_explosion_distance']
+
 
 @fire_accident_router.callback_query(F.data == 'back_typical_accidents')
 async def back_typical_accidents_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
@@ -173,7 +184,6 @@ async def pool_subst_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRun
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(2, 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', i18n=i18n))
-    await callback.answer('')
 
 
 @fire_accident_router.callback_query(F.data.in_(['gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen']))
@@ -347,6 +357,13 @@ async def edit_fire_pool_param_call(callback: CallbackQuery, bot: Bot, state: FS
 @fire_accident_router.callback_query(F.data.in_(['run_fire_pool', 'run_fire_pool_guest']))
 async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
+    text = i18n.calculation_progress.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_pool', check_role=True, role=role))
+
     text = i18n.fire_pool.text()
     subst = data.get('accident_fire_pool_sub')
     distance = float(data.get('accident_fire_pool_distance'))
@@ -624,6 +641,13 @@ async def edit_fire_flash_param_call(callback: CallbackQuery, bot: Bot, state: F
 @fire_accident_router.callback_query(F.data == 'run_fire_flash')
 async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
+    text = i18n.calculation_progress.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_flash', check_role=True, role=role))
+
     text = i18n.fire_flash.text()
     subst = data.get('accident_fire_flash_sub')
     rad_pool = float(data.get('accident_fire_flash_radius_pool'))
@@ -724,18 +748,18 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
             'var': 'Z',
             'unit_1': data.get('accident_cloud_explosion_coef_z'),
             'unit_2': '-'},
-        {'id': i18n.get('cloud_explosion_class_space'),
+        {'id': i18n.get('cloud_explosion_cond_ground'),
             'var': '-',
-            'unit_1': data.get('accident_cloud_explosion_class_space'),
+            'unit_1': i18n.get(data.get(
+                'accident_cloud_explosion_expl_cond')),
             'unit_2': '-'},
         {'id': i18n.get('cloud_explosion_mode_expl'),
             'var': '-',
             'unit_1': f"{mode_expl:.0f}",
             'unit_2': '-'},
-        {'id': i18n.get('cloud_explosion_cond_ground'),
+        {'id': i18n.get('cloud_explosion_class_space'),
             'var': '-',
-            'unit_1': i18n.get(data.get(
-                'accident_cloud_explosion_expl_cond')),
+            'unit_1': data.get('accident_cloud_explosion_class_space'),
             'unit_2': '-'},
         {'id': i18n.get('cloud_explosion_class_fuel'),
             'var': '-',
@@ -765,6 +789,170 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'edit_cloud_explosion', 'run_cloud_explosion', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion', 'back_edit_cloud_explosion']))
+async def edit_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    await state.set_state(state=None)
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=get_inline_cd_kb(*kb_edit_cloud_explosion, i18n=i18n, param_back=True, back_data='back_cloud_explosion', check_role=True, role=role))
+    await callback.answer('')
+
+
+@fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion_state']))
+async def cloud_explosion_state_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=get_inline_cd_kb(1, 'cloud_explosion_state_gas', 'cloud_explosion_state_dust', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
+
+
+@fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion_class_fuel']))
+async def cloud_explosion_class_fuel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=get_inline_cd_kb(4, 'class_fuel_first', 'class_fuel_second', 'class_fuel_third', 'class_fuel_fourth', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
+
+
+@fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion_class_space']))
+async def cloud_explosion_class_space_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=get_inline_cd_kb(4, 'class_space_first', 'class_space_second', 'class_space_third', 'class_space_fourth', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
+
+
+@fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion_expl_cond']))
+async def cloud_explosion_cond_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=get_inline_cd_kb(1, 'above_surface', 'on_surface', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
+
+
+@fire_accident_router.callback_query(F.data.in_(['cloud_explosion_state_gas', 'cloud_explosion_state_dust', 'class_fuel_first', 'class_fuel_second', 'class_fuel_third', 'class_fuel_fourth', 'class_space_first', 'class_space_second', 'class_space_third', 'class_space_fourth', 'above_surface', 'on_surface',]))
+async def cloud_explosion_state_close(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.update_data.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion', check_role=True, role=role))
+
+    call_data = callback.data
+    if call_data == 'cloud_explosion_state_gas':
+        await state.update_data(accident_cloud_explosion_state_fuel='gas')
+    elif call_data == 'cloud_explosion_state_dust':
+        await state.update_data(accident_cloud_explosion_state_fuel='dust')
+    elif call_data == 'class_fuel_first':
+        await state.update_data(accident_cloud_explosion_class_fuel='1')
+    elif call_data == 'class_fuel_second':
+        await state.update_data(accident_cloud_explosion_class_fuel='2')
+    elif call_data == 'class_fuel_third':
+        await state.update_data(accident_cloud_explosion_class_fuel='3')
+    elif call_data == 'class_fuel_fourth':
+        await state.update_data(accident_cloud_explosion_class_fuel='4')
+    elif call_data == 'class_space_first':
+        await state.update_data(accident_cloud_explosion_class_space='1')
+    elif call_data == 'class_space_second':
+        await state.update_data(accident_cloud_explosion_class_space='2')
+    elif call_data == 'class_space_third':
+        await state.update_data(accident_cloud_explosion_class_space='3')
+    elif call_data == 'class_space_fourth':
+        await state.update_data(accident_cloud_explosion_class_space='4')
+    elif call_data == 'above_surface':
+        await state.update_data(accident_cloud_explosion_expl_cond='above_surface')
+    elif call_data == 'on_surface':
+        await state.update_data(accident_cloud_explosion_expl_cond='on_surface')
+
+    # data = await state.get_data()
+    # data.setdefault("edit_accident_cloud_explosion_param", "1")
+    # data.setdefault("accident_cloud_explosion_sub", "Бензин")
+    # data.setdefault("accident_cloud_explosion_class_fuel", "3")
+    # data.setdefault("accident_cloud_explosion_correction_parameter", "1.0")
+    # data.setdefault("accident_cloud_explosion_class_space", "3")
+    # data.setdefault("accident_cloud_explosion_mass_fuel", "1890")
+    # data.setdefault("accident_cloud_explosion_coef_z", "0.1")
+    # data.setdefault("accident_cloud_explosion_heat_combustion", "44000")
+    # data.setdefault("accident_cloud_explosion_expl_cond", "above_surface")
+    # data.setdefault("accident_cloud_explosion_distance", "70")
+    # data.setdefault("accident_cloud_explosion_state_fuel", "gas")
+    # data.setdefault("accident_cloud_explosion_stc_coef_oxygen", "2.0")
+    # await state.update_data(data)
+    data = await state.get_data()
+    text = i18n.cloud_explosion.text()
+    subst = data.get('accident_cloud_explosion_state_fuel')
+    mass = float(data.get('accident_cloud_explosion_mass_fuel'))
+    stc_coef_oxygen = float(
+        data.get('accident_cloud_explosion_stc_coef_oxygen'))
+    class_fuel = int(data.get('accident_cloud_explosion_class_fuel'))
+    class_space = int(data.get('accident_cloud_explosion_class_space'))
+    distance = float(data.get('accident_cloud_explosion_distance'))
+    cloud_exp = AccidentParameters(type_accident='cloud_explosion')
+    mode_expl = cloud_exp.get_mode_explosion(
+        class_fuel=class_fuel, class_space=class_space)
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('cloud_explosion')
+    data_out = [
+        {'id': i18n.get('cloud_explosion_distance'),
+            'var': 'R',
+            'unit_1': f"{distance:.1f}",
+            'unit_2': i18n.get('meter')},
+        {'id': i18n.get('cloud_explosion_mass_fuel'),
+            'var': 'm',
+            'unit_1': f"{mass:.2f}",
+            'unit_2': i18n.get('kilogram')},
+        {'id': i18n.get('cloud_explosion_coefficient_z'),
+            'var': 'Z',
+            'unit_1': data.get('accident_cloud_explosion_coef_z'),
+            'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_cond_ground'),
+            'var': '-',
+            'unit_1': i18n.get(data.get(
+                'accident_cloud_explosion_expl_cond')),
+            'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_mode_expl'),
+            'var': '-',
+            'unit_1': f"{mode_expl:.0f}",
+            'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_class_space'),
+            'var': '-',
+            'unit_1': data.get('accident_cloud_explosion_class_space'),
+            'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_class_fuel'),
+            'var': '-',
+            'unit_1': data.get('accident_cloud_explosion_class_fuel'),
+            'unit_2': '-'},
+        {'id': i18n.get('stoichiometric_coefficient_for_oxygen'),
+            'var': 'k',
+            'unit_1': f"{stc_coef_oxygen:.2f}",
+            'unit_2': '-'},
+        {'id': i18n.get('cloud_explosion_correction_parameter'),
+            'var': 'β',
+            'unit_1': data.get('accident_cloud_explosion_correction_parameter'),
+            'unit_2': '-'},
+        # {'id': i18n.get('cloud_explosion_heat_combustion'),
+        #     'var': 'Eуд0',
+        #     'unit_1': data.get('accident_cloud_explosion_heat_combustion'),
+        #     'unit_2': i18n.get('kJ_per_kg')},
+        {'id': i18n.get('cloud_explosion_state_fuel'),
+            'var': '-',
+            'unit_1': i18n.get(subst),
+            'unit_2': '-'}]
+
+    media = get_data_table(data=data_out, headers=headers, label=label)
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(*kb_edit_cloud_explosion, i18n=i18n, param_back=True, back_data='back_cloud_explosion', check_role=True, role=role))
     await callback.answer('')
 
 
@@ -884,7 +1072,7 @@ async def plot_cloud_explosion_pres_call(callback: CallbackQuery, bot: Bot, stat
     data = await state.get_data()
     text = i18n.cloud_explosion.text()
 
-    subst = data.get('cloud_explosion_state_fuel')
+    subst = data.get('accident_cloud_explosion_state_fuel')
     mass = float(data.get('accident_cloud_explosion_mass_fuel'))
     coef_z = float(data.get('accident_cloud_explosion_coef_z'))
     class_fuel = int(data.get('accident_cloud_explosion_class_fuel'))
@@ -946,7 +1134,7 @@ async def plot_cloud_explosion_impuls_call(callback: CallbackQuery, bot: Bot, st
     data = await state.get_data()
     text = i18n.cloud_explosion.text()
 
-    subst = data.get('cloud_explosion_state_fuel')
+    subst = data.get('accident_cloud_explosion_state_fuel')
     mass = float(data.get('accident_cloud_explosion_mass_fuel'))
     coef_z = float(data.get('accident_cloud_explosion_coef_z'))
     class_fuel = int(data.get('accident_cloud_explosion_class_fuel'))
@@ -1452,6 +1640,12 @@ async def edit_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
 @fire_accident_router.callback_query(F.data.in_(['run_fire_ball', 'run_fire_ball_guest']))
 async def run_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
+    text = i18n.calculation_progress.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_ball', check_role=True, role=role))
     text = i18n.fire_ball.text()
     subst = data.get('accident_fire_ball_sub')
     mass = float(data.get('accident_fire_ball_mass_fuel'))
@@ -1726,6 +1920,13 @@ async def edit_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
 @fire_accident_router.callback_query(F.data.in_(['run_accident_bleve', 'run_accident_bleve_guest']))
 async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
+    text = i18n.calculation_progress.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_accident_bleve', check_role=True, role=role))
+
     subst = data.get('accident_bleve_sub')
     coef_k = float(data.get("accident_bleve_energy_fraction"))
     heat_capacity = float(
@@ -1968,4 +2169,3 @@ async def edit_bleve_param_call(callback: CallbackQuery, bot: Bot, state: FSMCon
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'edit_accident_bleve', 'run_accident_bleve', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
     await state.update_data(edit_accident_bleve_param='')
-    await callback.answer('')
