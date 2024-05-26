@@ -65,6 +65,55 @@ class AccidentParameters:
             impuls = (123 * reduced_mass) / distance
             return overpres, impuls
 
+    def _compute_nondim_pressure_detonation(self, nondim_distance: int | float, new_methodology: bool = False):
+        if new_methodology:
+            if nondim_distance > 0.2 and nondim_distance < 50:
+                px = m.exp(-0.9278 - 1.5415 * m.log(nondim_distance) + 0.1953 *
+                           (m.log(nondim_distance) ** 2) - 0.4818 * (m.log(nondim_distance) ** 3))
+            else:
+                px = 18.6
+        else:
+            if nondim_distance > 0.2:
+                px = m.exp(-1.124 - 1.66 * m.log(nondim_distance) +
+                           0.260 * (m.log(nondim_distance) ** 2))
+            else:
+                px = 18
+        return px
+
+    def _compute_nondim_impuls_detonation(self, nondim_distance: int | float, new_methodology: bool = False):
+        if new_methodology:
+            if nondim_distance > 0.2 and nondim_distance < 50:
+                if nondim_distance > 0.2 and nondim_distance < 0.8:
+                    ix = m.exp(-3.3228 - 1.3689 * m.log(nondim_distance) - 0.9057 * (
+                        m.log(nondim_distance) ** 2) - 0.4818 * (m.log(nondim_distance) ** 3))
+                else:
+                    ix = m.exp(-3.2656 - 0.9641 * m.log(nondim_distance) - 0.0108 * (
+                        m.log(nondim_distance) ** 2) - 0.4818 * (m.log(nondim_distance) ** 3))
+            else:
+                ix = 0.53
+        else:
+            if nondim_distance > 0.2:
+                ix = m.exp(-3.4217 - 0.898 * m.log(nondim_distance) -
+                           0.0096 * (m.log(nondim_distance) ** 2))
+            else:
+                ix = m.exp(-3.4217 - 0.898 * m.log(0.14) -
+                           0.0096 * (m.log(0.14) ** 2))
+        return ix
+
+    def _compute_nondim_pressure_deflagration(self, nondim_distance: int | float, front: int | float,  sigma: int):
+        sigma_st = (front ** 2) / (self.sound_speed ** 2)
+        sigma_nd = (sigma - 1) / sigma
+        px = sigma_st * sigma_nd * ((0.83 / nondim_distance) - (0.14 / nondim_distance ** 2)) if nondim_distance > 0.34\
+            else sigma_st * sigma_nd * ((0.83 / 0.34) - (0.14 / 0.34 ** 2))
+        return px
+
+    def _compute_nondim_impuls_deflagration(self, nondim_distance: int | float, front: int | float,  sigma: int):
+        sigma_nd = (sigma - 1) / sigma
+        w = (front / self.sound_speed) * sigma_nd
+        ix = w * (1 - 0.4 * w) * ((0.06 / nondim_distance) + (0.01 / nondim_distance ** 2) - (0.0025 / nondim_distance ** 3)) if nondim_distance > 0.34 else w * (
+            1 - 0.4 * w) * ((0.06 / 0.34) + (0.01 / 0.34 ** 2) - (0.0025 / 0.34 ** 3))
+        return ix
+
     def compute_overpres_inclosed(self,
                                   energy_reserve: int | float,
                                   mode_explosion: int | None = None,
@@ -72,6 +121,7 @@ class AccidentParameters:
                                   distance: int | float = None,
                                   subst: str = 'gas',
                                   ufront: int | float = 500,
+                                  new_methodology: bool = False
                                   ):
         """форм. (П3.39-П3.46) М404"""
         if distance_run:
@@ -80,41 +130,75 @@ class AccidentParameters:
             overpres = []
             impuls = []
             if mode_explosion == 1:
-                for x in range(1, x_lim + 1, 1):
-                    dist.append(x)
-                    rx = x / \
-                        ((energy_reserve / self.pressure_ambient) ** 0.33333)
-                    px = m.exp(-1.124 - 1.66 * m.log(rx) + 0.260 *
-                               (m.log(rx) ** 2)) if rx >= 0.2 else 18
-                    overpres_inclosed = self.pressure_ambient * px
-                    ix = m.exp(-3.4217 - 0.898 * m.log(rx) - 0.0096 * (m.log(rx) ** 2)
-                               ) if rx >= 0.2 else m.exp(-3.4217 - 0.898 * m.log(0.14) - 0.0096 * (m.log(0.14) ** 2))
-                    impuls_inclosed = ix * \
-                        (self.pressure_ambient ** 0.66666) * \
-                        ((energy_reserve ** 0.33333) / self.sound_speed)
+                if new_methodology:
+                    for x in range(1, x_lim + 1, 1):
+                        dist.append(x)
+                        rx = x / \
+                            ((energy_reserve / self.pressure_ambient) ** 0.33333)
+                        px = self._compute_nondim_pressure_detonation(
+                            nondim_distance=rx, new_methodology=True)
+                        ix = self._compute_nondim_impuls_detonation(
+                            nondim_distance=rx, new_methodology=True)
+                        overpres_inclosed = self.pressure_ambient * px
+                        impuls_inclosed = ix * \
+                            (self.pressure_ambient ** 0.66666) * \
+                            ((energy_reserve ** 0.33333) / self.sound_speed)
 
-                    overpres.append(overpres_inclosed)
-                    impuls.append(impuls_inclosed)
+                        overpres.append(overpres_inclosed)
+                        impuls.append(impuls_inclosed)
+                else:
+                    for x in range(1, x_lim + 1, 1):
+                        dist.append(x)
+
+                        rx = x / \
+                            ((energy_reserve / self.pressure_ambient) ** 0.33333)
+                        px = self._compute_nondim_pressure_detonation(
+                            nondim_distance=rx)
+                        ix = self._compute_nondim_impuls_detonation(
+                            nondim_distance=rx)
+
+                        overpres_inclosed = self.pressure_ambient * px
+                        impuls_inclosed = ix * \
+                            (self.pressure_ambient ** 0.66666) * \
+                            ((energy_reserve ** 0.33333) / self.sound_speed)
+
+                        overpres.append(overpres_inclosed)
+                        impuls.append(impuls_inclosed)
+
             else:
                 sigma = 7.0 if subst == 'gas' else 4.0
-                sigma_st = (ufront ** 2) / (self.sound_speed ** 2)
                 sigma_nd = (sigma - 1) / sigma
-                w = (ufront / self.sound_speed) * sigma_nd
                 energy_res = energy_reserve if subst == 'gas' else energy_reserve * sigma_nd
-                for x in range(1, x_lim + 1, 1):
-                    dist.append(x)
-                    rx = x / ((energy_res / self.pressure_ambient) ** 0.33333)
-                    px = sigma_st * sigma_nd * ((0.83 / rx) - (0.14 / rx ** 2)) if rx > 0.34\
-                        else sigma_st * sigma_nd * ((0.83 / 0.34) - (0.14 / 0.34 ** 2))
-                    overpres_inclosed = self.pressure_ambient * px
-                    ix = w * (1 - 0.4 * w) * ((0.06 / rx) + (0.01 / rx ** 2) - (0.0025 / rx ** 3)) if rx > 0.34 else w * (
-                        1 - 0.4 * w) * ((0.06 / 0.34) + (0.01 / 0.34 ** 2) - (0.0025 / 0.34 ** 3))
-                    impuls_inclosed = ix * \
-                        (self.pressure_ambient ** 0.66666) * \
-                        ((energy_res ** 0.33333) / self.sound_speed)
-
-                    overpres.append(overpres_inclosed)
-                    impuls.append(impuls_inclosed)
+                if new_methodology:
+                    for x in range(1, x_lim + 1, 1):
+                        dist.append(x)
+                        rx = x / \
+                            ((energy_res / self.pressure_ambient) ** 0.33333)
+                        px = min(self._compute_nondim_pressure_deflagration(nondim_distance=rx, front=ufront, sigma=sigma),
+                                 self._compute_nondim_pressure_detonation(nondim_distance=rx, new_methodology=True))
+                        overpres_inclosed = self.pressure_ambient * px
+                        ix = min(self._compute_nondim_impuls_deflagration(nondim_distance=rx, front=ufront, sigma=sigma), self._compute_nondim_impuls_detonation(
+                            nondim_distance=rx, new_methodology=True))
+                        impuls_inclosed = ix * \
+                            (self.pressure_ambient ** 0.66666) * \
+                            ((energy_res ** 0.33333) / self.sound_speed)
+                        overpres.append(overpres_inclosed)
+                        impuls.append(impuls_inclosed)
+                else:
+                    for x in range(1, x_lim + 1, 1):
+                        dist.append(x)
+                        rx = x / \
+                            ((energy_res / self.pressure_ambient) ** 0.33333)
+                        px = self._compute_nondim_pressure_deflagration(
+                            nondim_distance=rx, front=ufront, sigma=sigma)
+                        overpres_inclosed = self.pressure_ambient * px
+                        ix = self._compute_nondim_impuls_deflagration(
+                            nondim_distance=rx, front=ufront, sigma=sigma)
+                        impuls_inclosed = ix * \
+                            (self.pressure_ambient ** 0.66666) * \
+                            ((energy_res ** 0.33333) / self.sound_speed)
+                        overpres.append(overpres_inclosed)
+                        impuls.append(impuls_inclosed)
 
             return dist, overpres, impuls
 
@@ -122,30 +206,47 @@ class AccidentParameters:
             if mode_explosion == 1:
                 rx = distance / \
                     ((energy_reserve / self.pressure_ambient) ** 0.33333)
-                px = m.exp(-1.124 - 1.66 * m.log(rx) + 0.260 *
-                           (m.log(rx) ** 2)) if rx >= 0.2 else 18
+                if new_methodology:
+                    px = self._compute_nondim_pressure_detonation(
+                        nondim_distance=rx, new_methodology=True)
+                    ix = self._compute_nondim_impuls_detonation(
+                        nondim_distance=rx, new_methodology=True)
+                else:
+                    px = self._compute_nondim_pressure_detonation(
+                        nondim_distance=rx)
+                    ix = self._compute_nondim_impuls_detonation(
+                        nondim_distance=rx)
                 overpres = self.pressure_ambient * px
-                ix = m.exp(-3.4217 - 0.898 * m.log(rx) - 0.0096 * (m.log(rx) ** 2)
-                           ) if rx >= 0.2 else m.exp(-3.4217 - 0.898 * m.log(0.14) - 0.0096 * (m.log(0.14) ** 2))
-                impuls = ix * (self.pressure_ambient ** 0.66666) * \
+                impuls = ix * \
+                    (self.pressure_ambient ** 0.66666) * \
                     ((energy_reserve ** 0.33333) / self.sound_speed)
-                return rx, px, overpres, ix, impuls
+
             else:
                 sigma = 7.0 if subst == 'gas' else 4.0
-                sigma_st = (ufront ** 2) / (self.sound_speed ** 2)
                 sigma_nd = (sigma - 1) / sigma
-                w = (ufront / self.sound_speed) * sigma_nd
                 energy_res = energy_reserve if subst == 'gas' else energy_reserve * sigma_nd
                 rx = distance / \
                     ((energy_res / self.pressure_ambient) ** 0.33333)
-                px = sigma_st * sigma_nd * ((0.83 / rx) - (0.14 / rx ** 2)) if rx > 0.34 \
-                    else sigma_st * sigma_nd * ((0.83 / 0.34) - (0.14 / 0.34 ** 2))
-                overpres = self.pressure_ambient * px
-                ix = w * (1 - 0.4 * w) * ((0.06 / rx) + (0.01 / rx ** 2) - (0.0025 / rx ** 3)) if rx > 0.34 else w * (
-                    1 - 0.4 * w) * ((0.06 / 0.34) + (0.01 / 0.34 ** 2) - (0.0025 / 0.34 ** 3))
-                impuls = ix * \
-                    (self.pressure_ambient ** 0.66666) * \
-                    ((energy_res ** 0.33333) / self.sound_speed)
+                if new_methodology:
+                    px = min(self._compute_nondim_pressure_deflagration(nondim_distance=rx, front=ufront, sigma=sigma),
+                             self._compute_nondim_pressure_detonation(nondim_distance=rx, new_methodology=True))
+                    overpres = self.pressure_ambient * px
+                    ix = min(self._compute_nondim_impuls_deflagration(nondim_distance=rx, front=ufront, sigma=sigma), self._compute_nondim_impuls_detonation(
+                        nondim_distance=rx, new_methodology=True))
+                    impuls = ix * \
+                        (self.pressure_ambient ** 0.66666) * \
+                        ((energy_res ** 0.33333) / self.sound_speed)
+
+                else:
+                    px = self._compute_nondim_pressure_deflagration(
+                        nondim_distance=rx, front=ufront, sigma=sigma)
+                    overpres = self.pressure_ambient * px
+                    ix = self._compute_nondim_impuls_deflagration(
+                        nondim_distance=rx, front=ufront, sigma=sigma)
+                    impuls = ix * \
+                        (self.pressure_ambient ** 0.66666) * \
+                        ((energy_res ** 0.33333) / self.sound_speed)
+
             return rx, px, overpres, ix, impuls
 
     def compute_redused_mass(self, expl_energy: int | float):
@@ -349,41 +450,11 @@ class AccidentParameters:
         return x_values, qf
 
     def get_mode_explosion(self, class_fuel: int = 1, class_space: int = 1):
-        mode_explosion = None
-        if class_fuel == 1:
-            if class_space == 1 or class_space == 2:
-                mode_explosion = 1
-            elif class_space == 2:
-                mode_explosion = 2
-            else:
-                mode_explosion = 3
-        elif class_fuel == 2:
-            if class_space == 1:
-                mode_explosion = 1
-            elif class_space == 2:
-                mode_explosion = 2
-            elif class_space == 3:
-                mode_explosion = 3
-            else:
-                mode_explosion = 4
-        elif class_fuel == 3:
-            if class_space == 1:
-                mode_explosion = 2
-            elif class_space == 2:
-                mode_explosion = 3
-            elif class_space == 3:
-                mode_explosion = 4
-            else:
-                mode_explosion = 5
-        elif class_fuel == 4:
-            if class_space == 1:
-                mode_explosion = 3
-            elif class_space == 2:
-                mode_explosion = 4
-            elif class_space == 3:
-                mode_explosion = 5
-            else:
-                mode_explosion = 6
+        data_mode = np.array([[1, 1, 2, 3],
+                              [1, 2, 3, 4],
+                              [2, 3, 4, 5],
+                              [3, 4, 5, 6]])
+        mode_explosion = data_mode[class_fuel - 1, class_space - 1]
         return mode_explosion
 
     def compute_eff_energy_reserve(self, phi_fuel: int | float, phi_stc: int | float, mass_gas_phase: int | float, subst: str = 'gas', explosion_superficial: bool = False):
@@ -405,30 +476,29 @@ class AccidentParameters:
         # скорость фронта пламени
         k1 = 43.0
         k2 = 26.0
-        if cloud_combustion_mode == 1:
-            u_front = 500
-        elif cloud_combustion_mode == 6:
+        u_front = k1 * mass_gas_phase ** 0.1666
+        if cloud_combustion_mode == 6:
             u_front = k2 * mass_gas_phase ** 0.1666
         elif cloud_combustion_mode == 5:
             u_front = k1 * mass_gas_phase ** 0.1666
         elif cloud_combustion_mode == 4:
-            u_front = k1 * mass_gas_phase ** 0.1666
             if u_front > 200:
                 u_front = k1 * mass_gas_phase ** 0.1666
             else:
                 u_front = 200
         elif cloud_combustion_mode == 3:
-            u_front = k1 * mass_gas_phase ** 0.1666
             if u_front > 300:
                 u_front = k1 * mass_gas_phase ** 0.1666
             else:
                 u_front = 300
         elif cloud_combustion_mode == 2:
-            u_front = k1 * mass_gas_phase ** 0.1666
             if u_front > 500:
                 u_front = k1 * mass_gas_phase ** 0.1666
             else:
                 u_front = 500
+        else:
+            u_front = 0
+        # log.info(f"u: {u_front:.1f}")
         return u_front
 
     def get_distance_at_sep(self, x_values, y_values, sep):

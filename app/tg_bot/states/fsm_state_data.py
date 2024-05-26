@@ -113,6 +113,12 @@ class FSMFireAccidentForm(StatesGroup):
     edit_bleve_mass_state = State()
     edit_bleve_distance_state = State()
 
+    edit_cloud_explosion_correction_parameter_state = State()
+    edit_cloud_explosion_stc_coef_oxygen_state = State()
+    edit_cloud_explosion_coef_z_state = State()
+    edit_cloud_explosion_mass_state = State()
+    edit_cloud_explosion_distance_state = State()
+
 
 class FSMToolLiquidForm(StatesGroup):
     edit_state_liquid_density = State()

@@ -275,14 +275,22 @@ edit_cloud_explosion_mass_fuel =
 edit_cloud_explosion_distance =
     R
 
-
-
-
 edit_cloud_explosion-text = {$cloud_explosion_param}
     <blockquote>{$edit_cloud_explosion}</blockquote>
 
-plot_cloud_explosion_overpres_label =
-    График избыточого давления
+name_cloud_explosion_correction_parameter =
+    Введите корретировочный параметр:
+name_cloud_explosion_stc_coef_oxygen =
+    Введите значение стехиометрического коэффициента
+    при кислороде:
+edit_cloud_explosion_coef_z_state =
+    Введите значение коэффициента Z
+    участия горючего во взрыве:
+name_cloud_explosion_mass_fuel =
+    Введите массу вещества:
+name_cloud_explosion_distance =
+    Введите расстояние от центра взрыва:
+
 
 
 horizontal_jet =
