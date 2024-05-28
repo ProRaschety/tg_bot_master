@@ -104,6 +104,12 @@ class FSMFireAccidentForm(StatesGroup):
     edit_fire_pool_distance_state = State()
     edit_fire_pool_wind_state = State()
 
+    edit_horizontal_jet_mass_flow_state = State()
+    edit_horizontal_jet_distance_state = State()
+
+    edit_vertical_jet_mass_flow_state = State()
+    edit_vertical_jet_distance_state = State()
+
     edit_fire_flash_mass_state = State()
     edit_fire_flash_lcl_state = State()
 

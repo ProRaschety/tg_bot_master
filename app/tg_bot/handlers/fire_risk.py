@@ -871,3 +871,6 @@ async def run_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     # await state.update_data(data)
     await state.set_state(state=None)
     await callback.answer('')
+
+
+"""______________________Интегральная модель пожара______________________"""

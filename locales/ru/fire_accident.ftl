@@ -180,7 +180,12 @@ on_surface =
     На
     земле
 
-
+cloud_explosion_methodology =
+    Методика расчета
+methodology_404 =
+    Мет.404
+methodology_2024 =
+    Мет.2024
 cloud_explosion_state_fuel =
     Агрегатное состояние
     горючего вещества

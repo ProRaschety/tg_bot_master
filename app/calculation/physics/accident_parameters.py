@@ -174,8 +174,14 @@ class AccidentParameters:
                         dist.append(x)
                         rx = x / \
                             ((energy_res / self.pressure_ambient) ** 0.33333)
-                        px = min(self._compute_nondim_pressure_deflagration(nondim_distance=rx, front=ufront, sigma=sigma),
-                                 self._compute_nondim_pressure_detonation(nondim_distance=rx, new_methodology=True))
+                        px_defl = self._compute_nondim_pressure_deflagration(
+                            nondim_distance=rx, front=ufront, sigma=sigma)
+                        px_detn = self._compute_nondim_pressure_detonation(
+                            nondim_distance=rx, new_methodology=True)
+                        # px = min(self._compute_nondim_pressure_deflagration(nondim_distance=rx, front=ufront, sigma=sigma),
+                        #          self._compute_nondim_pressure_detonation(nondim_distance=rx, new_methodology=True))
+                        # log.info(f"Pdefl: {px_defl}, Pdetn: {px_detn}")
+                        px = min(px_defl, px_detn)
                         overpres_inclosed = self.pressure_ambient * px
                         ix = min(self._compute_nondim_impuls_deflagration(nondim_distance=rx, front=ufront, sigma=sigma), self._compute_nondim_impuls_detonation(
                             nondim_distance=rx, new_methodology=True))
@@ -228,6 +234,11 @@ class AccidentParameters:
                 rx = distance / \
                     ((energy_res / self.pressure_ambient) ** 0.33333)
                 if new_methodology:
+                    px_defl = self._compute_nondim_pressure_deflagration(
+                        nondim_distance=rx, front=ufront, sigma=sigma)
+                    px_detn = self._compute_nondim_pressure_detonation(
+                        nondim_distance=rx, new_methodology=True)
+                    log.info(f"Pdefl: {px_defl}, Pdetn: {px_detn}")
                     px = min(self._compute_nondim_pressure_deflagration(nondim_distance=rx, front=ufront, sigma=sigma),
                              self._compute_nondim_pressure_detonation(nondim_distance=rx, new_methodology=True))
                     overpres = self.pressure_ambient * px
