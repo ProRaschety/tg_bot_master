@@ -1,4 +1,19 @@
 import logging
+import io
+import json
+
+import math as m
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+
+from scipy.constants import physical_constants
+from scipy.interpolate import RectBivariateSpline, interp1d
+
+
+from app.calculation.physics.physics_utils import compute_stoichiometric_coefficient_with_oxygen, compute_density_gas_phase
 
 
 log = logging.getLogger(__name__)
@@ -308,3 +323,60 @@ class FireRisk:
                     'other_types_of_industrial_buildings': (0.00840, 0.41)}
             handbook_frequency = data.get(type_building, (0, 0))
             return handbook_frequency[0] * area ** handbook_frequency[1]
+
+
+class FireModel:
+    def __init__(self) -> None:
+        self.pressure_ambient = physical_constants.get(
+            'standard atmosphere')[0]  # Па
+        self.heat_capacity_air = 1010  # Дж/кг*К
+        self.R = physical_constants.get('molar gas constant')[0]  # Дж/моль*К
+        self.K = 273.15  # К
+        self.g = physical_constants.get('standard acceleration of gravity')[0]
+        self.sound_speed = 340
+
+    def compute_z(self, h: int | float, H: int | float, ):
+        return h / H * (m.exp(1.4 * (h / H))) if H <= 6.0 else 6.0
+
+    def compute_coefficient_completeness_combustion(self, initial_oxygen: int | float, current_oxygen: int | float):
+        eta = 0.63 + 0.2 * initial_oxygen + 1500 * current_oxygen ** 6
+        return eta
+
+    def _compute_B(self, phi: int | float, vol_free: int | float, cp: int | float, eta: int | float, heat_comb: int | float,):
+        B = (353 * cp * vol_free) / ((1 - phi) * eta * heat_comb)
+        return B
+
+    def _compute_A(self, psi: int | float, velocity: int | float, n: int, width: int = 1,  area: int | float = 1):
+        if n == 1:
+            a = psi * area * 0.01
+        elif n == 2:
+            a = psi * velocity * width
+        else:
+            a = 1.05 * psi * velocity ** 2
+        return a
+
+    def compute_time_by_temperature(self, B: int | float, A: int | float, t0: int | float, z: int | float, n: int):
+        time = ((B/A) * m.log(1 + ((70 - t0)/((273 + t0) * z)))) ** (1 / n)
+        return time
+
+    def compute_time_by_loss_visibility(self, B, A, Dm, Vfree, z, l_lim, a_evac, E_lm, n: int):
+        param_st = Vfree * m.log(1.05 * a_evac * E_lm)
+        param_nd = l_lim * B * Dm * z
+
+        time = ((B/A) * (m.log(1 / (1 - (param_st/param_nd))))) ** (1 / n)
+        return time
+
+    def compute_time_by_low_oxygen(self, B, A, Vfree, lo2, z, n: int):
+        param_st = 0.044
+        param_nd = (((B * lo2) / Vfree) + 0.27) * z
+
+        time = ((B/A) * (m.log(1 / (1 - (param_st/param_nd))))) ** (1 / n)
+        return time
+
+    def compute_critical_combustion_product(self, B, A, z, param, lim_param, Vfree, n: int):
+        try:
+            param_st = 1 - (Vfree * lim_param) / (B * param * z)
+            time = ((B / A) * (m.log(1 / param_st))) ** (1 / n)
+            return time
+        except:
+            return 0

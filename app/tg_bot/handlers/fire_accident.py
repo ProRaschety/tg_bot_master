@@ -50,13 +50,20 @@ SFilter_cloud_explosion = [FSMFireAccidentForm.edit_cloud_explosion_correction_p
                            FSMFireAccidentForm.edit_cloud_explosion_distance_state]
 
 kb_accidents = [1,
-                'fire_pool',
+                # 'dissipation_without_ignition',
                 'fire_flash',
-                'cloud_explosion',
+                'fire_pool',
                 'horizontal_jet',
                 'vertical_jet',
                 'fire_ball',
-                'accident_bleve',]
+                'cloud_explosion',
+                'accident_bleve',
+                # 'bleve_boiling_luquid',
+                # 'scattering_of_fragments',
+                # 'explosion_of_pressurized_equipment',
+                # 'column_fire',
+                # 'gas_jet_burning'
+                ]
 
 kb_edit_pool = [4,
                 'edit_pool_substance',
@@ -126,7 +133,6 @@ async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(*kb_accidents, i18n=i18n, param_back=True, back_data='back_fire_risks'))
-    await callback.answer('')
 
 
 @fire_accident_router.callback_query(F.data.in_(['fire_pool', 'back_fire_pool']))
@@ -364,7 +370,7 @@ async def edit_fire_pool_param_call(callback: CallbackQuery, bot: Bot, state: FS
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(*kb_edit_pool, i18n=i18n, param_back=True, back_data='back_fire_pool', check_role=True, role=role))
     await state.update_data(edit_accident_fire_pool_param='')
-    await callback.answer('')
+    await state.set_state(state=None)
 
 
 @fire_accident_router.callback_query(F.data.in_(['run_fire_pool', 'run_fire_pool_guest']))
@@ -647,6 +653,7 @@ async def edit_fire_flash_param_call(callback: CallbackQuery, bot: Bot, state: F
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'edit_fire_flash', 'run_fire_flash', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
     await state.update_data(edit_accident_fire_flash_param='')
+    await state.set_state(state=None)
 
 
 @fire_accident_router.callback_query(F.data == 'run_fire_flash')
@@ -828,17 +835,21 @@ async def cloud_explosion_state_call(callback: CallbackQuery, bot: Bot, state: F
 
 @fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion_class_fuel']))
 async def cloud_explosion_class_fuel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    await bot.edit_message_reply_markup(
+    text = i18n.edit_cloud_explosion_class_fuel.text()
+    await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
+        caption=text,
         reply_markup=get_inline_cd_kb(4, 'class_fuel_first', 'class_fuel_second', 'class_fuel_third', 'class_fuel_fourth', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion_class_space']))
 async def cloud_explosion_class_space_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    await bot.edit_message_reply_markup(
+    text = i18n.edit_cloud_explosion_class_space.text()
+    await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
+        caption=text,
         reply_markup=get_inline_cd_kb(4, 'class_space_first', 'class_space_second', 'class_space_third', 'class_space_fourth', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
 
 
@@ -855,7 +866,7 @@ async def cloud_explosion_methodology_call(callback: CallbackQuery, bot: Bot, st
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, 'methodology_404', 'methodology_2024', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
+        reply_markup=get_inline_cd_kb(2, 'methodology_404', 'methodology_2024', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
 
 
 @fire_accident_router.callback_query(F.data.in_(['cloud_explosion_state_gas', 'cloud_explosion_state_dust', 'class_fuel_first', 'class_fuel_second', 'class_fuel_third', 'class_fuel_fourth', 'class_space_first', 'class_space_second', 'class_space_third', 'class_space_fourth', 'above_surface', 'on_surface', 'methodology_404', 'methodology_2024']))
@@ -1191,6 +1202,7 @@ async def edit_cloud_explosion_param_call(callback: CallbackQuery, bot: Bot, sta
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(*kb_edit_cloud_explosion, i18n=i18n, param_back=True, back_data='back_cloud_explosion', check_role=True, role=role))
     await state.update_data(edit_accident_cloud_explosion_param='')
+    await state.set_state(state=None)
 
 
 @fire_accident_router.callback_query(F.data.in_(['run_cloud_explosion', 'run_cloud_explosion_guest']))
@@ -1424,6 +1436,7 @@ async def plot_cloud_explosion_impuls_call(callback: CallbackQuery, bot: Bot, st
 @fire_accident_router.callback_query(F.data.in_(['horizontal_jet', 'back_horizontal_jet']))
 async def horizontal_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
+    data.setdefault("edit_accident_horizontal_jet_param", "")
     data.setdefault("accident_horizontal_jet_sub", "Метан")
     data.setdefault("accident_horizontal_jet_mass_rate", "5")
     data.setdefault("accident_horizontal_jet_state", "jet_state_liquid")
@@ -1492,33 +1505,24 @@ async def horizontal_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSM
                                       #   'plot_vertical_jet',
                                       i18n=i18n, param_back=True, back_data='back_horizontal_jet', check_role=True, role=role))
     data = await state.get_data()
-
     text = i18n.horizontal_jet.text()
-
     distance = float(data.get('accident_horizontal_jet_human_distance'))
-
     jet_state_phase = data.get('accident_horizontal_jet_state')
     k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
     mass_rate = float(data.get('accident_horizontal_jet_mass_rate'))
     lenght_flame = k_coef * mass_rate ** 0.4
     # diameter_flame = 0.15 * lenght_flame
-
     h_jet = AccidentParameters()
     x, y = h_jet.compute_heat_jet_fire(lenght_flame=lenght_flame)
-
     # dist_num = f_ball.get_distance_at_sep(x_values=x, y_values=y, sep=4)
     sep_num = h_jet.get_sep_at_distance(
         x_values=x, y_values=y, distance=distance)
-
     unit_sep = i18n.get('kwatt_per_meter_square')
-
     text_annotate = f" q= {sep_num:.1f} {unit_sep} "
-
     media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
                            add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
                            label=i18n.get('plot_horizontal_jet_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_horizontal_jet_label'),
                            add_legend=True, loc_legend=1)
-
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -1607,32 +1611,136 @@ async def horizontal_jet_state_call(callback: CallbackQuery, bot: Bot, state: FS
         reply_markup=get_inline_cd_kb(*kb_edit_hjet, i18n=i18n, param_back=True, back_data='back_horizontal_jet'))
 
 
-# @fire_accident_router.callback_query(F.data.in_(['edit_hjet_mass_rate', 'edit_hjet_distance']))
-# async def edit_horizontal_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-#     if callback.data == 'edit_hjet_mass_rate':
-#         await state.set_state(FSMFireAccidentForm.edit_horizontal_jet_mass_flow_state)
-#     elif callback.data == 'edit_hjet_distance':
-#         await state.set_state(FSMFireAccidentForm.edit_horizontal_jet_distance_state)
-#     data = await state.get_data()
-#     state_data = await state.get_state()
-#     if state_data == FSMFireAccidentForm.edit_fire_flash_mass_state:
-#         text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
-#             "name_fire_flash_mass"), edit_fire_flash=data.get("accident_fire_flash_mass_fuel", 0))
-#     elif state_data == FSMFireAccidentForm.edit_fire_flash_lcl_state:
-#         text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
-#             "name_fire_flash_lcl"), edit_fire_flash=data.get("accident_fire_flash_lcl", 0))
-#     kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
-#           'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
+@fire_accident_router.callback_query(F.data.in_(['edit_hjet_mass_rate', 'edit_hjet_distance']))
+async def edit_horizontal_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    if callback.data == 'edit_hjet_mass_rate':
+        await state.set_state(FSMFireAccidentForm.edit_horizontal_jet_mass_flow_state)
+    elif callback.data == 'edit_hjet_distance':
+        await state.set_state(FSMFireAccidentForm.edit_horizontal_jet_distance_state)
+    data = await state.get_data()
+    state_data = await state.get_state()
 
-#     await bot.edit_message_caption(
-#         chat_id=callback.message.chat.id,
-#         message_id=callback.message.message_id,
-#         caption=text,
-#         reply_markup=get_inline_cd_kb(3, *kb, i18n=i18n))
+    if state_data == FSMFireAccidentForm.edit_horizontal_jet_mass_flow_state:
+        text = i18n.edit_hjet.text(hjet_param=i18n.get(
+            "name_hjet_mass_rate"), edit_hjet=data.get("accident_horizontal_jet_mass_rate", 0))
+
+    elif state_data == FSMFireAccidentForm.edit_horizontal_jet_distance_state:
+        text = i18n.edit_hjet.text(hjet_param=i18n.get(
+            "name_hjet_distance"), edit_hjet=data.get("accident_horizontal_jet_human_distance", 0))
+
+    kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
+          'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(3, *kb, i18n=i18n))
+
+
+@fire_accident_router.callback_query(StateFilter(*SFilter_horizontal_jet), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero', 'point', 'clear']))
+async def edit__horizontal_jet_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
+    if state_data == FSMFireAccidentForm.edit_horizontal_jet_mass_flow_state:
+        hjet_param = i18n.get("name_hjet_mass_rate")
+
+    elif state_data == FSMFireAccidentForm.edit_horizontal_jet_distance_state:
+        hjet_param = i18n.get("name_hjet_distance")
+
+    edit_data = await state.get_data()
+    if callback.data == 'clear':
+        await state.update_data(edit_accident_horizontal_jet_param="")
+        edit_d = await state.get_data()
+        edit_data = edit_d.get('edit_accident_horizontal_jet_param', 1)
+        text = i18n.edit_hjet.text(
+            hjet_param=hjet_param, edit_hjet=edit_data)
+
+    else:
+        edit_param_1 = edit_data.get('edit_accident_horizontal_jet_param')
+        edit_sum = edit_param_1 + i18n.get(callback.data)
+        await state.update_data(edit_accident_horizontal_jet_param=edit_sum)
+        edit_data = await state.get_data()
+        edit_param = edit_data.get('edit_accident_horizontal_jet_param', 0)
+        text = i18n.edit_hjet.text(
+            hjet_param=hjet_param, edit_hjet=edit_param)
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
+
+
+@fire_accident_router.callback_query(StateFilter(*SFilter_horizontal_jet), F.data.in_(['ready']))
+async def edit_hjet_param_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    state_data = await state.get_state()
+    data = await state.get_data()
+    value = data.get("edit_accident_horizontal_jet_param")
+
+    if state_data == FSMFireAccidentForm.edit_horizontal_jet_mass_flow_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_horizontal_jet_mass_rate=value)
+        else:
+            await state.update_data(accident_horizontal_jet_mass_rate=1)
+    elif state_data == FSMFireAccidentForm.edit_horizontal_jet_distance_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_horizontal_jet_human_distance=value)
+        else:
+            await state.update_data(accident_horizontal_jet_human_distance=10)
+
+    text = i18n.horizontal_jet.text()
+    data = await state.get_data()
+
+    jet_state_phase = data.get('accident_horizontal_jet_state')
+    k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
+    mass_rate = float(data.get('accident_horizontal_jet_mass_rate'))
+    lenght_flame = k_coef * mass_rate ** 0.4
+    diameter_flame = 0.15 * lenght_flame
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('horizontal_jet')
+    data_out = [
+        {'id': i18n.get('jet_human_distance'),
+            'var': 'r',
+            'unit_1': data.get('accident_horizontal_jet_human_distance'),
+            'unit_2': i18n.get('meter')},
+        {'id': i18n.get('hjet_flame_width'),
+            'var': 'Df',
+            'unit_1': f'{diameter_flame:.2f}',
+            'unit_2': i18n.get('meter')},
+        {'id': i18n.get('hjet_flame_length'),
+            'var': 'Lf',
+            'unit_1': f'{lenght_flame:.2f}',
+            'unit_2': i18n.get('meter')},
+        {'id': i18n.get('jet_mass_rate'),
+            'var': 'G',
+            'unit_1': f'{mass_rate:.2f}',
+            'unit_2': i18n.get('kg_per_sec')},
+        {'id': i18n.get('empirical_coefficient'),
+            'var': 'K',
+            'unit_1': k_coef,
+            'unit_2': '-'},
+        {'id': i18n.get('jet_state_fuel'),
+            'var': '-',
+            'unit_1': i18n.get(jet_state_phase),
+            'unit_2': '-'}]
+
+    media = get_data_table(data=data_out, headers=headers, label=label)
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(*kb_edit_hjet, i18n=i18n, param_back=True, back_data='back_horizontal_jet', check_role=True, role=role))
+    await state.update_data(edit_accident_horizontal_jet_param='')
+    await state.set_state(state=None)
+
 
 @fire_accident_router.callback_query(F.data.in_(['vertical_jet', 'back_vertical_jet']))
 async def vertical_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
+    data.setdefault("edit_accident_vertical_jet_param", "")
     data.setdefault("accident_vertical_jet_sub", "Метан")
     data.setdefault("accident_vertical_jet_mass_rate", "5")
     data.setdefault("accident_vertical_jet_state", "jet_state_liq_gas_vap")
@@ -1655,7 +1763,7 @@ async def vertical_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext
     data_out = [
         {'id': i18n.get('jet_human_distance'),
             'var': 'r',
-            'unit_1': data.get('accident_horizontal_jet_human_distance'),
+            'unit_1': data.get('accident_vertical_jet_human_distance'),
             'unit_2': i18n.get('meter')},
         {'id': i18n.get('hjet_flame_width'),
             'var': 'Df',
@@ -1731,11 +1839,11 @@ async def vertical_jet_state_call(callback: CallbackQuery, bot: Bot, state: FSMC
             'var': 'r',
             'unit_1': data.get('accident_horizontal_jet_human_distance'),
             'unit_2': i18n.get('meter')},
-        {'id': i18n.get('hjet_flame_width'),
+        {'id': i18n.get('vjet_flame_width'),
             'var': 'Df',
             'unit_1': f'{diameter_flame:.2f}',
             'unit_2': i18n.get('meter')},
-        {'id': i18n.get('hjet_flame_length'),
+        {'id': i18n.get('vjet_flame_length'),
             'var': 'Lf',
             'unit_1': f'{lenght_flame:.2f}',
             'unit_2': i18n.get('meter')},
@@ -1764,6 +1872,132 @@ async def vertical_jet_state_call(callback: CallbackQuery, bot: Bot, state: FSMC
                                       i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
 
 
+@fire_accident_router.callback_query(F.data.in_(['edit_vjet_mass_rate', 'edit_vjet_distance']))
+async def edit_vertical_jet_num_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    if callback.data == 'edit_vjet_mass_rate':
+        await state.set_state(FSMFireAccidentForm.edit_vertical_jet_mass_flow_state)
+    elif callback.data == 'edit_vjet_distance':
+        await state.set_state(FSMFireAccidentForm.edit_vertical_jet_distance_state)
+    data = await state.get_data()
+    state_data = await state.get_state()
+
+    if state_data == FSMFireAccidentForm.edit_vertical_jet_mass_flow_state:
+        text = i18n.edit_vjet.text(vjet_param=i18n.get(
+            "name_vjet_mass_rate"), edit_vjet=data.get("accident_vertical_jet_mass_rate", 0))
+
+    elif state_data == FSMFireAccidentForm.edit_vertical_jet_distance_state:
+        text = i18n.edit_vjet.text(vjet_param=i18n.get(
+            "name_vjet_distance"), edit_vjet=data.get("accident_vertical_jet_human_distance", 0))
+
+    kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
+          'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(3, *kb, i18n=i18n))
+
+
+@fire_accident_router.callback_query(StateFilter(*SFilter_vertical_jet), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero', 'point', 'clear']))
+async def edit_vertical_jet_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    state_data = await state.get_state()
+    if state_data == FSMFireAccidentForm.edit_vertical_jet_mass_flow_state:
+        vjet_param = i18n.get("name_hjet_mass_rate")
+
+    elif state_data == FSMFireAccidentForm.edit_vertical_jet_distance_state:
+        vjet_param = i18n.get("name_hjet_distance")
+
+    edit_data = await state.get_data()
+    if callback.data == 'clear':
+        await state.update_data(edit_accident_vertical_jet_param="")
+        edit_d = await state.get_data()
+        edit_data = edit_d.get('edit_accident_vertical_jet_param', 1)
+        text = i18n.edit_vjet.text(
+            vjet_param=vjet_param, edit_vjet=edit_data)
+
+    else:
+        edit_param_1 = edit_data.get('edit_accident_vertical_jet_param')
+        edit_sum = edit_param_1 + i18n.get(callback.data)
+        await state.update_data(edit_accident_vertical_jet_param=edit_sum)
+        edit_data = await state.get_data()
+        edit_param = edit_data.get('edit_accident_vertical_jet_param', 0)
+        text = i18n.edit_vjet.text(
+            vjet_param=vjet_param, edit_vjet=edit_param)
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
+
+
+@fire_accident_router.callback_query(StateFilter(*SFilter_vertical_jet), F.data.in_(['ready']))
+async def edit_vjet_param_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    state_data = await state.get_state()
+    data = await state.get_data()
+    value = data.get("edit_accident_vertical_jet_param")
+
+    if state_data == FSMFireAccidentForm.edit_vertical_jet_mass_flow_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_vertical_jet_mass_rate=value)
+        else:
+            await state.update_data(accident_vertical_jet_mass_rate=1)
+    elif state_data == FSMFireAccidentForm.edit_vertical_jet_distance_state:
+        if value != '' and value != '.' and (float(value)) > 0:
+            await state.update_data(accident_vertical_jet_human_distance=value)
+        else:
+            await state.update_data(accident_vertical_jet_human_distance=10)
+
+    text = i18n.vertical_jet.text()
+
+    data = await state.get_data()
+
+    jet_state_phase = data.get('accident_vertical_jet_state')
+    k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
+    mass_rate = float(data.get('accident_vertical_jet_mass_rate'))
+    lenght_flame = k_coef * mass_rate ** 0.4
+    diameter_flame = 0.15 * lenght_flame
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('vertical_jet')
+    data_out = [
+        {'id': i18n.get('jet_human_distance'),
+            'var': 'r',
+            'unit_1': data.get('accident_vertical_jet_human_distance'),
+            'unit_2': i18n.get('meter')},
+        {'id': i18n.get('hjet_flame_width'),
+            'var': 'Df',
+            'unit_1': f'{diameter_flame:.2f}',
+            'unit_2': i18n.get('meter')},
+        {'id': i18n.get('hjet_flame_length'),
+            'var': 'Lf',
+            'unit_1': f'{lenght_flame:.2f}',
+            'unit_2': i18n.get('meter')},
+        {'id': i18n.get('jet_mass_rate'),
+            'var': 'G',
+            'unit_1': f'{mass_rate:.2f}',
+            'unit_2': i18n.get('kg_per_sec')},
+        {'id': i18n.get('empirical_coefficient'),
+            'var': 'K',
+            'unit_1': k_coef,
+            'unit_2': '-'},
+        {'id': i18n.get('jet_state_fuel'),
+            'var': '-',
+            'unit_1': i18n.get(jet_state_phase),
+            'unit_2': '-'}]
+    media = get_data_table(data=data_out, headers=headers, label=label)
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(*kb_edit_vjet, i18n=i18n, param_back=True, back_data='back_vertical_jet', check_role=True, role=role))
+    await state.update_data(edit_accident_vertical_jet_param='')
+    await state.set_state(state=None)
+
+
 @fire_accident_router.callback_query(F.data.in_(['plot_vertical_jet']))
 async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.graph_is_drawn.text()
@@ -1776,10 +2010,8 @@ async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMCo
                                       #   'plot_vertical_jet',
                                       i18n=i18n, param_back=True, back_data='back_vertical_jet', check_role=True, role=role))
     data = await state.get_data()
-
     text = i18n.vertical_jet.text()
-
-    distance = float(data.get('accident_horizontal_jet_human_distance'))
+    distance = float(data.get('accident_vertical_jet_human_distance'))
     jet_state_phase = data.get('accident_vertical_jet_state')
     k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
     mass_rate = float(data.get('accident_vertical_jet_mass_rate'))
@@ -1789,15 +2021,11 @@ async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMCo
     v_jet = AccidentParameters()
     x, y = v_jet.compute_heat_flux(
         eff_diameter=diameter_flame, lenght_flame=lenght_flame)
-
     # dist_num = f_ball.get_distance_at_sep(x_values=x, y_values=y, sep=4)
     sep_num = v_jet.get_sep_at_distance(
         x_values=x, y_values=y, distance=distance)
-
     unit_sep = i18n.get('kwatt_per_meter_square')
-
     text_annotate = f" q= {sep_num:.1f} {unit_sep} "
-
     media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
                            add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
                            label=i18n.get('plot_vertical_jet_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_vertical_jet_label'),
@@ -2043,7 +2271,7 @@ async def edit_fire_ball_param_call(callback: CallbackQuery, bot: Bot, state: FS
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(*kb_edit_ball, i18n=i18n, param_back=True, back_data='back_fire_ball', check_role=True, role=role))
     await state.update_data(edit_accident_fire_ball_param='')
-    await callback.answer('')
+    await state.set_state(state=None)
 
 
 @fire_accident_router.callback_query(F.data.in_(['plot_fire_ball']))
@@ -2430,3 +2658,4 @@ async def edit_bleve_param_call(callback: CallbackQuery, bot: Bot, state: FSMCon
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'edit_accident_bleve', 'run_accident_bleve', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
     await state.update_data(edit_accident_bleve_param='')
+    await state.set_state(state=None)
