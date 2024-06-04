@@ -202,7 +202,7 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
             fig_ax_2.plot([0.0, ax2_xmax], [row - step, row - step],
                           ls=':', lw=h*0.002, c='black')
         # основной разделитель заголовка
-        fig_ax_2.plot([0, ax2_xmax], [rows+step, rows+step],
+        fig_ax_2.plot([0, ax2_xmax], [rows + step, rows + step],
                       lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
         fig_ax_2.plot([0, ax2_xmax], [rows - row_num + step, rows - row_num + step],
                       lw=h*0.005,
@@ -216,7 +216,7 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
             fig_ax_2.plot([0.0, ax2_xmax], [row - step, row - step],
                           ls=':', lw=h*0.002, c='black')
         # основной разделитель заголовка
-        fig_ax_2.plot([0, ax2_xmax], [rows+step, rows+step],
+        fig_ax_2.plot([0, ax2_xmax], [rows + step, rows + step],
                       lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
         fig_ax_2.plot([0, ax2_xmax], [step, step], lw=h*0.010,
                       color=(0.4941, 0.5686, 0.5843, 1.0))
@@ -245,17 +245,18 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
 
     # выделите столбец, используя прямоугольную заплатку
     if column == 4:
-        rect = patches.Rectangle((cols - step, step),  # нижняя левая начальная позиция (x,y)
+        rect = patches.Rectangle((cols - step, step),  # нижняя левая начальная позиция (x, y)
                                  width=0.950,
-                                 height=ax2_ymax - step + 0.125,
+                                 height=rows,
+                                 #  height=ax2_ymax - step * 2 + 0.0,
                                  ec='none',
                                  color=(0.9372, 0.9098, 0.8353, 1.0),
                                  alpha=1.0,
                                  zorder=-1)
     else:
-        rect = patches.Rectangle((cols - step * 2, step),  # нижняя левая начальная позиция (x,y)
+        rect = patches.Rectangle((cols - step * 2, step),  # нижняя левая начальная позиция (x, y)
                                  width=1.00,
-                                 height=ax2_ymax - step + 0.125,
+                                 height=ax2_ymax - step + 0.0,
                                  ec='none',
                                  color=(0.9372, 0.9098, 0.8353, 1.0),
                                  alpha=1.0,

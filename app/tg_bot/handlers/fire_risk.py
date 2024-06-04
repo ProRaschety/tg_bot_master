@@ -48,7 +48,7 @@ async def fire_risks_call(callback_data: CallbackQuery, bot: Bot, i18n: Translat
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_risks_calculator', 'typical_accidents', 'general_menu', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'fire_model', 'fire_risks_calculator', 'typical_accidents', 'general_menu', i18n=i18n))
     await callback_data.answer('')
 
 
@@ -63,6 +63,7 @@ async def back_fire_risks_call(callback: CallbackQuery, bot: Bot, i18n: Translat
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
+                                      'fire_model',
                                       'fire_risks_calculator',
                                       'typical_accidents',
                                       'general_menu', i18n=i18n))
@@ -82,7 +83,7 @@ async def fire_risks_calculator_call(callback: CallbackQuery, bot: Bot, i18n: Tr
         reply_markup=get_inline_cd_kb(1, 'public', 'industrial', 'back_fire_risks', i18n=i18n))
     await callback.answer('')
 
-"""______________________Общественное здание______________________"""
+"""______________________Общественные_здания______________________"""
 
 
 @fire_risk_router.callback_query(F.data.in_(['public', 'back_public']))
@@ -166,7 +167,6 @@ async def run_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         reply_markup=get_inline_cd_kb(1, 'edit_public', i18n=i18n, param_back=True, back_data='back_fire_risks_calc', check_role=True, role=role))
     await state.update_data(data)
     await state.set_state(state=None)
-    await callback.answer('')
 
 
 @fire_risk_router.callback_query(F.data.in_(['edit_public', 'edit_public_guest', 'stop_edit_public']))
@@ -176,7 +176,6 @@ async def edit_public_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(*kb_pub, i18n=i18n, param_back=True, back_data='back_public', check_role=True, role=role))
-    await callback.answer('')
 
 
 @fire_risk_router.callback_query(F.data.in_(['fire_freq_pub', 'time_presence_pub', 'probity_evac_pub']))
@@ -426,7 +425,7 @@ async def k_smoke_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     await callback.answer('')
 
 
-"""______________________Производственное здание______________________"""
+"""______________________Производственные_здания______________________"""
 
 
 @fire_risk_router.callback_query(F.data.in_(['industrial', 'back_industrial']))
@@ -871,6 +870,3 @@ async def run_industrial_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     # await state.update_data(data)
     await state.set_state(state=None)
     await callback.answer('')
-
-
-"""______________________Интегральная модель пожара______________________"""

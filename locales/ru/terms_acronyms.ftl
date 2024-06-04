@@ -10,6 +10,8 @@ variable =
     Переменная
 substance =
     Вещество
+fire_load =
+    Горючая нагрузка
 ambient_temperature =
     Темепература окружающей среды
 ambient_air_density =
@@ -67,3 +69,5 @@ hydrogen_chloride_output =
     Выход хлороводорода
 specific_isobaric_heat_capacity_of_gas =
     Удельная изобарная теплоемкость газа
+combustion_efficiency_coefficient =
+    Коэффииент полноты горения
