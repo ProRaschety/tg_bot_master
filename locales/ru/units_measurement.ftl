@@ -7,6 +7,8 @@ kelvin =
     K
 celsius =
     °С
+Celsius =
+    ℃
 seconds =
     сек
 minutes =
@@ -73,6 +75,9 @@ pascal_in_sec =
 percent_volume =
     % об.
 
+
+Alpha =
+    𝛼
 tau =
     τ
 eta =

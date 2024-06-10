@@ -254,12 +254,16 @@ async def add_steel_element_state_input(message: Message, bot: Bot, state: FSMCo
 
 """
 
-STRENGTH_CALC_KB = ['edit_init_data_strength',
-                    'run_strength_steel', 'back_type_calc']
-
 
 @fire_res_router.callback_query(F.data.in_(['strength_calculation', 'back_strength_element']))
 async def strength_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext,  i18n: TranslatorRunner) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_type_calc'))
+
     text = i18n.initial_data_steel.text()
     data = await state.get_data()
     data.setdefault("num_profile", "20Б1")
@@ -285,12 +289,21 @@ async def strength_calculation_call(callback: CallbackQuery, bot: Bot, state: FS
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="initial_data"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *STRENGTH_CALC_KB, i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      'edit_init_data_strength',
+                                      'run_strength_steel', i18n=i18n, param_back=True, back_data='back_type_calc'))
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data.in_(['run_strength_steel']))
 async def run_strength_steel_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
+    text = i18n.calculation_progress.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_type_calc'))
+
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
     data_out, headers, label = strength_calculation.get_init_data_table()
@@ -312,7 +325,10 @@ async def run_strength_steel_call(callback: CallbackQuery, state: FSMContext, bo
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="initial_data"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'thermal_calculation', 'protocol_strength', 'back_strength_element', 'back_type_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      'thermal_calculation',
+                                      #   'protocol_strength',
+                                      'back_strength_element', i18n=i18n, param_back=True, back_data='back_type_calc'))
     await callback.answer('')
 
 
@@ -378,12 +394,13 @@ async def show_num_profile(inline_query: InlineQuery, state: FSMContext, i18n: T
     data = await state.get_data()
     q_keys = SteelFireStrength(i18n=i18n, data=data)
     list_sub = q_keys.get_list_num_profile()
+
     results = []
     for name in list_sub:
         if inline_query.query in str(name):
             results.append(InlineQueryResultArticle(id=str(name), title=f'{name}',
                                                     input_message_content=InputTextMessageContent(message_text=f'{name}')))
-    await inline_query.answer(results=results[:50], cache_time=0, is_personal=True)
+    await inline_query.answer(results=results[:25], cache_time=0, is_personal=True)
 
 
 @fire_res_router.message(StateFilter(FSMSteelForm.num_profile_inline_search_state))
@@ -662,7 +679,7 @@ async def len_elem_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['point']))
-async def len_elem_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def len_elem_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     len_elem_data = await state.get_data()
 
     call_data = callback.data
@@ -946,12 +963,16 @@ async def channel_element_call(callback: CallbackQuery, bot: Bot, state: FSMCont
 
 """___________________________Теплотехнический расчет___________________________"""
 
-THERMAL_CALC_KB = ['edit_init_data_thermal',
-                   'run_thermal_steel', 'back_type_calc']
 
-
-@fire_res_router.callback_query(F.data.in_(['thermal_calculation', 'forward_type_calc']))
+@fire_res_router.callback_query(F.data.in_(['thermal_calculation', 'back_thermal_calculation']))
 async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_type_calc'))
+
     data = await state.get_data()
     data.setdefault("mode", "Стандартный"),
     data.setdefault("s_0", "0.85"),
@@ -975,26 +996,82 @@ async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSM
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="initial_data_thermal"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *THERMAL_CALC_KB, i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      'edit_init_data_thermal',
+                                      'run_thermal_steel',
+                                      i18n=i18n, param_back=True, back_data='back_type_calc'))
     await callback.answer('')
 
 
-@fire_res_router.callback_query(F.data.in_(['run_thermal_steel', 'plot_thermal']))
+@fire_res_router.callback_query(F.data.in_(['run_thermal_steel']))
+async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_thermal_calculation'))
+
+    data = await state.get_data()
+    # text = i18n.initial_data_steel.text()
+    t_res = SteelFireResistance(i18n=i18n, data=data)
+    data_out, headers, label = t_res.get_initial_data_thermal()
+    media = get_data_table(
+        data=data_out, headers=headers, label=label, column=3)
+
+    t_fsr = t_res.get_steel_fsr() * 60
+
+    text = i18n.thermal_calculation.text(time_fsr=round(t_fsr/60, 2))
+    # await state.update_data(data)
+    # log.info(f'DataRedis_Thermal: {data}')
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="initial_data_thermal"), caption=text),
+        reply_markup=get_inline_cd_kb(1,
+                                      'plot_thermal',
+                                      i18n=i18n, param_back=True, back_data='back_thermal_calculation'))
+    await state.update_data(time_fsr=t_fsr/60)
+    await callback.answer('')
+
+
+@fire_res_router.callback_query(F.data.in_(['plot_thermal']))
 async def run_thermal_calculation_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
+    mode = data.get('mode')
+    text = i18n.graph_is_drawn.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_type_calc'))
     t_res = SteelFireResistance(i18n=i18n, data=data)
 
-    # data_dict = {'mode': mode, }
+    if mode == 'Углеводородный':
+        label_plot = i18n.eq_mode_hydrocarbon()
+    elif mode == 'Наружный':
+        label_plot = i18n.eq_mode_external()
+    elif mode == 'Тлеющий':
+        label_plot = i18n.eq_mode_smoldering()
+    else:
+        label_plot = i18n.eq_mode_standard()
 
-    t_fsr, plot_thermal_png = t_res.get_plot_steel()
-    text = i18n.thermal_calculation.text(time_fsr=round(t_fsr/60, 2))
-    await state.update_data(time_fsr=t_fsr/60)
+    t_fsr, plot_thermal_png = t_res.get_plot_steel(label_plot=label_plot)
+
+    # text = i18n.thermal_calculation.text(time_fsr=round(t_fsr/60, 2))
+    text = i18n.plot_thermal.text()
+    # await state.update_data(time_fsr=t_fsr/60)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=plot_thermal_png, filename="plot_thermal_png"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'protocol_thermal', 'export_data_steel',  'forward_type_calc', 'back_type_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'strength_calculation',
+                                      #   'protocol_thermal',
+                                      #   'export_data_steel',
+                                      'back_thermal_calculation',
+                                      i18n=i18n, param_back=True, back_data='back_type_calc'))
     await state.set_state(state=None)
     await callback.answer('')
 
@@ -1004,7 +1081,10 @@ async def stop_edit_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: 
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, *THERMAL_CALC_KB, i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      'edit_init_data_thermal',
+                                      'run_thermal_steel',
+                                      i18n=i18n, param_back=True, back_data='back_type_calc'))
     await state.set_state(state=None)
     await callback.answer('')
 
@@ -1014,7 +1094,10 @@ async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMCo
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1,  *THERMAL_CALC_KB, i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      'edit_init_data_thermal',
+                                      'run_thermal_steel',
+                                      i18n=i18n, param_back=True, back_data='back_type_calc'))
     await callback.answer('')
 
 
@@ -1023,7 +1106,7 @@ async def edit_init_data_thermal_call(callback: CallbackQuery, bot: Bot, state: 
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', 'back_thermal_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', i18n=i18n, param_back=True, back_data='back_thermal_calc'))
     await callback.answer('')
 
 
@@ -1286,7 +1369,7 @@ async def protocol_thermal_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(1, 'export_data_steel', 'forward_type_calc',  i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'export_data_steel',  i18n=i18n, param_back=True, back_data='back_thermal_calculation'))
     await callback.answer('')
 
 
@@ -1303,5 +1386,5 @@ async def export_data_steel_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         message_id=callback.message.message_id,
         media=InputMediaDocument(media=BufferedInputFile(
             file=file_csv, filename="data_thermal.csv"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_thermal', 'forward_type_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'plot_thermal',  i18n=i18n, param_back=True, back_data='back_thermal_calculation'))
     await callback.answer('')

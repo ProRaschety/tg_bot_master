@@ -44,27 +44,35 @@ SFilter = [FSMCatBuildForm.edit_area_A_state,
 
 @fire_category_router.callback_query(F.data.in_(['fire_category', 'back_fire_category']))
 async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    if role in ["subscriber", "guest"]:
-        cat_kb = ['category_build', 'general_menu']
-    else:
-        cat_kb = ['category_build', 'category_premises',
-                  'category_outdoor_installation', 'general_menu']
+    # if role in ["subscriber", "guest"]:
+    #     cat_kb = ['category_build', 'general_menu']
+    # else:
+    #     cat_kb = ['category_build', 'category_premises',
+    #               'category_outdoor_installation', 'general_menu']
     text = i18n.fire_category.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fire_category_logo.png')
-
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *cat_kb, i18n=i18n))
-
-    await callback_data.answer('')
+        reply_markup=get_inline_cd_kb(1, *i18n.get('category_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='general_menu'))
+    # reply_markup=get_inline_cd_kb(1,
+    #                               *cat_kb,
+    #                               i18n=i18n))
 
 
 @fire_category_router.callback_query(F.data.in_(['category_build', 'back_category_build']))
 async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_category'))
+
     await state.set_state(state=None)
     await callback.answer('')
     data = await state.get_data()

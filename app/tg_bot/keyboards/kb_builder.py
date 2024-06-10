@@ -29,7 +29,7 @@ def get_inline_cd_kb(width: int = 1,
     # Инициализируем список для кнопок
     buttons: list[InlineKeyboardButton] = []
     # Заполняем список кнопками из аргументов args и kwargs
-
+    # log.info(args)
     if args:
         if check_role:
             if role == 'guest':

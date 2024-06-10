@@ -4,11 +4,57 @@ fire_model-text =
     <blockquote></blockquote>
 back_fire_model =
     ↩ Назад
+
+
+
+analytics_model =
+    Аналитическая модель
+analytics_model-text =
+    Аналитическая модель.
+    Для одиночного помещения высотой не более 6м, удовлетворяющего условиям применения интегральной модели, при отсутствии систем противопожарной защиты, влияющих на развитие пожара.
+    🚧 <i>Находится в разработке</i>
+analytics_model_label =
+    Расчет ОФП. Аналитическая модель
+run_analytics_model =
+    ▶ Рассчитать
+run_analytics_model-text =
+    <blockquote></blockquote>
+edit_analytics_model =
+    📝 Редактировать
+
+edit_lenght_room =
+    a
+edit_width_room =
+    b
+edit_height_room =
+    H
+edit_air_temperature =
+    t
+name_analytics_model_lenght_room =
+    Введите:
+name_analytics_model_width_room =
+    Введите:
+name_analytics_model_height_room =
+    Введите:
+name_analytics_model_air_temperature =
+    Введите:
+edit_analytics_model-text = {$analytics_model_param}
+    <blockquote>{$edit_analytics_model}</blockquote>
+
+
+
+back_analytics_model =
+    ↩ Назад
+back_edit_analytics_model =
+    ↩ Назад
+
 integral_model =
     Интегральная модель
 integral_model-text =
     Интегральная модель
     🚧 <i>Находится в разработке</i>
+integral_model_label =
+    Расчет ОФП. Интегральная модель
 run_integral_model =
     ▶ Рассчитать
 edit_integral_model =
@@ -17,11 +63,11 @@ back_integral_model =
     ↩ Назад
 back_edit_integral_model =
     ↩ Назад
+
 differential_model =
     Полевая модель
 
-integral_model_label =
-    Расчет ОФП. Интегральная модель
+
 lenght_room =
     Длина помещения
 width_room =
@@ -49,7 +95,9 @@ initial_oxygen_concentration_in_room =
 current_oxygen_concentration_in_room =
     Текущая концентрация кислорода
     в помещении
-
+exponent_taking_n =
+    Показатель степени, учитывающий изменение
+    массы выгорающего материала во времени
 nondimensional_parameter =
     Безразмерный параметр
 elevated_temperature =

@@ -778,7 +778,7 @@ class SteelFireResistance:
         # log.info(f"Предел огнестойкости стального элемента: {time_fsr} мин")
         return time_fsr
 
-    def get_plot_steel(self):
+    def get_plot_steel(self, label_plot):
         log.info("График прогрева элемента конструкции")
         # размеры рисунка в дюймах
         px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
@@ -837,14 +837,15 @@ class SteelFireResistance:
         # title_plot = 'График прогрева стального элемента'
         # fig_ax_2.set_title(f'{title_plot}\n', fontsize=18,
         #                    alpha=1.0, clip_on=False, y=1.0)
-        if self.mode == 'Углеводородный':
-            rl = "Углеводородный режим"
-        elif self.mode == 'Наружный':
-            rl = "Наружный режим"
-        elif self.mode == 'Тлеющий':
-            rl = "Тлеющий режим"
-        else:
-            rl = "Стандартный режим"
+        # if self.mode == 'Углеводородный':
+        #     rl = "Углеводородный режим"
+        # elif self.mode == 'Наружный':
+        #     rl = "Наружный"
+        # elif self.mode == 'Тлеющий':
+        #     rl = "Тлеющий"
+        # else:
+        #     rl = "Стандартный"
+
         label_plot_Tst = f'Температура элемента'
         Tm = self.get_fire_mode()
         Tst = self.get_steel_heating()
@@ -852,6 +853,7 @@ class SteelFireResistance:
         time_fsr = self.get_steel_fsr() * 60
 
         x_max = self.x_max
+        y_max = max(Tm)  # if self.mode != 'Наружный' else 500
         if self.t_critic > 750.0 or self.mode == 'Тлеющий':
             x_max = 150 * 60
 
@@ -861,7 +863,7 @@ class SteelFireResistance:
             x_t.append(i)
 
         fig_ax_2.plot(x_t, Tm, '-', linewidth=3,
-                      label=f'{rl}', color=(0.9, 0.1, 0, 0.9))
+                      label=label_plot, color=(0.9, 0.1, 0, 0.9))
         fig_ax_2.plot(x_t, Tst, '-', linewidth=3,
                       label=label_plot_Tst, color=(0, 0, 0, 0.9))
 
@@ -871,23 +873,24 @@ class SteelFireResistance:
                         linewidth=1, color=(0.1, 0.1, 0, 1.0))
         fig_ax_2.scatter(time_fsr, Tcr, s=90, marker='o',
                          color=(0.9, 0.1, 0, 1))
+
         # Ось абсцисс Xaxis
         fig_ax_2.set_xlim(-100.0, self.x_max+100)
-        fig_ax_2.set_xlabel(xlabel=r"Время, с", fontdict=None,
+        fig_ax_2.set_xlabel(xlabel="Время, с", fontdict=None,
                             labelpad=None, weight='bold', loc='center', **ft_size)
         # Ось абсцисс Yaxis
-        fig_ax_2.set_ylim(0, max(Tm) + 200)
-        set_y_label = "Температура, \u00B0С"
-        fig_ax_2.set_ylabel(ylabel=set_y_label,
+        fig_ax_2.set_ylim(0, y_max + 200)
+        fig_ax_2.set_ylabel(ylabel="Температура, \u00B0С",
                             fontdict=None, labelpad=None, weight='bold', loc='center', **ft_size)
 
-        fig_ax_2.annotate(f"Предел огнестойкости: {(time_fsr / 60):.2f} мин\n"
+        fig_ax_2.annotate(f"Режим пожара: {self.mode}\n"
+                          f"Предел огнестойкости: {(time_fsr / 60):.2f} мин\n"
                           f"Критическая температура: {Tcr:.2f} \u00B0С\n"
                           f"Приведенная толщина элемента: {self.ptm:.2f} мм",
-                          xy=(0, max(Tm)), xycoords='data', xytext=(time_fsr, max(Tm)+50), textcoords='data', weight='bold', **ft_size)
+                          xy=(0, y_max), xycoords='data', xytext=(time_fsr, y_max + 50), textcoords='data', weight='bold', **ft_size)
 
         # Легенда
-        fig_ax_2.legend(fontsize=12, framealpha=0.95, facecolor="w", loc=4)
+        fig_ax_2.legend(fontsize=12, framealpha=0.85, facecolor="w", loc=4)
 
         # Цветовая шкала
         # plt.colorbar()
@@ -898,7 +901,7 @@ class SteelFireResistance:
         fig_ax_2.set_xticks(np.arange(min(x_t), max(x_t), 1000.0), minor=False)
 
         # Деления на оси ординат OY
-        fig_ax_2.set_yticks(np.arange(0, max(Tm)+100, 100.0), minor=False)
+        fig_ax_2.set_yticks(np.arange(0, y_max+200, 100.0), minor=False)
 
         # Вспомогательная сетка (grid)
         fig_ax_2.grid(visible=True,

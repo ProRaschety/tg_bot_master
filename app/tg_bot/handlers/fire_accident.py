@@ -49,21 +49,21 @@ SFilter_cloud_explosion = [FSMFireAccidentForm.edit_cloud_explosion_correction_p
                            FSMFireAccidentForm.edit_cloud_explosion_mass_state,
                            FSMFireAccidentForm.edit_cloud_explosion_distance_state]
 
-kb_accidents = [1,
-                # 'dissipation_without_ignition',
-                'fire_flash',
-                'fire_pool',
-                'horizontal_jet',
-                'vertical_jet',
-                'fire_ball',
-                'cloud_explosion',
-                'accident_bleve',
-                # 'bleve_boiling_luquid',
-                # 'scattering_of_fragments',
-                # 'explosion_of_pressurized_equipment',
-                # 'column_fire',
-                # 'gas_jet_burning'
-                ]
+# kb_accidents = [1,
+#                 # 'dissipation_without_ignition',
+#                 'fire_flash',
+#                 'fire_pool',
+#                 'horizontal_jet',
+#                 'vertical_jet',
+#                 'fire_ball',
+#                 'cloud_explosion',
+#                 'accident_bleve',
+#                 # 'bleve_boiling_luquid',
+#                 # 'scattering_of_fragments',
+#                 # 'explosion_of_pressurized_equipment',
+#                 # 'column_fire',
+#                 # 'gas_jet_burning'
+#                 ]
 
 kb_edit_pool = [4,
                 'edit_pool_substance',
@@ -107,7 +107,7 @@ kb_edit_cloud_explosion = [2,
 
 
 @fire_accident_router.callback_query(F.data == 'back_typical_accidents')
-async def back_typical_accidents_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def back_typical_accidents_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.typical_accidents.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fire_accident_logo.png')
@@ -116,14 +116,17 @@ async def back_typical_accidents_call(callback: CallbackQuery, bot: Bot, i18n: T
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*kb_accidents, i18n=i18n, param_back=True, back_data='back_fire_risks'))
+        reply_markup=get_inline_cd_kb(1,
+                                      # *kb_accidents,
+                                      *i18n.get('accidents_kb_owner').split('\n') if role in ['owner'] else i18n.get('accidents_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_fire_risks'))
     await callback.answer('')
 
 
 @fire_accident_router.callback_query(F.data == 'typical_accidents')
-async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    data = await state.get_data()
-    data.setdefault("edit_typical_accidents", "0")
+async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    # data = await state.get_data()
+    # data.setdefault("edit_typical_accidents", "0")
     text = i18n.typical_accidents.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fire_accident_logo.png')
@@ -132,11 +135,21 @@ async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*kb_accidents, i18n=i18n, param_back=True, back_data='back_fire_risks'))
+        reply_markup=get_inline_cd_kb(1,
+                                      # *kb_accidents,
+                                      *i18n.get('accidents_kb_owner').split('\n') if role in ['owner'] else i18n.get('accidents_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_fire_risks'))
 
 
 @fire_accident_router.callback_query(F.data.in_(['fire_pool', 'back_fire_pool']))
 async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+
     data = await state.get_data()
     data.setdefault("edit_accident_fire_pool_param", "1")
     data.setdefault("accident_fire_pool_sub", "gasoline")
@@ -480,12 +493,14 @@ async def plot_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         x_values=x, y_values=y, distance=distance + diameter / 2)
 
     unit_sep = i18n.get('kwatt_per_meter_square')
-    text_annotate = f" q= {sep_num:.1f} {unit_sep}"
+    text_annotate = f" q({distance + diameter / 2:.1f})= {sep_num:.1f} {unit_sep}"
+    plot_label = i18n.eq_heat_flux()
     media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
                            add_annotate=True, text_annotate=text_annotate, x_ann=distance + diameter / 2, y_ann=sep_num,
                            label=i18n.get('plot_pool_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_pool_label'),
-                           add_legend=True, loc_legend=1)
-
+                           add_legend=True, loc_legend=1,
+                           plot_label=plot_label
+                           )
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -497,6 +512,13 @@ async def plot_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 @fire_accident_router.callback_query(F.data.in_(['fire_flash', 'back_fire_flash']))
 async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+
     data = await state.get_data()
     data.setdefault("edit_accident_fire_flash_param", "1")
     data.setdefault("accident_fire_flash_sub", "gasoline")
@@ -723,6 +745,13 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 @fire_accident_router.callback_query(F.data.in_(['cloud_explosion', 'back_cloud_explosion']))
 async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+
     data = await state.get_data()
     data.setdefault("edit_accident_cloud_explosion_param", "1")
     data.setdefault("accident_cloud_explosion_sub", "Бензин")
@@ -1435,6 +1464,13 @@ async def plot_cloud_explosion_impuls_call(callback: CallbackQuery, bot: Bot, st
 
 @fire_accident_router.callback_query(F.data.in_(['horizontal_jet', 'back_horizontal_jet']))
 async def horizontal_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+
     data = await state.get_data()
     data.setdefault("edit_accident_horizontal_jet_param", "")
     data.setdefault("accident_horizontal_jet_sub", "Метан")
@@ -1739,6 +1775,13 @@ async def edit_hjet_param_call(callback: CallbackQuery, bot: Bot, state: FSMCont
 
 @fire_accident_router.callback_query(F.data.in_(['vertical_jet', 'back_vertical_jet']))
 async def vertical_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+
     data = await state.get_data()
     data.setdefault("edit_accident_vertical_jet_param", "")
     data.setdefault("accident_vertical_jet_sub", "Метан")
@@ -2044,6 +2087,13 @@ async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 @fire_accident_router.callback_query(F.data.in_(['fire_ball', 'back_fire_ball']))
 async def fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+
     data = await state.get_data()
     data.setdefault("edit_accident_fire_ball_param", "1")
     data.setdefault("accident_fire_ball_sub", "LNG")
@@ -2301,11 +2351,14 @@ async def plot_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         x_values=x, y_values=y, distance=distance)
 
     unit_sep = i18n.get('kwatt_per_meter_square')
-    text_annotate = f" q= {sep_num:.1f} {unit_sep}"
+    text_annotate = f" q({distance:.1f})= {sep_num:.1f} {unit_sep}"
+    plot_label = i18n.eq_heat_flux()
     media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
                            add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
                            label=i18n.get('plot_ball_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_ball_label'),
-                           add_legend=True, loc_legend=1)
+                           add_legend=True, loc_legend=1,
+                           plot_label=plot_label
+                           )
 
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -2318,6 +2371,13 @@ async def plot_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 @fire_accident_router.callback_query(F.data.in_(['accident_bleve', 'back_accident_bleve']))
 async def bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+
     data = await state.get_data()
     data.setdefault("edit_accident_bleve_param", "1")
     data.setdefault("accident_bleve_sub", "LPG")

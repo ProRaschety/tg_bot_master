@@ -157,3 +157,12 @@ class FSMFrequencyForm(StatesGroup):
     edit_type_to_table_1_3 = State()
     edit_type_to_table_2_3 = State()
     edit_type_to_table_2_4 = State()
+
+
+class FSMFireModelForm(StatesGroup):
+    edit_standard_fire_load = State()
+
+    edit_analytics_model_lenght_room = State()
+    edit_analytics_model_width_room = State()
+    edit_analytics_model_height_room = State()
+    edit_analytics_model_air_temperature = State()

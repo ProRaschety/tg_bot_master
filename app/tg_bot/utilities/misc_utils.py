@@ -99,7 +99,7 @@ def get_dict(list_: list) -> dict:
     return {first: get_dict(rest)} if rest else first
 
 
-def get_data_table(data, headers: str, label: str, column: int = 4, results: bool | None = False, row_num: int | None = None, sel_row_num: int = 0) -> bytes:
+def get_data_table(data, headers: str, label: str, column: int = 4, results: bool | None = False, row_num: int | None = None, row_num_patch: int | None = None, sel_row_num: int = 0) -> bytes:
     log.info("Таблица данных")
     # plt.rcParams['font.family'] = 'Roboto'
     # font_dirs = r"/app/tg_bot/fonts"  # The path to the custom font file.
@@ -247,7 +247,7 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
     if column == 4:
         rect = patches.Rectangle((cols - step, step),  # нижняя левая начальная позиция (x, y)
                                  width=0.950,
-                                 height=rows,
+                                 height=rows if row_num_patch == None else rows - row_num_patch,
                                  #  height=ax2_ymax - step * 2 + 0.0,
                                  ec='none',
                                  color=(0.9372, 0.9098, 0.8353, 1.0),
@@ -256,7 +256,7 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
     else:
         rect = patches.Rectangle((cols - step * 2, step),  # нижняя левая начальная позиция (x, y)
                                  width=1.00,
-                                 height=ax2_ymax - step + 0.0,
+                                 height=rows,
                                  ec='none',
                                  color=(0.9372, 0.9098, 0.8353, 1.0),
                                  alpha=1.0,
@@ -277,7 +277,7 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
     return image_png
 
 
-def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | float = None,
+def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str = None, ylim: int | float = None,
                    add_annotate: bool = False, text_annotate: str = None, x_ann: int | float = None, y_ann: int | float = None,
                    add_legend: bool = False, loc_legend: int = 1,
                    add_fill_between: bool = False, param_fill: int | float = None, label_fill: str = None,
@@ -330,9 +330,13 @@ def get_plot_graph(x_values, y_values, label, x_label, y_label, ylim: int | floa
 
     """____Вторая часть таблицы____"""
     fig_ax_2 = fig.add_subplot(gs[0, 0])
+    # log.info(plot_label)
     fig_ax_2.plot(x_values, y_values, '-',
                   #   linewidth=3,
-                  color=plot_color, **kwargs)
+                  color=plot_color,
+                  label=plot_label if plot_label != None else label,
+                  **kwargs)
+
     # fig_ax_2.plot(abscissa, plot_second, '-', linewidth=3,
     #               label=text_legend_second, color=(0, 0, 0, 0.9))
     # fig_ax_2.hlines(y=Tcr, xmin=0, xmax=time_fsr*0.96, linestyle='--',

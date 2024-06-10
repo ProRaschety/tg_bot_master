@@ -6,6 +6,29 @@ typical_accidents-text =
 back_typical_accidents =
     ↩ Назад
 
+accidents_kb_owner =
+    dissipation_without_ignition
+    fire_flash
+    fire_pool
+    horizontal_jet
+    vertical_jet
+    fire_ball
+    cloud_explosion
+    accident_bleve
+    bleve_boiling_luquid
+    scattering_of_fragments
+    explosion_of_pressurized_equipment
+    column_fire
+    gas_jet_burning
+
+accidents_kb =
+    fire_flash
+    fire_pool
+    horizontal_jet
+    vertical_jet
+    fire_ball
+    cloud_explosion
+    accident_bleve
 
 plot_pressure_label =
     Давление взрыва

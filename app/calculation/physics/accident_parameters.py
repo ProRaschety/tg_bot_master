@@ -426,7 +426,7 @@ class AccidentParameters:
         # Определение интенсивности теплового излучения, кВт/м2
         # расстояние от центра огненного шара
 
-        x_lim = int(height * 5)
+        x_lim = int(height * 6)
         x_values = []
         qf = []
         for r in range(0, x_lim, 1):

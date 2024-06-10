@@ -33,16 +33,26 @@ data_base_req_router.callback_query.filter(IsSubscriber())
 @data_base_req_router.callback_query(F.data.in_(["substances"]), StateFilter(default_state))
 async def process_get_data_base(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     log.info('Запрос: Справочник веществ')
-    chat_id = str(callback.message.chat.id)
-    await callback.message.bot.send_chat_action(
-        chat_id=chat_id,
-        action=ChatAction.UPLOAD_PHOTO)
 
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_to_handbooks', check_role=True, role=role))
+
+    chat_id = str(callback.message.chat.id)
     q_keys = SubstanceDB(i18n=i18n, chat_id=chat_id)
     media = q_keys.get_diagram_sankey()
 
-    text = i18n.data_base(quantity_keys=q_keys.get_quantity_keys())
+    text = i18n.request_stop.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_to_handbooks', check_role=True, role=role))
 
+    text = i18n.data_base(quantity_keys=q_keys.get_quantity_keys())
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -55,8 +65,7 @@ async def process_get_data_base(callback: CallbackQuery, bot: Bot, state: FSMCon
                                       'RUS_alphabet',
                                       'data_base_search',
                                       'data_base_inline_search',
-                                      'general_menu',
-                                      i18n=i18n))
+                                      i18n=i18n, param_back=True, back_data='back_to_handbooks'))
 
 
 @data_base_req_router.callback_query(F.data == 'data_base_inline_search')
@@ -135,8 +144,7 @@ async def cansel_search_database_call(callback: CallbackQuery, bot: Bot, state: 
                                       'alfa_omega',
                                       'RUS_alphabet',
                                       'data_base_search',
-                                      'general_menu',
-                                      i18n=i18n))
+                                      i18n=i18n, param_back=True, back_data='back_to_handbooks'))
     await state.set_state(state=None)
 
 
@@ -153,8 +161,7 @@ async def cansel_search_database_call(callback: CallbackQuery, bot: Bot, state: 
                                       'alfa_omega',
                                       'RUS_alphabet',
                                       'data_base_search',
-                                      'general_menu',
-                                      i18n=i18n))
+                                      i18n=i18n, param_back=True, back_data='back_to_handbooks'))
     await state.set_state(state=None)
 
 
@@ -214,8 +221,7 @@ async def back_to_list_call(callback: CallbackQuery, bot: Bot, state: FSMContext
                                       'RUS_alphabet',
                                       'data_base_search',
                                       'data_base_inline_search',
-                                      'general_menu',
-                                      i18n=i18n))
+                                      i18n=i18n, param_back=True, back_data='back_to_handbooks'))
     await state.set_state(state=None)
 
 
