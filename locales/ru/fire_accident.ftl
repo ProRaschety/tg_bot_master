@@ -6,6 +6,11 @@ typical_accidents-text =
 back_typical_accidents =
     ↩ Назад
 
+probability_defeat_firepool =
+    Вероятность поражения
+probability_defeat-text =
+    Вероятность поражения
+
 accidents_kb_owner =
     dissipation_without_ignition
     fire_flash

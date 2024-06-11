@@ -322,7 +322,8 @@ async def standard_fire_load_call(callback_data: CallbackQuery, bot: Bot, state:
             'var': '',
             'unit_1': '',
             'unit_2': ''}]
-    media = get_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(data=data_out, headers=headers,
+                           label=label, row_num_patch=1)
     text = i18n.standard_fire_load.text(
         standard_fire_load=model_data['substance_name'])
     # model = FireModel()
@@ -487,7 +488,8 @@ async def select_fire_load_inline_search_input(message: Message, bot: Bot, state
             'var': '',
             'unit_1': '',
             'unit_2': ''}]
-    media = get_data_table(data=data_out, headers=headers, label=label)
+    media = get_data_table(data=data_out, headers=headers,
+                           label=label, row_num_patch=1)
     text = i18n.standard_fire_load.text(
         standard_fire_load=model_data['substance_name'])
     await message.delete()
@@ -512,7 +514,7 @@ async def select_fire_load_inline_search_input(message: Message, bot: Bot, state
 
 
 @fire_model_router.callback_query(F.data.in_(['edit_lenght_room', 'edit_width_room', 'edit_height_room', 'edit_air_temperature']))
-async def edit_analytics_model_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def edit_other_analytics_model_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     if callback.data == 'edit_lenght_room':
         await state.set_state(FSMFireModelForm.edit_analytics_model_lenght_room)
     elif callback.data == 'edit_width_room':
@@ -587,6 +589,13 @@ async def edit_analytics_model_in_call(callback: CallbackQuery, bot: Bot, state:
 
 @fire_model_router.callback_query(StateFilter(*SFilter_analytics_model), F.data.in_(['ready']))
 async def edit_analytics_model_param_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_analytics_model'))
+
     state_data = await state.get_state()
     data = await state.get_data()
     value = data.get("edit_analytics_model_param")

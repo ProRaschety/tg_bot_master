@@ -31,13 +31,13 @@ edit_height_room =
 edit_air_temperature =
     t
 name_analytics_model_lenght_room =
-    Введите:
+    Введите длину помещения:
 name_analytics_model_width_room =
-    Введите:
+    Введите ширину помещения:
 name_analytics_model_height_room =
-    Введите:
+    Введите высоту помещения:
 name_analytics_model_air_temperature =
-    Введите:
+    Введите температуру в помещении:
 edit_analytics_model-text = {$analytics_model_param}
     <blockquote>{$edit_analytics_model}</blockquote>
 
@@ -77,7 +77,8 @@ height_room =
 free_volume_room =
     Свободный объем помещения
 initial_indoor_air_temperature =
-    Начальная температура воздуха в помещении
+    Начальная температура воздуха
+    в помещении
 height_working_area =
     Высота рабочей зоны
 maximum_visibility_range_in_smoke =
@@ -96,8 +97,8 @@ current_oxygen_concentration_in_room =
     Текущая концентрация кислорода
     в помещении
 exponent_taking_n =
-    Показатель степени, учитывающий изменение
-    массы выгорающего материала во времени
+    Показатель степени, учитывающий изм.
+    массы выгорающего матер. во времени
 nondimensional_parameter =
     Безразмерный параметр
 elevated_temperature =
