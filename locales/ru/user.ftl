@@ -1,13 +1,84 @@
+user_kb_owner =
+    handbooks
+    fds_tools
+    tools
+    fire_resistance
+    fire_risks
+    fire_category
+    admin_panel
+    owner_panel
+
+user_kb_admin =
+    handbooks
+    fds_tools
+    tools
+    fire_resistance
+    fire_risks
+    fire_category
+    admin_panel
+    owner_panel
+
+user_kb_comrade =
+    handbooks
+    fds_tools
+    tools
+    fire_resistance
+    fire_risks
+    fire_category
+
+user_kb_subscriber =
+    handbooks
+    fds_tools
+    tools
+    fire_risks
+    fire_category
+
+user_kb_guest =
+    handbooks
+    fds_tools
+    tools_guest
+    fire_risks
+    fire_category_guest
+
 start-menu =
     <b></b>
-start_guest-menu =
-    Кнопки 🔒
-    доступны подписчикам каналов 📌
-    Кнопки 🔐
-    доступны только при вводе ключа 🔑
+start_owner-menu =
+    <b>Владелец</b>
+start_admin-menu =
+    <b>Администратор</b>
+start_comrade-menu =
+    <b></b>
 start_subscriber-menu =
-    Кнопки 🔐
-    доступны только при вводе ключа 🔑
+    <b></b>
+start_guest-menu =
+    Кнопки с меткой: 🔒
+    будут доступны после подписки на telegram-каналы 📌
+
+setlevel_kb_owner =
+    enter_promo_code
+    subscribe_channel
+    admin_panel
+    owner_panel
+
+setlevel_kb_admin =
+    enter_promo_code
+    subscribe_channel
+    admin_panel
+
+setlevel_kb_comrade =
+    enter_promo_code
+
+setlevel_kb_subscriber =
+    enter_promo_code
+
+setlevel_kb_guest =
+    subscribe_channel
+
+back_setlevel =
+    ↩ Назад
+setlevel-text =
+    Ваш уровень: <blockquote>{ $role_user }</blockquote>
+    Выберите способ изменения уровня доступа к функционалу бота
 
 guest-menu =
     Нет доступа к { $button }
@@ -63,22 +134,23 @@ fire_category =
 fire_category_guest =
     🔒 Категорирование
 
-back_setlevel =
-    ↩ Назад
-setlevel-text =
-    Ваш уровень: <blockquote>{ $role_user }</blockquote>
-    Выберите способ изменения уровня доступа к функционалу бота
 
 enter_promo_code-text =
     Отправьте ключ боту
 entering_code-text =
     Получен ключ: <blockquote>{ $user_code }</blockquote>
-    Обновите уровень
+    ✅ «Действительный ключ»
 update_role =
     🔄 Обновить уровень
 no_such_in_database =
-    Такого ключа нет в базе
-
+    Получен ключ: <blockquote>{ $user_code }</blockquote>
+    ⛔ Ошибка «Недействительный ключ»
+no_such_in_database_odd_re-entry =
+    Повторный ввод ключа: <blockquote>{ $user_code }</blockquote>
+    ⛔ Ошибка «Недействительный ключ»
+no_such_in_database_oven_re-entry =
+    Повторный ввод ключа: <blockquote>{ $user_code }</blockquote>
+    ⛔ Ошибка «Недейcтвительный ключ»
 select_tariff =
     Выбрать тариф ⛔
 enter_promo_code =
@@ -87,9 +159,9 @@ cansel_enter_promo_code =
     ❌ Отменить ввод
 
 subscribe_channel =
-    Подписаться на каналы 📌
+    Подписаться на telegram-каналы 📌
 subscribe_channel-text =
-    Для изменения уровня доступа нужно подписаться на каналы
+    Для изменения уровня доступа нужно подписаться на telegram-каналы 📌
 channel_1 =
     https://t.me/FIREENGIN
 channel_1-text =
@@ -101,16 +173,5 @@ channel_2-text =
 
 edit_data_for_calculation =
     Для редактирования исходных данных
-    нужно подписаться на каналы "Пожарный инженер"
-    и "Про расчёты"
-
-guest =
-    Гость
-subscriber =
-    Подписчик
-comrade =
-    Коллега
-admin =
-    Администратор
-owner =
-    Владелец
+    нужно подписаться на telegram-каналы "Пожарный инженер" 📌
+    и "Про расчёты" 📌

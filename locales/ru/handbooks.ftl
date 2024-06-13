@@ -4,6 +4,30 @@ handbooks =
 handbooks-text =
     <blockquote></blockquote>
 
+
+handbooks_kb_owner =
+    substances
+    climate
+    frequencies
+handbooks_kb_admin =
+    substances
+    climate
+    frequencies
+handbooks_kb_comrade =
+    substances
+    climate
+    frequencies
+handbooks_kb_subscriber =
+    substances
+    climate
+    frequencies
+handbooks_kb_guest =
+    substances_guest
+    climate_guest
+    frequencies
+
+
+
 back_to_handbooks =
     ↩ Назад
 
@@ -76,7 +100,7 @@ name_obj_to_frequencies =
     Наименование объекта
 
 table_1_3 =
-    Таблица П1.3
+    📋 Таблица П1.3
 power_stations =
     Электростанции
 chemical_products_warehouses =
@@ -99,13 +123,13 @@ textile_manufacturing =
     Текстильные производства
 
 table_2_3 =
-    Таблица П2.3
+    📋 Таблица П2.3
 administrative_buildings_of_industrial_facilities =
     Административные здания
     производственных объектов
 
 table_2_4 =
-    Таблица П2.4
+    📋 Таблица П2.4
 food_and_tobacco_industry_buildings =
     Здания пищевой,
     табачной промышленности

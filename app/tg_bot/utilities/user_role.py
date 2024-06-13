@@ -72,5 +72,5 @@ async def get_user_role(db: DB, event: Update, data) -> UserRole:
         role = UserRole.GUEST.value
         await db.users.update(role=UserRole.GUEST, user_id=user_id)
         role = UserRole.GUEST.value
-    log.info(f'Уроень доступа: {role}')
+    log.info(f'Пользователь: {role}')
     return role

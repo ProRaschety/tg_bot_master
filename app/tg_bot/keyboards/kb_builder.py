@@ -37,6 +37,26 @@ def get_inline_cd_kb(width: int = 1,
                     buttons.append(InlineKeyboardButton(
                         text=i18n.get(button + '_guest'),
                         callback_data=button + '_guest'))
+            elif role == 'subscriber':
+                for button in args:
+                    buttons.append(InlineKeyboardButton(
+                        text=i18n.get(button + '_subscriber'),
+                        callback_data=button + '_subscriber'))
+            elif role == 'comrade':
+                for button in args:
+                    buttons.append(InlineKeyboardButton(
+                        text=i18n.get(button + '_comrade'),
+                        callback_data=button + '_comrade'))
+            elif role == 'admin':
+                for button in args:
+                    buttons.append(InlineKeyboardButton(
+                        text=i18n.get(button + '_admin'),
+                        callback_data=button + '_admin'))
+            elif role == 'owner':
+                for button in args:
+                    buttons.append(InlineKeyboardButton(
+                        text=i18n.get(button + '_owner'),
+                        callback_data=button + '_owner'))
             else:
                 for button in args:
                     buttons.append(InlineKeyboardButton(
@@ -52,6 +72,7 @@ def get_inline_cd_kb(width: int = 1,
             buttons.append(InlineKeyboardButton(
                 text=text,
                 callback_data=button))
+
     # Распаковываем список с кнопками в билдер методом row c параметром width
     kb_builder.row(*buttons, width=width)
 

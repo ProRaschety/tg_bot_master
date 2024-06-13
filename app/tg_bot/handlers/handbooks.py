@@ -19,7 +19,7 @@ from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
 from app.tg_bot.utilities.tables import get_initial_data, get_result_data
-from app.tg_bot.states.fsm_state_data import FSMClimateForm, FSMFrequencyForm
+from app.tg_bot.states.fsm_state_data import FSMClimateForm, FSMFrequencyForm, FSMFireRiskForm
 # from app.calculation.database_mode.substance import SubstanceDB
 from app.calculation.database_mode.climate import Climate
 from app.calculation.qra_mode.fire_risk_calculator import FireRisk
@@ -43,49 +43,9 @@ SFilter_area = [FSMFrequencyForm.edit_area_to_frequency]
 
 
 @handbooks_router.callback_query(F.data.in_(['handbooks', 'back_to_handbooks']), StateFilter(default_state))
-async def handbooks_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
+async def handbooks_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     log.info('Запрос: Справочники')
-    if role == "subscriber":
-        handbooks_kb = [
-            'substances',
-            # 'typical_flammable_load',
-            'climate',
-            'frequencies',
-            # 'statistics',
-            'general_menu']
-    elif role == "comrade":
-        handbooks_kb = [
-            'substances',
-            # 'typical_flammable_load',
-            'climate',
-            'frequencies',
-            # 'statistics',
-            'general_menu']
-    elif role == "admin":
-        handbooks_kb = [
-            'substances',
-            # 'typical_flammable_load',
-            'climate',
-            'frequencies',
-            # 'statistics',
-            'general_menu']
-    elif role == "owner":
-        handbooks_kb = [
-            'substances',
-            # 'typical_flammable_load',
-            'climate',
-            'frequencies',
-            # 'statistics',
-            'general_menu']
-    else:
-        handbooks_kb = [
-            'substances_guest',
-            # 'typical_flammable_load',
-            'climate_guest',
-            'frequencies',
-            # 'statistics',
-            'general_menu']
-
+    await state.set_state(state=None)
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     text = i18n.handbooks.text()
     await bot.edit_message_media(
@@ -93,7 +53,27 @@ async def handbooks_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunn
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *handbooks_kb, i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('handbooks_kb_' +
+                                                role).split('\n'),
+                                      i18n=i18n, param_back=True, back_data='general_menu'))
+
+
+@handbooks_router.callback_query(F.data.in_(['handbooks', 'back_to_handbooks']), ~StateFilter(default_state))
+async def handbooks_other_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    log.info('Запрос: Справочники')
+    await state.set_state(state=None)
+    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    text = i18n.handbooks.text()
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('handbooks_kb_' +
+                                                role).split('\n'),
+                                      i18n=i18n, param_back=True, back_data='general_menu'))
 
 
 @handbooks_router.callback_query(F.data.in_(['climate', 'stop_select_city']))
@@ -183,9 +163,17 @@ async def cities_inline_search_input(message: Message, bot: Bot, state: FSMConte
         reply_markup=get_inline_cd_kb(1, 'to_cities', 'back_to_handbooks', i18n=i18n))
 
 
-@handbooks_router.callback_query(F.data.in_(['frequencies', 'back_to_frequencies']))
+@handbooks_router.callback_query(F.data.in_(['frequencies', 'back_to_frequencies', 'table_404']))
 async def frequencies_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    await state.set_state(state=None)
+    await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_to_handbooks'))
+
+    # await state.set_state(state=None)
     data = await state.get_data()
     data.setdefault("edit_frequencies_param", "1")
     data.setdefault("edit_area_to_frequency", "1")
@@ -205,9 +193,17 @@ async def frequencies_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
     await state.update_data(data)
 
 
-@ handbooks_router.callback_query(F.data.in_(['table_1_3']))
+@ handbooks_router.callback_query(StateFilter(FSMFireRiskForm.edit_fire_freq_ind, FSMFrequencyForm.edit_type_to_table_1_3), F.data.in_(['table_1_3']))
 async def table_st_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+
     await state.update_data(type_table_to_frequency=callback.data)
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_to_frequencies'))
+
     data = await state.get_data()
     unit = i18n.get('one_per_meter_square_in_year')
     area_to_frequencies = float(data.get("edit_area_to_frequency"))
@@ -274,13 +270,24 @@ async def table_st_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'type_to_table_1_3', 'area_to_frequencies', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
+        reply_markup=get_inline_cd_kb(1,
+                                      'type_to_table_1_3',
+                                      'area_to_frequencies', 'industrial_from_table',
+                                      i18n=i18n, param_back=True, back_data='back_to_frequencies'))
     await state.update_data(fire_frequency_industrial=fire_frequency)
+    # await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
 
 
-@ handbooks_router.callback_query(F.data.in_(['table_2_3']))
+@ handbooks_router.callback_query(StateFilter(FSMFireRiskForm.edit_fire_freq_ind, FSMFrequencyForm.edit_type_to_table_2_3), F.data.in_(['table_2_3']))
 async def table_nd_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(type_table_to_frequency=callback.data)
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_to_frequencies'))
+
     data = await state.get_data()
     unit = i18n.get('one_per_meter_square_in_year')
     area_to_frequencies = float(data.get("edit_area_to_frequency"))
@@ -351,13 +358,21 @@ async def table_nd_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'type_to_table_2_3', 'area_to_frequencies', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
+        reply_markup=get_inline_cd_kb(1, 'type_to_table_2_3', 'area_to_frequencies', 'industrial_from_table', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
     await state.update_data(fire_frequency_industrial=fire_frequency)
+    # await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
 
 
-@ handbooks_router.callback_query(F.data.in_(['table_2_4']))
+@ handbooks_router.callback_query(StateFilter(FSMFireRiskForm.edit_fire_freq_ind, FSMFrequencyForm.edit_type_to_table_2_4), F.data.in_(['table_2_4']))
 async def table_th_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(type_table_to_frequency=callback.data)
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_to_frequencies'))
+
     data = await state.get_data()
     area_to_frequencies = float(data.get("edit_area_to_frequency"))
     type_building = data.get('type_building_to_frequency', 'textile_industry')
@@ -415,12 +430,12 @@ async def table_th_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
     # data_out, headers, label = get_result_data(
     #     type_building, area_to_frequencies, fire_frequency, data=data, label='frequencies_table_2_4', i18n=i18n)
 
-    start = time.time()
+    # start = time.time()
     media = get_data_table(data=data_out, headers=headers,
                            label=label, results=True, row_num=8)
-    end = time.time()
-    total = end - start
-    log.info(f"Время выполнения функции: {total}")
+    # end = time.time()
+    # total = end - start
+    # log.info(f"Время выполнения функции: {total}")
 
     text = i18n.frequencies.text()
     await bot.edit_message_media(
@@ -428,11 +443,12 @@ async def table_th_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'type_to_table_2_4', 'area_to_frequencies', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
+        reply_markup=get_inline_cd_kb(1, 'type_to_table_2_4', 'area_to_frequencies', 'industrial_from_table', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
     await state.update_data(fire_frequency_industrial=fire_frequency)
+    # await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
 
 
-@ handbooks_router.callback_query(F.data.in_(['type_to_table_1_3']))
+@ handbooks_router.callback_query(StateFilter(FSMFireRiskForm.edit_fire_freq_ind), F.data.in_(['type_to_table_1_3']))
 async def type_to_table_st_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.set_state(FSMFrequencyForm.edit_type_to_table_1_3)
     kb = ['power_stations', 'chemical_products_warehouses', 'warehouses_for_multi_item_products', 'tool_and_mechanical_workshops', 'workshops_for_processing_synthetic_rubber', 'foundries_and_smelting_shops', 'meat_and_fish_products_processing_workshops',
@@ -442,7 +458,7 @@ async def type_to_table_st_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(1, *kb, i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, *kb, i18n=i18n, param_back=True, back_data='table_1_3'))
     await callback.answer('')
 
 
@@ -526,8 +542,9 @@ async def type_to_building_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'type_to_table_1_3', 'area_to_frequencies', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
+        reply_markup=get_inline_cd_kb(1, 'type_to_table_1_3', 'area_to_frequencies', 'industrial_from_table', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
     await state.update_data(fire_frequency_industrial=fire_frequency)
+    await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
 
 
 @ handbooks_router.callback_query(F.data.in_(['type_to_table_2_3']))
@@ -540,7 +557,7 @@ async def type_to_table_nd_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(1, *kb, i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, *kb, i18n=i18n, param_back=True, back_data='table_2_3'))
     await callback.answer('')
 
 
@@ -555,7 +572,7 @@ async def type_to_table_nd_call(callback: CallbackQuery, bot: Bot, state: FSMCon
                                               'hot_metal_rolling_shops',
                                               'textile_manufacturing',
                                               'administrative_buildings_of_industrial_facilities']))
-async def type_to_building_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+async def type_to_building_2_3_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(type_building_to_frequency=callback.data)
 
     data = await state.get_data()
@@ -627,8 +644,9 @@ async def type_to_building_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'type_to_table_2_3', 'area_to_frequencies', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
+        reply_markup=get_inline_cd_kb(1, 'type_to_table_2_3', 'area_to_frequencies', 'industrial_from_table', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
     await state.update_data(fire_frequency_industrial=fire_frequency)
+    await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
 
 
 @ handbooks_router.callback_query(F.data.in_(['type_to_table_2_4']))
@@ -647,7 +665,7 @@ async def type_to_table_th_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(1, *kb, i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, *kb, i18n=i18n, param_back=True, back_data='table_2_4'))
     await callback.answer('')
 
 
@@ -660,7 +678,7 @@ async def type_to_table_th_call(callback: CallbackQuery, bot: Bot, state: FSMCon
                                               'printing_enterprises_publishing_business',
                                               'administrative_buildings_of_industrial_facilities',
                                               'other_types_of_industrial_buildings']))
-async def type_to_building_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+async def type_to_building_2_4_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(type_building_to_frequency=callback.data)
     data = await state.get_data()
     area_to_frequencies = float(data.get("edit_area_to_frequency"))
@@ -726,13 +744,14 @@ async def type_to_building_call(callback: CallbackQuery, bot: Bot, state: FSMCon
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'type_to_table_2_4', 'area_to_frequencies', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
     await state.update_data(fire_frequency_industrial=fire_frequency)
+    await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
 
 
 @ handbooks_router.callback_query(F.data.in_(['area_to_frequencies']))
 async def area_to_frequencies_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.set_state(FSMFrequencyForm.edit_area_to_frequency)
-    kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
-          'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
+    # kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
+    #       'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
     data = await state.get_data()
     text = i18n.edit_frequency.text(
         frequency_param=i18n.get("name_frequency_area"), edit_frequency=data.get("edit_area_to_frequency", 0))
@@ -740,7 +759,9 @@ async def area_to_frequencies_call(callback: CallbackQuery, bot: Bot, state: FSM
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, *kb, i18n=i18n))
+        reply_markup=get_inline_cd_kb(3,
+                                      *i18n.get('calculator_buttons').split('\n'),
+                                      i18n=i18n))
     await callback.answer('')
 
 
@@ -770,7 +791,9 @@ async def edit_frequency_in_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
+        reply_markup=get_inline_cd_kb(3,
+                                      *i18n.get('calculator_buttons').split('\n'),
+                                      i18n=i18n))
 
 
 @ handbooks_router.callback_query(StateFilter(*SFilter_area), F.data.in_(['ready']))
@@ -796,7 +819,7 @@ async def edit_area_freq_param_call(callback: CallbackQuery, bot: Bot, state: FS
     headers = (i18n.get('name_obj_to_frequencies'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
     if data_table == 'table_1_3':
-        kb = ['type_to_table_1_3', 'area_to_frequencies']
+        kb = ['type_to_table_1_3', 'area_to_frequencies', 'industrial_from_table']
         row_num = 9
         label = i18n.get('frequencies_table_1_3')
         data_out = [
@@ -845,7 +868,7 @@ async def edit_area_freq_param_call(callback: CallbackQuery, bot: Bot, state: FS
                 'unit_1': f"{0.000022:.1e}",
                 'unit_2': unit}]
     elif data_table == 'table_2_3':
-        kb = ['type_to_table_2_3', 'area_to_frequencies']
+        kb = ['type_to_table_2_3', 'area_to_frequencies', 'industrial_from_table']
         row_num = 10
         label = i18n.get('frequencies_table_2_3')
         data_out = [
@@ -898,7 +921,7 @@ async def edit_area_freq_param_call(callback: CallbackQuery, bot: Bot, state: FS
                 'unit_1': f"{0.000022:.1e}",
                 'unit_2': unit}]
     elif data_table == 'table_2_4':
-        kb = ['type_to_table_2_4', 'area_to_frequencies']
+        kb = ['type_to_table_2_4', 'area_to_frequencies', 'industrial_from_table']
         row_num = 8
         headers = (i18n.get('name_obj_to_frequencies'),
                    i18n.get('variable'), 'a', 'b')
@@ -957,4 +980,5 @@ async def edit_area_freq_param_call(callback: CallbackQuery, bot: Bot, state: FS
         reply_markup=get_inline_cd_kb(1, *kb, i18n=i18n, param_back=True, back_data='back_to_frequencies'))
     await state.update_data(edit_frequencies_param='')
     await state.update_data(fire_frequency_industrial=fire_frequency)
+    # await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
     await callback.answer('')

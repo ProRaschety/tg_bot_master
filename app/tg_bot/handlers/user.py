@@ -3,7 +3,7 @@ import logging
 from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state  # , State, StatesGroup
+# from aiogram.fsm.state import default_state  # , State, StatesGroup
 from aiogram.types import CallbackQuery, Message, BufferedInputFile, InputMediaPhoto
 
 from fluentogram import TranslatorRunner
@@ -28,181 +28,92 @@ user_router.callback_query.filter(IsGuest())
 
 @user_router.message(CommandStart())
 async def process_start_command(message: Message, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    await message.delete()
+    await state.set_state(state=None)
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
-    if role == "subscriber":
-        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance_guest',
-                   'fire_risks', 'fire_category']
-        text = i18n.start_subscriber.menu()
-    elif role == "comrade":
-        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
-                   'fire_risks', 'fire_category']
-        text = i18n.start.menu()
-    elif role == "admin":
-        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
-                   'fire_risks', 'fire_category', 'admin_panel']
-        text = i18n.start.menu()
-    elif role == "owner":
-        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
-                   'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
-        text = i18n.start.menu()
-    else:
-        main_kb = ['handbooks', 'fds_tools', 'tools_guest', 'fire_resistance_guest',
-                   'fire_risks', 'fire_category_guest']
-        text = i18n.start_guest.menu()
+    text = i18n.get('start_' + role + '-menu')
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
         caption=text,
-        reply_markup=get_inline_cd_kb(1, *main_kb, i18n=i18n))
-    await state.set_state(state=None)
-    await message.delete()
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('user_kb_' + role).split('\n'),
+                                      i18n=i18n))
 
 
 @user_router.callback_query(F.data == 'general_menu')
 async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    await state.set_state(state=None)
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
-    if role == "subscriber":
-        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance_guest',
-                   'fire_risks', 'fire_category']
-        text = i18n.start_subscriber.menu()
-    elif role == "comrade":
-        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
-                   'fire_risks', 'fire_category']
-        text = i18n.start.menu()
-    elif role == "admin":
-        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
-                   'fire_risks', 'fire_category', 'admin_panel']
-        text = i18n.start.menu()
-    elif role == "owner":
-        main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
-                   'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
-        text = i18n.start.menu()
-    else:
-        main_kb = ['handbooks', 'fds_tools', 'tools_guest', 'fire_resistance_guest',
-                   'fire_risks', 'fire_category_guest']
-        text = i18n.start_guest.menu()
+    text = i18n.get('start_' + role + '-menu')
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *main_kb, i18n=i18n))
-    await state.set_state(state=None)
+        reply_markup=get_inline_cd_kb(1, *i18n.get('user_kb_' + role).split('\n'), i18n=i18n))
 
 
 @user_router.callback_query(F.data.in_(['tools_guest', 'fire_resistance_guest', 'fire_risks_guest', 'fire_category_guest', 'substances_guest', "to_cities_guest"]))
 async def keyboard_guest_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
 
-    # if role == "subscriber":
-    #     main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance_guest',
-    #                'fire_risks', 'fire_category']
-    #     text = i18n.subscriber.menu(button=i18n.get(callback_data.data))
-    # elif role == "comrade":
-    #     main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
-    #                'fire_risks', 'fire_category']
-
-    # elif role == "admin":
-    #     main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
-    #                'fire_risks', 'fire_category', 'admin_panel']
-    #     text = i18n.start.menu()
-    # elif role == "owner":
-    #     main_kb = ['handbooks', 'fds_tools', 'tools', 'fire_resistance',
-    #                'fire_risks', 'fire_category', 'admin_panel', 'owner_panel']
-    #     text = i18n.start.menu()
-    # else:
-    #     main_kb = ['handbooks', 'tools_guest', 'fire_resistance_guest',
-    #                'fire_risks', 'fire_category_guest']
-    #     text = i18n.guest.menu(button=i18n.get(callback_data.data))
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=callback_data.message.chat.id)
-    # dict_role = {'guest': 'Гость',
-    #              'subscriber': 'Подписчик',
-    #              'comrade': 'Коллега',
-    #              'admin': 'Администратор',
-    #              'owner': 'Владелец'}
     dict_role = i18n.get(user_record.role)
     text = i18n.setlevel.text(role_user=dict_role)
 
-    if role == 'subscriber':
-        main_kb = [
-            # 'select_tariff',
-            'enter_promo_code']
-    else:
-        main_kb = [
-            # 'select_tariff',
-            'enter_promo_code',
-            'subscribe_channel']
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
 
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *main_kb, i18n=i18n, param_back=True, back_data='general_menu'))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('setlevel_kb_' +
+                                                role).split('\n'),
+                                      i18n=i18n, param_back=True, back_data='general_menu'))
     await state.set_state(state=None)
 
 
 @user_router.message(Command(commands=["setlevel"]))
 async def process_set_level(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=message.chat.id)
-    # dict_role = {'guest': 'Гость',
-    #              'subscriber': 'Подписчик',
-    #              'comrade': 'Коллега',
-    #              'admin': 'Администратор',
-    #              'owner': 'Владелец'}
     dict_role = i18n.get(user_record.role)
     text = i18n.setlevel.text(role_user=dict_role)
 
-    if role == 'subscriber':
-        keyboad = [
-            # 'select_tariff',
-            'enter_promo_code']
-    else:
-        keyboad = [
-            # 'select_tariff',
-            'enter_promo_code',
-            'subscribe_channel']
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
+
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
         caption=text,
-        reply_markup=get_inline_cd_kb(1, *keyboad, i18n=i18n, param_back=True, back_data='general_menu'))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('setlevel_kb_' +
+                                                role).split('\n'),
+                                      i18n=i18n, param_back=True, back_data='general_menu'))
     await message.delete()
 
 
 @user_router.callback_query(F.data.in_(['back_setlevel', 'update_role']))
 async def back_setlevel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
-    # dict_role = {'guest': 'Гость',
-    #              'subscriber': 'Подписчик',
-    #              'comrade': 'Коллега',
-    #              'admin': 'Администратор',
-    #              'owner': 'Владелец'}
-
     dict_role = i18n.get(user_record.role)
     text = i18n.setlevel.text(role_user=dict_role)
-    if role == 'subscriber':
-        keyboad = [
-            # 'select_tariff',
-            'enter_promo_code']
-    else:
-        keyboad = [
-            # 'select_tariff',
-            'enter_promo_code',
-            'subscribe_channel']
+
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
+
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *keyboad, i18n=i18n, param_back=True, back_data='general_menu'))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('setlevel_kb_' +
+                                                role).split('\n'),
+                                      i18n=i18n, param_back=True, back_data='general_menu'))
 
 
 @user_router.callback_query(F.data == 'enter_promo_code')
@@ -223,23 +134,45 @@ async def enter_promo_code_call(callback: CallbackQuery, bot: Bot, state: FSMCon
 
 @user_router.message(StateFilter(FSMPromoCodeForm.promo_code_state))
 async def promo_code_input(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, db: DB) -> None:
-    promocode = message.text
-    await db.users.update_promocode(user_id=message.chat.id, promocode=promocode.lower())
-    await message.delete()
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
+
     data = await state.get_data()
     message_id = data.get('mes_promocode_id')
+    user_id = message.chat.id
+    promocode = message.text
+    user_record: UsersModel = await db.users.get_user_record(user_id=user_id)
+
+    await db.users.update_promocode(user_id=user_id, promocode=promocode.lower())
 
     user_promocode = dict(await db.promocode.get_valid_promocode_user(promocode=promocode.lower()))
     if user_promocode.get('count') != 0:
         text = i18n.entering_code.text(user_code=promocode)
         keyboard = ['update_role']
+        await state.set_state(state=None)
     else:
-        text = i18n.no_such_in_database()
-        keyboard = ['enter_promo_code', 'cansel_enter_promo_code']
-
-    await state.set_state(state=None)
+        if user_record.promocode != promocode:
+            text = i18n.no_such_in_database(user_code=promocode)
+            keyboard = [
+                # 'enter_promo_code',
+                'cansel_enter_promo_code'
+            ]
+        else:
+            if message.message_id % 2:
+                text = i18n.no_such_in_database_oven_re.entry(
+                    user_code=promocode)
+                keyboard = [
+                    # 'enter_promo_code',
+                    'cansel_enter_promo_code'
+                ]
+            else:
+                text = i18n.no_such_in_database_odd_re.entry(
+                    user_code=promocode)
+                keyboard = [
+                    # 'enter_promo_code',
+                    'cansel_enter_promo_code'
+                ]
+    await message.delete()
     await bot.edit_message_media(
         chat_id=message.chat.id,
         message_id=message_id,
@@ -250,31 +183,22 @@ async def promo_code_input(message: Message, bot: Bot, state: FSMContext, i18n: 
 
 @user_router.callback_query(F.data == 'cansel_enter_promo_code')
 async def cansel_enter_promo_code_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
     user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
-    # dict_role = {'guest': 'Гость',
-    #              'subscriber': 'Подписчик',
-    #              'comrade': 'Коллега',
-    #              'admin': 'Администратор',
-    #              'owner': 'Владелец'}
     dict_role = i18n.get(user_record.role)
     text = i18n.setlevel.text(role_user=dict_role)
-    if role == 'subscriber':
-        keyboad = [
-            # 'select_tariff',
-            'enter_promo_code']
-    else:
-        keyboad = [
-            # 'select_tariff',
-            'enter_promo_code',
-            'subscribe_channel']
+
+    media = get_picture_filling(
+        file_path='temp_files/temp/logo_fe_start.png')
+
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *keyboad, i18n=i18n, param_back=True, back_data='general_menu'))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('setlevel_kb_' +
+                                                role).split('\n'),
+                                      i18n=i18n, param_back=True, back_data='general_menu'))
     await state.set_state(state=None)
 
 

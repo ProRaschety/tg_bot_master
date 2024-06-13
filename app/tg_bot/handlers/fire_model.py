@@ -270,17 +270,6 @@ async def standard_fire_load_call(callback_data: CallbackQuery, bot: Bot, state:
     model_data = model.get_data_standard_fire_load(
         name=data.get('analytics_model_fire_load'))
 
-    # {'substance_name': 'Промтовары; текстильные изделия',
-    #  'lower_heat_of_combustion': 16.7,
-    #  'linear_flame_velocity': 0.0071,
-    #  'specific_burnout_rate': 0.0244,
-    #  'smoke_forming_ability': 60.6,
-    #  'oxygen_consumption': 0.879,
-    #  'carbon_dioxide_output': 0.0626,
-    #  'carbon_monoxide_output': 0,
-    #  'hydrogen_chloride_output': 2.56,
-    #  'substance_type': 'solid'}
-
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('standard_fire_load')
@@ -326,58 +315,7 @@ async def standard_fire_load_call(callback_data: CallbackQuery, bot: Bot, state:
                            label=label, row_num_patch=1)
     text = i18n.standard_fire_load.text(
         standard_fire_load=model_data['substance_name'])
-    # model = FireModel()
-    # substance = model.get_data_standard_fire_load(
-    #     name=data.get('analytics_model_fire_load'))
-    # # data.setdefault("edit_analytics_model_param", "0")
-    # # data.setdefault("analytics_model_fire_load", "fl_1")
 
-    # headers = (i18n.get('name'), i18n.get('variable'),
-    #            i18n.get('value'), i18n.get('unit'))
-    # label = i18n.get('standard_fire_load')
-
-    # data_out = [
-    #     {'id': i18n.get('hydrogen_chloride_output'),
-    #         'var': 'HCl',
-    #         'unit_1': f'{0.0140:.4f}',
-    #         'unit_2': i18n.get('kg_per_kg')},
-    #     {'id': i18n.get('carbon_monoxide_output'),
-    #         'var': 'CO',
-    #         'unit_1': f'{0.0022:.4f}',
-    #         'unit_2': i18n.get('kg_per_kg')},
-    #     {'id': i18n.get('carbon_dioxide_output'),
-    #         'var': 'CO2',
-    #         'unit_1': f'{0.203:.4f}',
-    #         'unit_2': i18n.get('kg_per_kg')},
-    #     {'id': i18n.get('oxygen_consumption'),
-    #         'var': 'LО2',
-    #         'unit_1': f'{1.03:.2f}',
-    #         'unit_2': i18n.get('kg_per_kg')},
-    #     {'id': i18n.get('smoke_forming_ability'),
-    #         'var': 'Dm',
-    #         'unit_1': f'{270:.1f}',
-    #         'unit_2': i18n.get('neper_in_m_square_per_kg')},
-    #     {'id': i18n.get('specific_burnout_rate'),
-    #         'var': i18n.get('psi'),
-    #         'unit_1': f'{0.0145:.4f}',
-    #         'unit_2': i18n.get('kg_per_m_square_in_sec')},
-    #     {'id': i18n.get('linear_flame_velocity'),
-    #         'var': 'v',
-    #         'unit_1': f'{0.0108:.4f}',
-    #         'unit_2': i18n.get('m_per_sec')},
-    #     {'id': i18n.get('lower_heat_of_combustion'),
-    #         'var': 'Qн',
-    #         'unit_1': f'{13.8:.2f}',
-    #         'unit_2': i18n.get('MJ_per_kg')},
-    #     {'id': i18n.get('fl_1'),
-    #         'var': '',
-    #         'unit_1': '',
-    #         'unit_2': ''}]
-
-    # media = get_data_table(data=data_out, headers=headers,
-    #                        label=label, row_num_patch=1)
-    # text = i18n.standard_fire_load.text(standard_fire_load=i18n.get('fl_1'))
-    # media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,
@@ -393,19 +331,9 @@ async def num_profile_inline_search_call(callback: CallbackQuery, bot: Bot, stat
     message_id = callback.message.message_id
     await state.update_data(chat_id=chat_id, message_id=message_id)
     text = i18n.select_standard_fire_load.text()
-    # kb_1 = InlineKeyboardButton(
-    #     text="Выбрать профиль 🔎", switch_inline_query_current_chat="")
-    # kb_2 = InlineKeyboardButton(
-    #     text="🔙 Назад", callback_data="stop_edit_strength")
-    # kb = InlineKeyboardBuilder()
-    # kb.row(kb_1, kb_2, width=1)
-    # markup = kb.as_markup()
     markup = get_inline_cd_kb(1, i18n=i18n,
                               switch=True, switch_text='select_fire_load', switch_data='',
                               param_back=True, back_data='stop_select_fire_load')
-    # markup = InlineKeyboardMarkup(inline_keyboard=[
-    #     [InlineKeyboardButton(
-    #         text="Выбрать профиль 🔎", switch_inline_query_current_chat="")]])
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -432,20 +360,16 @@ async def show_standard_fire_load(inline_query: InlineQuery, state: FSMContext, 
 async def select_fire_load_inline_search_input(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     data = await state.get_data()
     message_id = data.get('message_id')
+    await message.delete()
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=message.chat.id,
+        message_id=message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_edit_analytics_model'))
 
     model = FireModel()
     model_data = model.get_data_standard_fire_load(name=message.text)
-
-    # {'substance_name': 'Промтовары; текстильные изделия',
-    #  'lower_heat_of_combustion': 16.7,
-    #  'linear_flame_velocity': 0.0071,
-    #  'specific_burnout_rate': 0.0244,
-    #  'smoke_forming_ability': 60.6,
-    #  'oxygen_consumption': 0.879,
-    #  'carbon_dioxide_output': 0.0626,
-    #  'carbon_monoxide_output': 0,
-    #  'hydrogen_chloride_output': 2.56,
-    #  'substance_type': 'solid'}
 
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
@@ -492,8 +416,6 @@ async def select_fire_load_inline_search_input(message: Message, bot: Bot, state
                            label=label, row_num_patch=1)
     text = i18n.standard_fire_load.text(
         standard_fire_load=model_data['substance_name'])
-    await message.delete()
-    await state.set_state(state=None)
 
     await bot.edit_message_media(
         chat_id=message.chat.id,
@@ -502,6 +424,7 @@ async def select_fire_load_inline_search_input(message: Message, bot: Bot, state
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'select_standard_fire_load', i18n=i18n, param_back=True, back_data='back_edit_analytics_model'))
     await state.update_data(analytics_model_fire_load=message.text)
+    await state.set_state(state=None)
     # await state.update_data(analytics_model_fire_load=sfl_data['substance_name'],
     #                         lower_heat_of_combustion=sfl_data['lower_heat_of_combustion'],
     #                         linear_flame_velocity=sfl_data['linear_flame_velocity'],

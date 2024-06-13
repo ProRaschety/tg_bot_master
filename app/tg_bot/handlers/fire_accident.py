@@ -2198,7 +2198,9 @@ async def fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_fire_ball', 'run_fire_ball', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(1, 'edit_fire_ball', 'run_fire_ball',
+                                      i18n=i18n, param_back=True, back_data='back_typical_accidents',
+                                      check_role=True, role=role))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_fire_ball']))
@@ -2207,7 +2209,29 @@ async def edit_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(*kb_edit_ball, i18n=i18n, param_back=True, back_data='back_fire_ball', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(*kb_edit_ball,
+                                      i18n=i18n, param_back=True, back_data='back_fire_ball',
+                                      check_role=True, role=role))
+
+
+@fire_accident_router.callback_query(F.data.in_(['edit_fire_ball_guest']))
+async def edit_fire_ball_guest_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    await state.set_state(state=None)
+    # await bot.edit_message_reply_markup(
+    #     chat_id=callback.message.chat.id,
+    #     message_id=callback.message.message_id,
+    #     reply_markup=get_inline_cd_kb(*kb_edit_ball,
+    #                                   i18n=i18n, param_back=True, back_data='back_fire_ball',
+    #                                   check_role=True, role=role))
+
+    text = i18n.edit_parameters_guest.text(level=i18n.get(role))
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1, 'edit_fire_ball', 'run_fire_ball',
+                                      i18n=i18n, param_back=True, back_data='back_fire_ball',
+                                      check_role=True, role=role))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_ball_mass', 'edit_ball_distance']))

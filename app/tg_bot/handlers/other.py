@@ -31,7 +31,7 @@ async def echo_send(message: Message, state: FSMContext, i18n: TranslatorRunner)
 
 
 @other_router.message(~StateFilter(default_state))
-async def echo_send(message: Message, state: FSMContext, i18n: TranslatorRunner):
+async def echo_other_send(message: Message, state: FSMContext, i18n: TranslatorRunner):
     log.info(
         f"Сборщик сообщений: id={message.from_user.id}, name={message.from_user.first_name}, text={message.text}")
     await message.delete()

@@ -25,7 +25,38 @@ accidents_kb_owner =
     explosion_of_pressurized_equipment
     column_fire
     gas_jet_burning
-
+accidents_kb_admin =
+    fire_flash
+    fire_pool
+    horizontal_jet
+    vertical_jet
+    fire_ball
+    cloud_explosion
+    accident_bleve
+accidents_kb_comrade =
+    fire_flash
+    fire_pool
+    horizontal_jet
+    vertical_jet
+    fire_ball
+    cloud_explosion
+    accident_bleve
+accidents_kb_subscriber =
+    fire_flash
+    fire_pool
+    horizontal_jet
+    vertical_jet
+    fire_ball
+    cloud_explosion
+    accident_bleve
+accidents_kb_guest =
+    fire_flash
+    fire_pool
+    horizontal_jet
+    vertical_jet
+    fire_ball
+    cloud_explosion
+    accident_bleve
 accidents_kb =
     fire_flash
     fire_pool

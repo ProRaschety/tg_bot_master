@@ -170,9 +170,9 @@ data_base_report_gas = ℹ  <b>{ $substance_name }</b>
                     <b>{$source}</b>
 
 standard_fire_load =
-    Типовая горючая нагрузка
+    Горючая нагрузка
 standard_fire_load-text =
-    Типовая горючая нагрузка.
+    Типовая горючая нагрузка:
     <b>{$standard_fire_load}</b>
 select_standard_fire_load =
     Изменить горючую нагрузку
