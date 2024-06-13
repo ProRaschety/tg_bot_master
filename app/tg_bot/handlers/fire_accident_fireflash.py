@@ -28,11 +28,6 @@ SFilter_fire_flash = [FSMFireAccidentForm.edit_fire_flash_mass_state,
                       FSMFireAccidentForm.edit_fire_flash_lcl_state]
 
 
-kb_edit_flash = [4,
-                 'edit_flash_mass',
-                 'edit_flash_lcl']
-
-
 @fire_accident_fireflash_router.callback_query(F.data.in_(['fire_flash', 'back_fire_flash']))
 async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.request_start.text()
@@ -79,7 +74,7 @@ async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_fire_flash', 'run_fire_flash', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(1, 'edit_fire_flash', 'run_fire_flash', i18n=i18n, param_back=True, back_data='back_typical_accidents'))
     await state.update_data(data)
     await callback.answer('')
 
@@ -90,7 +85,8 @@ async def edit_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(*kb_edit_flash, i18n=i18n, param_back=True, back_data='back_fire_flash', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(4, *i18n.get('edit_fire_flash_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_fire_flash'))
     await callback.answer('')
 
 
@@ -108,14 +104,14 @@ async def edit_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     elif state_data == FSMFireAccidentForm.edit_fire_flash_lcl_state:
         text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
             "name_fire_flash_lcl"), edit_fire_flash=data.get("accident_fire_flash_lcl", 0))
-    kb = ['one', 'two', 'three', 'four', 'five', 'six', 'seven',
-          'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready']
 
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, *kb, i18n=i18n))
+        reply_markup=get_inline_cd_kb(3,
+                                      *i18n.get('calculator_buttons').split('\n'),
+                                      i18n=i18n))
 
 
 @fire_accident_fireflash_router.callback_query(StateFilter(*SFilter_fire_flash), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero', 'point', 'clear']))
@@ -147,7 +143,9 @@ async def edit_fire_flash_in_call(callback: CallbackQuery, bot: Bot, state: FSMC
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
+        reply_markup=get_inline_cd_kb(3,
+                                      *i18n.get('calculator_buttons').split('\n'),
+                                      i18n=i18n))
 
 
 @fire_accident_fireflash_router.callback_query(StateFilter(*SFilter_fire_flash), F.data.in_(['ready']))
@@ -196,7 +194,7 @@ async def edit_fire_flash_param_call(callback: CallbackQuery, bot: Bot, state: F
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_fire_flash', 'run_fire_flash', i18n=i18n, param_back=True, back_data='back_typical_accidents', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(1, 'edit_fire_flash', 'run_fire_flash', i18n=i18n, param_back=True, back_data='back_typical_accidents'))
     await state.update_data(edit_accident_fire_flash_param='')
     await state.set_state(state=None)
 
@@ -209,7 +207,7 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_flash', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_flash'))
 
     text = i18n.fire_flash.text()
     subst = data.get('accident_fire_flash_sub')
@@ -262,5 +260,5 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_flash', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_flash'))
     await callback.answer('')

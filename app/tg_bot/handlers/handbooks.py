@@ -89,7 +89,7 @@ async def climate_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         # reply_markup=get_inline_cd_kb(1, 'to_cities', 'back_to_handbooks', i18n=i18n))
-        reply_markup=get_inline_cd_kb(1, 'to_cities', i18n=i18n, param_back=True, back_data='back_to_handbooks', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(1, 'to_cities', i18n=i18n, param_back=True, back_data='back_to_handbooks'))
 
 
 @handbooks_router.callback_query(F.data.in_(['climate_guest']))
@@ -109,7 +109,7 @@ async def climate_guest_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         # reply_markup=get_inline_cd_kb(1, 'to_cities', 'back_to_handbooks', i18n=i18n))
-        reply_markup=get_inline_cd_kb(1, 'to_cities', i18n=i18n, param_back=True, back_data='back_to_handbooks', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(1, 'to_cities', i18n=i18n, param_back=True, back_data='back_to_handbooks'))
 
 
 @handbooks_router.callback_query(F.data.in_(["to_cities"]), StateFilter(default_state))

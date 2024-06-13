@@ -178,6 +178,11 @@ run_fire_flash_guest =
     ▶ Рассчитать
 edit_fire_flash_guest =
     🔒 Редактировать
+
+edit_fire_flash_kb =
+    edit_flash_mass
+    edit_flash_lcl
+
 back_fire_flash =
     ↩ Назад
 mass_of_flammable_gases_entering_the_surrounding_space =

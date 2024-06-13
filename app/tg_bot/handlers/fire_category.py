@@ -214,7 +214,7 @@ async def edit_area_efs_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
                                       'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2',
                                       'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
                                       'edit_area_A_EFS', 'edit_area_B_EFS', 'edit_area_V1_EFS', 'edit_area_V2_EFS', 'edit_area_V3_EFS',
-                                      'back_category_build', i18n=i18n))
+                                      i18n=i18n, param_back=True, back_data='back_category_build'))
     await state.set_state(state=None)
     await callback.answer('')
 
@@ -262,11 +262,13 @@ async def edit_area_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
+        reply_markup=get_inline_cd_kb(3,
+                                      *i18n.get('calculator_buttons').split('\n'),
+                                      i18n=i18n))
     await callback.answer('')
 
 
-@fire_category_router.callback_query(StateFilter(*SFilter), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
+@fire_category_router.callback_query(StateFilter(*SFilter), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero',]))
 async def edit_area_cat_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
     edit_area_data = await state.get_data()
     call_data = callback.data
@@ -311,7 +313,9 @@ async def edit_area_cat_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
+        reply_markup=get_inline_cd_kb(3,
+                                      *i18n.get('calculator_buttons').split('\n'),
+                                      i18n=i18n))
 
 
 @fire_category_router.callback_query(StateFilter(*SFilter), F.data.in_(['point']))
@@ -342,7 +346,9 @@ async def edit_area_var_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
+        reply_markup=get_inline_cd_kb(3,
+                                      *i18n.get('calculator_buttons').split('\n'),
+                                      i18n=i18n))
 
 
 @fire_category_router.callback_query(StateFilter(*SFilter), F.data.in_(['clear']))
@@ -356,7 +362,9 @@ async def edit_area_point_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear', 'ready', i18n=i18n))
+        reply_markup=get_inline_cd_kb(3,
+                                      *i18n.get('calculator_buttons').split('\n'),
+                                      i18n=i18n))
     await callback.answer('')
 
 
@@ -422,7 +430,7 @@ async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
                                       'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2',
                                       'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
                                       'edit_area_A_EFS', 'edit_area_B_EFS', 'edit_area_V1_EFS', 'edit_area_V2_EFS', 'edit_area_V3_EFS',
-                                      'back_category_build', i18n=i18n))
+                                      i18n=i18n, param_back=True, back_data='back_category_build'))
     await state.update_data(area_build='')
     await state.set_state(state=None)
     await callback.answer('')
@@ -549,7 +557,7 @@ async def run_category_outdoor_installation_call(callback: CallbackQuery, bot: B
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'back_outdoor_installation', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_outdoor_installation'))
     await callback.answer('')
 
 # @fire_category_router.callback_query(F.data == 'back_fire_category')
