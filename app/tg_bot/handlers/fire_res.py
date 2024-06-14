@@ -32,24 +32,14 @@ fire_res_router.callback_query.filter(IsComrade())
 
 
 @fire_res_router.callback_query(F.data == 'fire_resistance')
-async def fire_resistance_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    # await callback_data.message.bot.send_chat_action(
-    #     chat_id=callback_data.message.chat.id,
-    #     action=ChatAction.TYPING)
-    text = i18n.fire_resistance.text()
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
-    await bot.edit_message_media(
-        chat_id=callback_data.message.chat.id,
-        message_id=callback_data.message.message_id,
-        media=InputMediaPhoto(media=BufferedInputFile(
-            file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'steel_element', 'wood_element', 'concrete_element', 'general_menu', i18n=i18n))
+async def fire_resistance_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='general_menu'))
 
-    await callback_data.answer('')
-
-
-@fire_res_router.callback_query(F.data == 'back_type_material')
-async def back_type_material_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
     text = i18n.fire_resistance.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(
@@ -57,7 +47,26 @@ async def back_type_material_call(callback: CallbackQuery, bot: Bot, i18n: Trans
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'steel_element', 'wood_element', 'concrete_element', 'general_menu', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'steel_element', 'wood_element', 'concrete_element', i18n=i18n, param_back=True, back_data='general_menu'))
+
+
+@fire_res_router.callback_query(F.data == 'back_type_material')
+async def back_type_material_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='general_menu'))
+
+    text = i18n.fire_resistance.text()
+    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, 'steel_element', 'wood_element', 'concrete_element', i18n=i18n, param_back=True, back_data='general_menu'))
 
     await callback.answer('')
 
@@ -71,7 +80,7 @@ async def back_type_calc_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', i18n=i18n, param_back=True, back_data='back_type_material'))
     await state.clear()
     await callback.answer('')
 
@@ -85,7 +94,7 @@ async def back_type_calc_defstate_call(callback: CallbackQuery, bot: Bot, state:
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', i18n=i18n, param_back=True, back_data='back_type_material'))
 
     await callback.answer('')
 
@@ -100,7 +109,7 @@ async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', i18n=i18n, param_back=True, back_data='back_type_material'))
     await callback.answer('')
 
 
@@ -114,7 +123,7 @@ async def steel_element_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', 'back_type_material', i18n=i18n))  # 'fire_protection',
+        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', i18n=i18n, param_back=True, back_data='back_type_material'))  # 'fire_protection',
     await callback.answer('')
 
 
@@ -127,7 +136,7 @@ async def wood_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorR
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'back_type_material', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,  i18n=i18n, param_back=True, back_data='back_type_material'))
     await callback.answer('')
 
 
@@ -140,7 +149,7 @@ async def concrete_element_call(callback: CallbackQuery, bot: Bot, i18n: Transla
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'back_type_material', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,  i18n=i18n, param_back=True, back_data='back_type_material'))
     await callback.answer('')
 
 
