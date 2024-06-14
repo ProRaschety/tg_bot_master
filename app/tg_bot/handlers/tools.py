@@ -22,8 +22,6 @@ tools_router = Router()
 tools_router.message.filter(IsSubscriber())
 tools_router.callback_query.filter(IsSubscriber())
 
-kb_tools = [1, 'tool_liquid', 'tool_comp_gas',
-            'tool_liq_gas', 'tool_evaporation_rate']
 
 SFilter_tool_liquid = [
     FSMToolLiquidForm.edit_state_liquid_density,
@@ -81,7 +79,9 @@ async def tools_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRun
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(*kb_tools, param_back=True, back_data='general_menu', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('kb_tools').split('\n'), i18n=i18n,
+                                      param_back=True, back_data='general_menu'))
 
 
 """____жидкость____"""
@@ -115,7 +115,7 @@ async def tool_liquid_call(callback_data: CallbackQuery, bot: Bot, state: FSMCon
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_tool_liquid', 'run_tool_liquid', param_back=True, back_data='back_tools', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'edit_tool_liquid', 'run_tool_liquid', i18n=i18n, param_back=True, back_data='back_tools'))
     await state.update_data(data)
     await callback_data.answer('')
 
@@ -133,7 +133,7 @@ async def run_tool_liquid_call(callback: CallbackQuery, state: FSMContext, bot: 
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="plot_tools"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_tool_liquid', param_back=True, back_data='back_tool_liquid', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'plot_tool_liquid', i18n=i18n, param_back=True, back_data='back_tool_liquid'))
     await state.set_state(state=None)
     await callback.answer('')
 
@@ -159,7 +159,7 @@ async def plot_tool_liquid_call(callback: CallbackQuery, state: FSMContext, bot:
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="plot_tools"), caption=text),
-        reply_markup=get_inline_cd_kb(param_back=True, back_data='back_tool_liquid', i18n=i18n))
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_tool_liquid'))
     await state.set_state(state=None)
     await callback.answer('')
 
@@ -170,7 +170,7 @@ async def edit_tool_liquid_call(callback: CallbackQuery, bot: Bot, state: FSMCon
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(*kb_but_liquid, i18n=i18n, param_back=True, back_data='back_tool_liquid', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(*kb_but_liquid, i18n=i18n, param_back=True, back_data='back_tool_liquid'))
     await callback.answer('')
 
 
@@ -233,7 +233,9 @@ async def edit_tool_liquid_kb_call(callback: CallbackQuery, bot: Bot, state: FSM
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
+        reply_markup=get_inline_cd_kb(3,
+                                      *i18n.get('calculator_buttons').split('\n'),
+                                      i18n=i18n))
     await callback.answer('')
 
 
@@ -280,7 +282,9 @@ async def edit_tool_liquid_in_call(callback: CallbackQuery, bot: Bot, state: FSM
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3, 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'point', 'dooble_zero', 'clear', 'ready', i18n=i18n))
+        reply_markup=get_inline_cd_kb(3,
+                                      *i18n.get('calculator_buttons').split('\n'),
+                                      i18n=i18n))
 
 
 @tools_router.callback_query(StateFilter(*SFilter_tool_liquid), F.data.in_(['ready']))
@@ -386,7 +390,7 @@ async def tool_comp_gas_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_tool_comp_gas', 'run_tool_comp_gas', param_back=True, back_data='back_tools', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'edit_tool_comp_gas', 'run_tool_comp_gas', i18n=i18n, param_back=True, back_data='back_tools'))
     await state.update_data(data)
     await callback_data.answer('')
 
@@ -414,8 +418,8 @@ async def run_tool_comp_gas_call(callback: CallbackQuery, state: FSMContext, bot
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="plot_tools"), caption=text),
         reply_markup=get_inline_cd_kb(1,
-                                      'plot_tool_comp_gas',
-                                      param_back=True, back_data='back_tool_comp_gas', i18n=i18n))
+                                      'plot_tool_comp_gas', i18n=i18n,
+                                      param_back=True, back_data='back_tool_comp_gas'))
     await state.set_state(state=None)
 
 
@@ -442,7 +446,7 @@ async def plot_tool_comp_gas_call(callback: CallbackQuery, state: FSMContext, bo
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="plot_tools"), caption=text),
-        reply_markup=get_inline_cd_kb(param_back=True, back_data='back_tool_comp_gas', i18n=i18n))
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_tool_comp_gas'))
     await state.set_state(state=None)
 
 
@@ -452,7 +456,7 @@ async def edit_tool_comp_gas_call(callback: CallbackQuery, bot: Bot, state: FSMC
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(*kb_but_comp_gas, i18n=i18n, param_back=True, back_data='back_tool_comp_gas', check_role=True, role=role))
+        reply_markup=get_inline_cd_kb(*kb_but_comp_gas, i18n=i18n, param_back=True, back_data='back_tool_comp_gas'))
     await callback.answer('')
 
 
@@ -715,7 +719,7 @@ async def tool_liq_gas_call(callback_data: CallbackQuery, bot: Bot, i18n: Transl
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'tool_liq_gas_vap', 'tool_liq_gas_liq', param_back=True, back_data='back_tools', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'tool_liq_gas_vap', 'tool_liq_gas_liq', i18n=i18n, param_back=True, back_data='back_tools'))
     await callback_data.answer('')
 
 """____испарение_жидкой_фазы____"""
@@ -730,5 +734,5 @@ async def tool_evaporation_rate_call(callback_data: CallbackQuery, bot: Bot, i18
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(param_back=True, back_data='back_tools', i18n=i18n))
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_tools'))
     await callback_data.answer('')

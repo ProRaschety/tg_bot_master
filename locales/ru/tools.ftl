@@ -1,24 +1,49 @@
 tools-text =
-back_tools = ↩ Назад
-back_tool_liquid = ↩ Назад
-stop_edit_tool_liquid = ↩ Назад
-back_tool_comp_gas = ↩ Назад
-back_tool_liq_gas = ↩ Назад
-result_tool_comp_gas = 🔂 К таблице
+    <blockquote></blockquote>
+back_tools =
+    ↩ Назад
+back_tool_liquid =
+    ↩ Назад
+stop_edit_tool_liquid =
+    ↩ Назад
+back_tool_comp_gas =
+    ↩ Назад
+back_tool_liq_gas =
+    ↩ Назад
+result_tool_comp_gas =
+    🔂 К таблице
 
-tool_liquid = Расход жидкости 💧
-tool_comp_gas = Расход сжатого газа 💨
-tool_liq_gas = Расход сжиженного газа 💦
-tool_liq_gas_vap = 🚧 Расход паровой фазы ☁
-tool_liq_gas_liq = 🚧 Расход жидкой фазы 💧
-tool_evaporation_rate = 🚧 Испарение жидкой фазы ♨
-tool_sixth = 🔒 Шестой инстр
+kb_tools =
+    tool_liquid
+    tool_comp_gas
+    tool_liq_gas
+    tool_evaporation_rate
 
-tool_liquid-text = Расход жидкости по уравнению П3.10 Методики 404
-run_tool_liquid = ▶ Рассчитать
-edit_tool_liquid = 📝 Редактировать
-edit_tool_liquid_guest = 🔓 Редактировать
-tool_liquid_result-text = Начальный массовый расход жидкости: <blockquote>{$mass_flow} кг/с</blockquote>
+tool_liquid =
+    Расход жидкости 💧
+tool_comp_gas =
+    Расход сжатого газа 💨
+tool_liq_gas =
+    Расход сжиженного газа 💦
+tool_liq_gas_vap =
+    🚧 Расход паровой фазы ☁
+tool_liq_gas_liq =
+    🚧 Расход жидкой фазы 💧
+tool_evaporation_rate =
+    🚧 Испарение жидкой фазы ♨
+tool_sixth =
+    🔒 Шестой инстр
+
+tool_liquid-text =
+    Расход жидкости по уравнению П3.10 Методики 404
+run_tool_liquid =
+    ▶ Рассчитать
+edit_tool_liquid =
+    📝 Редактировать
+edit_tool_liquid_guest =
+    🔓 Редактировать
+tool_liquid_result-text =
+    Начальный массовый расход жидкости: <blockquote>{$mass_flow} кг/с</blockquote>
 
 plot_tool_liquid = 📉 График расхода
 

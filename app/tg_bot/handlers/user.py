@@ -43,6 +43,13 @@ async def process_start_command(message: Message, state: FSMContext, i18n: Trans
 
 @user_router.callback_query(F.data == 'general_menu')
 async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback_data.message.chat.id,
+        message_id=callback_data.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1, *i18n.get('user_kb_' + role).split('\n'), i18n=i18n))
+
     await state.set_state(state=None)
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')

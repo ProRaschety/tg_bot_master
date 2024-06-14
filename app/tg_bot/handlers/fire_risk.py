@@ -52,7 +52,6 @@ async def fire_risks_call(callback_data: CallbackQuery, bot: Bot, i18n: Translat
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'fire_model', 'fire_risks_calculator', 'typical_accidents', i18n=i18n, param_back=True, back_data='general_menu'))
-    await callback_data.answer('')
 
 
 @fire_risk_router.callback_query(F.data == 'back_fire_risks')
@@ -70,7 +69,6 @@ async def back_fire_risks_call(callback: CallbackQuery, bot: Bot, i18n: Translat
                                       'fire_risks_calculator',
                                       'typical_accidents',
                                       i18n=i18n, param_back=True, back_data='general_menu'))
-    await callback.answer('')
 
 
 @fire_risk_router.callback_query(F.data.in_(['fire_risks_calculator', 'back_fire_risks_calc']))
@@ -84,13 +82,20 @@ async def fire_risks_calculator_call(callback: CallbackQuery, bot: Bot, i18n: Tr
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, 'public', 'industrial', i18n=i18n, param_back=True, back_data='back_fire_risks'))
-    await callback.answer('')
+
 
 """______________________Общественные_здания______________________"""
 
 
 @fire_risk_router.callback_query(F.data.in_(['public', 'back_public']))
 async def public_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_risks_calc'))
+
     state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("edit_public_param", "0")
@@ -442,7 +447,7 @@ async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(1, 'edit_industrial', 'run_industrial', i18n=i18n, param_back=True, back_data='back_fire_risks_calc'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_risks_calc'))
 
     state_data = await state.get_state()
     data = await state.get_data()
