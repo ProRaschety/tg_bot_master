@@ -60,7 +60,7 @@ async def export_data_standard_flammable_load_call(callback: CallbackQuery, bot:
     get_data_fire_load(
         file_path=r"/tg_bot_master/locales/ru/static/Document_template_fireload.docx", subname=name_sub, data=model_data)
     file_data = FSInputFile(
-        rf'temp_files\temp_data\flammable_load_{name_sub.lower()}.docx', filename=f'flammable_load_{name_sub.lower()}.docx')
+        rf'temp_files/temp_data/flammable_load_{name_sub.lower()}.docx', filename=f'flammable_load_{name_sub.lower()}.docx')
 
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
