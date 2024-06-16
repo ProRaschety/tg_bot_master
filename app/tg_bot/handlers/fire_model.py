@@ -279,7 +279,8 @@ async def edit_analytics_model_call(callback_data: CallbackQuery, bot: Bot, stat
 async def edit_analytics_model_exponent_taking_n_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
 
     text = i18n.edit_exponent_taking_n.text()
-    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    media = get_picture_filling(
+        file_path='temp_files/temp/pic_exponent_taking_n.png')
 
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
