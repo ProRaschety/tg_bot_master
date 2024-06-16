@@ -14,15 +14,17 @@ from aiogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessag
 from fluentogram import TranslatorRunner
 
 from app.infrastructure.database.database.db import DB
+from app.infrastructure.database.models.substance import FlammableMaterialModel
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
 from app.tg_bot.utilities.tables import get_initial_data, get_result_data
-from app.tg_bot.states.fsm_state_data import FSMClimateForm, FSMFrequencyForm, FSMFireRiskForm
+from app.tg_bot.states.fsm_state_data import FSMClimateForm, FSMFrequencyForm, FSMFireRiskForm, FSMFireModelForm
 # from app.calculation.database_mode.substance import SubstanceDB
 from app.calculation.database_mode.climate import Climate
 from app.calculation.qra_mode.fire_risk_calculator import FireRisk
+from app.calculation.qra_mode.fire_risk_calculator import FireModel
 
 log = logging.getLogger(__name__)
 
@@ -160,7 +162,7 @@ async def cities_inline_search_input(message: Message, bot: Bot, state: FSMConte
         message_id=message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'to_cities', 'back_to_handbooks', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'to_cities', i18n=i18n, param_back=True, back_data='back_to_handbooks'))
 
 
 @handbooks_router.callback_query(F.data.in_(['frequencies', 'back_to_frequencies', 'table_404']))
@@ -982,3 +984,188 @@ async def edit_area_freq_param_call(callback: CallbackQuery, bot: Bot, state: FS
     await state.update_data(fire_frequency_industrial=fire_frequency)
     # await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
     await callback.answer('')
+
+
+@handbooks_router.callback_query(F.data.in_(['standard_flammable_load', 'stop_select_flammable_load', 'back_standard_flammable_load', 'analytics_model_flammable_load']))
+async def standard_flammable_load_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    await state.update_data(analytics_model_back_data=callback_data.data)
+    data = await state.get_data()
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback_data.message.chat.id,
+        message_id=callback_data.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_analytics_model' if callback_data.data == 'analytics_model_flammable_load' else 'back_to_handbooks'))
+
+    await state.set_state(state=None)
+
+    data.setdefault("analytics_model_flammable_load",
+                    "Керосин")
+    await state.update_data(data)
+
+    model = FireModel()
+    model_data: FlammableMaterialModel = model.get_data_standard_flammable_load(
+        name=data.get('analytics_model_flammable_load'))
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('standard_flammable_load')
+
+    data_out = [
+        {'id': i18n.get('hydrogen_chloride_output'),
+            'var': 'HCl',
+            'unit_1': f"{model_data.hydrogen_chloride_output:.4f}",
+            'unit_2': i18n.get('kg_per_kg')},
+        {'id': i18n.get('carbon_monoxide_output'),
+            'var': 'CO',
+            'unit_1': f"{model_data.carbon_monoxide_output:.4f}",
+            'unit_2': i18n.get('kg_per_kg')},
+        {'id': i18n.get('carbon_dioxide_output'),
+            'var': 'CO2',
+            'unit_1': f"{model_data.carbon_dioxide_output:.4f}",
+            'unit_2': i18n.get('kg_per_kg')},
+        {'id': i18n.get('oxygen_consumption'),
+            'var': 'LО2',
+            'unit_1': f"{model_data.oxygen_consumption:.4f}",
+            'unit_2': i18n.get('kg_per_kg')},
+        {'id': i18n.get('smoke_forming_ability'),
+            'var': 'Dm',
+            'unit_1': f"{model_data.smoke_forming_ability:.1f}",
+            'unit_2': i18n.get('neper_in_m_square_per_kg')},
+        {'id': i18n.get('specific_burnout_rate'),
+            'var': i18n.get('psi'),
+            'unit_1': f"{model_data.specific_burnout_rate:.4f}",
+            'unit_2': i18n.get('kg_per_m_square_in_sec')},
+        {'id': i18n.get('linear_flame_velocity'),
+            'var': 'v',
+            'unit_1': f"{model_data.linear_flame_velocity:.4f}",
+            'unit_2': i18n.get('m_per_sec')},
+        {'id': i18n.get('lower_heat_of_combustion'),
+            'var': 'Qн',
+            'unit_1': f"{model_data.lower_heat_of_combustion:.1f}",
+            'unit_2': i18n.get('kJ_per_kg')},
+        {'id': model_data.substance_name,
+            'var': '',
+            'unit_1': '',
+            'unit_2': ''}]
+    media = get_data_table(data=data_out, headers=headers,
+                           label=label, row_num_patch=1)
+    text = i18n.standard_flammable_load.text(
+        standard_flammable_load=model_data.substance_name)
+
+    await bot.edit_message_media(
+        chat_id=callback_data.message.chat.id,
+        message_id=callback_data.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('result_standard_flammable_load_' + role).split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_analytics_model' if callback_data.data == 'analytics_model_flammable_load' else 'back_to_handbooks'))
+    # await state.update_data(data)
+
+
+@handbooks_router.callback_query(F.data == 'select_standard_flammable_load')
+async def num_profile_inline_search_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    chat_id = str(callback.message.chat.id)
+    message_id = callback.message.message_id
+    await state.update_data(chat_id=chat_id, message_id=message_id)
+    text = i18n.select_standard_flammable_load.text()
+    markup = get_inline_cd_kb(1, i18n=i18n,
+                              switch=True, switch_text='select_flammable_load', switch_data='',
+                              param_back=True, back_data='stop_select_flammable_load')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=markup)
+    await state.set_state(FSMFireModelForm.edit_standard_flammable_load)
+
+
+@handbooks_router.inline_query(StateFilter(FSMFireModelForm.edit_standard_flammable_load))
+async def show_standard_flammable_load(inline_query: InlineQuery, state: FSMContext, i18n: TranslatorRunner):
+    # data = await state.get_data()
+    sfl = FireModel()
+    list_sfl = sfl.get_list_standard_flammable_load()
+    results = []
+    for names in list_sfl:
+        name = names[:34]
+        if inline_query.query in str(name):
+            results.append(InlineQueryResultArticle(id=str(name), title=f'{name}',
+                                                    input_message_content=InputTextMessageContent(message_text=f'{name}')))
+    await inline_query.answer(results=results[:25], cache_time=0, is_personal=True)
+
+
+@handbooks_router.message(StateFilter(FSMFireModelForm.edit_standard_flammable_load))
+async def select_flammable_load_inline_search_input(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    data = await state.get_data()
+    callback_data = data.get('analytics_model_back_data')
+    message_id = data.get('message_id')
+    await message.delete()
+
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=message.chat.id,
+        message_id=message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_analytics_model' if callback_data == 'analytics_model_flammable_load' else 'back_to_handbooks'))
+
+    model = FireModel()
+    model_data: FlammableMaterialModel = model.get_data_standard_flammable_load(
+        name=message.text)
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('standard_flammable_load')
+
+    data_out = [
+        {'id': i18n.get('hydrogen_chloride_output'),
+            'var': 'HCl',
+            'unit_1': f"{model_data.hydrogen_chloride_output:.4f}",
+            'unit_2': i18n.get('kg_per_kg')},
+        {'id': i18n.get('carbon_monoxide_output'),
+            'var': 'CO',
+            'unit_1': f"{model_data.carbon_monoxide_output:.4f}",
+            'unit_2': i18n.get('kg_per_kg')},
+        {'id': i18n.get('carbon_dioxide_output'),
+            'var': 'CO2',
+            'unit_1': f"{model_data.carbon_dioxide_output:.4f}",
+            'unit_2': i18n.get('kg_per_kg')},
+        {'id': i18n.get('oxygen_consumption'),
+            'var': 'LО2',
+            'unit_1': f"{model_data.oxygen_consumption:.4f}",
+            'unit_2': i18n.get('kg_per_kg')},
+        {'id': i18n.get('smoke_forming_ability'),
+            'var': 'Dm',
+            'unit_1': f"{model_data.smoke_forming_ability:.1f}",
+            'unit_2': i18n.get('neper_in_m_square_per_kg')},
+        {'id': i18n.get('specific_burnout_rate'),
+            'var': i18n.get('psi'),
+            'unit_1': f"{model_data.specific_burnout_rate:.4f}",
+            'unit_2': i18n.get('kg_per_m_square_in_sec')},
+        {'id': i18n.get('linear_flame_velocity'),
+            'var': 'v',
+            'unit_1': f"{model_data.linear_flame_velocity:.4f}",
+            'unit_2': i18n.get('m_per_sec')},
+        {'id': i18n.get('lower_heat_of_combustion'),
+            'var': 'Qн',
+            'unit_1': f"{model_data.lower_heat_of_combustion:.1f}",
+            'unit_2': i18n.get('kJ_per_kg')},
+        {'id': model_data.substance_name,
+            'var': '',
+            'unit_1': '',
+            'unit_2': ''}]
+    media = get_data_table(data=data_out, headers=headers,
+                           label=label, row_num_patch=1)
+    text = i18n.standard_flammable_load.text(
+        standard_flammable_load=model_data.substance_name)
+
+    await bot.edit_message_media(
+        chat_id=message.chat.id,
+        message_id=message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('result_standard_flammable_load_' + role).split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_analytics_model' if callback_data == 'analytics_model_flammable_load' else 'back_to_handbooks'))
+    await state.update_data(analytics_model_flammable_load=message.text)
+    await state.set_state(state=None)

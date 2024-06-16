@@ -122,5 +122,5 @@ class Equipment:
             Diameter of circular leak orifice
         """
         leak_area = pipe_flow_area * leak_size_fraction
-        leak_diameter = m.sqrt(4 * leak_area / math.pi)
+        leak_diameter = m.sqrt(4 * leak_area / m.pi)
         return leak_diameter

@@ -1,5 +1,5 @@
 fire_model =
-    Модель пожара
+    Расчет ОФП
 fire_model-text =
     <blockquote></blockquote>
 back_fire_model =
@@ -11,7 +11,7 @@ analytics_model =
     Аналитическая модель
 analytics_model-text =
     Аналитическая модель.
-    Для одиночного помещения высотой не более 6м, удовлетворяющего условиям применения интегральной модели, при отсутствии систем противопожарной защиты, влияющих на развитие пожара.
+    Для одиночного помещения высотой не более 6м и линейные размеры помещения отличаются не более чем в 5 раз (удовлетворяющего условиям применения интегральной модели), при отсутствии систем противопожарной защиты, влияющих на развитие пожара.
     🚧 <i>Находится в разработке</i>
 analytics_model_label =
     Расчет ОФП. Аналитическая модель
@@ -19,8 +19,31 @@ run_analytics_model =
     ▶ Рассчитать
 run_analytics_model-text =
     <blockquote></blockquote>
+result_analytics_model_kb_owner =
+    report_analytics_model
+    back_analytics_model
+result_analytics_model_kb_admin =
+    back_analytics_model
+result_analytics_model_kb_comrade =
+    back_analytics_model
+result_analytics_model_kb_subscriber =
+    back_analytics_model
+result_analytics_model_kb_guest =
+    back_analytics_model
+
 edit_analytics_model =
     📝 Редактировать
+stop_edit_analytics_model =
+    ↩ Назад
+
+edit_analytics_model_kb =
+    edit_lenght_room
+    edit_width_room
+    edit_height_room
+    edit_air_temperature
+    edit_exponent_taking_n
+    analytics_model_flammable_load
+
 
 edit_lenght_room =
     a
@@ -30,6 +53,8 @@ edit_height_room =
     H
 edit_air_temperature =
     t
+edit_exponent_taking_n =
+    n
 name_analytics_model_lenght_room =
     Введите длину помещения:
 name_analytics_model_width_room =
@@ -41,10 +66,24 @@ name_analytics_model_air_temperature =
 edit_analytics_model-text = {$analytics_model_param}
     <blockquote>{$edit_analytics_model}</blockquote>
 
+edit_exponent_taking_n_kb =
+    exponent_taking_n_1
+    exponent_taking_n_2
+    exponent_taking_n_3
+edit_exponent_taking_n-text =
+    <blockquote></blockquote>
 
+exponent_taking_n_1 =
+    n = 1
+exponent_taking_n_2 =
+    n = 2
+exponent_taking_n_3 =
+    n = 3
 
 back_analytics_model =
     ↩ Назад
+exit_to_analytics_model =
+    ⤴ Выход
 back_edit_analytics_model =
     ↩ Назад
 

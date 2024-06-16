@@ -29,6 +29,7 @@ def create_translator_hub() -> TranslatorHub:
                                "locales/ru/fds_tools.ftl",
                                "locales/ru/terms_acronyms.ftl",
                                "locales/ru/equations.ftl",
+                               "locales/ru/reports.ftl",
                                "locales/ru/other.ftl"])),
             FluentTranslator(
                 locale="en",
@@ -49,6 +50,7 @@ def create_translator_hub() -> TranslatorHub:
                                "locales/en/fds_tools.ftl",
                                "locales/en/terms_acronyms.ftl",
                                "locales/en/equations.ftl",
+                               "locales/en/reports.ftl",
                                "locales/en/other.ftl"]))
         ],
     )

@@ -100,7 +100,7 @@ def get_dict(list_: list) -> dict:
 
 
 def get_data_table(data, headers: str, label: str, column: int = 4, results: bool | None = False, row_num: int | None = None, row_num_patch: int | None = None, sel_row_num: int = 0) -> bytes:
-    log.info("Таблица данных")
+    log.info(f"Таблица данных: {label}")
     # plt.rcParams['font.family'] = 'Roboto'
     # font_dirs = r"/app/tg_bot/fonts"  # The path to the custom font file.
     # font_files = fm.findSystemFonts(fontpaths=font_dirs)
@@ -223,12 +223,13 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
 
     # заполнение таблицы данных
     if column == 4:
+
         text_weight = 'normal' if row_num_patch == None else 'bold'
+
         for row in range(1, rows + 1):
             d = data[row - 1]
-
             fig_ax_2.text(x=0, y=row, s=d.get(rows_keys[0]),
-                          va='center', weight=text_weight if row == rows else 'normal', ha='left', **ft_size)
+                          va='center', weight=text_weight if (row == rows and len(d.get(rows_keys[3])) == 0) else 'normal', ha='left', **ft_size)
             fig_ax_2.text(x=cols - step * 2, y=row, s=d.get(rows_keys[1]), va='center',
                           ha='center', weight='bold', **ft_size)
             fig_ax_2.text(x=cols, y=row, s=d.get(rows_keys[2]) if not isinstance(d.get(rows_keys[2]), datetime) else d.get(rows_keys[2]).strftime("%Y-%m-%d"),
@@ -284,6 +285,7 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
                    add_legend: bool = False, loc_legend: int = 1,
                    add_fill_between: bool = False, param_fill: int | float = None, label_fill: str = None,
                    add_axhline: bool = False, label_axline: str = None, plot_color=(0.9, 0.1, 0, 0.9), **kwargs):
+    log.info(f"График: {label}")
     # размеры рисунка в дюймах
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
     w = 650  # px

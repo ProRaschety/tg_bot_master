@@ -160,7 +160,7 @@ class FSMFrequencyForm(StatesGroup):
 
 
 class FSMFireModelForm(StatesGroup):
-    edit_standard_fire_load = State()
+    edit_standard_flammable_load = State()
 
     edit_analytics_model_lenght_room = State()
     edit_analytics_model_width_room = State()

@@ -12,7 +12,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.constants import physical_constants
 from scipy.interpolate import RectBivariateSpline, interp1d
 
-
+from app.infrastructure.database.models.substance import FlammableMaterialModel
 from app.calculation.physics.physics_utils import compute_stoichiometric_coefficient_with_oxygen, compute_density_gas_phase
 
 
@@ -343,9 +343,7 @@ class FireModel:
         return eta
 
     def compute_B(self, phi: int | float, vol_free: int | float, cp: int | float, eta: int | float, heat_comb: int | float,):
-        # B = (353 * cp * vol_free) / ((1 - phi) * eta * heat_comb)
-        # log.info(f'cp:{cp}')
-        return 353 * cp * vol_free / ((1 - phi) * eta * heat_comb)
+        return 353 * cp * vol_free / ((1 - phi) * eta * heat_comb/1000)
 
     def compute_A(self, psi: int | float, velocity: int | float = 1, n: int = 1, width: int = 1,  area: int | float = 1):
         if n == 1:
@@ -356,25 +354,29 @@ class FireModel:
             a = 1.05 * psi * velocity ** 2
         return a
 
-    def compute_time_by_temperature(self, B: int | float, A: int | float, z: int | float,  t0: int | float = 25, n: int = 3):
-        time = ((B/A) * m.log(1 + ((70 - t0)/((273 + t0) * z)))) ** (1 / n)
+    def compute_time_by_temperature(self, B: int | float, A: int | float, z: int | float,  temperature: int | float = 25, n: int = 3):
+        time = ((B/A) * m.log(1 + ((70 - temperature) /
+                ((273.15 + temperature) * z)))) ** (1 / n)
         return time
 
-    def compute_time_by_loss_visibility(self, B: int | float, A: int | float, Dm: int | float, vol_free: int | float, z: int | float, l_lim: int | float = 20, a_evac: int | float = 0.3, E_lm: int | float = 50, n: int = 3):
+    def compute_time_by_loss_visibility(self, B: int | float, A: int | float, Dm: int | float,
+                                        vol_free: int | float, z: int | float, n: int, l_lim: int | float = 20,
+                                        a_evac: int | float = 0.3, E_lm: int | float = 50):
         param_st = vol_free * m.log(1.05 * a_evac * E_lm)
         param_nd = l_lim * B * Dm * z
-
         time = ((B/A) * (m.log(1 / (1 - (param_st/param_nd))))) ** (1 / n)
         return time
 
-    def compute_time_by_low_oxygen(self, B: int | float, A: int | float, vol_free: int | float, z: int | float, lo2: int | float, n: int = 3):
+    def compute_time_by_low_oxygen(self, B: int | float, A: int | float, vol_free: int | float, z: int | float,
+                                   lo2: int | float, n: int):
         param_st = 0.044
         param_nd = (((B * lo2) / vol_free) + 0.27) * z
 
         time = ((B/A) * (m.log(1 / (1 - (param_st/param_nd))))) ** (1 / n)
         return time
 
-    def compute_critical_combustion_product(self, B: int | float, A: int | float, vol_free: int | float, z: int | float, param: int | float, lim_param: int | float, n: int = 3):
+    def compute_critical_combustion_product(self, B: int | float, A: int | float, vol_free: int | float, z: int | float,
+                                            param: int | float, lim_param: int | float, n: int):
         try:
             if param > 0:
                 return ((B / A) * (m.log(1 / (1 - (vol_free * lim_param) / (B * param * z))))) ** (1 / n)
@@ -387,19 +389,13 @@ class FireModel:
         except ZeroDivisionError:
             return 0
 
-    def get_list_standard_fire_load(self):
-        with open(file="app/infrastructure/data_base/db_standard_fire_load.json", mode="r", encoding='utf-8') as file_op:
+    def get_list_standard_flammable_load(self):
+        with open(file="app/infrastructure/data_base/db_standard_fire_load_1140.json", mode="r", encoding='utf-8') as file_op:
             db_fire_load = json.load(file_op)
-
-        # print(list(db_fire_load.keys()))
-
-        # list_fire_load = []
-        # for load in list(db_fire_load.keys()):
-        #     list_fire_load.append(db_fire_load[load])
-
         return list(db_fire_load.keys())
 
-    def get_data_standard_fire_load(self, name):
-        with open(file="app/infrastructure/data_base/db_standard_fire_load.json", mode="r", encoding='utf-8') as file_op:
+    def get_data_standard_flammable_load(self, name: str):
+        with open(file="app/infrastructure/data_base/db_standard_fire_load_1140.json", mode="r", encoding='utf-8') as file_op:
             db_fire_load = json.load(file_op)
-        return db_fire_load[name]
+        data = db_fire_load[name]
+        return FlammableMaterialModel(**data) if data else None

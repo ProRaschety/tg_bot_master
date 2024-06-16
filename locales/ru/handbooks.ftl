@@ -4,29 +4,31 @@ handbooks =
 handbooks-text =
     <blockquote></blockquote>
 
-
 handbooks_kb_owner =
     substances
+    standard_flammable_load
     climate
     frequencies
 handbooks_kb_admin =
     substances
+    standard_flammable_load
     climate
     frequencies
 handbooks_kb_comrade =
     substances
+    standard_flammable_load
     climate
     frequencies
 handbooks_kb_subscriber =
     substances
+    standard_flammable_load
     climate
     frequencies
 handbooks_kb_guest =
     substances_guest
+    standard_flammable_load
     climate_guest
     frequencies
-
-
 
 back_to_handbooks =
     ↩ Назад
@@ -36,8 +38,58 @@ substances =
 substances_guest =
     🔒 Справочник веществ
 
-typical_flammable_load =
-    Типовая горючая нагрузка
+standard_flammable_load =
+    Горючая нагрузка
+back_standard_flammable_load =
+    ↩ Назад
+analytics_model_flammable_load =
+    Горючая нагрузка
+standard_flammable_load-text =
+    Типовая горючая нагрузка:
+    <b>{$standard_flammable_load}</b>
+select_standard_flammable_load =
+    Изменить горючую нагрузку
+select_standard_flammable_load-text =
+    Чтобы начать поиск горючей нагрузки
+    нажмите на кнопку 🔎
+select_flammable_load =
+    Выбрать горючую нагрузку 🔎
+stop_select_flammable_load =
+    Отменить выбор ❌
+
+result_standard_flammable_load_owner =
+    select_standard_flammable_load
+    export_data_standard_flammable_load
+result_standard_flammable_load_admin =
+    select_standard_flammable_load
+    export_data_standard_flammable_load
+result_standard_flammable_load_comrade =
+    select_standard_flammable_load
+result_standard_flammable_load_subscriber =
+    select_standard_flammable_load
+result_standard_flammable_load_guest =
+    select_standard_flammable_load
+
+lower_heat_of_combustion =
+    Низшая теплота сгорания
+linear_flame_velocity =
+    Линейная скорость пламени
+specific_burnout_rate =
+    Удельная скорость выгорания
+smoke_forming_ability =
+    Дымообразующая способность
+oxygen_consumption =
+    Потребление кислорода
+carbon_dioxide_output =
+    Выход углекислого газа
+carbon_monoxide_output =
+    Выход монооксида углерода
+hydrogen_chloride_output =
+    Выход хлороводорода
+
+
+
+
 
 climate =
     Cправочник метеоданных
