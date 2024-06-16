@@ -9,4 +9,4 @@ docker-compose.yml
 postgres_scripts.py
 
 postgres_data/
-temp_files/temp_data
+# temp_files/temp_data
