@@ -7,5 +7,4 @@ log_file.txt
 tests.py
 docker-compose.yml
 postgres_data/
-temp_data/
 postgres_scripts.py
