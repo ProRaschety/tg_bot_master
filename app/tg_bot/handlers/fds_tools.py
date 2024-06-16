@@ -76,7 +76,7 @@ async def input_fds_tools_document(message: Message, bot: Bot, state: FSMContext
         caption=text,
         reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_fds_tools'))
 
-    path = rf"temp_files\temp_data\{str(message.chat.id) + '_fds_tools'}.tsv"
+    path = rf"temp_files/temp_data/{str(message.chat.id) + '_fds_tools'}.tsv"
     await bot.download(file=fds_tools_doc, destination=path)
     text = i18n.request_stop.text()
     await bot.edit_message_caption(

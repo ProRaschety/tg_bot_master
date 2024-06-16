@@ -94,4 +94,4 @@ def get_data_fire_load(file_path: str, subname: str, data: FlammableMaterialMode
         # data[subname].get(model_data.get(string), "-")
         table_1.rows[string].cells[3].text = "[1]"
     document.save(
-        rf"temp_files\temp_data\flammable_load_{subname.lower()}.docx")
+        rf"temp_files/temp_data/flammable_load_{subname.lower()}.docx")
