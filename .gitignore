@@ -6,5 +6,7 @@ __pycache__/
 log_file.txt
 tests.py
 docker-compose.yml
-postgres_data/
 postgres_scripts.py
+
+postgres_data/
+temp_files/temp_data
