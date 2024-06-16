@@ -49,19 +49,19 @@ def get_csv_bt_file(data) -> bytes:
     return byte_file
 
 
-def get_xlsx_bt_file(data) -> bytes:
+# def get_xlsx_bt_file(data) -> bytes:
 
-    writer = pd.ExcelWriter('simple-report.xlsx', engine='xlsxwriter')
-    df.to_excel(writer, index=False)
-    df_footer.to_excel(writer, startrow=6, index=False)
-    writer.save()
-    output = io.StringIO()
-    with output as file_w:
-        writer = csv.writer(file_w, dialect='excel', delimiter=';',
-                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerows(data)
-        byte_file = output.getvalue().encode("ANSI")
-    return byte_file
+#     writer = pd.ExcelWriter('simple-report.xlsx', engine='xlsxwriter')
+#     df.to_excel(writer, index=False)
+#     df_footer.to_excel(writer, startrow=6, index=False)
+#     writer.save()
+#     output = io.StringIO()
+#     with output as file_w:
+#         writer = csv.writer(file_w, dialect='excel', delimiter=';',
+#                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
+#         writer.writerows(data)
+#         byte_file = output.getvalue().encode("ANSI")
+#     return byte_file
 
 
 def get_data_fire_load(file_path: str, subname: str, data: FlammableMaterialModel):
