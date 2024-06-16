@@ -87,7 +87,7 @@ def get_picture_filling(file_path) -> bytes:
     file = file_path
     with open(file, 'rb') as f:
         file_r = f.read()
-        buffer.write(file_r)
+        byte_pic = buffer.write(file_r)
     buffer.seek(0)
     byte_pic = buffer.getvalue()
     buffer.close()
