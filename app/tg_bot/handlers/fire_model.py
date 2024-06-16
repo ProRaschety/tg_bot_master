@@ -553,7 +553,7 @@ async def edit_analytics_model_param_call(callback_data: CallbackQuery, bot: Bot
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(4,
+        reply_markup=get_inline_cd_kb(5,
                                       *i18n.get('edit_analytics_model_kb').split('\n'),
                                       i18n=i18n, param_back=True, back_data='back_analytics_model'))
     await state.update_data(edit_analytics_model_param='')
