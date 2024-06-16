@@ -58,7 +58,7 @@ async def export_data_standard_flammable_load_call(callback: CallbackQuery, bot:
     model_data: FlammableMaterialModel = model.get_data_standard_flammable_load(
         name=name_sub)
     get_data_fire_load(
-        file_path=r"locales\\ru\\static\\Document_template_fireload.docx", subname=name_sub, data=model_data)
+        file_path=r"locales/ru/static/Document_template_fireload.docx", subname=name_sub, data=model_data)
     file_data = FSInputFile(
         rf"temp_files\temp_data\flammable_load_{name_sub.lower()}.docx", filename=f'flammable_load_{name_sub.lower()}.docx')
 
