@@ -88,7 +88,6 @@ async def input_fds_tools_document(message: Message, bot: Bot, state: FSMContext
     fds = FDSTools()
     times, densities, total_delta_sum = fds.open_file(
         file_paths=path)
-
     text = i18n.graph_is_drawn.text()
     await bot.edit_message_caption(
         chat_id=message.chat.id,
@@ -100,10 +99,11 @@ async def input_fds_tools_document(message: Message, bot: Bot, state: FSMContext
                  "markerfacecolor": "#1f77b4ff", 'markeredgecolor': "#1f77b4ff"}
     media = get_plot_graph(x_values=times,
                            y_values=densities,
+                           ylim=1.2, ylim_tick=True,
                            x_label='Время, сек',
                            y_label='Плотность, м²/м²',
                            label='График плотности людского потока',
-                           add_legend=True, loc_legend=1,
+                           add_legend=True, loc_legend=2,
                            add_annotate=True, text_annotate=f"Время существования скоплений (tск*): {total_delta_sum:.1f} сек",
                            add_fill_between=True, param_fill=0.5, label_fill='Зона критической плотности', add_axhline=True, label_axline='Критическая плотность', plot_color="#00FF00ff", **plot_data)
 

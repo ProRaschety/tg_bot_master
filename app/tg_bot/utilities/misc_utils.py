@@ -280,7 +280,7 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
     return image_png
 
 
-def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str = None, ylim: int | float = None,
+def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str = None, ylim: int | float = None, ylim_tick: bool = False,
                    add_annotate: bool = False, text_annotate: str = None, x_ann: int | float = None, y_ann: int | float = None,
                    add_legend: bool = False, loc_legend: int = 1,
                    add_fill_between: bool = False, param_fill: int | float = None, label_fill: str = None,
@@ -362,6 +362,12 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
         fig_ax_2.set_ylim(0.0, ylim)
         fig_ax_2.ticklabel_format(
             axis='y', style='sci', scilimits=(0, 2), useOffset=True)
+    if ylim_tick:
+        fig_ax_2.set_yticks(np.arange(
+            0, max(y_values) + 0.1, 0.10), minor=False)
+        fig_ax_2.ticklabel_format(
+            axis='y', style='plain', scilimits=(0, 2), useOffset=True)
+
     fig_ax_2.set_ylabel(ylabel=y_label,
                         fontdict=None, labelpad=None, weight='bold', loc='center', **ft_size)
 
