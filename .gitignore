@@ -3,10 +3,17 @@ venv/
 .idea/
 __pycache__/
 .DS_Store
+
 log_file.txt
-tests.py
 docker-compose.yml
+
+tests.py
 postgres_scripts.py
 
 postgres_data/
-temp_files/temp_data
+
+temp_files/temp_data/*.doc
+temp_files/temp_data/*.docx
+temp_files/temp_data/*.xlsx
+temp_files/temp_data/*.txt
+temp_files/temp_data/*.tsv
