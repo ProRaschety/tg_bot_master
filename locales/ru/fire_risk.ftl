@@ -59,6 +59,7 @@ fire_risk_kb_ind =
     k_alarm_ind
     k_evacuation_ind
     k_smoke_ind
+    probability_systems_effectiveness
 
 table_404 =
     📋 Таблицы П1.3, П2.3, П2.4
@@ -256,7 +257,26 @@ k_smoke_pub_false =
     ❌ 0.0
 stop_edit_public =
     ↩ Назад
-
+probability_systems_effectiveness =
+    Схема Dij
+probability_systems_effectiveness-text =
+    Схема определения вероятности эффективной работы технических средств по обеспечению пожарной безопасности i-го помещения при реализации j-го сценария пожара Dij
+probability_systems_effectiveness_kb =
+    probit_systems_effect_d0
+    probit_systems_effect_d1
+    probit_systems_effect_d2
+    probit_systems_effect_d3
+    probit_systems_effect_d4
+probit_systems_effect_d0 =
+    D0
+probit_systems_effect_d1 =
+    D1
+probit_systems_effect_d2 =
+    D2
+probit_systems_effect_d3 =
+    D3
+probit_systems_effect_d4 =
+    D4
 area_pub_guest =
     🔒 Площадь помещения
 fire_freq_pub_guest =

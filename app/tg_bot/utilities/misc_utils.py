@@ -229,7 +229,7 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
         for row in range(1, rows + 1):
             d = data[row - 1]
             fig_ax_2.text(x=0, y=row, s=d.get(rows_keys[0]),
-                          va='center', weight=text_weight if (row == rows and len(d.get(rows_keys[3])) == 0) else 'normal', ha='left', **ft_size)
+                          va='center', weight=text_weight if (row == rows and len(str(d.get(rows_keys[3]))) == 0) else 'normal', ha='left', **ft_size)
             fig_ax_2.text(x=cols - step * 2, y=row, s=d.get(rows_keys[1]), va='center',
                           ha='center', weight='bold', **ft_size)
             fig_ax_2.text(x=cols, y=row, s=d.get(rows_keys[2]) if not isinstance(d.get(rows_keys[2]), datetime) else d.get(rows_keys[2]).strftime("%Y-%m-%d"),

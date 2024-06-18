@@ -146,14 +146,14 @@ def get_report_analytics_model(name: str, file: str | IO[bytes]):
         'first item in ordered list', style='List Number')
 
     document.add_picture(
-        image_path_or_stream=file, width=Inches(1.25))
+        image_path_or_stream=file, width=Inches(5))
 
     records = (
         (3, '101', 'Spam'),
         (7, '422', 'Eggs'),
         (4, '631', 'Spam, spam, eggs, and spam'))
 
-    table = document.add_table(rows=1, cols=3)
+    table = document.add_table(rows=1, cols=3, style='Table Normal')
     hdr_cells = table.rows[0].cells
     hdr_cells[0].text = 'Qty'
     hdr_cells[1].text = 'Id'
@@ -164,6 +164,7 @@ def get_report_analytics_model(name: str, file: str | IO[bytes]):
         row_cells[1].text = id
         row_cells[2].text = desc
 
+    document.add_page_break()
     document.add_page_break()
 
     document.save(

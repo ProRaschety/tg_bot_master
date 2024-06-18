@@ -62,6 +62,9 @@ class FireRisk:
                 #     'var': 'Qd', 'unit_1': f"{probity_dam:.3f}", 'unit_2': '-'},
                 # {'id': 'Вероятность эффектиной работы\nсистем противопожарной защиты', 'var': 'Dijk',
                 #     'unit_1': f"{probity_efs:.3f}", 'unit_2': '-'},
+                {'id': 'Схема определения Dij', 'var': '-',
+                    'unit_1': kwargs.get('probability_systems_effectiveness', 0), 'unit_2': '-'},
+
                 {'id': 'Вероятность работы ПДЗ', 'var': 'Dпдз',
                     'unit_1': kwargs.get('k_smoke_ind', 0.8), 'unit_2': '-'},
                 {'id': 'Вероятность работы СОУЭ', 'var': 'Dсоуэ',
@@ -152,14 +155,15 @@ class FireRisk:
                     'unit_1': f'{poten_risk:.2e}', 'unit_2': '-'},
                 {'id': 'Условная вероятность поражения \nработника в i-ом помещении',
                     'var': 'Qdij', 'unit_1': f"{probity_dam:.2e}", 'unit_2': '-'},
-                {'id': 'Вероятность эффективной работы\nсистем противопожарной защиты', 'var': 'Dijk',
-                    'unit_1': f"{probity_efs:.3f}", 'unit_2': '-'},
+
                 {'id': 'Вероятность присутствия\nработника m в i-ом помещении', 'var': 'qim',
                     'unit_1': f"{probity_presence:.3f}", 'unit_2': '-'},
                 {'id': 'Вероятность эвакуации из здания', 'var': 'Рэ',
                     'unit_1': f"{probity_evac:.3f}", 'unit_2': '-'},
                 # {'id': 'Частота реализации в течение года\nj-го сценария пожара', 'var': 'Qj',
                 #     'unit_1': f"{fire_freq:.2e}", 'unit_2': '1/год'},
+                {'id': 'Вероятность эффективной работы\nсистем противопожарной защиты', 'var': 'Dijk',
+                    'unit_1': f"{probity_efs:.3f}", 'unit_2': '-'},
                 {'id': 'Вероятность работы ПДЗ', 'var': 'Dпдз',
                     'unit_1': kwargs.get('k_smoke_ind', 0.8), 'unit_2': '-'},
                 {'id': 'Вероятность работы СОУЭ', 'var': 'Dсоуэ',
@@ -168,7 +172,8 @@ class FireRisk:
                     'unit_1': kwargs.get('k_alarm_ind', 0.8), 'unit_2': '-'},
                 {'id': 'Вероятность работы АПТ', 'var': 'Dапт',
                     'unit_1': kwargs.get('k_efs_ind', 0.9), 'unit_2': '-'},
-
+                {'id': 'Схема определения Dij', 'var': '-',
+                    'unit_1': kwargs.get('probability_systems_effectiveness', 0), 'unit_2': '-'},
                 {'id': 'Частота реализации в течение года\nj-го сценария пожара', 'var': 'Qj',
                     'unit_1': f"{fire_freq:.2e}", 'unit_2': '1/год'},
                 # {'id': 'Частота возникновения пожара', 'var': 'Qп',
@@ -281,8 +286,28 @@ class FireRisk:
             probity_efs = 1 - (1 - float(kwargs.get('k_alarm_pub', 0.0)) * float(kwargs.get('k_evacuation_pub', 0.0))) * (
                 1 - float(kwargs.get('k_alarm_pub', 0.0)) * float(kwargs.get('k_smoke_pub', 0.0)))
         else:
-            probity_efs = 1 - ((1 - float(kwargs.get('k_alarm_ind', 0.8))) * (1 - float(kwargs.get('k_evacuation_ind', 0.8)))
-                               * (1 - float(kwargs.get('k_smoke_ind', 0.8))) * (1 - float(kwargs.get('k_efs_ind', 0.9))))
+            scheme_num = int(kwargs.get(
+                'probability_systems_effectiveness', 0))
+            Daias = float(kwargs.get('k_alarm_ind', 0.8))
+            Demas = float(kwargs.get('k_evacuation_ind', 0.8))
+            Dasps = float(kwargs.get('k_smoke_ind', 0.8))
+            Daefs = float(kwargs.get('k_efs_ind', 0.9))
+
+            if scheme_num == 1:
+                probity_efs = 1 - ((1 - Daias * Demas) *
+                                   (1 - Dasps) * (1 - Daefs))
+            elif scheme_num == 2:
+                probity_efs = 1 - (1 - Daefs) * (1 - Daias *
+                                                 (1 - (1 - Dasps) * (1 - Demas)))
+            elif scheme_num == 3:
+                probity_efs = 1 - (1 - Dasps) * (1 - Daias *
+                                                 (1 - (1 - Daefs) * (1 - Demas)))
+            elif scheme_num == 4:
+                probity_efs = Daias * \
+                    (1 - ((1-Daefs) * (1 - Dasps) * (1 - Dasps)))
+            else:
+                probity_efs = 1 - ((1 - Daias) * (1 - Demas)
+                                   * (1 - Dasps) * (1 - Daefs))
         return probity_efs
 
     def calc_fire_risk(self, *args, potencial_risk: int | float = None, fire_frequency: int | float = None, probity_presence: int | float = None, **kwargs) -> int | float:

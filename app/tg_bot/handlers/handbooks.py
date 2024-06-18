@@ -476,6 +476,12 @@ async def type_to_table_st_call(callback: CallbackQuery, bot: Bot, state: FSMCon
                                               'textile_manufacturing']))
 async def type_to_building_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(type_building_to_frequency=callback.data)
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_to_frequencies'))
 
     data = await state.get_data()
     unit = i18n.get('one_per_meter_square_in_year')
@@ -576,6 +582,12 @@ async def type_to_table_nd_call(callback: CallbackQuery, bot: Bot, state: FSMCon
                                               'administrative_buildings_of_industrial_facilities']))
 async def type_to_building_2_3_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(type_building_to_frequency=callback.data)
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_to_frequencies'))
 
     data = await state.get_data()
     unit = i18n.get('one_per_meter_square_in_year')
@@ -682,6 +694,12 @@ async def type_to_table_th_call(callback: CallbackQuery, bot: Bot, state: FSMCon
                                               'other_types_of_industrial_buildings']))
 async def type_to_building_2_4_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(type_building_to_frequency=callback.data)
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_to_frequencies'))
     data = await state.get_data()
     area_to_frequencies = float(data.get("edit_area_to_frequency"))
     type_building = data.get('type_building_to_frequency')
@@ -800,6 +818,13 @@ async def edit_frequency_in_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 @ handbooks_router.callback_query(StateFilter(*SFilter_area), F.data.in_(['ready']))
 async def edit_area_freq_param_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_to_frequencies'))
+
     state_data = await state.get_state()
     data = await state.get_data()
     data_table = data.get('type_table_to_frequency')
