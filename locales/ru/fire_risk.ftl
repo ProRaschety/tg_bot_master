@@ -260,7 +260,7 @@ stop_edit_public =
 probability_systems_effectiveness =
     Схема Dij
 probability_systems_effectiveness-text =
-    Схема определения вероятности эффективной работы технических средств по обеспечению пожарной безопасности i-го помещения при реализации j-го сценария пожара Dij
+    Схема определения вероятности эффективной работы технических средств по обеспечению пожарной безопасности i-го помещения при реализации j-го сценария пожара Dij. Методике соответствуют схемы D0 и D1
 probability_systems_effectiveness_kb =
     probit_systems_effect_d0
     probit_systems_effect_d1

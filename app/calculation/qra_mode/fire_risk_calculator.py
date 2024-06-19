@@ -308,7 +308,7 @@ class FireRisk:
             else:
                 probity_efs = 1 - ((1 - Daias) * (1 - Demas)
                                    * (1 - Dasps) * (1 - Daefs))
-        return probity_efs if probity_efs < 1.0 else 0.999
+        return probity_efs if probity_efs < 0.9999 else 0.9990
 
     def calc_fire_risk(self, *args, potencial_risk: int | float = None, fire_frequency: int | float = None, probity_presence: int | float = None, **kwargs) -> int | float:
         if self.type_obj == 'public':

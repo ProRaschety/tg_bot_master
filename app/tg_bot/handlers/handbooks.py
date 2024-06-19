@@ -762,7 +762,7 @@ async def type_to_building_2_4_call(callback: CallbackQuery, bot: Bot, state: FS
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'type_to_table_2_4', 'area_to_frequencies', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
+        reply_markup=get_inline_cd_kb(1, 'type_to_table_2_4', 'area_to_frequencies', 'industrial_from_table', i18n=i18n, param_back=True, back_data='back_to_frequencies'))
     await state.update_data(fire_frequency_industrial=fire_frequency)
     await state.set_state(FSMFireRiskForm.edit_fire_freq_ind)
 
