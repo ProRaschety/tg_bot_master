@@ -277,8 +277,8 @@ class FireRisk:
         if self.type_obj == 'public':
             poten_fire_risk = 1
         else:
-            poten_fire_risk = round(fire_frequency, 6) * \
-                round(probity_damage, 6)
+            poten_fire_risk = round(fire_frequency, 15) * \
+                round(probity_damage, 15)
         return poten_fire_risk
 
     def _calc_probity_fire_protec_system(self, **kwargs):
