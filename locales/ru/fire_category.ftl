@@ -1,11 +1,23 @@
-
-
 fire_category-text =
     <blockquote></blockquote>
-category_kb =
+category_kb_owner =
     category_build
     category_premises
     category_outdoor_installation
+category_kb_admin =
+    category_build
+    category_premises
+    category_outdoor_installation
+category_kb_comrade =
+    category_build
+    category_premises
+    category_outdoor_installation
+
+category_kb_subscriber =
+    category_build
+category_kb_guest =
+    category_build
+
 other_cat_text =
     Выберите объект
     для определения категории
@@ -77,7 +89,18 @@ category_premises-text =
     Определение категории помещения по взрывопожарной и пожарной опасности.
     🚧 <i>Находится в разработке</i>
     <blockquote>ч.3 ст.27 ФЗ №123-ФЗ - Категории помещений по пожарной и взрывопожарной опасности определяются исходя из вида находящихся в помещениях горючих веществ и материалов, их количества и пожароопасных свойств, а также исходя из объемно-планировочных решений помещений и характеристик проводимых в них технологических процессов.</blockquote>
+category_premises_label =
+    Категория здания по пожарной опасности
 
+edit_category_premises =
+    📝 Редактировать
+run_category_premises =
+    ▶ Рассчитать
+
+add_section_in_premises =
+    Добавить участок
+edit_section_in_premises =
+    Изменить участок
 
 category_outdoor_installation =
     🚧 Категория наружной установки

@@ -12,6 +12,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from scipy.constants import physical_constants
 from scipy.interpolate import RectBivariateSpline, interp1d
 
+
 from app.infrastructure.database.models.substance import FlammableMaterialModel
 from app.calculation.physics.physics_utils import compute_stoichiometric_coefficient_with_oxygen, compute_density_gas_phase
 
@@ -62,7 +63,7 @@ class FireRisk:
                 #     'var': 'Qd', 'unit_1': f"{probity_dam:.3f}", 'unit_2': '-'},
                 # {'id': 'Вероятность эффектиной работы\nсистем противопожарной защиты', 'var': 'Dijk',
                 #     'unit_1': f"{probity_efs:.3f}", 'unit_2': '-'},
-                {'id': 'Схема определения Dij', 'var': '-',
+                {'id': 'Схема определения Dij', 'var': '№',
                     'unit_1': kwargs.get('probability_systems_effectiveness', 0), 'unit_2': '-'},
 
                 {'id': 'Вероятность работы ПДЗ', 'var': 'Dпдз',
@@ -172,7 +173,7 @@ class FireRisk:
                     'unit_1': kwargs.get('k_alarm_ind', 0.8), 'unit_2': '-'},
                 {'id': 'Вероятность работы АПТ', 'var': 'Dапт',
                     'unit_1': kwargs.get('k_efs_ind', 0.9), 'unit_2': '-'},
-                {'id': 'Схема определения Dij', 'var': '-',
+                {'id': 'Схема определения Dij', 'var': '№',
                     'unit_1': kwargs.get('probability_systems_effectiveness', 0), 'unit_2': '-'},
                 {'id': 'Частота реализации в течение года\nj-го сценария пожара', 'var': 'Qj',
                     'unit_1': f"{fire_freq:.2e}", 'unit_2': '1/год'},

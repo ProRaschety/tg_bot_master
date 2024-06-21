@@ -47,7 +47,7 @@ async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     data.setdefault("accident_fire_flash_radius_pool", "1")
 
     text = i18n.fire_flash.text()
-    subst = data.get('accident_fire_flash_sub')
+    # subst = data.get('accident_fire_flash_sub')
     # f_flash = AccidentParameters(type_accident='fire_flash')
     air_density = compute_density_gas_phase(
         molar_mass=28.97, temperature=float(data.get('accident_fire_flash_temperature')))

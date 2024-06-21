@@ -38,7 +38,7 @@ user_kb_guest =
     fds_tools
     tools_guest
     fire_risks
-    fire_category_guest
+    fire_category
 
 start-menu =
     <b></b>

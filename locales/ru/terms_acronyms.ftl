@@ -8,6 +8,20 @@ unit =
     Ед.
 variable =
     Переменная
+height =
+    Высота
+lenght =
+    Длина
+width =
+    Ширина
+area =
+    Площадь
+volume =
+    Объем
+section =
+    Участок
+temperature =
+    Температура
 substance =
     Вещество
 fire_load =

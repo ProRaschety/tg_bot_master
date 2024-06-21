@@ -15,7 +15,7 @@ from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
-from app.tg_bot.filters.filter_role import IsSubscriber
+from app.tg_bot.filters.filter_role import IsSubscriber, IsGuest
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
 from app.tg_bot.states.fsm_state_data import FSMCatBuildForm
@@ -29,8 +29,11 @@ log = logging.getLogger(__name__)
 fire_category_router = Router()
 # fire_category_router.message.filter(IsComrade())
 # fire_category_router.callback_query.filter(IsComrade())
-fire_category_router.message.filter(IsSubscriber())
-fire_category_router.callback_query.filter(IsSubscriber())
+# fire_category_router.message.filter(IsSubscriber())
+# fire_category_router.callback_query.filter(IsSubscriber())
+fire_category_router.message.filter(IsGuest())
+fire_category_router.callback_query.filter(IsGuest())
+
 
 SFilter = [FSMCatBuildForm.edit_area_A_state,
            FSMCatBuildForm.edit_area_B_state,
@@ -44,11 +47,6 @@ SFilter = [FSMCatBuildForm.edit_area_A_state,
 
 @fire_category_router.callback_query(F.data.in_(['fire_category', 'back_fire_category']))
 async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    # if role in ["subscriber", "guest"]:
-    #     cat_kb = ['category_build', 'general_menu']
-    # else:
-    #     cat_kb = ['category_build', 'category_premises',
-    #               'category_outdoor_installation', 'general_menu']
     text = i18n.fire_category.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fire_category_logo.png')
@@ -57,11 +55,8 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *i18n.get('category_kb').split('\n'),
+        reply_markup=get_inline_cd_kb(1, *i18n.get('category_kb_' + role).split('\n'),
                                       i18n=i18n, param_back=True, back_data='general_menu'))
-    # reply_markup=get_inline_cd_kb(1,
-    #                               *cat_kb,
-    #                               i18n=i18n))
 
 
 @fire_category_router.callback_query(F.data.in_(['category_build', 'back_category_build']))
@@ -113,9 +108,8 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
     media = get_data_table(
         data=data_out, headers=headers, label=label, column=3)
     await state.update_data(data)
-    # fc_build_data = fc_build.get_category_build(*info_area)
-    text = i18n.category_build.text()
 
+    text = i18n.category_build.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -203,7 +197,7 @@ async def edit_area_efs_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         *info_area)
     media = get_data_table(
         data=data_out, headers=headers, label=label, column=3)
-    # fc_build_data = fc_build.get_category_build(*info_area)
+
     text = i18n.category_build.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -292,6 +286,8 @@ async def edit_area_cat_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         call_data = 9
     elif call_data == "zero":
         call_data = 0
+    elif call_data == "dooble_zero":
+        call_data = 00
 
     if call_data != 'clear':
         if edit_area_data.get('area_build') == None:
@@ -439,34 +435,45 @@ async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
 @fire_category_router.callback_query(F.data == 'run_category_build')
 async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
-    data.setdefault("area_A", "100"),
-    data.setdefault("area_B", "100"),
-    data.setdefault("area_V1", "100"),
-    data.setdefault("area_V2", "100"),
-    data.setdefault("area_V3", "100"),
-    data.setdefault("area_V4", "100"),
-    data.setdefault("area_G", "100"),
-    data.setdefault("area_D", "100"),
-    data.setdefault("area_A_EFS", "True"),
-    data.setdefault("area_B_EFS", "True"),
-    data.setdefault("area_V1_EFS", "True"),
-    data.setdefault("area_V2_EFS", "True"),
-    data.setdefault("area_V3_EFS", "True"),
+    # data.setdefault("area_A", "100"),
+    # data.setdefault("area_B", "100"),
+    # data.setdefault("area_V1", "100"),
+    # data.setdefault("area_V2", "100"),
+    # data.setdefault("area_V3", "100"),
+    # data.setdefault("area_V4", "100"),
+    # data.setdefault("area_G", "100"),
+    # data.setdefault("area_D", "100"),
+    # data.setdefault("area_A_EFS", "True"),
+    # data.setdefault("area_B_EFS", "True"),
+    # data.setdefault("area_V1_EFS", "True"),
+    # data.setdefault("area_V2_EFS", "True"),
+    # data.setdefault("area_V3_EFS", "True"),
 
     info_area = [
-        {'area': data.get("area_A", 0), 'category': 'А',
+        {'area': data.get("area_A", 0),
+         'category': 'А',
          'efs': data.get("area_A_EFS", False)},
-        {'area': data.get("area_B", 0), 'category': 'Б',
+        {'area': data.get("area_B", 0),
+         'category': 'Б',
          'efs': data.get("area_B_EFS", False)},
-        {'area': data.get("area_V1", 0), 'category': 'В1',
+        {'area': data.get("area_V1", 0),
+         'category': 'В1',
          'efs': data.get("area_V1_EFS", False)},
-        {'area': data.get("area_V2", 0), 'category': 'В2',
+        {'area': data.get("area_V2", 0),
+         'category': 'В2',
          'efs': data.get("area_V2_EFS", False)},
-        {'area': data.get("area_V3", 0), 'category': 'В3',
+        {'area': data.get("area_V3", 0),
+         'category': 'В3',
          'efs': data.get("area_V3_EFS", False)},
-        {'area': data.get("area_V4", 0), 'category': 'В4', 'efs': '-'},
-        {'area': data.get("area_G", 0), 'category': 'Г', 'efs': '-'},
-        {'area': data.get("area_D", 0), 'category': 'Д', 'efs': '-'}
+        {'area': data.get("area_V4", 0),
+         'category': 'В4',
+         'efs': '-'},
+        {'area': data.get("area_G", 0),
+         'category': 'Г',
+         'efs': '-'},
+        {'area': data.get("area_D", 0),
+         'category': 'Д',
+         'efs': '-'}
     ]
     fc_build = FireCategoryBuild()
     data_out, headers, label = fc_build.get_init_data_table(
@@ -474,10 +481,9 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
     media = get_data_table(
         data=data_out, headers=headers, label=label, column=3)
     fc_build_data, cause = fc_build.get_category_build(*info_area)
+
     text = i18n.category_build_result.text(
         category_build=fc_build_data, cause=cause)
-    # media = get_picture_filling(
-    #     file_path='temp_files/temp/fire_category_logo.png')
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -489,15 +495,79 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
 
 @fire_category_router.callback_query(F.data == 'category_premises')
 async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_category'))
+
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    label = i18n.get('category_premises_label')
+    data_out = [
+        {'id': i18n.get('fire_load'),
+         'var': '',
+         'unit_1': '',
+            'unit_2': 'Древесина'},
+
+        {'id': i18n.get('section'),
+         'var': '№2',
+         'unit_1': '',
+            'unit_2': 'В4'},
+
+        {'id': i18n.get('fire_load'),
+         'var': '',
+         'unit_1': '',
+            'unit_2': 'Автомобиль'},
+
+        {'id': i18n.get('section'),
+         'var': '№1',
+         'unit_1': '',
+            'unit_2': 'В2'},
+
+        {'id': i18n.get('temperature'),
+         'var': 'tₒ',
+         'unit_1': f"{0:.1f}",
+            'unit_2': i18n.get('celsius')},
+
+        {'id': i18n.get('volume'),
+         'var': 'V',
+            'unit_1': f"{0:.1f}",
+            'unit_2': i18n.get('meter_cub')},
+
+        {'id': i18n.get('area'),
+         'var': 'S',
+            'unit_1': f"{0:.1f}",
+            'unit_2': i18n.get('meter_square')},
+
+        {'id': i18n.get('width'),
+         'var': 'b',
+         'unit_1': f"{0:.1f}",
+            'unit_2': i18n.get('meter')},
+
+        {'id': i18n.get('lenght'),
+            'var': 'a',
+            'unit_1': f"{0:.1f}",
+            'unit_2': i18n.get('meter')},
+
+        {'id': i18n.get('height'),
+         'var': 'h',
+         'unit_1': f"{0:.1f}",
+         'unit_2': i18n.get('meter')}]
+
+    media = get_data_table(data=data_out, headers=headers, label=label)
+
     text = i18n.category_premises.text()
-    media = get_picture_filling(
-        file_path='temp_files/temp/fire_category_logo.png')
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'back_fire_category', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      'edit_category_premises',
+                                      'run_category_premises',
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
     await callback.answer('')
 
 
