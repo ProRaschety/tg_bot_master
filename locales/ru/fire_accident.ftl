@@ -1,6 +1,6 @@
 
 typical_accidents =
-    🚧 Типовые аварии
+    Типовые аварии
 typical_accidents-text =
     Типовые аварии
 back_typical_accidents =
@@ -98,11 +98,24 @@ fire_pool =
     Пожар-пролива
 fire_pool-text =
     Расчет параметров пожара-пролива.
-    🚧 <i>Находится в разработке</i>
+
+fire_pool_kb =
+    edit_fire_pool
+    run_fire_pool
+fire_pool_kb_guest =
+    edit_fire_pool_guest
+    run_fire_pool
+
 run_fire_pool =
     ▶ Рассчитать
 edit_fire_pool =
     📝 Редактировать
+edit_fire_pool_kb =
+    edit_pool_substance
+    edit_pool_area
+    edit_pool_wind
+    edit_pool_distance
+
 run_fire_pool_guest =
     ▶ Рассчитать
 edit_fire_pool_guest =
@@ -169,7 +182,6 @@ fire_flash =
     Пожар-вспышка
 fire_flash-text =
     Расчет параметров пожара-вспышки.
-    🚧 <i>Находится в разработке</i>
 run_fire_flash =
     ▶ Рассчитать
 edit_fire_flash =
@@ -227,10 +239,27 @@ cloud_explosion =
     Взрыв ТВС
 cloud_explosion-text =
     Расчет параметров взрыва облака
-    🚧 <i>Находится в разработке</i>
 cloud_explosion_result-text =
     Параметры взрыва облака
     на расстоянии {$distance} м.
+cloud_explosion_kb =
+    edit_cloud_explosion
+    run_cloud_explosion
+cloud_explosion_kb_guest =
+    edit_cloud_explosion_guest
+    run_cloud_explosion
+edit_cloud_explosion_kb =
+    edit_cloud_explosion_state
+    edit_cloud_explosion_correction_parameter
+    edit_cloud_explosion_stc_coef_oxygen
+    edit_cloud_explosion_class_fuel
+    edit_cloud_explosion_class_space
+    edit_cloud_explosion_expl_cond
+    edit_cloud_explosion_coef_z
+    edit_cloud_explosion_mass_fuel
+    edit_cloud_explosion_distance
+    cloud_explosion_methodology
+
 run_cloud_explosion =
     ▶ Рассчитать
 edit_cloud_explosion =
@@ -388,15 +417,25 @@ horizontal_jet =
     Горизонтальный факел
 horizontal_jet-text =
     Расчет параметров горизонтального факела.
-    🚧 <i>Находится в разработке</i>
+horizontal_jet_kb =
+    edit_horizontal_jet
+    plot_horizontal_jet
+horizontal_jet_kb_guest =
+    edit_horizontal_jet_guest
+    plot_horizontal_jet
 run_horizontal_jet =
     ▶ Рассчитать
 edit_horizontal_jet =
     📝 Редактировать
+edit_horizontal_jet_kb =
+    edit_hjet_state
+    edit_hjet_mass_rate
+    edit_hjet_distance
 run_horizontal_jet_guest =
     ▶ Рассчитать
 edit_horizontal_jet_guest =
     🔒 Редактировать
+
 back_horizontal_jet =
     ↩ Назад
 plot_horizontal_jet_label =
@@ -409,7 +448,17 @@ vertical_jet =
     Вертикальный факел
 vertical_jet-text =
     Расчет параметров вертикального факела.
-    🚧 <i>Находится в разработке</i>
+vertical_jet_kb =
+    edit_vertical_jet
+    plot_vertical_jet
+vertical_jet_kb_guest =
+    edit_vertical_jet_guest
+    plot_vertical_jet
+edit_vertical_jet_kb =
+    edit_vjet_state
+    edit_vjet_mass_rate
+    edit_vjet_distance
+
 run_vertical_jet =
     ▶ Рассчитать
 edit_vertical_jet =
@@ -501,13 +550,21 @@ fire_ball =
     Огненный шар
 fire_ball-text =
     Расчет параметров огненного шара.
-    🚧 <i>Находится в разработке</i>
+fire_ball_kb =
+    edit_fire_ball
+    run_fire_ball
+fire_ball_kb_guest =
+    edit_fire_ball_guest
+    run_fire_ball
 back_fire_ball =
     ↩ Назад
 run_fire_ball =
     ▶ Рассчитать
 edit_fire_ball =
     📝 Редактировать
+edit_fire_ball_kb =
+    edit_ball_mass
+    edit_ball_distance
 run_fire_ball_guest =
     ▶ Рассчитать
 edit_fire_ball_guest =
@@ -560,13 +617,21 @@ accident_bleve =
 accident_bleve-text =
     Расчет параметров взрыва.
     Форм.(В.14) и (В.22) СП12 и форм.(П3.47) М404
-    🚧 <i>Находится в разработке</i>
+accident_bleve_kb =
+    edit_accident_bleve
+    run_accident_bleve
+accident_bleve_kb_guest =
+    edit_accident_bleve_guest
+    run_accident_bleve
 back_accident_bleve =
     ↩ Назад
 run_accident_bleve =
     ▶ Рассчитать
 edit_accident_bleve =
     📝 Редактировать
+edit_accident_bleve_kb =
+    edit_bleve_mass
+    edit_bleve_distance
 run_accident_bleve_guest =
     ▶ Рассчитать
 edit_accident_bleve_guest =
