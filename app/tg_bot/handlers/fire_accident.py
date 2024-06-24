@@ -47,11 +47,6 @@ SFilter_cloud_explosion = [FSMFireAccidentForm.edit_cloud_explosion_correction_p
                            FSMFireAccidentForm.edit_cloud_explosion_distance_state]
 
 
-kb_edit_bleve = [4,
-                 'edit_bleve_mass',
-                 'edit_bleve_distance']
-
-
 @fire_accident_router.callback_query(F.data == 'back_typical_accidents')
 async def back_typical_accidents_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.typical_accidents.text()
@@ -82,7 +77,6 @@ async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
-                                      # *kb_accidents,
                                       *i18n.get('accidents_kb_owner').split('\n') if role in ['owner'] else i18n.get('accidents_kb').split('\n'),
                                       i18n=i18n, param_back=True, back_data='back_fire_risks'))
 

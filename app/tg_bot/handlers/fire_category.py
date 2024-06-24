@@ -69,8 +69,9 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_category'))
 
     await state.set_state(state=None)
-    await callback.answer('')
+
     data = await state.get_data()
+    data.setdefault("edit_category_build_param", "")
     data.setdefault("area_build", "100")
     data.setdefault("area_A", "100")
     data.setdefault("area_B", "100")
@@ -116,8 +117,29 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
-                                      'edit_category_build',
-                                      'run_category_build',
+                                      *i18n.get('category_build_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_build_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+    await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['edit_category_build_guest']))
+async def edit_category_build_guest_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.get('initial_request_guest')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('category_build_kb_guest').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+
+    text = i18n.get('repeated_request_guest')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('category_build_kb_guest').split('\n'),
                                       i18n=i18n, param_back=True, back_data='back_fire_category'))
     await callback.answer('')
 
@@ -493,7 +515,7 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
     await callback.answer('')
 
 
-@fire_category_router.callback_query(F.data == 'category_premises')
+@fire_category_router.callback_query(F.data.in_(['category_premises']))
 async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.request_start.text()
     await bot.edit_message_caption(
@@ -501,6 +523,9 @@ async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_category'))
+
+    data = await state.get_data()
+    data.setdefault("edit_category_premises_param", "")
 
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
@@ -565,10 +590,41 @@ async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
-                                      'edit_category_premises',
-                                      'run_category_premises',
+                                      *i18n.get('category_premises_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_premises_kb').split('\n'),
                                       i18n=i18n, param_back=True, back_data='back_fire_category'))
     await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['edit_category_premises_guest']))
+async def edit_category_premises_guest_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.get('initial_request_guest')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('category_premises_kb_guest').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+
+    text = i18n.get('repeated_request_guest')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('category_premises_kb_guest').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+    await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['edit_category_premises']))
+async def edit_category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    await bot.edit_message_reply_markup(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('category_premises_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
 
 
 @fire_category_router.callback_query((F.data.in_(['category_outdoor_installation', 'back_outdoor_installation',])))

@@ -16,6 +16,8 @@ from scipy.stats import norm
 
 from CoolProp import CoolProp
 
+from app.calculation.fire_hazard_category.model_premises import ModelRoom
+
 log = logging.getLogger(__name__)
 
 

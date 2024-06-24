@@ -12,27 +12,48 @@ class SubstanceModel(BaseModel):
 
 @dataclass
 class FlammableMaterialModel:
-    substance_name: str
-    description: str
-    data_source: str
-    combustibility: str
-    density: float
-    conductivity: float
-    emissivity: float
-    specific_heat: float
-    absorption_coefficient: float
-    lower_heat_of_combustion: float
-    linear_flame_velocity: float
-    specific_burnout_rate: float
-    smoke_forming_ability: float
-    oxygen_consumption: float
-    carbon_dioxide_output: float
-    carbon_monoxide_output: float
-    hydrogen_chloride_output: float
-    substance_type: str
-    molecular_weight: float
-    combustion_efficiency: float
-    critical_heat_flux: float
+    # substance_name: str
+    # description: str
+    # data_source: str
+    # combustibility: str
+    # density: float
+    # conductivity: float
+    # emissivity: float
+    # specific_heat: float
+    # absorption_coefficient: float
+    # lower_heat_of_combustion: float
+    # linear_flame_velocity: float
+    # specific_burnout_rate: float
+    # smoke_forming_ability: float
+    # oxygen_consumption: float
+    # carbon_dioxide_output: float
+    # carbon_monoxide_output: float
+    # hydrogen_chloride_output: float
+    # substance_type: str
+    # molecular_weight: float
+    # combustion_efficiency: float
+    # critical_heat_flux: float
+    substance_name: str = None
+    description: str = None
+    data_source: str = None
+    combustibility: str = None
+    density: float = 0
+    conductivity: float = 0
+    emissivity: float = 0
+    specific_heat: float = 0
+    absorption_coefficient: float = 0
+    lower_heat_of_combustion: float = 0
+    linear_flame_velocity: float = 0
+    specific_burnout_rate: float = 0
+    smoke_forming_ability: float = 0
+    oxygen_consumption: float = 0
+    carbon_dioxide_output: float = 0
+    carbon_monoxide_output: float = 0
+    hydrogen_chloride_output: float = 0
+    substance_type: str = None
+    molecular_weight: float = 0
+    combustion_efficiency: float = 0
+    critical_heat_flux: float = 0
 
     def __post_init__(self):
         self.density = float(self.density)
