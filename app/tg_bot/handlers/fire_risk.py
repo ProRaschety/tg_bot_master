@@ -495,7 +495,7 @@ async def industrial_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     data.setdefault("k_smoke_ind", "0.8")
     data.setdefault("working_days_per_year_ind", "247")
     data.setdefault("emergency_escape_ind", "0.001")
-    data.setdefault("fire_frequency_industrial", "0.04")
+    data.setdefault("fire_frequency_industrial", "1")
 
     text = i18n.industrial.text()
     # frisk = FireRisk(type_obj='industrial')

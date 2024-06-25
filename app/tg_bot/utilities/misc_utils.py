@@ -180,21 +180,24 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
 
     # добавить заголовки столбцов на высоте y=..., чтобы уменьшить пространство до первой строки данных
     if column == 4:
+        # (0.4941, 0.5686, 0.5843, 1.0)
+        color_head = (0.1936, 0.2094, 0.4347, .90)
         fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
-                      weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+                      weight='bold', ha='left', color=color_head, **ft_title_size)
         fig_ax_2.text(x=cols-step * 2, y=hor_up_line, s=headers[1],
-                      weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+                      weight='bold', ha='center', color=color_head, **ft_title_size)
         fig_ax_2.text(x=cols, y=hor_up_line, s=headers[2],
-                      weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+                      weight='bold', ha='center', color=color_head, **ft_title_size)
         fig_ax_2.text(x=ax2_xmax, y=hor_up_line, s=headers[3],
-                      weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+                      weight='bold', ha='right', color=color_head, **ft_title_size)
     else:
+        color_head = (0.1936, 0.2094, 0.4347, .90)
         fig_ax_2.text(x=0, y=hor_up_line, s=headers[0],
-                      weight='bold', ha='left', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+                      weight='bold', ha='left', color=color_head, **ft_title_size)
         fig_ax_2.text(x=cols - step, y=hor_up_line, s=headers[1],
-                      weight='bold', ha='center', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+                      weight='bold', ha='center', color=color_head, **ft_title_size)
         fig_ax_2.text(x=ax2_xmax, y=hor_up_line, s=headers[2],
-                      weight='bold', ha='right', color=(0.4941, 0.5686, 0.5843, 1.0), **ft_title_size)
+                      weight='bold', ha='right', color=color_head, **ft_title_size)
 
     # линия сетки и основной разделитель заголовка
     if results:
@@ -202,24 +205,26 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
             fig_ax_2.plot([0.0, ax2_xmax], [row - step, row - step],
                           ls=':', lw=h*0.002, c='black')
         # основной разделитель заголовка
+        color_head = (0.1936, 0.2094, 0.4347, .90)
         fig_ax_2.plot([0, ax2_xmax], [rows + step, rows + step],
-                      lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
+                      lw=h*0.005, color=color_head)
         fig_ax_2.plot([0, ax2_xmax], [rows - row_num + step, rows - row_num + step],
                       lw=h*0.005,
-                      color=(0.4941, 0.5686, 0.5843, 1.0))
+                      color=color_head)
         fig_ax_2.plot([0, ax2_xmax], [step, step],
                       lw=h*0.010,
-                      color=(0.4941, 0.5686, 0.5843, 1.0))
+                      color=color_head)
     else:
         # линия сетки
         for row in range(1, rows + 1):
             fig_ax_2.plot([0.0, ax2_xmax], [row - step, row - step],
                           ls=':', lw=h*0.002, c='black')
         # основной разделитель заголовка
+        color_head = (0.1936, 0.2094, 0.4347, .90)
         fig_ax_2.plot([0, ax2_xmax], [rows + step, rows + step],
-                      lw=h*0.005, color=(0.4941, 0.5686, 0.5843, 1.0))
+                      lw=h*0.005, color=color_head)
         fig_ax_2.plot([0, ax2_xmax], [step, step], lw=h*0.010,
-                      color=(0.4941, 0.5686, 0.5843, 1.0))
+                      color=color_head)
 
     # заполнение таблицы данных
     if column == 4:
