@@ -106,7 +106,10 @@ category_premises_kb =
 category_premises_kb_guest =
     edit_category_premises_guest
     run_category_premises
-
+back_category_premises =
+    ↩ Назад
+back_category_premises_edit =
+    ↩ Назад
 category_premises_label =
     Категория здания по пожарной опасности
 
@@ -117,7 +120,8 @@ run_category_premises =
 edit_category_premises_guest =
     🔒 Редактировать
 
-
+edit_category_premises_kb =
+    add_section_in_premises
 
 add_section_in_premises =
     Добавить участок

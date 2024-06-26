@@ -457,20 +457,6 @@ async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
 @fire_category_router.callback_query(F.data == 'run_category_build')
 async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
-    # data.setdefault("area_A", "100"),
-    # data.setdefault("area_B", "100"),
-    # data.setdefault("area_V1", "100"),
-    # data.setdefault("area_V2", "100"),
-    # data.setdefault("area_V3", "100"),
-    # data.setdefault("area_V4", "100"),
-    # data.setdefault("area_G", "100"),
-    # data.setdefault("area_D", "100"),
-    # data.setdefault("area_A_EFS", "True"),
-    # data.setdefault("area_B_EFS", "True"),
-    # data.setdefault("area_V1_EFS", "True"),
-    # data.setdefault("area_V2_EFS", "True"),
-    # data.setdefault("area_V3_EFS", "True"),
-
     info_area = [
         {'area': data.get("area_A", 0),
          'category': 'А',
@@ -515,7 +501,7 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
     await callback.answer('')
 
 
-@fire_category_router.callback_query(F.data.in_(['category_premises']))
+@fire_category_router.callback_query(F.data.in_(['category_premises', 'back_category_premises']))
 async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.request_start.text()
     await bot.edit_message_caption(
@@ -623,8 +609,8 @@ async def edit_category_premises_call(callback: CallbackQuery, bot: Bot, state: 
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(1,
-                                      *i18n.get('category_premises_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+                                      *i18n.get('edit_category_premises_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_category_premises'))
 
 
 @fire_category_router.callback_query((F.data.in_(['category_outdoor_installation', 'back_outdoor_installation',])))

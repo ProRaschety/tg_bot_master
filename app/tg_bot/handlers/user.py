@@ -67,7 +67,16 @@ async def keyboard_guest_call(callback_data: CallbackQuery, bot: Bot, state: FSM
 
     user_record: UsersModel = await db.users.get_user_record(user_id=callback_data.message.chat.id)
     dict_role = i18n.get(user_record.role)
-    text = i18n.setlevel.text(role_user=dict_role)
+    if role == 'owner':
+        text = i18n.setlevel_owner.text(role_user=dict_role)
+    elif role == 'admin':
+        text = i18n.setlevel_admin.text(role_user=dict_role)
+    elif role == 'comrade':
+        text = i18n.setlevel_comrade.text(role_user=dict_role)
+    elif role == 'subscriber':
+        text = i18n.setlevel_subscriber.text(role_user=dict_role)
+    else:
+        text = i18n.setlevel_guest.text(role_user=dict_role)
 
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
@@ -88,8 +97,18 @@ async def keyboard_guest_call(callback_data: CallbackQuery, bot: Bot, state: FSM
 async def process_set_level(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
     user_record: UsersModel = await db.users.get_user_record(user_id=message.chat.id)
     dict_role = i18n.get(user_record.role)
-    text = i18n.setlevel.text(role_user=dict_role)
 
+    # text = i18n.get('setlevel_' + role + '-text')
+    if role == 'owner':
+        text = i18n.setlevel_owner.text(role_user=dict_role)
+    elif role == 'admin':
+        text = i18n.setlevel_admin.text(role_user=dict_role)
+    elif role == 'comrade':
+        text = i18n.setlevel_comrade.text(role_user=dict_role)
+    elif role == 'subscriber':
+        text = i18n.setlevel_subscriber.text(role_user=dict_role)
+    else:
+        text = i18n.setlevel_guest.text(role_user=dict_role)
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
 
@@ -107,7 +126,16 @@ async def process_set_level(message: Message, bot: Bot, state: FSMContext, i18n:
 async def back_setlevel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
     user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
     dict_role = i18n.get(user_record.role)
-    text = i18n.setlevel.text(role_user=dict_role)
+    if role == 'owner':
+        text = i18n.setlevel_owner.text(role_user=dict_role)
+    elif role == 'admin':
+        text = i18n.setlevel_admin.text(role_user=dict_role)
+    elif role == 'comrade':
+        text = i18n.setlevel_comrade.text(role_user=dict_role)
+    elif role == 'subscriber':
+        text = i18n.setlevel_subscriber.text(role_user=dict_role)
+    else:
+        text = i18n.setlevel_guest.text(role_user=dict_role)
 
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')
@@ -192,7 +220,16 @@ async def promo_code_input(message: Message, bot: Bot, state: FSMContext, i18n: 
 async def cansel_enter_promo_code_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole, db: DB) -> None:
     user_record: UsersModel = await db.users.get_user_record(user_id=callback.message.chat.id)
     dict_role = i18n.get(user_record.role)
-    text = i18n.setlevel.text(role_user=dict_role)
+    if role == 'owner':
+        text = i18n.setlevel_owner.text(role_user=dict_role)
+    elif role == 'admin':
+        text = i18n.setlevel_admin.text(role_user=dict_role)
+    elif role == 'comrade':
+        text = i18n.setlevel_comrade.text(role_user=dict_role)
+    elif role == 'subscriber':
+        text = i18n.setlevel_subscriber.text(role_user=dict_role)
+    else:
+        text = i18n.setlevel_guest.text(role_user=dict_role)
 
     media = get_picture_filling(
         file_path='temp_files/temp/logo_fe_start.png')

@@ -7,7 +7,6 @@ user_kb_owner =
     fire_category
     admin_panel
     owner_panel
-
 user_kb_admin =
     handbooks
     fds_tools
@@ -17,7 +16,6 @@ user_kb_admin =
     fire_category
     admin_panel
     owner_panel
-
 user_kb_comrade =
     handbooks
     fds_tools
@@ -25,14 +23,12 @@ user_kb_comrade =
     fire_resistance
     fire_risks
     fire_category
-
 user_kb_subscriber =
     handbooks
     fds_tools
     tools
     fire_risks
     fire_category
-
 user_kb_guest =
     handbooks
     fds_tools
@@ -66,26 +62,31 @@ setlevel_kb_owner =
     subscribe_channel
     admin_panel
     owner_panel
-
 setlevel_kb_admin =
     enter_promo_code
     subscribe_channel
     admin_panel
-
 setlevel_kb_comrade =
     enter_promo_code
-
 setlevel_kb_subscriber =
-    enter_promo_code
-
+    subscribe_channel
 setlevel_kb_guest =
     subscribe_channel
 
 back_setlevel =
     ↩ Назад
-setlevel-text =
+
+setlevel_owner-text =
     Ваш уровень: <blockquote>{ $role_user }</blockquote>
-    Выберите способ изменения уровня доступа к функционалу бота
+setlevel_admin-text =
+    Ваш уровень: <blockquote>{ $role_user }</blockquote>
+setlevel_comrade-text =
+    Ваш уровень: <blockquote>{ $role_user }</blockquote>
+setlevel_subscriber-text =
+    Ваш уровень: <blockquote>{ $role_user }</blockquote>
+setlevel_guest-text =
+    Ваш уровень: <blockquote>{ $role_user }</blockquote>
+    Подпишитесь на каналы чтобы изменить уровень доступа к функционалу бота
 
 guest-menu =
     Нет доступа к { $button }
