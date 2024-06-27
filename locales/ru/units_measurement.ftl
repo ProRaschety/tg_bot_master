@@ -15,6 +15,10 @@ minutes =
     мин
 degree =
     град.
+millimeter =
+    мм
+centimeter =
+    см
 meter =
     м
 meter_square =
@@ -45,6 +49,8 @@ watt_per_meter_square =
     Вт/м²
 kwatt_per_meter_square =
     кВт/м²
+watt_per_meter_square_in_kelvin =
+    Вт/м²×К
 meter_cub_per_sec =
     м³/с
 Joule =
@@ -58,12 +64,16 @@ MJ_per_kg =
 J_per_kg_in_kelvin =
     Дж
     /(кг×К)
+J_per_kg_in_kelvin_square =
+    Дж
+    /(кг×К²)
 kJ_per_kg_in_kelvin =
     кДж
     /(кг×К)
 MJ_per_kg_in_kelvin =
     МДж
     /(кг×К)
+
 pascal =
     Па
 kilopascal =

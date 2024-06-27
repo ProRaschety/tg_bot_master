@@ -54,7 +54,7 @@ steel_element =
     Стальная
 
 type_of_calculation_steel-text =
-    Выберите тип расчета
+    <i></i>
 
 strength_calculation = ⚒ Прочностной расчет
 run_strength_steel = ▶ Рассчитать
