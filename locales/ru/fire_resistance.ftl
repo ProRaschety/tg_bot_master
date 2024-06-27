@@ -1,6 +1,20 @@
 
 # РАСЧЕТ СТАЛЬНЫХ КОНСТРУКЦИЙ
 
+type_calculation_steel_kb_owner =
+    strength_calculation
+    thermal_calculation
+type_calculation_steel_kb_admin =
+    strength_calculation
+    thermal_calculation
+type_calculation_steel_kb_comrade =
+    strength_calculation
+    thermal_calculation
+type_calculation_steel_kb_subscriber =
+    thermal_calculation
+type_calculation_steel_kb_guest =
+    thermal_calculation
+
 # Пакетный расчет
 
 fire_protection = Пакетный расчет
@@ -149,12 +163,37 @@ protocol_strength-text = Протокол расчета критической 
 # ТЕПЛОТЕХНИЧЕСКИЙ расчет стальной конструкции
 thermal_calculation =
     🔥 Теплотехнический расчет
+
+thermal_calculation_kb_owner =
+    edit_init_data_thermal
+    run_thermal_steel
+thermal_calculation_kb_admin =
+    edit_init_data_thermal
+    run_thermal_steel
+thermal_calculation_kb_comrade =
+    edit_init_data_thermal
+    run_thermal_steel
+thermal_calculation_kb_subscriber =
+    edit_init_data_thermal
+    run_thermal_steel
+thermal_calculation_kb_guest =
+    edit_init_data_thermal_guest
+    run_thermal_steel
+
 back_thermal_calculation =
     ↩ Назад
 back_thermal_calc =
     ↩ Назад
+
 edit_init_data_thermal =
     📝 Редактировать
+edit_thermal_calculation_kb =
+    mode_edit
+    ptm_edit
+    t_critic_edit
+
+edit_init_data_thermal_guest =
+    🔒 Редактировать
 run_thermal_steel =
     ▶ Рассчитать
 stop_edit_thermal_calc =

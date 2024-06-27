@@ -13,8 +13,8 @@ from aiogram.fsm.state import default_state
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InlineQuery, InlineQueryResultArticle, InputTextMessageContent, CallbackQuery, Message, BufferedInputFile, InputMediaPhoto, InputMediaDocument
 # from aiogram.utils.chat_action import ChatActionSender
 # from aiogram.enums import ChatAction
-
-from app.tg_bot.filters.filter_role import IsComrade
+from app.tg_bot.models.role import UserRole
+from app.tg_bot.filters.filter_role import IsComrade, IsGuest
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.utilities.misc_utils import get_csv_bt_file, get_picture_filling, get_data_table
 from app.tg_bot.states.fsm_state_data import FSMSteelForm
@@ -27,12 +27,12 @@ log = logging.getLogger(__name__)
 
 
 fire_res_router = Router()
-fire_res_router.message.filter(IsComrade())
-fire_res_router.callback_query.filter(IsComrade())
+fire_res_router.message.filter(IsGuest())
+fire_res_router.callback_query.filter(IsGuest())
 
 
 @fire_res_router.callback_query(F.data == 'fire_resistance')
-async def fire_resistance_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def fire_resistance_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.request_start.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -51,7 +51,7 @@ async def fire_resistance_call(callback: CallbackQuery, bot: Bot, i18n: Translat
 
 
 @fire_res_router.callback_query(F.data == 'back_type_material')
-async def back_type_material_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def back_type_material_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.request_start.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -72,7 +72,7 @@ async def back_type_material_call(callback: CallbackQuery, bot: Bot, i18n: Trans
 
 
 @fire_res_router.callback_query(F.data.in_(['back_type_calc']), ~StateFilter(default_state))
-async def back_type_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def back_type_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.type_of_calculation_steel.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(
@@ -80,13 +80,13 @@ async def back_type_calc_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', i18n=i18n, param_back=True, back_data='back_type_material'))
+        reply_markup=get_inline_cd_kb(1, *i18n.get('type_calculation_steel_kb_' + role).split('\n'), i18n=i18n, param_back=True, back_data='back_type_material'))
     await state.clear()
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data.in_(['back_type_calc']), StateFilter(default_state))
-async def back_type_calc_defstate_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def back_type_calc_defstate_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.type_of_calculation_steel.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(
@@ -94,13 +94,13 @@ async def back_type_calc_defstate_call(callback: CallbackQuery, bot: Bot, state:
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', i18n=i18n, param_back=True, back_data='back_type_material'))
+        reply_markup=get_inline_cd_kb(1, *i18n.get('type_calculation_steel_kb_' + role).split('\n'), i18n=i18n, param_back=True, back_data='back_type_material'))
 
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 'back_steel_element')
-async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     # chat_id = callback.message.chat.id
     text = i18n.type_of_calculation_steel.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
@@ -109,12 +109,12 @@ async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', i18n=i18n, param_back=True, back_data='back_type_material'))
+        reply_markup=get_inline_cd_kb(1, *i18n.get('type_calculation_steel_kb_' + role).split('\n'), i18n=i18n, param_back=True, back_data='back_type_material'))
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 'steel_element')
-async def steel_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def steel_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.type_of_calculation_steel.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await state.update_data(num_profile="20Б1")
@@ -123,12 +123,12 @@ async def steel_element_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'strength_calculation', 'thermal_calculation', i18n=i18n, param_back=True, back_data='back_type_material'))  # 'fire_protection',
+        reply_markup=get_inline_cd_kb(1, *i18n.get('type_calculation_steel_kb_' + role).split('\n'), i18n=i18n, param_back=True, back_data='back_type_material'))
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 'wood_element')
-async def wood_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def wood_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.type_of_calculation_wood.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(
@@ -141,7 +141,7 @@ async def wood_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorR
 
 
 @fire_res_router.callback_query(F.data == 'concrete_element')
-async def concrete_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def concrete_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.type_of_calculation_concrete.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(
@@ -161,7 +161,7 @@ async def concrete_element_call(callback: CallbackQuery, bot: Bot, i18n: Transla
 
 
 @fire_res_router.callback_query(F.data.in_(['fire_protection']))
-async def fire_protection_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def fire_protection_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.set_state(FSMSteelForm.add_steel_element_state)
     chat_id = str(callback.message.chat.id)
     text = i18n.fire_protection.text()
@@ -178,7 +178,7 @@ async def fire_protection_call(callback: CallbackQuery, bot: Bot, state: FSMCont
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.add_steel_element_state), F.data == 'clear_table_protection_steel')
-async def clear_table_protection_steel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def clear_table_protection_steel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     chat_id = str(callback.message.chat.id)
     text = i18n.clear_table_protection_steel.text()
     protection_calculation = SteelFireProtection(i18n=i18n, chat_id=chat_id)
@@ -194,7 +194,7 @@ async def clear_table_protection_steel_call(callback: CallbackQuery, bot: Bot, s
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.add_steel_element_state), F.data == 'add_element_steel')
-async def add_element_steel_inline_search_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def add_element_steel_inline_search_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     chat_id = str(callback.message.chat.id)
     message_id = callback.message.message_id
     await state.update_data(chat_id=chat_id, message_id=message_id)
@@ -232,7 +232,7 @@ async def show_add_element_steel(inline_query: InlineQuery, state: FSMContext, i
 
 
 @fire_res_router.message(StateFilter(FSMSteelForm.add_steel_element_state))
-async def add_steel_element_state_input(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def add_steel_element_state_input(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     chat_id = str(message.chat.id)
     id_data = await state.get_data()
     message_id = id_data.get('message_id')
@@ -265,7 +265,7 @@ async def add_steel_element_state_input(message: Message, bot: Bot, state: FSMCo
 
 
 @fire_res_router.callback_query(F.data.in_(['strength_calculation', 'back_strength_element']))
-async def strength_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext,  i18n: TranslatorRunner) -> None:
+async def strength_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext,  i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.request_start.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -305,7 +305,7 @@ async def strength_calculation_call(callback: CallbackQuery, bot: Bot, state: FS
 
 
 @fire_res_router.callback_query(F.data.in_(['run_strength_steel']))
-async def run_strength_steel_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
+async def run_strength_steel_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.calculation_progress.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -342,7 +342,7 @@ async def run_strength_steel_call(callback: CallbackQuery, state: FSMContext, bo
 
 
 @fire_res_router.callback_query(F.data == 'protocol_strength')
-async def protocol_strength_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
+async def protocol_strength_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.protocol_strength.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -353,7 +353,7 @@ async def protocol_strength_call(callback: CallbackQuery, bot: Bot, i18n: Transl
 
 
 @fire_res_router.callback_query(F.data.in_(['edit_init_data_strength', 'stop_edit_strength']))
-async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.set_state(state=None)
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
@@ -372,7 +372,7 @@ async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, state:
 
 
 @fire_res_router.callback_query(F.data == 'num_profile')
-async def num_profile_inline_search_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def num_profile_inline_search_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     chat_id = str(callback.message.chat.id)
     message_id = callback.message.message_id
     await state.update_data(chat_id=chat_id, message_id=message_id)
@@ -413,7 +413,7 @@ async def show_num_profile(inline_query: InlineQuery, state: FSMContext, i18n: T
 
 
 @fire_res_router.message(StateFilter(FSMSteelForm.num_profile_inline_search_state))
-async def num_profile_inline_search_input(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def num_profile_inline_search_input(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(num_profile=message.text)
     data = await state.get_data()
     message_id = data.get('message_id')
@@ -444,7 +444,7 @@ async def num_profile_inline_search_input(message: Message, bot: Bot, state: FSM
 
 
 @fire_res_router.callback_query(F.data == 'loads_steel_edit')
-async def loads_steel_edit_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def loads_steel_edit_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     text = i18n.loads_steel_edit.text(n_load=data.get('n_load'))
     await bot.edit_message_caption(
@@ -457,7 +457,7 @@ async def loads_steel_edit_edit_call(callback: CallbackQuery, bot: Bot, state: F
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.n_load_edit_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
-async def n_load_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def n_load_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     n_load_data = await state.get_data()
     call_data = callback.data
     if call_data == "one":
@@ -504,7 +504,7 @@ async def n_load_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCont
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.n_load_edit_state), F.data.in_(['point']))
-async def n_load_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def n_load_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     n_load_data = await state.get_data()
     call_data = callback.data
     if call_data == "point":
@@ -535,7 +535,7 @@ async def n_load_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.n_load_edit_state), F.data.in_(['clear']))
-async def n_load_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def n_load_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(n_load="")
     n_load_data = await state.get_data()
     n_load_edit = n_load_data.get('n_load', 3600)
@@ -549,7 +549,7 @@ async def n_load_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.n_load_edit_state), F.data.in_(['ready']))
-async def n_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def n_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     state_data = await state.get_state()
     log.info(state_data)
     data = await state.get_data()
@@ -585,7 +585,7 @@ async def n_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 
 @fire_res_router.callback_query(F.data == 'sides_heated')
-async def sides_heated_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def sides_heated_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.num_sides_heated.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fsr_num_sides_ibeam.png')
@@ -599,7 +599,7 @@ async def sides_heated_edit_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 
 @fire_res_router.callback_query(F.data.in_(['num_sides_heated_two', 'num_sides_heated_three', 'num_sides_heated_four']))
-async def type_of_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def type_of_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(num_sides_heated=callback.data)
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
@@ -628,7 +628,7 @@ async def type_of_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FS
 
 
 @fire_res_router.callback_query(F.data == 'len_elem_edit')
-async def len_elem_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def len_elem_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     text = i18n.len_elem_edit.text(len_elem=data.get('len_elem'))
     await bot.edit_message_caption(
@@ -641,7 +641,7 @@ async def len_elem_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
-async def len_elem_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def len_elem_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     len_elem_data = await state.get_data()
     call_data = callback.data
     if call_data == "one":
@@ -688,7 +688,7 @@ async def len_elem_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['point']))
-async def len_elem_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def len_elem_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     len_elem_data = await state.get_data()
 
     call_data = callback.data
@@ -718,7 +718,7 @@ async def len_elem_point_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['clear']))
-async def len_elem_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def len_elem_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     len_elem_data = await state.get_data()
     await state.update_data(len_elem="")
     len_elem_data = await state.get_data()
@@ -733,7 +733,7 @@ async def len_elem_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSM
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.len_elem_edit_state), F.data.in_(['ready']))
-async def len_elem_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def len_elem_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     value = data.get("len_elem")
     if value != '' and value != '.':
@@ -767,7 +767,7 @@ async def len_elem_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
 
 
 @fire_res_router.callback_query(F.data == 'type_of_load_edit')
-async def type_of_load_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def type_of_load_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.type_of_load_edit.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -778,7 +778,7 @@ async def type_of_load_edit_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 
 @fire_res_router.callback_query(F.data.in_(['distributed_load_steel', 'concentrated_load_steel']))
-async def type_of_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def type_of_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(loading_method=callback.data)
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
@@ -805,7 +805,7 @@ async def type_of_load_edit_in_call(callback: CallbackQuery, bot: Bot, state: FS
 
 
 @fire_res_router.callback_query(F.data == 'fixation_steel')
-async def fixation_steel_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def fixation_steel_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.consolidation_steel.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -816,7 +816,7 @@ async def fixation_steel_edit_call(callback: CallbackQuery, bot: Bot, state: FSM
 
 
 @fire_res_router.callback_query(F.data.in_(['hinge-hinge', 'sealing-sealing', 'seal-hinge', 'console']))
-async def fixation_steel_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def fixation_steel_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(fixation=callback.data)
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
@@ -844,7 +844,7 @@ async def fixation_steel_edit_in_call(callback: CallbackQuery, bot: Bot, state: 
 
 
 @fire_res_router.callback_query(F.data == 'type_steel_element_edit')
-async def type_steel_element_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def type_steel_element_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.type_steel_element_edit.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -857,7 +857,7 @@ async def type_steel_element_edit_call(callback: CallbackQuery, bot: Bot, state:
 @fire_res_router.callback_query(F.data.in_(['C235', 'C245', 'C255', 'C345',
                                             'C355', 'C375', 'C390', 'C440',
                                             'C550', 'C590', 'C355P', 'C390P']))
-async def type_steel_element_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def type_steel_element_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     call_data = i18n.get(callback.data)
     await state.update_data(type_steel_element=call_data)
     data = await state.get_data()
@@ -886,7 +886,7 @@ async def type_steel_element_in_call(callback: CallbackQuery, bot: Bot, state: F
 
 
 @fire_res_router.callback_query(F.data == 'type_loading_element')
-async def type_loading_element_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def type_loading_element_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.type_loading_element.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -897,7 +897,7 @@ async def type_loading_element_edit_call(callback: CallbackQuery, bot: Bot, stat
 
 
 @fire_res_router.callback_query(F.data.in_(['stretching_element', 'compression_element', 'bend_element']))
-async def stretching_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def stretching_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(type_loading=callback.data)
     data = await state.get_data()
     strength_calculation = SteelFireStrength(i18n=i18n, data=data)
@@ -925,7 +925,7 @@ async def stretching_element_call(callback: CallbackQuery, bot: Bot, state: FSMC
 
 
 @fire_res_router.callback_query(F.data.in_(['export_data_strength']))
-async def export_data_strength_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def export_data_strength_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.export_data_strength.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -936,7 +936,7 @@ async def export_data_strength_call(callback: CallbackQuery, bot: Bot, state: FS
 
 
 @fire_res_router.callback_query(F.data == 'ibeam_element')
-async def ibeam_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def ibeam_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     # хендлер возвращает картинку с исходными данными для прочностного расчета для двутавра №20
     chat_id = str(callback.message.chat.id)
     text = i18n.initial_data_steel.text()
@@ -955,7 +955,7 @@ async def ibeam_element_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 
 
 @fire_res_router.callback_query(F.data == 'channel_element')
-async def channel_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def channel_element_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     # хендлер возвращает картинку с исходными данными для прочностного расчета для двутавра №20
     text = i18n.initial_data_steel.text()
     with open(file="app/infrastructure/data_base/db_task_photo.json", mode="r", encoding='utf-8') as file_op:
@@ -974,7 +974,7 @@ async def channel_element_call(callback: CallbackQuery, bot: Bot, state: FSMCont
 
 
 @fire_res_router.callback_query(F.data.in_(['thermal_calculation', 'back_thermal_calculation']))
-async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.request_start.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -993,13 +993,61 @@ async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSM
     data.setdefault("ptm", "3.94"),
     data.setdefault("heat_capacity_change", "0.469"),
     data.setdefault("t_critic_C", "500.0")
-    text = i18n.initial_data_steel.text()
+
     t_res = SteelFireResistance(i18n=i18n, data=data)
-    data_out, headers, label = t_res.get_initial_data_thermal()
+    # data_out, headers, label = t_res.get_initial_data_thermal()
+    label = 'Теплотехнический расчет'
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    data_out = [
+        {'id': 'Коэффициент изм.\nтеплоемкости стали',
+            'var': 'Dст',
+            'unit_1': t_res.heat_capacity_change,
+            'unit_2': 'Дж/кг\u00D7К\u00B2'},
+        {'id': 'Теплоемкость стали',
+         'var': 'Сст',
+            'unit_1': t_res.heat_capacity,
+            'unit_2': 'Дж/кг\u00D7К'},
+        {'id': 'Степень черноты стали',
+         'var': 'Sст',
+         'unit_1': t_res.s_1,
+            'unit_2': '-'},
+        {'id': 'Плотность стали',
+            'var': '\u03C1',
+            'unit_1': t_res.density_steel,
+            'unit_2': 'кг/м\u00B3'},
+        {'id': 'Степень черноты среды',
+         'var': 'S0',
+         'unit_1': t_res.s_0,
+            'unit_2': '-'},
+        {'id': 'Конвективный коэффициент\nтеплоотдачи',
+            'var': '\u03B1к',
+            'unit_1': 50 if t_res.mode == "Углеводородный" else t_res.a_convection,
+            'unit_2': 'Вт/м\u00B2\u00D7К'},
+        {'id': 'Начальная температура',
+         'var': 't0',
+         'unit_1': t_res.T_0-273,
+            'unit_2': '\u00B0С'},
+        {'id': 'Критическая температура стали',
+            'var': 'tкр',
+            'unit_1':  f'{t_res.t_critic:.1f}',
+            'unit_2': '\u00B0С'},
+        {'id': 'Приведенная толщина\nметалла',
+            'var': 'ПТМ',
+            'unit_1': f'{t_res.ptm:.2f}',
+            'unit_2': 'мм', },
+        {'id': 'Температурный режим',
+         'var': '-',
+         'unit_1': t_res.mode,
+         'unit_2': '-', }
+    ]
+
     media = get_data_table(
-        data=data_out, headers=headers, label=label, column=3)
+        data=data_out, headers=headers, label=label, column=4)
+
     await state.update_data(data)
     # log.info(f'DataRedis_Thermal: {data}')
+    text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -1013,7 +1061,7 @@ async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSM
 
 
 @fire_res_router.callback_query(F.data.in_(['run_thermal_steel']))
-async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.request_start.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -1023,10 +1071,57 @@ async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSM
 
     data = await state.get_data()
     # text = i18n.initial_data_steel.text()
+    # t_res = SteelFireResistance(i18n=i18n, data=data)
     t_res = SteelFireResistance(i18n=i18n, data=data)
-    data_out, headers, label = t_res.get_initial_data_thermal()
+    # data_out, headers, label = t_res.get_initial_data_thermal()
+    label = 'Теплотехнический расчет'
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    data_out = [
+        {'id': 'Коэффициент изм.\nтеплоемкости стали',
+            'var': 'Dст',
+            'unit_1': t_res.heat_capacity_change,
+            'unit_2': 'Дж/кг\u00D7К\u00B2'},
+        {'id': 'Теплоемкость стали',
+         'var': 'Сст',
+            'unit_1': t_res.heat_capacity,
+            'unit_2': 'Дж/кг\u00D7К'},
+        {'id': 'Степень черноты стали',
+         'var': 'Sст',
+         'unit_1': t_res.s_1,
+            'unit_2': '-'},
+        {'id': 'Плотность стали',
+            'var': '\u03C1',
+            'unit_1': t_res.density_steel,
+            'unit_2': 'кг/м\u00B3'},
+        {'id': 'Степень черноты среды',
+         'var': 'S0',
+         'unit_1': t_res.s_0,
+            'unit_2': '-'},
+        {'id': 'Конвективный коэффициент\nтеплоотдачи',
+            'var': '\u03B1к',
+            'unit_1': 50 if t_res.mode == "Углеводородный" else t_res.a_convection,
+            'unit_2': 'Вт/м\u00B2\u00D7К'},
+        {'id': 'Начальная температура',
+         'var': 't0',
+         'unit_1': t_res.T_0-273,
+            'unit_2': '\u00B0С'},
+        {'id': 'Критическая температура стали',
+            'var': 'tкр',
+            'unit_1':  f'{t_res.t_critic:.1f}',
+            'unit_2': '\u00B0С'},
+        {'id': 'Приведенная толщина\nметалла',
+            'var': 'ПТМ',
+            'unit_1': f'{t_res.ptm:.2f}',
+            'unit_2': 'мм', },
+        {'id': 'Температурный режим',
+         'var': '-',
+         'unit_1': t_res.mode,
+         'unit_2': '-', }
+    ]
+
     media = get_data_table(
-        data=data_out, headers=headers, label=label, column=3)
+        data=data_out, headers=headers, label=label, column=4)
 
     t_fsr = t_res.get_steel_fsr() * 60
 
@@ -1046,7 +1141,7 @@ async def thermal_calculation_call(callback: CallbackQuery, bot: Bot, state: FSM
 
 
 @fire_res_router.callback_query(F.data.in_(['plot_thermal']))
-async def run_thermal_calculation_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner) -> None:
+async def run_thermal_calculation_call(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     mode = data.get('mode')
     text = i18n.graph_is_drawn.text()
@@ -1076,7 +1171,8 @@ async def run_thermal_calculation_call(callback: CallbackQuery, state: FSMContex
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=plot_thermal_png, filename="plot_thermal_png"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'strength_calculation',
+        reply_markup=get_inline_cd_kb(1,
+                                      #  'strength_calculation',
                                       #   'protocol_thermal',
                                       #   'export_data_steel',
                                       'back_thermal_calculation',
@@ -1086,7 +1182,7 @@ async def run_thermal_calculation_call(callback: CallbackQuery, state: FSMContex
 
 
 @fire_res_router.callback_query(F.data == 'stop_edit_thermal_calc', ~StateFilter(default_state))
-async def stop_edit_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def stop_edit_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -1099,7 +1195,7 @@ async def stop_edit_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: 
 
 
 @fire_res_router.callback_query(F.data == 'back_thermal_calc')
-async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -1110,27 +1206,50 @@ async def back_thermal_calc_call(callback: CallbackQuery, bot: Bot, state: FSMCo
     await callback.answer('')
 
 
+@fire_res_router.callback_query(F.data.in_(['edit_init_data_thermal_guest']))
+async def edit_fire_pool_guest_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.get('initial_request_guest')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('thermal_calculation_kb_guest').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_thermal_calc'))
+    text = i18n.get('repeated_request_guest')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('thermal_calculation_kb_guest').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_thermal_calc'))
+    await callback.answer('')
+
+
 @fire_res_router.callback_query(F.data == 'edit_init_data_thermal')
-async def edit_init_data_thermal_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def edit_init_data_thermal_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', i18n=i18n, param_back=True, back_data='back_thermal_calc'))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('edit_thermal_calculation_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_thermal_calc'))
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 'mode_edit')
-async def mode_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def mode_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, 'mode_standard', 'mode_hydrocarbon', 'mode_external', 'mode_smoldering', 'stop_edit_thermal_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'mode_standard', 'mode_hydrocarbon', 'mode_external', 'mode_smoldering', i18n=i18n, param_back=True, back_data='stop_edit_thermal_calc'))
     await state.set_state(FSMSteelForm.mode_edit_state)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 'ptm_edit')
-async def ptm_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def ptm_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     ptm = data.get("ptm", 4.8)
     text = i18n.ptm_edit.text(ptm=round(float(ptm), 2))
@@ -1144,7 +1263,7 @@ async def ptm_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.ptm_edit_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero']))
-async def ptm_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def ptm_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     ptm_data = await state.get_data()
     call_data = callback.data
     if call_data == "one":
@@ -1190,7 +1309,7 @@ async def ptm_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.ptm_edit_state), F.data.in_(['point']))
-async def ptm_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def ptm_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     ptm_data = await state.get_data()
     call_data = callback.data
     if call_data == "point":
@@ -1218,7 +1337,7 @@ async def ptm_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i1
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.ptm_edit_state), F.data.in_(['clear']))
-async def ptm_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def ptm_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     ptm_data = await state.get_data()
     await state.update_data(ptm="")
     ptm_data = await state.get_data()
@@ -1233,7 +1352,7 @@ async def ptm_edit_point_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.ptm_edit_state), F.data.in_(['ready']))
-async def ptm_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def ptm_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     value = data.get("ptm")
     if value != '' and value != '.':
@@ -1242,23 +1361,71 @@ async def ptm_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext,
         await state.update_data(ptm=3.44)
     data = await state.get_data()
     t_res = SteelFireResistance(i18n=i18n, data=data)
-    text = i18n.initial_data_steel.text()
-    data_out, headers, label = t_res.get_initial_data_thermal()
+    # data_out, headers, label = t_res.get_initial_data_thermal()
+    label = 'Теплотехнический расчет'
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    data_out = [
+        {'id': 'Коэффициент изм.\nтеплоемкости стали',
+            'var': 'Dст',
+            'unit_1': t_res.heat_capacity_change,
+            'unit_2': 'Дж/кг\u00D7К\u00B2'},
+        {'id': 'Теплоемкость стали',
+         'var': 'Сст',
+            'unit_1': t_res.heat_capacity,
+            'unit_2': 'Дж/кг\u00D7К'},
+        {'id': 'Степень черноты стали',
+         'var': 'Sст',
+         'unit_1': t_res.s_1,
+            'unit_2': '-'},
+        {'id': 'Плотность стали',
+            'var': '\u03C1',
+            'unit_1': t_res.density_steel,
+            'unit_2': 'кг/м\u00B3'},
+        {'id': 'Степень черноты среды',
+         'var': 'S0',
+         'unit_1': t_res.s_0,
+            'unit_2': '-'},
+        {'id': 'Конвективный коэффициент\nтеплоотдачи',
+            'var': '\u03B1к',
+            'unit_1': 50 if t_res.mode == "Углеводородный" else t_res.a_convection,
+            'unit_2': 'Вт/м\u00B2\u00D7К'},
+        {'id': 'Начальная температура',
+         'var': 't0',
+         'unit_1': t_res.T_0-273,
+            'unit_2': '\u00B0С'},
+        {'id': 'Критическая температура стали',
+            'var': 'tкр',
+            'unit_1':  f'{t_res.t_critic:.1f}',
+            'unit_2': '\u00B0С'},
+        {'id': 'Приведенная толщина\nметалла',
+            'var': 'ПТМ',
+            'unit_1': f'{t_res.ptm:.2f}',
+            'unit_2': 'мм', },
+        {'id': 'Температурный режим',
+         'var': '-',
+         'unit_1': t_res.mode,
+         'unit_2': '-', }
+    ]
+
     media = get_data_table(
-        data=data_out, headers=headers, label=label, column=3)
+        data=data_out, headers=headers, label=label, column=4)
     # image_png = t_res.get_initial_data_thermal()
+    text = i18n.initial_data_steel.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="initial_data_thermal"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', 'back_thermal_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('edit_thermal_calculation_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_thermal_calc'))
     await state.set_state(state=None)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 't_critic_edit')
-async def t_critic_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def t_critic_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     t_critic_C = data.get("t_critic_C", 500.0)
     text = i18n.t_critic_edit.text(t_critic=round(float(t_critic_C), 1))
@@ -1272,7 +1439,7 @@ async def t_critic_edit_call(callback: CallbackQuery, bot: Bot, state: FSMContex
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.t_critic_edit_state), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'point', 'zero', 'clear']))
-async def t_critic_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def t_critic_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     t_data = await state.get_data()
     call_data = callback.data
     if call_data == "one":
@@ -1327,7 +1494,7 @@ async def t_critic_edit_var_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.t_critic_edit_state), F.data.in_(['ready']))
-async def t_critic_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def t_critic_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     value = data.get("t_critic_C")
     if value != '' and value != '.':
@@ -1337,42 +1504,138 @@ async def t_critic_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
     data = await state.get_data()
     t_res = SteelFireResistance(i18n=i18n, data=data)
     text = i18n.initial_data_steel.text()
-    data_out, headers, label = t_res.get_initial_data_thermal()
+    t_res = SteelFireResistance(i18n=i18n, data=data)
+    # data_out, headers, label = t_res.get_initial_data_thermal()
+    label = 'Теплотехнический расчет'
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    data_out = [
+        {'id': 'Коэффициент изм.\nтеплоемкости стали',
+            'var': 'Dст',
+            'unit_1': t_res.heat_capacity_change,
+            'unit_2': 'Дж/кг\u00D7К\u00B2'},
+        {'id': 'Теплоемкость стали',
+         'var': 'Сст',
+            'unit_1': t_res.heat_capacity,
+            'unit_2': 'Дж/кг\u00D7К'},
+        {'id': 'Степень черноты стали',
+         'var': 'Sст',
+         'unit_1': t_res.s_1,
+            'unit_2': '-'},
+        {'id': 'Плотность стали',
+            'var': '\u03C1',
+            'unit_1': t_res.density_steel,
+            'unit_2': 'кг/м\u00B3'},
+        {'id': 'Степень черноты среды',
+         'var': 'S0',
+         'unit_1': t_res.s_0,
+            'unit_2': '-'},
+        {'id': 'Конвективный коэффициент\nтеплоотдачи',
+            'var': '\u03B1к',
+            'unit_1': 50 if t_res.mode == "Углеводородный" else t_res.a_convection,
+            'unit_2': 'Вт/м\u00B2\u00D7К'},
+        {'id': 'Начальная температура',
+         'var': 't0',
+         'unit_1': t_res.T_0-273,
+            'unit_2': '\u00B0С'},
+        {'id': 'Критическая температура стали',
+            'var': 'tкр',
+            'unit_1':  f'{t_res.t_critic:.1f}',
+            'unit_2': '\u00B0С'},
+        {'id': 'Приведенная толщина\nметалла',
+            'var': 'ПТМ',
+            'unit_1': f'{t_res.ptm:.2f}',
+            'unit_2': 'мм', },
+        {'id': 'Температурный режим',
+         'var': '-',
+         'unit_1': t_res.mode,
+         'unit_2': '-', }
+    ]
     media = get_data_table(
-        data=data_out, headers=headers, label=label, column=3)
+        data=data_out, headers=headers, label=label, column=4)
     # image_png = t_res.get_initial_data_thermal()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="initial_data_thermal"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', 'back_thermal_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('edit_thermal_calculation_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_thermal_calc'))
     await state.set_state(state=None)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(StateFilter(FSMSteelForm.mode_edit_state), F.data.in_(['mode_standard', 'mode_hydrocarbon', 'mode_external', 'mode_smoldering']))
-async def mode_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def mode_edit_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.update_data(mode=str(i18n.get(callback.data)))
     data = await state.get_data()
     text = i18n.initial_data_steel.text()
     t_res = SteelFireResistance(i18n=i18n, data=data)
-    data_out, headers, label = t_res.get_initial_data_thermal()
+    # data_out, headers, label = t_res.get_initial_data_thermal()
+    label = 'Теплотехнический расчет'
+    headers = (i18n.get('name'), i18n.get('variable'),
+               i18n.get('value'), i18n.get('unit'))
+    data_out = [
+        {'id': 'Коэффициент изм.\nтеплоемкости стали',
+            'var': 'Dст',
+            'unit_1': t_res.heat_capacity_change,
+            'unit_2': 'Дж/кг\u00D7К\u00B2'},
+        {'id': 'Теплоемкость стали',
+         'var': 'Сст',
+            'unit_1': t_res.heat_capacity,
+            'unit_2': 'Дж/кг\u00D7К'},
+        {'id': 'Степень черноты стали',
+         'var': 'Sст',
+         'unit_1': t_res.s_1,
+            'unit_2': '-'},
+        {'id': 'Плотность стали',
+            'var': '\u03C1',
+            'unit_1': t_res.density_steel,
+            'unit_2': 'кг/м\u00B3'},
+        {'id': 'Степень черноты среды',
+         'var': 'S0',
+         'unit_1': t_res.s_0,
+            'unit_2': '-'},
+        {'id': 'Конвективный коэффициент\nтеплоотдачи',
+            'var': '\u03B1к',
+            'unit_1': 50 if t_res.mode == "Углеводородный" else t_res.a_convection,
+            'unit_2': 'Вт/м\u00B2\u00D7К'},
+        {'id': 'Начальная температура',
+         'var': 't0',
+         'unit_1': t_res.T_0-273,
+            'unit_2': '\u00B0С'},
+        {'id': 'Критическая температура стали',
+            'var': 'tкр',
+            'unit_1':  f'{t_res.t_critic:.1f}',
+            'unit_2': '\u00B0С'},
+        {'id': 'Приведенная толщина\nметалла',
+            'var': 'ПТМ',
+            'unit_1': f'{t_res.ptm:.2f}',
+            'unit_2': 'мм', },
+        {'id': 'Температурный режим',
+         'var': '-',
+         'unit_1': t_res.mode,
+         'unit_2': '-', }
+    ]
+
     media = get_data_table(
-        data=data_out, headers=headers, label=label, column=3)
+        data=data_out, headers=headers, label=label, column=4)
     # image_png = t_res.get_initial_data_thermal()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="initial_data_thermal"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'mode_edit', 'ptm_edit', 't_critic_edit', 'back_thermal_calc', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('edit_thermal_calculation_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_thermal_calc'))
     await state.set_state(state=None)
     await callback.answer('')
 
 
 @fire_res_router.callback_query(F.data == 'protocol_thermal')
-async def protocol_thermal_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def protocol_thermal_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.protocol_thermal.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -1383,7 +1646,7 @@ async def protocol_thermal_call(callback: CallbackQuery, bot: Bot, state: FSMCon
 
 
 @fire_res_router.callback_query(F.data == 'export_data_steel')
-async def export_data_steel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def export_data_steel_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     data = await state.get_data()
     t_res = SteelFireResistance(i18n=i18n, data=data)
     text = i18n.export_data_steel.text()

@@ -25,12 +25,14 @@ user_kb_comrade =
     fire_category
 user_kb_subscriber =
     handbooks
+    fire_resistance
     fds_tools
     tools
     fire_risks
     fire_category
 user_kb_guest =
     handbooks
+    fire_resistance
     fds_tools
     tools_guest
     fire_risks

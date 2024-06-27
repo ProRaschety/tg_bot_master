@@ -572,22 +572,6 @@ class SteelFireResistance:
             a_convection = 50
         else:
             a_convection = self.a_convection
-        # размеры рисунка в дюймах
-        # 1 дюйм = 2.54 см = 96.358115 pixel
-        # px = 96.358115
-        # w = 500  # px
-        # h = 500  # px
-        # # Создание объекта Figure
-        # margins = {
-        #     "left": 0.030,  # 0.030
-        #     "bottom": 0.030,  # 0.030
-        #     "right": 0.970,  # 0.970
-        #     "top": 0.900  # 0.900
-        # }
-        # fig = plt.figure(figsize=(w / px, h / px), dpi=300)
-        # fig.subplots_adjust(**margins)
-        # ax = fig.add_subplot()
-
         label = 'Теплотехнический расчет'
         headers = ('Параметр', 'Значение', 'Ед.изм.')
         data = [
@@ -610,80 +594,6 @@ class SteelFireResistance:
             {'id': 'Температурный режим', 'var': self.mode, 'unit_1': '-'}
         ]
 
-        # rows = len(data)
-        # cols = len(list(data[0]))
-
-        # ax.set_xlim(0.0, cols+0.5)
-        # ax.set_ylim(-.75, rows+0.55)
-
-        # # добавить заголовки столбцов на высоте y=..., чтобы уменьшить пространство до первой строки данных
-        # ft_title_size = {'fontname': 'Arial', 'fontsize': 10}
-
-        # hor_up_line = rows-0.25
-        # ax.text(x=0, y=hor_up_line, s='Параметр',
-        #         weight='bold', ha='left', **ft_title_size)
-        # ax.text(x=2.5, y=hor_up_line, s='Значение',
-        #         weight='bold', ha='center', **ft_title_size)
-        # ax.text(x=cols+.5, y=hor_up_line, s='Ед. изм',
-        #         weight='bold', ha='right', **ft_title_size)
-
-        # # добавить основной разделитель заголовка
-        # ax.plot([0, cols + .5], [rows-0.5, rows-0.5], lw='2', c='black')
-        # ax.plot([0, cols + .5], [- 0.5, - 0.5], lw='2', c='black')
-
-        # # линия сетки
-        # for row in range(rows):
-        #     ax.plot([0, cols+.5], [row - .5, row - .5],
-        #             ls=':', lw='.5', c='grey')
-
-        # # заполнение таблицы данных
-        # ft_size = {'fontname': 'Arial', 'fontsize': 9}
-        # for row in range(rows):
-        #     # извлечь данные строки из списка
-        #     d = data[row]
-        #     # координата y (строка (row)) основана на индексе строки (цикл (loop))
-        #     # координата x (столбец (column)) определяется на основе порядка, в котором я хочу отображать данные в столбце имени игрока
-        #     ax.text(x=0, y=row, s=d['id'], va='center', ha='left', **ft_size)
-        #     # var column это мой «основной» столбец, поэтому текст выделен жирным шрифтом
-        #     ax.text(x=2.5, y=row, s=d['var'], va='center',
-        #             ha='center', weight='bold', **ft_size)
-        #     # unit_1 column
-        #     ax.text(x=3.5, y=row, s=d['unit_1'],
-        #             va='center', ha='right', **ft_size)
-
-        # # выделите столбец, используя прямоугольную заплатку
-        # rect = patches.Rectangle((2.0, -0.5),  # нижняя левая начальная позиция (x,y)
-        #                          width=1,
-        #                          height=hor_up_line+0.95,
-        #                          ec='none',
-        #                          fc='grey',
-        #                          alpha=.2,
-        #                          zorder=-1)
-        # ax.add_patch(rect)
-
-        # ax.set_title(label=label,
-        #              loc='left', fontsize=12, weight='bold')
-        # ax.axis('off')
-
-        # # directory = get_temp_folder(
-        # #     fold_name='temp_pic')
-        # # name_plot = f'fig_init_data_thermal_{str(self.chat_id)}.png'
-        # # name_dir = '/'.join([directory, name_plot])
-        # # fig.savefig(name_dir, format='png')
-        # # plt.cla()
-        # # plt.close(fig)
-
-        # buffer = io.BytesIO()
-        # fig.savefig(buffer, format='png')
-        # buffer.seek(0)
-        # image_png = buffer.getvalue()
-        # # # buffer.close()
-        # # # name_dir = base64.b64encode(image_png)
-        # # # name_dir = name_dir.decode('utf-8')
-        # # print(type(image_png))
-        # buffer.close()
-        # plt.cla()
-        # plt.close(fig)
         return data, headers, label
 
     def get_fire_mode(self):
@@ -885,9 +795,9 @@ class SteelFireResistance:
 
         fig_ax_2.annotate(f"Режим пожара: {self.mode}\n"
                           f"Предел огнестойкости: {(time_fsr / 60):.2f} мин\n"
-                          f"Критическая температура: {Tcr:.2f} \u00B0С\n"
+                          f"Критическая температура: {Tcr:.1f} \u00B0С\n"
                           f"Приведенная толщина элемента: {self.ptm:.2f} мм",
-                          xy=(0, y_max), xycoords='data', xytext=(time_fsr, y_max + 50), textcoords='data', weight='bold', **ft_size)
+                          xy=(0.0, y_max), xycoords='data', xytext=(0.0, y_max + 25), textcoords='data', weight='bold', **ft_size)
 
         # Легенда
         fig_ax_2.legend(fontsize=12, framealpha=0.85, facecolor="w", loc=4)
