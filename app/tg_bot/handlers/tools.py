@@ -9,7 +9,7 @@ from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
-from app.tg_bot.filters.filter_role import IsSubscriber
+from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
 from app.tg_bot.states.fsm_state_data import FSMToolLiquidForm, FSMToolCompGasForm
@@ -19,8 +19,8 @@ log = logging.getLogger(__name__)
 
 
 tools_router = Router()
-tools_router.message.filter(IsSubscriber())
-tools_router.callback_query.filter(IsSubscriber())
+tools_router.message.filter(IsGuest())
+tools_router.callback_query.filter(IsGuest())
 
 
 SFilter_tool_liquid = [
@@ -88,7 +88,7 @@ async def tools_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRun
 
 
 @tools_router.callback_query(F.data.in_(['tool_liquid', 'back_tool_liquid']))
-async def tool_liquid_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+async def tool_liquid_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     # state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("edit_tool_liquid_param", "0")
@@ -115,7 +115,9 @@ async def tool_liquid_call(callback_data: CallbackQuery, bot: Bot, state: FSMCon
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_tool_liquid', 'run_tool_liquid', i18n=i18n, param_back=True, back_data='back_tools'))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('tool_liquid_kb_guest').split('\n') if role in ['guest'] else i18n.get('tool_liquid_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_tools'))
     await state.update_data(data)
     await callback_data.answer('')
 
@@ -164,7 +166,28 @@ async def plot_tool_liquid_call(callback: CallbackQuery, state: FSMContext, bot:
     await callback.answer('')
 
 
-@tools_router.callback_query(F.data.in_(['edit_tool_liquid', 'edit_tool_liquid_guest', 'stop_edit_tool_liquid']))
+@tools_router.callback_query(F.data.in_(['edit_tool_liquid_guest']))
+async def edit_tool_liquid_guest_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.get('initial_request_guest')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('tool_liquid_kb_guest').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_tool_liquid'))
+    text = i18n.get('repeated_request_guest')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('tool_liquid_kb_guest').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_tool_liquid'))
+    await callback.answer('')
+
+
+@tools_router.callback_query(F.data.in_(['edit_tool_liquid', 'stop_edit_tool_liquid']))
 async def edit_tool_liquid_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.set_state(state=None)
     await bot.edit_message_reply_markup(
@@ -361,8 +384,8 @@ async def edit_tool_liquid_param_call(callback: CallbackQuery, bot: Bot, state: 
 
 
 @tools_router.callback_query(F.data.in_(['tool_comp_gas', 'back_tool_comp_gas']))
-async def tool_comp_gas_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    state_data = await state.get_state()
+async def tool_comp_gas_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    # state_data = await state.get_state()
     data = await state.get_data()
     data.setdefault("edit_tool_comp_gas_param", "1")
     data.setdefault("tool_comp_gas_density", "1")
@@ -390,7 +413,9 @@ async def tool_comp_gas_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_tool_comp_gas', 'run_tool_comp_gas', i18n=i18n, param_back=True, back_data='back_tools'))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('tool_comp_gas_kb_guest').split('\n') if role in ['guest'] else i18n.get('tool_comp_gas_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_tools'))
     await state.update_data(data)
     await callback_data.answer('')
 
@@ -450,7 +475,28 @@ async def plot_tool_comp_gas_call(callback: CallbackQuery, state: FSMContext, bo
     await state.set_state(state=None)
 
 
-@tools_router.callback_query(F.data.in_(['edit_tool_comp_gas', 'edit_tool_comp_gas_guest', 'stop_edit_tool_comp_gas']))
+@tools_router.callback_query(F.data.in_(['edit_tool_comp_gas_guest']))
+async def edit_tool_comp_gas_guest_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.get('initial_request_guest')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('tool_comp_gas_kb_guest').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_tool_comp_gas'))
+    text = i18n.get('repeated_request_guest')
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('tool_comp_gas_kb_guest').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_tool_comp_gas'))
+    await callback.answer('')
+
+
+@tools_router.callback_query(F.data.in_(['edit_tool_comp_gas',  'stop_edit_tool_comp_gas']))
 async def edit_tool_comp_gas_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.set_state(state=None)
     await bot.edit_message_reply_markup(
@@ -722,12 +768,38 @@ async def tool_liq_gas_call(callback_data: CallbackQuery, bot: Bot, i18n: Transl
         reply_markup=get_inline_cd_kb(1, 'tool_liq_gas_vap', 'tool_liq_gas_liq', i18n=i18n, param_back=True, back_data='back_tools'))
     await callback_data.answer('')
 
+
+@tools_router.callback_query(F.data == 'tool_liq_gas_vap')
+async def tool_liq_gas_vap_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.tool_liq_gas_vap.text()
+    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_tool_liq_gas'))
+    await callback.answer('')
+
+
+@tools_router.callback_query(F.data == 'tool_liq_gas_liq')
+async def tool_liq_gas_liq_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.tool_liq_gas_liq.text()
+    media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_tool_liq_gas'))
+    await callback.answer('')
+
 """____испарение_жидкой_фазы____"""
 
 
 @tools_router.callback_query(F.data.in_(['tool_evaporation_rate']))
 async def tool_evaporation_rate_call(callback_data: CallbackQuery, bot: Bot, i18n: TranslatorRunner) -> None:
-    text = i18n.tools.text()
+    text = i18n.tool_evaporation_rate.text()
     media = get_picture_filling(file_path='temp_files/temp/fsr_logo.png')
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,

@@ -136,7 +136,7 @@ async def wood_element_call(callback: CallbackQuery, bot: Bot, i18n: TranslatorR
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1,  i18n=i18n, param_back=True, back_data='back_type_material'))
+        reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_type_material'))
     await callback.answer('')
 
 

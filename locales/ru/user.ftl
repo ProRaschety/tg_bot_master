@@ -34,7 +34,7 @@ user_kb_guest =
     handbooks
     fire_resistance
     fds_tools
-    tools_guest
+    tools
     fire_risks
     fire_category
 

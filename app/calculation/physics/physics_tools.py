@@ -464,10 +464,14 @@ class PhysicTool:
 
         if add_annotate:
             fig_ax_2.annotate(f"Начальный массовый расход: {max(plot_first):.2f} кг/с\n"
-                              f"Начальный объемный расход: {(max(plot_first) / density):.4f} м\u00B3/с\n\n"
-                              f"Время полного истечения: {max(abscissa):.1f} с\n"
-                              f"Время полного истечения: {(max(abscissa)/60):.1f} мин\n",
-                              xy=(0, max(plot_first)), xycoords='data', xytext=(max(abscissa)*0.03, 0), textcoords='data', weight='bold', **ft_size)
+                              f"Начальный объемный расход: {(max(plot_first) / density):.4f} м\u00B3/с\n"
+                              f"Время полного истечения: {max(abscissa):.1f} с ({(max(abscissa)/60):.1f} мин)",
+                              #   f"Время полного истечения: {(max(abscissa)/60):.1f} мин\n",
+                              xy=(0, max(plot_first)), xycoords='data',
+                              xytext=(max(abscissa)*0.01,
+                                      max(plot_first) * 0.005),
+                              #   xytext=(max(abscissa)*0.03, 0),
+                              textcoords='data', weight='bold', **ft_size)
 
         if add_legend:
             fig_ax_2.legend(fontsize=12, framealpha=0.95, facecolor="w", loc=1)

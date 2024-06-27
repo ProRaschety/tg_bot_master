@@ -20,28 +20,50 @@ kb_tools =
     tool_evaporation_rate
 
 tool_liquid =
-    Расход жидкости 💧
+    Расход жидкости
+tool_liquid_kb =
+    edit_tool_liquid
+    run_tool_liquid
+tool_liquid_kb_guest =
+    edit_tool_liquid_guest
+    run_tool_liquid
+
 tool_comp_gas =
-    Расход сжатого газа 💨
+    Расход сжатого газа
+tool_comp_gas_kb =
+    edit_tool_comp_gas
+    run_tool_comp_gas
+tool_comp_gas_kb_guest =
+    edit_tool_comp_gas_guest
+    run_tool_comp_gas
+
 tool_liq_gas =
-    Расход сжиженного газа 💦
+    Расход сжиженного газа
+
 tool_liq_gas_vap =
-    🚧 Расход паровой фазы ☁
+    🚧 Расход паровой фазы
+tool_liq_gas_vap-text =
+    🚧 <i>Находится в разработке</i>
 tool_liq_gas_liq =
-    🚧 Расход жидкой фазы 💧
+    🚧 Расход жидкой фазы
+tool_liq_gas_liq-text =
+    🚧 <i>Находится в разработке</i>
 tool_evaporation_rate =
-    🚧 Испарение жидкой фазы ♨
+    🚧 Испарение жидкой фазы
+tool_evaporation_rate-text =
+    🚧 <i>Находится в разработке</i>
+
 tool_sixth =
     🔒 Шестой инстр
 
 tool_liquid-text =
-    Расход жидкости по уравнению П3.10 Методики 404
+    Расход жидкости по формулам П3.10 Методики 404
 run_tool_liquid =
     ▶ Рассчитать
 edit_tool_liquid =
     📝 Редактировать
 edit_tool_liquid_guest =
-    🔓 Редактировать
+    🔒 Редактировать
 tool_liquid_result-text =
     Начальный массовый расход жидкости: <blockquote>{$mass_flow} кг/с</blockquote>
 
@@ -85,10 +107,10 @@ name_liquid_mu = Введите коэффициент истечения:
 edit_tool_liquid-text = {$tool_liquid_param}
     <blockquote>{$edit_tool_liquid}</blockquote>
 
-tool_comp_gas-text = Расход сжатого газа по уравнению П3.11-3.14 Методики 404
+tool_comp_gas-text = Расход сжатого газа по формулам П3.11-3.14 Методики 404
 run_tool_comp_gas = ▶ Рассчитать
 edit_tool_comp_gas = 📝 Редактировать
-edit_tool_comp_gas_guest = 🔓 Редактировать
+edit_tool_comp_gas_guest = 🔒 Редактировать
 tool_comp_gas_result-text = Начальный массовый расход газа: <blockquote>{$mass_flow} кг/с</blockquote>
 # Начальный объемный расход газа: <blockquote>{$vol_flow} м³/с</blockquote>
 
