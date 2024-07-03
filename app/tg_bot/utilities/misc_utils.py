@@ -12,9 +12,17 @@ import matplotlib.gridspec as gridspec
 # from matplotlib import font_manager as fm, rcParams
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from datetime import datetime
-
+from fluentogram import TranslatorRunner
 
 log = logging.getLogger(__name__)
+
+
+def serializer(model: dict):
+    pass
+
+
+def deserializer(model: dict):
+    pass
 
 
 def get_temp_folder(dir_name='temp_files', fold_name='temp'):
@@ -99,7 +107,50 @@ def get_dict(list_: list) -> dict:
     return {first: get_dict(rest)} if rest else first
 
 
-def get_data_table(data, headers: str, label: str, column: int = 4, results: bool | None = False, row_num: int | None = None, row_num_patch: int | None = None, sel_row_num: int = 0) -> bytes:
+def get_dataframe(request: str, i18n: TranslatorRunner):
+    label: str = None
+    headers: list[str] = None
+    dataframe: list[dict] = None
+
+    # label = i18n.get('fire_pool')
+    # headers = (i18n.get('name'), i18n.get('variable'),
+    #            i18n.get('value'), i18n.get('unit'))
+
+    # dataframe = [
+    #     {'id': i18n.get('pool_distance'), 'var': 'r',
+    #      'unit_1': accmodel.distance,
+    #      'unit_2': i18n.get('meter')},
+
+    #     {'id': i18n.get('pool_area'), 'var': 'F',
+    #      'unit_1': accmodel.pool_area,
+    #         'unit_2': i18n.get('meter_square')},
+
+    #     {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
+    #         'unit_1': accmodel.velocity_wind,
+    #         'unit_2': i18n.get('m_per_sec')},
+
+    #     {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
+    #         'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
+
+    #     {'id': i18n.get('ambient_temperature'), 'var': 'tₒ',
+    #      'unit_1': accmodel.air_temperature,
+    #         'unit_2': i18n.get('celsius')},
+
+    #     {'id': i18n.get('specific_mass_fuel_burning_rate'),
+    #         'var': 'm',
+    #         'unit_1': substance.mass_burning_rate,
+    #         'unit_2': i18n.get('kg_per_m_square_in_sec')},
+    #     # {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
+    #     #     'unit_1': data.get(
+    #     #     'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
+    #     {'id': i18n.get('substance'), 'var': '-',
+    #      'unit_1': i18n.get(accmodel.substance_name),
+    #      'unit_2': '-'}]
+
+    return label, headers, dataframe
+
+
+def get_data_table(data: list[dict], headers: str, label: str, column: int = 4, results: bool | None = False, row_num: int | None = None, row_num_patch: int | None = None, sel_row_num: int = 0) -> bytes:
     log.info(f"Таблица данных: {label}")
     # plt.rcParams['font.family'] = 'Roboto'
     # font_dirs = r"/app/tg_bot/fonts"  # The path to the custom font file.
@@ -132,7 +183,7 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
     }
 
     fig = plt.figure(figsize=(W, H),
-                     dpi=150, constrained_layout=False)
+                     dpi=170, constrained_layout=False)
     fig.subplots_adjust(**margins)
     # plt.style.use('Solarize_Light2')
     widths = [1]
@@ -285,8 +336,9 @@ def get_data_table(data, headers: str, label: str, column: int = 4, results: boo
     return image_png
 
 
-def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str = None, ylim: int | float = None, ylim_tick: bool = False,
-                   add_annotate: bool = False, text_annotate: str = None, x_ann: int | float = None, y_ann: int | float = None,
+def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str = None, ylim: int | float = None, ymin: int | float = 0.0, ylim_tick: bool = False,
+                   add_annotate: bool = False, text_annotate: list[str] = None, x_ann: int | float = None, y_ann: int | float = None,
+                   add_annotate_nd: bool = False, text_annotate_nd: list[str] = None, x_ann_nd: int | float = None, y_ann_nd: int | float = None,
                    add_legend: bool = False, loc_legend: int = 1,
                    add_fill_between: bool = False, param_fill: int | float = None, label_fill: str = None,
                    add_axhline: bool = False, label_axline: str = None, plot_color=(0.9, 0.1, 0, 0.9), **kwargs):
@@ -362,9 +414,9 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
 
     # Ось ординат Yaxis
     if ylim == None:
-        fig_ax_2.set_ylim(0.0, max(y_values) + max(y_values)*0.01)
+        fig_ax_2.set_ylim(ymin, max(y_values) + max(y_values)*0.01)
     else:
-        fig_ax_2.set_ylim(0.0, ylim)
+        fig_ax_2.set_ylim(ymin, ylim)
         fig_ax_2.ticklabel_format(
             axis='y', style='sci', scilimits=(0, 2), useOffset=True)
     if ylim_tick:
@@ -383,7 +435,6 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
                           xytext=(x_ann + (x_ann / 50) if x_ann else 0.05,
                                   y_ann + (y_ann / 50) if y_ann else (min(y_values) + 0.01)),
                           xycoords='data', textcoords='data', weight='bold', **ft_size)
-
         if y_ann:
             fig_ax_2.hlines(y=y_ann, xmin=0, xmax=x_ann*0.99, linestyle='--',
                             linewidth=1, color=(0.1, 0.1, 0, 1.0))
@@ -392,6 +443,23 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
                             linewidth=1, color=(0.1, 0.1, 0, 1.0))
         if y_ann and x_ann:
             fig_ax_2.scatter(x_ann, y_ann, s=90, marker='o',
+                             color=(0.9, 0.1, 0.0, 0.90))
+
+    if add_annotate_nd:
+        fig_ax_2.annotate(text_annotate_nd,
+                          xy=(0, max(y_values) + max(y_values)
+                              * 0.01 if ylim == None else ylim),
+                          xytext=(x_ann_nd + (x_ann_nd / 50) if x_ann_nd else 0.05,
+                                  y_ann_nd + (y_ann_nd / 50) if y_ann_nd else (min(y_values) + 0.01)),
+                          xycoords='data', textcoords='data', weight='bold', **ft_size)
+        if y_ann_nd:
+            fig_ax_2.hlines(y=y_ann_nd, xmin=0, xmax=x_ann_nd*0.99, linestyle='--',
+                            linewidth=1, color=(0.1, 0.1, 0, 1.0))
+        if x_ann_nd:
+            fig_ax_2.vlines(x=x_ann_nd, ymin=0, ymax=y_ann_nd*0.99, linestyle='--',
+                            linewidth=1, color=(0.1, 0.1, 0, 1.0))
+        if y_ann_nd and x_ann_nd:
+            fig_ax_2.scatter(x_ann_nd, y_ann_nd, s=90, marker='o',
                              color=(0.9, 0.1, 0.0, 0.90))
 
     if add_axhline:

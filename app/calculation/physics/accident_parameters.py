@@ -14,6 +14,8 @@ from scipy.interpolate import RectBivariateSpline, interp1d
 
 
 from app.calculation.physics.physics_utils import compute_stoichiometric_coefficient_with_oxygen, compute_density_gas_phase
+# from app.calculation.utilities import misc_utils
+
 
 log = logging.getLogger(__name__)
 
@@ -360,8 +362,7 @@ class AccidentParameters:
         return m
 
     def compute_heat_flux(self, eff_diameter: int | float, lenght_flame: int | float, sep: int | float = 200, angle: int | float = 0):
-        # Определение интенсивности теплового излучения, кВт/м2
-        # расстояние от центра лужи для расчета
+        """Определение интенсивности теплового излучения, [кВт/м2] на расстоянии от центра лужи для расчета"""
         if sep != 200:
             x_lim = int(eff_diameter + lenght_flame * 5)
         else:
@@ -372,6 +373,7 @@ class AccidentParameters:
         for r in range(0, x_lim, 1):
             x_values.append(r)
             if r < 1 + eff_diameter * 0.5:
+                # интенсивность теплового излучения
                 qf_f = sep
             else:
                 a = 2 * lenght_flame / eff_diameter
@@ -396,12 +398,12 @@ class AccidentParameters:
                        m.atan((F ** 2 * m.sin(angle)) / (F * C))) -
                       ((a ** 2 + (b + 1) ** 2 - 2 * (b + 1 + a * b * m.sin(angle))) / (A * B)) *
                       m.atan((A * D) / B))
-
-                Fq = m.sqrt(Fv ** 2 + Fh ** 2)  # коэффициент облученности
+                # коэффициент облученности
+                Fq = m.sqrt(Fv ** 2 + Fh ** 2)
                 # коэффициент пропускания атмосферы
                 t = m.exp(-0.0007 * (r - 0.5 * eff_diameter))
-                qf_f = float(sep * Fq * t)  # интенсивность теплового излучения
-
+                # интенсивность теплового излучения
+                qf_f = float(sep * Fq * t)
             qf.append(qf_f)
 
         return x_values, qf
@@ -412,14 +414,10 @@ class AccidentParameters:
     def compute_fire_ball_existence_time(self, mass: int | float):
         return 0.852 * (mass ** 0.260)
 
-    def compute_fire_ball_view_factor(self, eff_diameter: int | float,
-                                      height: int | float,
-                                      distance: int | float):
+    def compute_fire_ball_view_factor(self, eff_diameter: int | float, height: int | float, distance: int | float):
         return (eff_diameter ** 2) / (4 * (height ** 2 + distance ** 2))
 
-    def compute_fire_ball_atmospheric_transmittance(self, eff_diameter: int | float,
-                                                    height: int | float,
-                                                    distance: int | float):
+    def compute_fire_ball_atmospheric_transmittance(self, eff_diameter: int | float, height: int | float, distance: int | float):
         return m.exp((-7.0 * 0.0001) * (m.sqrt(height ** 2 + distance ** 2) - (eff_diameter / 2)))
 
     def compute_heat_flux_fire_ball(self, diameter_ball: int | float, height: int | float, sep: int | float):

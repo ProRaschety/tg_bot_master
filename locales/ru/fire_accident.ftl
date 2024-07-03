@@ -6,10 +6,7 @@ typical_accidents-text =
 back_typical_accidents =
     ↩ Назад
 
-probability_defeat_firepool =
-    Вероятность поражения
-probability_defeat-text =
-    Вероятность поражения
+
 
 accidents_kb_owner =
     dissipation_without_ignition
@@ -57,14 +54,6 @@ accidents_kb_guest =
     fire_ball
     cloud_explosion
     accident_bleve
-accidents_kb =
-    fire_flash
-    fire_pool
-    horizontal_jet
-    vertical_jet
-    fire_ball
-    cloud_explosion
-    accident_bleve
 
 plot_pressure_label =
     Давление взрыва
@@ -79,7 +68,9 @@ distance_label =
 surface_density_thermal_radiation_flame =
     Среднеповерхностная плотность
     теплового излучения пламени
-
+distance_to_safe_zone_from_the_heat_flux =
+    Расстояние до безопасной зоны
+    (зона, где тепловой поток < 4 кВт/м²)
 
 dissipation_without_ignition =
     Рассеивание без воспламенения
@@ -94,11 +85,11 @@ column_fire =
 gas_jet_burning =
     Струевое горение газа (для газопроводов)
 
+
 fire_pool =
     Пожар-пролива
 fire_pool-text =
     Расчет параметров пожара-пролива.
-
 fire_pool_kb =
     edit_fire_pool
     run_fire_pool
@@ -108,6 +99,23 @@ fire_pool_kb_guest =
 
 run_fire_pool =
     ▶ Рассчитать
+
+result_fire_pool_kb_owner =
+    plot_fire_pool
+    probit_fire_pool
+result_fire_pool_kb_admin =
+    plot_fire_pool
+    probit_fire_pool
+result_fire_pool_kb_comrade =
+    plot_fire_pool
+    probit_fire_pool
+result_fire_pool_kb_subscriber =
+    plot_fire_pool
+
+result_fire_pool_kb_guest =
+    plot_fire_pool
+
+
 edit_fire_pool =
     📝 Редактировать
 edit_fire_pool_kb =
@@ -116,8 +124,6 @@ edit_fire_pool_kb =
     edit_pool_wind
     edit_pool_distance
 
-run_fire_pool_guest =
-    ▶ Рассчитать
 edit_fire_pool_guest =
     🔒 Редактировать
 back_fire_pool =
@@ -128,10 +134,10 @@ plot_pool_label =
     График теплового потока
 y_pool_label =
     Интенсивность теплового потока, кВт/м²
+
 probit_fire_pool =
     📈 Вероятность поражения
-probit_pool_label =
-    График вероятности поражения
+
 edit_pool_substance =
     Вещество
 edit_pool_area =
@@ -571,6 +577,8 @@ edit_fire_ball_guest =
     🔒 Редактировать
 plot_fire_ball =
     📉 Тепловой поток
+probit_fire_ball =
+    📈 Вероятность поражения
 plot_ball_label =
     График теплового потока
 y_ball_label =

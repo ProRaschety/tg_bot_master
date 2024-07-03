@@ -30,8 +30,8 @@ user_router.callback_query.filter(IsGuest())
 async def process_start_command(message: Message, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await message.delete()
     await state.set_state(state=None)
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
+    await state.clear()
+    media = get_picture_filling(i18n.get('path_start'))
     text = i18n.get('start_' + role + '-menu')
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
@@ -51,8 +51,9 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
         reply_markup=get_inline_cd_kb(1, *i18n.get('user_kb_' + role).split('\n'), i18n=i18n))
 
     await state.set_state(state=None)
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
+
+    media = get_picture_filling(i18n.get('path_general_menu'))
+
     text = i18n.get('start_' + role + '-menu')
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
@@ -78,18 +79,19 @@ async def keyboard_guest_call(callback_data: CallbackQuery, bot: Bot, state: FSM
     else:
         text = i18n.setlevel_guest.text(role_user=dict_role)
 
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
+    media = get_picture_filling(i18n.get('path_call_guest'))
 
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1,
-                                      *i18n.get('setlevel_kb_' +
-                                                role).split('\n'),
-                                      i18n=i18n, param_back=True, back_data='general_menu'))
+        reply_markup=get_inline_cd_kb(
+            1,
+            *i18n.get('setlevel_kb_' + role).split('\n'),
+            i18n=i18n, param_back=True, back_data='general_menu'
+        )
+    )
     await state.set_state(state=None)
 
 
@@ -109,16 +111,17 @@ async def process_set_level(message: Message, bot: Bot, state: FSMContext, i18n:
         text = i18n.setlevel_subscriber.text(role_user=dict_role)
     else:
         text = i18n.setlevel_guest.text(role_user=dict_role)
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
+    media = get_picture_filling(i18n.get('path_set_level'))
 
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
         caption=text,
-        reply_markup=get_inline_cd_kb(1,
-                                      *i18n.get('setlevel_kb_' +
-                                                role).split('\n'),
-                                      i18n=i18n, param_back=True, back_data='general_menu'))
+        reply_markup=get_inline_cd_kb(
+            1,
+            *i18n.get('setlevel_kb_' + role).split('\n'),
+            i18n=i18n, param_back=True, back_data='general_menu'
+        )
+    )
     await message.delete()
 
 
@@ -137,26 +140,26 @@ async def back_setlevel_call(callback: CallbackQuery, bot: Bot, state: FSMContex
     else:
         text = i18n.setlevel_guest.text(role_user=dict_role)
 
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
+    media = get_picture_filling(i18n.get('path_update_role'))
 
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1,
-                                      *i18n.get('setlevel_kb_' +
-                                                role).split('\n'),
-                                      i18n=i18n, param_back=True, back_data='general_menu'))
+        reply_markup=get_inline_cd_kb(
+            1,
+            *i18n.get('setlevel_kb_' + role).split('\n'),
+            i18n=i18n, param_back=True, back_data='general_menu'
+        )
+    )
 
 
 @user_router.callback_query(F.data == 'enter_promo_code')
 async def enter_promo_code_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     message_id = callback.message.message_id
     await state.update_data(mes_promocode_id=message_id)
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
+    media = get_picture_filling(i18n.get('path_enter_promo_code'))
     text = i18n.enter_promo_code.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -169,8 +172,7 @@ async def enter_promo_code_call(callback: CallbackQuery, bot: Bot, state: FSMCon
 
 @user_router.message(StateFilter(FSMPromoCodeForm.promo_code_state))
 async def promo_code_input(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner, db: DB) -> None:
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
+    media = get_picture_filling(i18n.get('path_enter_promo_code'))
 
     data = await state.get_data()
     message_id = data.get('mes_promocode_id')
@@ -231,43 +233,52 @@ async def cansel_enter_promo_code_call(callback: CallbackQuery, bot: Bot, state:
     else:
         text = i18n.setlevel_guest.text(role_user=dict_role)
 
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
+    media = get_picture_filling(i18n.get('path_enter_promo_code'))
 
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1,
-                                      *i18n.get('setlevel_kb_' +
-                                                role).split('\n'),
-                                      i18n=i18n, param_back=True, back_data='general_menu'))
+        reply_markup=get_inline_cd_kb(
+            1,
+            *i18n.get('setlevel_kb_' + role).split('\n'),
+            i18n=i18n, param_back=True, back_data='general_menu'
+        )
+    )
     await state.set_state(state=None)
 
 
 @user_router.callback_query(F.data == 'subscribe_channel')
 async def subscribe_channel_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
+    media = get_picture_filling(i18n.get('path_subscribe_channel'))
     text = i18n.subscribe_channel.text()
     await bot.edit_message_media(
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_url_kb(1, i18n=i18n, param_back=True, back_data="back_setlevel", channel_1="channel_1-text", channel_2="channel_2-text"))
+        reply_markup=get_inline_url_kb(
+            1,
+            i18n=i18n, param_back=True, back_data="back_setlevel",
+            channel_1="channel_1-text", channel_2="channel_2-text"
+        )
+    )
     await state.set_state(state=None)
 
 
 @user_router.message(Command(commands=["contacts"]))
 async def process_get_admin_contacts(message: Message, state: FSMContext, i18n: TranslatorRunner) -> None:
-    dict_kb = {"link_owner": "link_owner-text", "link_1": "link_1-text"}
-    media = get_picture_filling(
-        file_path='temp_files/temp/logo_fe_start.png')
+    media = get_picture_filling(i18n.get('path_contacts'))
     text = i18n.contacts.admin()
+    dict_kb = {"link_owner": "link_owner-text", "link_1": "link_1-text"}
+
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
-        caption=text, reply_markup=get_inline_url_kb(1, i18n=i18n, param_back=True, back_data="general_menu", ** dict_kb))
+        caption=text, reply_markup=get_inline_url_kb(
+            1, i18n=i18n, param_back=True, back_data="general_menu", ** dict_kb
+        )
+    )
+
     await state.set_state(state=None)
     await message.delete()

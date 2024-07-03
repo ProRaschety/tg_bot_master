@@ -1,4 +1,5 @@
 import logging
+# import asyncio
 
 # import numpy as np
 import math as m
@@ -8,29 +9,29 @@ from scipy.interpolate import RectBivariateSpline, interp1d
 log = logging.getLogger(__name__)
 
 
-def get_property_fuel(subst: str):
+async def get_property_fuel(subst: str):
     """Возвращает свойства горючего. Нужно получать из БД"""
     if subst == 'gasoline':
         molar_mass = 95
         boiling_point = 115
-        m = 0.06
+        mass_burning_rate = 0.06
     elif subst == 'diesel':
         boiling_point = 380
         molar_mass = 230
-        m = 0.04
+        mass_burning_rate = 0.04
     elif subst == 'LNG':
         boiling_point = -163
         molar_mass = 16.7
-        m = 0.08
+        mass_burning_rate = 0.08
     elif subst == 'LPG':
         boiling_point = -50
         molar_mass = 30.068
-        m = 0.10
+        mass_burning_rate = 0.10
     elif subst == 'liq_hydrogen':
         boiling_point = -252.87
         molar_mass = 0.002016
-        m = 0.17
-    return molar_mass, boiling_point, m
+        mass_burning_rate = 0.17
+    return molar_mass, boiling_point, mass_burning_rate
 
 
 def compute_characteristic_diameter(area: int | float):
@@ -72,15 +73,3 @@ def compute_specific_isobaric_heat_capacity_of_air(temperature: int | float):
                         1.0031, 1.0032, 1.0034, 1.0036, 1.0038, 1.0040, 1.0043, 1.0046, 1.0049, 1.0053, 1.0057],
                     'linear')  # Изобарная теплоемкость водуха, кДж/(кг*К)
     return data(temperature + 273.15)
-
-
-def get_distance_at_sep(x_values, y_values, sep):
-    func_sep = interp1d(y_values, x_values, kind='linear',
-                        bounds_error=False, fill_value=0)
-    return func_sep(sep)
-
-
-def get_sep_at_distance(x_values, y_values, distance):
-    func_distance = interp1d(x_values, y_values, kind='linear',
-                             bounds_error=False, fill_value=0)
-    return func_distance(distance)

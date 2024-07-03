@@ -140,7 +140,7 @@ async def show_cities(inline_query: InlineQuery, db: DB):
         if inline_query.query in str(name):
             results.append(InlineQueryResultArticle(id=str(name), title=f'{name}',
                                                     input_message_content=InputTextMessageContent(message_text=f'{name}')))
-    await inline_query.answer(results=results[:30], cache_time=0, is_personal=True)
+    await inline_query.answer(results=results[:30], cache_time=0, is_personal=True, )
 
 
 @handbooks_router.message(StateFilter(FSMClimateForm.select_city_state))
