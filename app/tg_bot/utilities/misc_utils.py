@@ -14,6 +14,8 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from datetime import datetime
 from fluentogram import TranslatorRunner
 
+from app.tg_bot.models.tables import DataFrameModel
+
 log = logging.getLogger(__name__)
 
 
@@ -107,47 +109,144 @@ def get_dict(list_: list) -> dict:
     return {first: get_dict(rest)} if rest else first
 
 
-def get_dataframe(request: str, i18n: TranslatorRunner):
-    label: str = None
-    headers: list[str] = None
-    dataframe: list[dict] = None
+def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: bool | None = False, row_num: int | None = None, row_num_patch: int | None = None, sel_row_num: int = 0) -> bytes:
+    log.info(f'Requst dataframe table: {data.label}')
 
-    # label = i18n.get('fire_pool')
-    # headers = (i18n.get('name'), i18n.get('variable'),
-    #            i18n.get('value'), i18n.get('unit'))
+    """Рисует таблицу по данным полученным из функции get_dataframe()"""
 
-    # dataframe = [
-    #     {'id': i18n.get('pool_distance'), 'var': 'r',
-    #      'unit_1': accmodel.distance,
-    #      'unit_2': i18n.get('meter')},
+    rows = len(data.dataframe)
+    cols = len(list(data.dataframe[-1]))
 
-    #     {'id': i18n.get('pool_area'), 'var': 'F',
-    #      'unit_1': accmodel.pool_area,
-    #         'unit_2': i18n.get('meter_square')},
+    """"Создание фигуры"""
+    w_max_px, h_max_px, dpi = 2560, 2560, 200 if cols < 5 else 150
+    # максимальный размер фигуры: 2560.0*2560.0px (до 5 МБ можно отправить через бота)
+    w_max, h_max = w_max_px/dpi, h_max_px/dpi
+    w_fig, h_fig = w_max, h_max
+    w_size, h_size = w_fig * dpi, h_fig * dpi
+    font_size = 20 if cols < 5 else dpi * w_max/100
+    fig = plt.figure(figsize=(w_fig, h_fig), dpi=dpi,
+                     constrained_layout=False, frameon=False)
+    left = 0.025
+    bottom = 0.025
+    right = 1.0 - left
+    top = 1.0 - bottom
+    hspace = 0.01
+    margins = {
+        "left": left,  # 0.030
+        "bottom": bottom,  # 0.030
+        "right": right,  # 0.970
+        "top": top,  # 0.900
+        "hspace": hspace  # 0.200
+    }
+    color = {
+        'violet': (0.19367589, 0.20948617, 0.43478261, 0.80),  # (49, 53, 110)
+        'black': (0.00395257, 0.04347826, 0.07509881, 0.90),  # (1, 11, 19)
+        'total_black': (0.0, 0.0, 0.0, 1.0),
+        'orange': (0.913, 0.380, 0.082, 1.00),  # (49, 53, 110)
+        'yellow': (0.9372, 0.9098, 0.8353, 1.0),
+    }  # (0.4941, 0.5686, 0.5843, 1.0) ранее были окрашены заголовки в этот цвет
+    fig.subplots_adjust(**margins)
+    # plt.style.use('Solarize_Light2')
+    heights = [0.25, h_fig]
+    gs = gridspec.GridSpec(ncols=1, nrows=2, height_ratios=heights)
+    wh = w_fig/h_fig
+    cr = cols/rows
+    """Первая часть таблицы"""
+    w_fig_ax_1, h_fig_ax_1 = 1, 1
+    # fontstyle {'normal', 'italic', 'oblique'}; толщина рифта: 0-1000 или 'light', 'normal', 'regular', 'book', 'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy', 'extra bold', 'black'
+    font_st_ttl = {'fontname': 'Arial', 'fontsize': font_size * 0.95}
+    lw_line_st = 3.5
+    fig_ax_1 = fig.add_subplot(gs[0, 0])
+    fig_ax_1.axis('off')
+    logo = plt.imread('temp_files/temp/logo.png')
+    # logo = image.imread('temp_files/temp/logo.png')
+    zoom = 0.15 if cols < 5 else w_max/100  # 0.1
+    fig_ax_1.set_xlim(0.0, w_fig_ax_1)
+    fig_ax_1.set_ylim(0.0, h_fig_ax_1)
+    fig_ax_1.text(x=0.0, y=zoom*2, s=data.label, weight='normal', ha='left',
+                  va='baseline', c=color['total_black'], fontstyle='oblique', **font_st_ttl)
+    fig_ax_1.plot([0, 1.0], [0.0, 0.0], lw=lw_line_st, c=color['orange'])
+    imagebox = OffsetImage(logo, zoom=zoom, dpi_cor=False,
+                           resample=False, filternorm=False)
+    fig_ax_1.add_artist(AnnotationBbox(
+        imagebox, (1.0, zoom*2), frameon=False, pad=0, box_alignment=(1.0, 0.0)))
 
-    #     {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
-    #         'unit_1': accmodel.velocity_wind,
-    #         'unit_2': i18n.get('m_per_sec')},
+    """Вторая часть таблицы"""
+    w_fig_ax_2, h_fig_ax_2 = cols + w_fig/4, rows/2 + 0.25
+    lw_line_nd = 2.5
+    font_nd_ttl = {'fontname': 'Arial', 'fontsize': font_size * 0.75}
+    font_nd = {'fontname': 'Arial', 'fontsize': font_size * 0.95}
+    fig_ax_2 = fig.add_subplot(gs[1, 0])
+    fig_ax_2.axis('off')
+    step = 0.5
+    fig_ax_2.set_xlim(0.0, w_fig_ax_2)
+    fig_ax_2.set_ylim(0.0, h_fig_ax_2)
 
-    #     {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
-    #         'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
+    n = cols - 2
+    x_st = 4
+    m = w_fig_ax_2 - (x_st + w_fig_ax_2 * 0.00)
+    y_title = (rows / 2 + 0.05)
+    m_per_n = m / n
+    if std_table:
+        fig_ax_2.add_patch(patches.Rectangle((x_st + m_per_n - step, 0),  # нижняя левая начальная позиция (x, y)
+                                             width=1, height=rows/2, ec='none', color=color['yellow'], alpha=1.0, zorder=-1))
+    df = data.dataframe[::-1]
+    for row in np.arange(0, rows):
+        fig_ax_2.plot([0.0, w_fig_ax_2], [row / 2 + step, row / 2 + step], ls=':',
+                      lw=lw_line_nd * 0.5, c=color['black']) if row < rows-1 else None  # линия сетки
+        y = step / 2 + row / 2 if row > 0 else step / 2
+        for i in np.arange(0, cols):
+            d = df[row]
+            if i == 0:
+                x = 0
+                ha = 'left'
+                wh = 'bold' if d[1] == '' else 'normal'
+            elif i == 1:
+                x = x_st
+                ha = 'center'
+                wh = 'normal'
+            elif i < cols-1:
+                x = x_st + m_per_n * (i - 1)
+                ha = 'center'
+                wh = 'bold'
+            else:
+                x = w_fig_ax_2
+                ha = 'right'
+                wh = 'bold' if d[cols - 2] == '' else 'normal'
+            fig_ax_2.text(x=x, y=y_title, s=data.headers[i], weight='bold', ha=ha, va='baseline',
+                          c=color['violet'], **font_nd_ttl) if row == 0 else None  # заголовки таблицы
+            fig_ax_2.text(x=x, y=y, s=d[i], weight=wh, ha=ha,
+                          va='center', c=color['black'], **font_nd)
 
-    #     {'id': i18n.get('ambient_temperature'), 'var': 'tₒ',
-    #      'unit_1': accmodel.air_temperature,
-    #         'unit_2': i18n.get('celsius')},
+            if d[1] == '' and d[cols - 2] == '' and std_table == False:
+                fig_ax_2.add_patch(patches.Rectangle((x, row/2 if row > 0 else step/2),  # нижняя левая начальная позиция (x, y)
+                                                     width=w_fig_ax_2,
+                                                     height=step,
+                                                     ec='none',
+                                                     color=color['yellow'],
+                                                     alpha=1.0,
+                                                     zorder=-1))
 
-    #     {'id': i18n.get('specific_mass_fuel_burning_rate'),
-    #         'var': 'm',
-    #         'unit_1': substance.mass_burning_rate,
-    #         'unit_2': i18n.get('kg_per_m_square_in_sec')},
-    #     # {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
-    #     #     'unit_1': data.get(
-    #     #     'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
-    #     {'id': i18n.get('substance'), 'var': '-',
-    #      'unit_1': i18n.get(accmodel.substance_name),
-    #      'unit_2': '-'}]
+    """Дополнительные декоративные выделения второй таблицы"""
+    lw_line = 2.0
+    # основной разделитель заголовка
+    fig_ax_2.plot([0, w_fig_ax_2], [rows/2, rows/2],
+                  lw=lw_line, c=color['violet'])
+    fig_ax_2.plot([0, w_fig_ax_2], [0.0, 0.0],
+                  lw=lw_line * 2.0, c=color['violet'])
+    fig_ax_2.plot([0, w_fig_ax_2], [(rows-row_num)*step, (rows-row_num)
+                  * step], lw=lw_line, c=color['violet']) if results else None
 
-    return label, headers, dataframe
+    """Сохранение картинки в буфер памяти"""
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    buffer.close()
+    plt.cla()
+    plt.style.use('default')
+    plt.close(fig)
+    return image_png
 
 
 def get_data_table(data: list[dict], headers: str, label: str, column: int = 4, results: bool | None = False, row_num: int | None = None, row_num_patch: int | None = None, sel_row_num: int = 0) -> bytes:

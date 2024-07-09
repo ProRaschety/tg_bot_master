@@ -15,6 +15,7 @@ from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
 from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
+from app.tg_bot.models.tables import DataFrameModel
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm
@@ -27,9 +28,9 @@ from app.calculation.physics.physics_utils import compute_characteristic_diamete
 from app.calculation.qra_mode import probits
 from app.calculation.utilities import misc_utils
 
-from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph
+from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph, get_dataframe_table
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
-
+from app.tg_bot.utilities import tables
 
 log = logging.getLogger(__name__)
 
@@ -121,8 +122,6 @@ async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 @fire_accident_router.callback_query(F.data.in_(['fire_pool', 'back_fire_pool']))
 async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    molar_mass, boling_point, m = await get_property_fuel(subst='gasoline')
-
     text = i18n.request_start.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -130,65 +129,20 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         caption=text,
         reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
 
-    accmodel = AccidentModel(substance_state='liquid',  # 'solid', 'liquid', 'gas', 'dust', 'liquid_gas', 'nonflammable'
-                             substance_name='gasoline')  # 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen'
-    substance = SubstanceModel(substance_name=accmodel.substance_name,
+    molar_mass, boling_point, m = await get_property_fuel(subst='gasoline')
+    # 'solid', 'liquid', 'gas', 'dust', 'liquid_gas', 'nonflammable'
+    substance = SubstanceModel(substance_name='',
                                molar_mass=molar_mass,
                                boiling_point=boling_point,
                                mass_burning_rate=m)
+    # 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen'
+    accmodel = AccidentModel(substance_state='liquid',
+                             substance_name='gasoline',
+                             sub=substance)
+    dataframe = tables.get_dataframe(
+        request='fire_pool', i18n=i18n, substance=substance, accmodel=accmodel)
 
-    # data = await state.get_data()
-    # data.setdefault("edit_accident_fire_pool_param", "1")
-    # data.setdefault("accident_fire_pool_molar_mass_fuel", 100)
-    # data.setdefault("accident_fire_pool_boiling_point_fuel", 180)
-    # data.setdefault("accident_fire_pool_mass_burning_rate", 0.06)
-    # data.setdefault("accident_fire_pool_heat_of_combustion", "36000")
-    # data.setdefault("accident_fire_pool_sub", "gasoline")
-    # data.setdefault("accident_fire_pool_temperature", "20")
-    # data.setdefault("accident_fire_pool_wind", "0")
-    # data.setdefault("accident_fire_pool_pool_area", "314")
-    # data.setdefault("accident_fire_pool_distance", "30")
-
-    air_density = compute_density_gas_phase(
-        molar_mass=28.97,
-        temperature=accmodel.air_temperature
-    )
-
-    headers = (i18n.get('name'), i18n.get('variable'),
-               i18n.get('value'), i18n.get('unit'))
-    label = i18n.get('fire_pool')
-    data_out = [
-        {'id': i18n.get('pool_distance'), 'var': 'r',
-         'unit_1': accmodel.distance,
-         'unit_2': i18n.get('meter')},
-
-        {'id': i18n.get('pool_area'), 'var': 'F',
-         'unit_1': accmodel.pool_area,
-            'unit_2': i18n.get('meter_square')},
-
-        {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
-            'unit_1': accmodel.velocity_wind,
-            'unit_2': i18n.get('m_per_sec')},
-
-        {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
-            'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
-
-        {'id': i18n.get('ambient_temperature'), 'var': 'tₒ',
-         'unit_1': accmodel.air_temperature,
-            'unit_2': i18n.get('celsius')},
-
-        {'id': i18n.get('specific_mass_fuel_burning_rate'),
-            'var': 'm',
-            'unit_1': substance.mass_burning_rate,
-            'unit_2': i18n.get('kg_per_m_square_in_sec')},
-        # {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
-        #     'unit_1': data.get(
-        #     'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
-        {'id': i18n.get('substance'), 'var': '-',
-         'unit_1': i18n.get(accmodel.substance_name),
-         'unit_2': '-'}]
-
-    media = get_data_table(data=data_out, headers=headers, label=label)
+    media = get_dataframe_table(data=dataframe)
     text = i18n.fire_pool.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -204,6 +158,8 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     await state.update_data(accmodel=asdict(accmodel))
     await state.update_data(substance=asdict(substance))
     await state.update_data(edit_accident_fire_pool_param='')
+
+    # print(await state.get_data())
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_fire_pool_guest']))
@@ -273,7 +229,7 @@ async def fire_pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     context_data = await state.get_data()
     accmodel = AccidentModel(**context_data.get('accmodel'))
     accmodel.substance_name = call_data
-
+    print(accmodel.sub)
     substance = SubstanceModel(**context_data.get('substance'))
     substance.substance_name = accmodel.substance_name
     substance.molar_mass = molar_mass
@@ -286,6 +242,7 @@ async def fire_pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         molar_mass=28.97,
         temperature=accmodel.air_temperature
     )
+
     headers = (i18n.get('name'), i18n.get('variable'),
                i18n.get('value'), i18n.get('unit'))
     label = i18n.get('fire_pool')

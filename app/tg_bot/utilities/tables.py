@@ -1,19 +1,24 @@
 import logging
-import os
-import csv
-import io
+# import os
+# import csv
+# import io
+# import pandas as pd
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import matplotlib.patches as patches
+# import matplotlib.gridspec as gridspec
+# import inspect
 
 from fluentogram import TranslatorRunner
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import matplotlib.gridspec as gridspec
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-import inspect
-from datetime import datetime
+# from datetime import datetime
+from app.infrastructure.database.models.calculations import AccidentModel
+from app.infrastructure.database.models.substance import FlammableMaterialModel, SubstanceModel
 
+from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel, compute_stoichiometric_coefficient_with_fuel, compute_stoichiometric_coefficient_with_oxygen
+from app.calculation.qra_mode import probits
+
+from app.tg_bot.models.tables import DataFrameModel
 
 log = logging.getLogger(__name__)
 
@@ -95,3 +100,43 @@ def get_result_data(*args, data: tuple, label: str, i18n: TranslatorRunner):
     }
 
     return data_out.get(label), headers, label_text
+
+
+def get_dataframe(request: str,
+                  i18n: TranslatorRunner,
+                  substance: SubstanceModel = None,
+                  flammable_material: FlammableMaterialModel = None,
+                  accmodel: AccidentModel = None
+                  ):
+    log.info(f'Requst dataframe: {i18n.get(request)}')
+
+    """Собирает данные для формирования таблицы"""
+
+    label: str = i18n.get(request)
+    headers: list[str] = [i18n.get('name'), i18n.get(
+        'variable'), i18n.get('value'), i18n.get('unit')]
+    dataframe: list[dict] = None
+
+    if request == 'fire_pool':
+        air_density = compute_density_gas_phase(
+            molar_mass=28.97,
+            temperature=accmodel.air_temperature
+        )
+        dataframe = [
+            [i18n.get('substance'), '-',
+             i18n.get(accmodel.substance_name), '-'],
+            [i18n.get('specific_mass_fuel_burning_rate'), 'm',
+             substance.mass_burning_rate, i18n.get('kg_per_m_square_in_sec')],
+            [i18n.get('ambient_temperature'), 'tₒ',
+             accmodel.air_temperature, i18n.get('celsius')],
+            [i18n.get('ambient_air_density'), 'ρₒ',
+             f"{air_density:.2f}", i18n.get('kg_per_m_cub')],
+            [i18n.get('wind_velocity'), 'wₒ',
+             accmodel.velocity_wind, i18n.get('m_per_sec')],
+            [i18n.get('pool_area'), 'F',  accmodel.pool_area,
+             i18n.get('meter_square')],
+            [i18n.get('pool_distance'), 'r',
+             accmodel.distance, i18n.get('meter')]
+        ]
+
+    return DataFrameModel(label=label, headers=headers, dataframe=dataframe)

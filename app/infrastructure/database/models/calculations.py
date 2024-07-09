@@ -4,6 +4,7 @@ from enum import Enum
 
 from app.infrastructure.database.models.substance import FlammableMaterialModel
 from app.tg_bot.models.role import UserRole
+from app.infrastructure.database.models.substance import SubstanceModel
 
 
 @dataclass
@@ -16,12 +17,16 @@ class AccidentModel:
 
     distance: float = 30
 
+    sub: SubstanceModel = None
+
     def __post_init__(self):
         self.air_temperature = float(self.air_temperature)
         self.velocity_wind = float(self.velocity_wind)
         self.pool_area = float(self.pool_area)
-
         self.distance = float(self.distance)
+
+        if self.sub == dict:
+            self.sub = SubstanceModel(**self.sub)
 
     # data.setdefault("edit_accident_fire_pool_param", "1")
     # data.setdefault("accident_fire_pool_sub", "gasoline")
