@@ -99,7 +99,8 @@ fire_pool_kb_guest =
 
 run_fire_pool =
     ▶ Рассчитать
-
+run_fire_pool_text =
+    Пожар-пролива. Результаты расчета
 result_fire_pool_kb_owner =
     plot_fire_pool
     probit_fire_pool
@@ -173,6 +174,8 @@ LPG =
 liq_hydrogen =
     Сжиженный
     водород
+other_liquid =
+    Другое вещество
 name_fire_pool_area =
     Введите площадь пролива:
 name_fire_pool_distance =
@@ -409,7 +412,7 @@ name_cloud_explosion_correction_parameter =
 name_cloud_explosion_stc_coef_oxygen =
     Введите значение стехиометрического коэффициента
     при кислороде:
-edit_cloud_explosion_coef_z_state =
+name_cloud_explosion_coef_z =
     Введите значение коэффициента Z
     участия горючего во взрыве:
 name_cloud_explosion_mass_fuel =

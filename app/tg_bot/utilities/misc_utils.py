@@ -6,15 +6,22 @@ import pandas as pd
 import numpy as np
 import inspect
 
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.gridspec as gridspec
 # from matplotlib import font_manager as fm, rcParams
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from matplotlib import font_manager
 from datetime import datetime
 from fluentogram import TranslatorRunner
 
 from app.tg_bot.models.tables import DataFrameModel
+
+# font_dirs = ['app/tg_bot/fonts']  # The path to the custom font file.
+# font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
+# for font_file in font_files:
+#     font_manager.fontManager.addfont(font_file)
 
 log = logging.getLogger(__name__)
 
@@ -114,23 +121,120 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
 
     """Рисует таблицу по данным полученным из функции get_dataframe()"""
 
-    rows = len(data.dataframe)
+    font_dirs = ['app/tg_bot/fonts']  # The path to the custom font file.
+    font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
+    for font_file in font_files:
+        font_manager.fontManager.addfont(font_file)
+    # px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
     cols = len(list(data.dataframe[-1]))
+    rows = len(data.dataframe)
 
-    """"Создание фигуры"""
-    w_max_px, h_max_px, dpi = 2560, 2560, 200 if cols < 5 else 150
-    # максимальный размер фигуры: 2560.0*2560.0px (до 5 МБ можно отправить через бота)
-    w_max, h_max = w_max_px/dpi, h_max_px/dpi
-    w_fig, h_fig = w_max, h_max
-    w_size, h_size = w_fig * dpi, h_fig * dpi
-    font_size = 20 if cols < 5 else dpi * w_max/100
-    fig = plt.figure(figsize=(w_fig, h_fig), dpi=dpi,
-                     constrained_layout=False, frameon=False)
+    color = {
+        'violet': (0.19367589, 0.20948617, 0.43478261, 0.80),  # 49,53,110
+        'white': (1.00, 1.00, 1.00, 1.00),  #
+        'rich_black': (1/253, 11/253, 19/253, 0.80),  # 1,11,19
+        'total_black': (0.0, 0.0, 0.0, 1.0),
+        'orange': (0.913, 0.380, 0.082, 0.80),  # 49,53,110
+        'yellow': (0.9372, 0.9098, 0.8353, 1.00),
+        'grey': (229/253, 228/253, 226/253, 1.00),  # 247,247,247
+        'light_green': (238/253, 244/253, 232/253, 1.00),  # 238,244,232
+        'brown_sugar': (95/253, 96/253, 92/253, 1.00),  # 95,96,92
+        'anitracite_gray': (15/253, 18/253, 19/253, 0.95)  # 15, 18, 19
+    }  # (0.4941, 0.5686, 0.5843, 1.0) ранее были окрашены заголовки в этот цвет https://get-color.ru/grey/
+
+    """"Параметры фигуры"""
+    if cols == 4:
+        if rows < 10:
+            log.info(f'Таблица_4/9: cols={cols}, rows={rows}')
+            w_fig, h_fig, dpi = 13.0, 13.0, 100  # 12.8, 12.8
+            w_size, h_size = cols * dpi, rows * dpi
+            font_size_title = 22
+            font_size_header = 20
+            font_size_text = 22
+            lw_line = 3
+            logo_size = 17
+            x_st = 4.0
+            hspace = 0.105
+            zoom = 0.085
+        elif rows < 15:
+            log.info(f'Таблица_4/14: cols={cols}, rows={rows}')
+            w_fig, h_fig, dpi = 15.0, 15.0, 100  # 12.8, 12.8
+            w_size, h_size = cols * dpi, rows * dpi
+            font_size_title = 25
+            font_size_header = 23
+            font_size_text = 25
+            lw_line = 4
+            logo_size = 15
+            x_st = 4.5
+            hspace = 0.10
+            zoom = 0.095
+        else:
+            log.info(f'Таблица_4/n: cols={cols}, rows={rows}')
+            w_fig, h_fig, dpi = 12.8, 12.8, 100  # 12.8, 12.8
+            w_size, h_size = cols * dpi, rows * dpi
+            font_size_title = 22
+            font_size_header = 20
+            font_size_text = 22
+            lw_line = 3
+            logo_size = 17
+            x_st = 3.5
+            hspace = 0.085
+            zoom = 0.095
+    elif cols == 9:
+        if rows < 16:
+            log.info(f'Таблица_9/16: cols={cols}, rows={rows}')
+            w_fig, h_fig, dpi = 22, 14, 100  # 12.8, 12.8
+            w_size, h_size = cols * dpi, rows * dpi
+            font_size_title = 22
+            font_size_header = 18
+            font_size_text = 20
+            lw_line = 4
+            logo_size = 17
+            x_st = 2.0
+            hspace = 0.125
+            zoom = 0.095
+        else:
+            log.info(f'Таблица_9/n: cols={cols}, rows={rows}')
+            w_fig, h_fig, dpi = 22, 14, 100  # 12.8, 12.8
+            w_size, h_size = cols * dpi, rows * dpi
+            font_size_title = 22
+            font_size_header = 18
+            font_size_text = 20
+            lw_line = 4
+            logo_size = 17
+            x_st = 2.0
+            hspace = 0.085
+            zoom = 0.095
+    elif cols > 9:
+        if rows < 16:
+            log.info(f'Таблица_11/16: cols={cols}, rows={rows}')
+            w_fig, h_fig, dpi = 22, 14, 100  # 12.8, 12.8
+            w_size, h_size = cols * dpi, rows * dpi
+            font_size_title = 22
+            font_size_header = 18
+            font_size_text = 20
+            lw_line = 4
+            logo_size = 17
+            x_st = 2.0
+            hspace = 0.125
+            zoom = 0.095
+        else:
+            log.info(f'Таблица_11/n: cols={cols}, rows={rows}')
+            w_fig, h_fig, dpi = 26, 14, 100  # 12.8, 12.8
+            w_size, h_size = cols * dpi, rows * dpi
+            font_size_title = 22
+            font_size_header = 18
+            font_size_text = 22
+            lw_line = 4
+            logo_size = 17
+            x_st = 2.0
+            hspace = 0.085
+            zoom = 0.095
+
     left = 0.025
-    bottom = 0.025
+    bottom = 0.020
     right = 1.0 - left
-    top = 1.0 - bottom
-    hspace = 0.01
+    top = 0.945  # 1.0 - bottom
     margins = {
         "left": left,  # 0.030
         "bottom": bottom,  # 0.030
@@ -138,52 +242,51 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
         "top": top,  # 0.900
         "hspace": hspace  # 0.200
     }
-    color = {
-        'violet': (0.19367589, 0.20948617, 0.43478261, 0.80),  # (49, 53, 110)
-        'black': (0.00395257, 0.04347826, 0.07509881, 0.90),  # (1, 11, 19)
-        'total_black': (0.0, 0.0, 0.0, 1.0),
-        'orange': (0.913, 0.380, 0.082, 1.00),  # (49, 53, 110)
-        'yellow': (0.9372, 0.9098, 0.8353, 1.0),
-    }  # (0.4941, 0.5686, 0.5843, 1.0) ранее были окрашены заголовки в этот цвет
+    fig = plt.figure(figsize=(w_fig, h_fig), dpi=dpi,
+                     facecolor=color['white'], clear=False, constrained_layout=False, frameon=False)
     fig.subplots_adjust(**margins)
+    # plt.style.use('bmh')
     # plt.style.use('Solarize_Light2')
-    heights = [0.25, h_fig]
-    gs = gridspec.GridSpec(ncols=1, nrows=2, height_ratios=heights)
-    wh = w_fig/h_fig
-    cr = cols/rows
+    width_ratios = [1]
+    height_ratios = [0.10, h_fig]
+    gs = gridspec.GridSpec(
+        nrows=2, ncols=1, width_ratios=width_ratios, height_ratios=height_ratios)
+
     """Первая часть таблицы"""
-    w_fig_ax_1, h_fig_ax_1 = 1, 1
+    w_fig_ax_1, h_fig_ax_1 = 1, height_ratios[0]
+    # 'baseline', 'bottom', 'center', 'center_baseline', 'top'
     # fontstyle {'normal', 'italic', 'oblique'}; толщина рифта: 0-1000 или 'light', 'normal', 'regular', 'book', 'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy', 'extra bold', 'black'
-    font_st_ttl = {'fontname': 'Arial', 'fontsize': font_size * 0.95}
-    lw_line_st = 3.5
+    font_st_ttl = {'fontname': 'Acrobat', 'fontsize': font_size_title}
     fig_ax_1 = fig.add_subplot(gs[0, 0])
+    fig_ax_1.set_facecolor(color=color['total_black'])
     fig_ax_1.axis('off')
     logo = plt.imread('temp_files/temp/logo.png')
-    # logo = image.imread('temp_files/temp/logo.png')
-    zoom = 0.15 if cols < 5 else w_max/100  # 0.1
     fig_ax_1.set_xlim(0.0, w_fig_ax_1)
     fig_ax_1.set_ylim(0.0, h_fig_ax_1)
-    fig_ax_1.text(x=0.0, y=zoom*2, s=data.label, weight='normal', ha='left',
-                  va='baseline', c=color['total_black'], fontstyle='oblique', **font_st_ttl)
-    fig_ax_1.plot([0, 1.0], [0.0, 0.0], lw=lw_line_st, c=color['orange'])
-    imagebox = OffsetImage(logo, zoom=zoom, dpi_cor=False,
-                           resample=False, filternorm=False)
+    fig_ax_1.text(x=0.0, y=h_fig_ax_1, s=data.label, weight='normal', ha='left', va='baseline',
+                  c=color['anitracite_gray'], fontstyle='oblique', **font_st_ttl
+                  )
+    fig_ax_1.plot([0, w_fig_ax_1], [0.0, 0.0],
+                  lw=lw_line * 1.4, c=color['orange'])
+    imagebox = OffsetImage(logo,
+                           zoom=zoom,
+                           dpi_cor=True, resample=False, filternorm=False)
     fig_ax_1.add_artist(AnnotationBbox(
-        imagebox, (1.0, zoom*2), frameon=False, pad=0, box_alignment=(1.0, 0.0)))
+        imagebox, (1.0, h_fig_ax_1), frameon=False, pad=0, box_alignment=(1.0, 0.0)))
 
     """Вторая часть таблицы"""
-    w_fig_ax_2, h_fig_ax_2 = cols + w_fig/4, rows/2 + 0.25
-    lw_line_nd = 2.5
-    font_nd_ttl = {'fontname': 'Arial', 'fontsize': font_size * 0.75}
-    font_nd = {'fontname': 'Arial', 'fontsize': font_size * 0.95}
+    w_fig_ax_2, h_fig_ax_2 = cols + w_fig/5, rows/2  # + 0.125
+    font_nd_ttl = {'fontname': 'Acrobat', 'fontsize': font_size_header}
+    font_nd = {'fontname': 'Roboto', 'fontsize': font_size_text}
     fig_ax_2 = fig.add_subplot(gs[1, 0])
+    fig_ax_2.set_facecolor(color=color['white'])
     fig_ax_2.axis('off')
+    fig_ax_2.set_xticks(np.arange(0, w_fig_ax_2, 0.50), minor=False)
+    fig_ax_2.set_yticks(np.arange(0, h_fig_ax_2, 0.50), minor=False)
     step = 0.5
     fig_ax_2.set_xlim(0.0, w_fig_ax_2)
     fig_ax_2.set_ylim(0.0, h_fig_ax_2)
-
     n = cols - 2
-    x_st = 4
     m = w_fig_ax_2 - (x_st + w_fig_ax_2 * 0.00)
     y_title = (rows / 2 + 0.05)
     m_per_n = m / n
@@ -192,8 +295,8 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
                                              width=1, height=rows/2, ec='none', color=color['yellow'], alpha=1.0, zorder=-1))
     df = data.dataframe[::-1]
     for row in np.arange(0, rows):
-        fig_ax_2.plot([0.0, w_fig_ax_2], [row / 2 + step, row / 2 + step], ls=':',
-                      lw=lw_line_nd * 0.5, c=color['black']) if row < rows-1 else None  # линия сетки
+        fig_ax_2.plot([0.0, w_fig_ax_2], [row / 2 + step, row / 2 + step], ls=':', lw=lw_line *
+                      0.5, c=color['anitracite_gray']) if row < rows-1 else None  # линия сетки
         y = step / 2 + row / 2 if row > 0 else step / 2
         for i in np.arange(0, cols):
             d = df[row]
@@ -213,10 +316,10 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
                 x = w_fig_ax_2
                 ha = 'right'
                 wh = 'bold' if d[cols - 2] == '' else 'normal'
-            fig_ax_2.text(x=x, y=y_title, s=data.headers[i], weight='bold', ha=ha, va='baseline',
+            fig_ax_2.text(x=x, y=y_title, s=data.headers[i], weight='normal', ha=ha, va='baseline',
                           c=color['violet'], **font_nd_ttl) if row == 0 else None  # заголовки таблицы
             fig_ax_2.text(x=x, y=y, s=d[i], weight=wh, ha=ha,
-                          va='center', c=color['black'], **font_nd)
+                          va='center_baseline', c=color['anitracite_gray'], **font_nd)
 
             if d[1] == '' and d[cols - 2] == '' and std_table == False:
                 fig_ax_2.add_patch(patches.Rectangle((x, row/2 if row > 0 else step/2),  # нижняя левая начальная позиция (x, y)
@@ -228,9 +331,8 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
                                                      zorder=-1))
 
     """Дополнительные декоративные выделения второй таблицы"""
-    lw_line = 2.0
     # основной разделитель заголовка
-    fig_ax_2.plot([0, w_fig_ax_2], [rows/2, rows/2],
+    fig_ax_2.plot([0, w_fig_ax_2], [rows/2-0.01, rows/2-0.01],
                   lw=lw_line, c=color['violet'])
     fig_ax_2.plot([0, w_fig_ax_2], [0.0, 0.0],
                   lw=lw_line * 2.0, c=color['violet'])
@@ -242,8 +344,10 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
     fig.savefig(buffer, format='png')
     buffer.seek(0)
     image_png = buffer.getvalue()
+    # plt.show()
     buffer.close()
     plt.cla()
+    plt.clf()
     plt.style.use('default')
     plt.close(fig)
     return image_png
@@ -440,8 +544,12 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
                    add_annotate_nd: bool = False, text_annotate_nd: list[str] = None, x_ann_nd: int | float = None, y_ann_nd: int | float = None,
                    add_legend: bool = False, loc_legend: int = 1,
                    add_fill_between: bool = False, param_fill: int | float = None, label_fill: str = None,
-                   add_axhline: bool = False, label_axline: str = None, plot_color=(0.9, 0.1, 0, 0.9), **kwargs):
+                   add_axhline: bool = False, label_axline: str = None, **kwargs):
     log.info(f"График: {label}")
+    font_dirs = ['app/tg_bot/fonts']  # The path to the custom font file.
+    font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
+    for font_file in font_files:
+        font_manager.fontManager.addfont(font_file)
     # размеры рисунка в дюймах
     px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
     w = 650  # px
@@ -459,6 +567,21 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
         "top": top,  # 0.900
         "hspace": hspace  # 0.200
     }
+
+    color = {
+        'red': (0.9, 0.1, 0.0, 0.90),
+        'violet': (0.19367589, 0.20948617, 0.43478261, 0.80),  # 49,53,110
+        'white': (1.00, 1.00, 1.00, 1.00),  #
+        'rich_black': (1/253, 11/253, 19/253, 0.80),  # 1,11,19
+        'total_black': (0.0, 0.0, 0.0, 1.0),
+        'orange': (0.913, 0.380, 0.082, 0.80),  # 49,53,110
+        'yellow': (0.9372, 0.9098, 0.8353, 1.00),
+        'grey': (229/253, 228/253, 226/253, 1.00),  # 247,247,247
+        'light_green': (238/253, 244/253, 232/253, 1.00),  # 238,244,232
+        'brown_sugar': (95/253, 96/253, 92/253, 1.00),  # 95,96,92
+        'anitracite_gray': (15/253, 18/253, 19/253, 0.90)  # 15, 18, 19
+    }  # (0.4941, 0.5686, 0.5843, 1.0) ранее были окрашены заголовки в этот цвет https://get-color.ru/grey/
+
     fig = plt.figure(figsize=(w / px, h / px),
                      dpi=300, constrained_layout=False)
     fig.subplots_adjust(**margins)
@@ -468,9 +591,9 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
     heights = [xmax]
     gs = gridspec.GridSpec(
         ncols=1, nrows=1, width_ratios=widths, height_ratios=heights)
-    ft_label_size = {'fontname': 'Arial', 'fontsize': w*0.021}
+    ft_label_size = {'fontname': 'Acrobat', 'fontsize': w*0.018}
     # ft_title_size = {'fontname': 'Arial', 'fontsize': 8}
-    ft_size = {'fontname': 'Arial', 'fontsize': 12}
+    ft_size = {'fontname': 'Roboto', 'fontsize': 12}
     logo = plt.imread('temp_files/temp/logo.png')
 
     """____Первая часть таблицы____"""
@@ -480,20 +603,20 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
     fig_ax_1.axis('off')
 
     fig_ax_1.text(x=0.0, y=0.025, s=label,
-                  weight='bold', ha='left', **ft_label_size)
-    fig_ax_1.plot([0, xmax], [0.0, 0.0], lw='1.0',
-                  color=(0.913, 0.380, 0.082, 1.0))
+                  weight='normal', ha='left', va='baseline', c=color['anitracite_gray'], fontstyle='oblique', **ft_label_size)
+    fig_ax_1.plot([0, xmax], [0.0, 0.0], lw='1.0', c=color['orange'])
     imagebox = OffsetImage(logo, zoom=w*0.000085, dpi_cor=True)
-    ab = AnnotationBbox(imagebox, (xmax-(xmax/33.3), 0.025),
-                        frameon=False, pad=0, box_alignment=(0.00, 0.0))
-    fig_ax_1.add_artist(ab)
+    # ab = AnnotationBbox(imagebox, (xmax-(xmax/33.3), 0.025),
+    #                     frameon=False, pad=0, box_alignment=(0.00, 0.0))
+    fig_ax_1.add_artist(AnnotationBbox(imagebox, (xmax-(xmax/33.3), 0.025),
+                        frameon=False, pad=0, box_alignment=(0.00, 0.0)))
 
     """____Вторая часть таблицы____"""
     fig_ax_2 = fig.add_subplot(gs[0, 0])
     # log.info(plot_label)
     fig_ax_2.plot(x_values, y_values, '-',
                   #   linewidth=3,
-                  color=plot_color,
+                  color=color['red'],
                   label=plot_label if plot_label != None else label,
                   **kwargs)
 
@@ -509,7 +632,7 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
     # Ось абсцисс Xaxis
     fig_ax_2.set_xlim(0.0, max(x_values) + max(x_values)*0.05)
     fig_ax_2.set_xlabel(xlabel=x_label, fontdict=None,
-                        labelpad=None, weight='bold', loc='center', **ft_size)
+                        labelpad=None, weight='bold', loc='center', color=color['anitracite_gray'], **ft_size)
 
     # Ось ординат Yaxis
     if ylim == None:
@@ -525,7 +648,7 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
             axis='y', style='plain', scilimits=(0, 2), useOffset=True)
 
     fig_ax_2.set_ylabel(ylabel=y_label,
-                        fontdict=None, labelpad=None, weight='bold', loc='center', **ft_size)
+                        fontdict=None, labelpad=None, weight='bold', loc='center', color=color['anitracite_gray'], **ft_size)
 
     if add_annotate:
         fig_ax_2.annotate(text_annotate,
@@ -536,13 +659,13 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
                           xycoords='data', textcoords='data', weight='bold', **ft_size)
         if y_ann:
             fig_ax_2.hlines(y=y_ann, xmin=0, xmax=x_ann*0.99, linestyle='--',
-                            linewidth=1, color=(0.1, 0.1, 0, 1.0))
+                            linewidth=1, color=color['anitracite_gray'],)
         if x_ann:
             fig_ax_2.vlines(x=x_ann, ymin=0, ymax=y_ann*0.99, linestyle='--',
-                            linewidth=1, color=(0.1, 0.1, 0, 1.0))
+                            linewidth=1, color=color['anitracite_gray'],)
         if y_ann and x_ann:
             fig_ax_2.scatter(x_ann, y_ann, s=90, marker='o',
-                             color=(0.9, 0.1, 0.0, 0.90))
+                             color=color['red'],)
 
     if add_annotate_nd:
         fig_ax_2.annotate(text_annotate_nd,
@@ -553,24 +676,24 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
                           xycoords='data', textcoords='data', weight='bold', **ft_size)
         if y_ann_nd:
             fig_ax_2.hlines(y=y_ann_nd, xmin=0, xmax=x_ann_nd*0.99, linestyle='--',
-                            linewidth=1, color=(0.1, 0.1, 0, 1.0))
+                            linewidth=1, c=color['anitracite_gray'])
         if x_ann_nd:
             fig_ax_2.vlines(x=x_ann_nd, ymin=0, ymax=y_ann_nd*0.99, linestyle='--',
-                            linewidth=1, color=(0.1, 0.1, 0, 1.0))
+                            linewidth=1, c=color['anitracite_gray'])
         if y_ann_nd and x_ann_nd:
             fig_ax_2.scatter(x_ann_nd, y_ann_nd, s=90, marker='o',
-                             color=(0.9, 0.1, 0.0, 0.90))
+                             c=color['red'])
 
     if add_axhline:
         fig_ax_2.axhline(param_fill,
-                         color="red", linestyle="--", lw=1, label=f'{label_axline} ≥ {param_fill} м²/м²')
+                         c=color['red'], linestyle="--", lw=1, label=f'{label_axline} ≥ {param_fill} м²/м²')
 
     if add_fill_between:
         fig_ax_2.fill_between(x_values,
                               y_values,
                               param_fill,
                               where=[d > param_fill for d in y_values],
-                              color='red', alpha=0.25, label=label_fill)
+                              c=color['red'], alpha=0.25, label=label_fill)
 
     # Цветовая шкала
     # plt.colorbar()
@@ -587,13 +710,13 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
     fig_ax_2.grid(visible=True,
                   which='major',
                   axis='both',
-                  color=(0, 0, 0, 0.5),
+                  c=color['anitracite_gray'],
                   linestyle=':',
                   linewidth=0.250)
 
     if add_legend:
         fig_ax_2.legend(fontsize=10, framealpha=0.95,
-                        facecolor="w", loc=loc_legend)
+                        facecolor=color['white'], loc=loc_legend)
     # directory = get_temp_folder(fold_name='temp_pic')
     # name_plot = "".join(['fig_steel_fr_', str(self.chat_id), '.png'])
     # name_dir = '/'.join([directory, name_plot])

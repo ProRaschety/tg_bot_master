@@ -30,6 +30,7 @@ from app.tg_bot.handlers.fire_accident import fire_accident_router
 from app.tg_bot.handlers.fire_accident_fireflash import fire_accident_fireflash_router
 from app.tg_bot.handlers.fds_tools import fds_tools_router
 from app.tg_bot.handlers.reports import report_router
+from app.tg_bot.handlers.keypad import keypad_router
 from app.tg_bot.handlers.other import other_router
 
 
@@ -86,6 +87,7 @@ async def main():
     dp.include_router(fire_accident_fireflash_router)
     dp.include_router(fds_tools_router)
     dp.include_router(report_router)
+    dp.include_router(keypad_router)
     dp.include_router(other_router)
 
     # i18n = I18n(path="locales", default_locale="ru", domain="i18n_example_bot")

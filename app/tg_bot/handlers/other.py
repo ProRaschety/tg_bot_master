@@ -22,7 +22,6 @@ other_router.callback_query.filter(IsGuest())
 
 @other_router.message(StateFilter(default_state))
 async def echo_send(message: Message, state: FSMContext, i18n: TranslatorRunner):
-
     await message.answer(text=i18n.other_update.text(),
                          reply_markup=get_inline_url_kb(1, i18n=i18n, link_1="link_1-text"))
     log.info(

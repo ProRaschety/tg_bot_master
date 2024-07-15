@@ -19,7 +19,6 @@ from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
-from app.tg_bot.utilities.tables import get_initial_data, get_result_data
 from app.tg_bot.states.fsm_state_data import FSMClimateForm, FSMFrequencyForm, FSMFireRiskForm, FSMFireModelForm
 # from app.calculation.database_mode.substance import SubstanceDB
 from app.calculation.database_mode.climate import Climate

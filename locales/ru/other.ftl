@@ -18,6 +18,23 @@ calculator_buttons =
     clear
     ready
 
+keypad_buttons =
+    one
+    two
+    three
+    four
+    five
+    six
+    seven
+    eight
+    nine
+    zero
+    point
+    dooble_zero
+    all_clean
+    clean
+    ready
+
 one =
     1
 two =
@@ -52,11 +69,19 @@ comma =
 colon =
     ;
 ready =
-    💾
+    💾 Сохранить
 clear =
-    del
+    DEL
+clean =
+    DEL
+all_clean =
+    AC
 minus =
     -
+
+editable_parameter-text = {$text}
+    <blockquote>{$value}</blockquote>
+
 guest =
     Гость
 subscriber =
@@ -67,6 +92,8 @@ admin =
     Администратор
 owner =
     Владелец
+
+
 request_start-text =
     Запрос обрабатывается ⏳
 request_stop-text =
@@ -80,7 +107,7 @@ calculation_progress-text =
 update_data-text =
     Обновление данных ⏳
 edit_parameters_guest-text =
-    Возможность редактирования исходных данных недоступна для уровня доступа: <blockquote>{$level}</blockquote>
+    Возможность редактирования исходных данных недоступна для уровня: <blockquote>{$level}</blockquote>
 
 under_development =
     🚧 <i>Находится в разработке</i>

@@ -1,8 +1,12 @@
+import logging
+
 from dataclasses import dataclass
 # from typing import NamedTuple
 
 from app.infrastructure.database.models.base import BaseModel
 # from pydantic import validator
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -14,7 +18,6 @@ class SubstanceModel(BaseModel):
     boiling_point: float = 0
     mass_burning_rate: float = 0
     heat_of_combustion: float = 0
-    boiling_point: float = 0
 
     def __post_init__(self):
         self.density = float(self.density)

@@ -18,6 +18,7 @@ def get_inline_cd_kb(width: int = 1,
                      i18n: TranslatorRunner,
                      param_back: bool | None = False,
                      back_data: str | None = None,
+                     penult_button: str | None = None,
                      switch: bool | None = False,
                      switch_data: str | None = None,
                      switch_text: str | None = None,
@@ -79,6 +80,10 @@ def get_inline_cd_kb(width: int = 1,
     if switch:
         kb_builder.row(InlineKeyboardButton(
             text=i18n.get(switch_text), switch_inline_query_current_chat=switch_data), width=1)
+
+    if penult_button != None:
+        kb_builder.row(InlineKeyboardButton(
+            text=i18n.get(penult_button), callback_data=penult_button), width=1)
 
     if param_back:
         kb_builder.row(InlineKeyboardButton(

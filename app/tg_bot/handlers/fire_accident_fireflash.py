@@ -86,7 +86,7 @@ async def edit_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(4, *i18n.get('edit_fire_flash_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_flash'))
+                                      i18n=i18n, penult_button='run_fire_flash', param_back=True, back_data='back_fire_flash'))
     await callback.answer('')
 
 
