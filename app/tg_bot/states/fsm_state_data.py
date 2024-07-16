@@ -10,6 +10,10 @@ class FSMAdminForm(StatesGroup):
     admin_set_pic_steel = State()
 
 
+class FSMEditForm(StatesGroup):
+    keypad_state = State()
+
+
 class FSMFDSForm(StatesGroup):
     accept_document_state = State()
 

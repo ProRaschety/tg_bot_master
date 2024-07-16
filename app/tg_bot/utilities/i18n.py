@@ -32,6 +32,7 @@ def create_translator_hub() -> TranslatorHub:
                                "locales/ru/reports.ftl",
                                "locales/ru/probit.ftl",
                                "locales/ru/static/paths.ftl",
+                               "locales/ru/keypad.ftl",
                                "locales/ru/other.ftl"])),
             FluentTranslator(
                 locale="en",
@@ -55,6 +56,7 @@ def create_translator_hub() -> TranslatorHub:
                                "locales/en/reports.ftl",
                                "locales/en/probit.ftl",
                                "locales/en/static/paths.ftl",
+                               "locales/en/keypad.ftl",
                                "locales/en/other.ftl"]))
         ],
     )

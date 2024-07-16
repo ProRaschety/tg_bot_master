@@ -12,10 +12,10 @@ from fluentogram import TranslatorRunner
 # from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest
-from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm
+from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm, FSMEditForm
 from app.calculation.physics.accident_parameters import AccidentParameters
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad
 from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel, compute_stoichiometric_coefficient_with_fuel, compute_stoichiometric_coefficient_with_oxygen
 
 log = logging.getLogger(__name__)
@@ -92,26 +92,36 @@ async def edit_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMCont
 
 @fire_accident_fireflash_router.callback_query(F.data.in_(['edit_flash_mass', 'edit_flash_lcl']))
 async def edit_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    if callback.data == 'edit_flash_mass':
-        await state.set_state(FSMFireAccidentForm.edit_fire_flash_mass_state)
-    elif callback.data == 'edit_flash_lcl':
-        await state.set_state(FSMFireAccidentForm.edit_fire_flash_lcl_state)
-    data = await state.get_data()
-    state_data = await state.get_state()
-    if state_data == FSMFireAccidentForm.edit_fire_flash_mass_state:
-        text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
-            "name_fire_flash_mass"), edit_fire_flash=data.get("accident_fire_flash_mass_fuel", 0))
-    elif state_data == FSMFireAccidentForm.edit_fire_flash_lcl_state:
-        text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
-            "name_fire_flash_lcl"), edit_fire_flash=data.get("accident_fire_flash_lcl", 0))
+    # if callback.data == 'edit_flash_mass':
+    #     await state.set_state(FSMFireAccidentForm.edit_fire_flash_mass_state)
+    # elif callback.data == 'edit_flash_lcl':
+    #     await state.set_state(FSMFireAccidentForm.edit_fire_flash_lcl_state)
+
+    context_data = await state.get_data()
+    editable_parameter = context_data.get('editable_parameter', '')
+    await state.set_state(FSMEditForm.keypad_state)
+    text = i18n.editable_parameter.text(
+        text='Введите необходимое значение', value=editable_parameter)
+
+    # state_data = await state.get_state()
+    # if state_data == FSMFireAccidentForm.edit_fire_flash_mass_state:
+    #     text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
+    #         "name_fire_flash_mass"), edit_fire_flash=data.get("accident_fire_flash_mass_fuel", 0))
+    # elif state_data == FSMFireAccidentForm.edit_fire_flash_lcl_state:
+    #     text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
+    #         "name_fire_flash_lcl"), edit_fire_flash=data.get("accident_fire_flash_lcl", 0))
 
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(3,
-                                      *i18n.get('calculator_buttons').split('\n'),
-                                      i18n=i18n))
+        reply_markup=get_keypad(
+            i18n=i18n, penult_button='ready'
+        )
+    )
+    # reply_markup=get_inline_cd_kb(3,
+    #                               *i18n.get('calculator_buttons').split('\n'),
+    #                               i18n=i18n))
 
 
 @fire_accident_fireflash_router.callback_query(StateFilter(*SFilter_fire_flash), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero', 'point', 'clear']))
