@@ -4,7 +4,7 @@ import csv
 import io
 import pandas as pd
 import numpy as np
-import inspect
+# import inspect
 
 
 import matplotlib.pyplot as plt
@@ -14,7 +14,7 @@ import matplotlib.gridspec as gridspec
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from matplotlib import font_manager
 from datetime import datetime
-from fluentogram import TranslatorRunner
+# from fluentogram import TranslatorRunner
 
 from app.tg_bot.models.tables import DataFrameModel
 
@@ -32,6 +32,27 @@ def serializer(model: dict):
 
 def deserializer(model: dict):
     pass
+
+
+def compute_value_with_eval(expression: str = '0'):
+    try:
+        result = eval(expression)
+    except ZeroDivisionError as e:
+        result = 0
+        log.info(f"Ошибка деления на ноль: {expression}", )
+    except SyntaxError as e:
+        result = 0
+        log.info(f"Синтаксическая ошибка: {expression}", )
+    except NameError as e:
+        result = 0
+        log.info(f"Ошибка имени переменной: {expression}", )
+    except TypeError as e:
+        result = 0
+        log.info(f"Ошибка типа данных: {expression}", )
+    except ValueError as e:
+        result = 0
+        log.info(f"Ошибка значения: {expression}", )
+    return result
 
 
 def get_temp_folder(dir_name='temp_files', fold_name='temp'):

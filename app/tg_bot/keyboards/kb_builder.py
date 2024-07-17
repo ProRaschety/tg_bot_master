@@ -94,81 +94,33 @@ def get_inline_cd_kb(width: int = 1,
 
 
 def get_keypad(
-    # width: int = 1,
-        *args: str,
         i18n: TranslatorRunner,
         penult_button: str | None = 'ready',
         param_back: bool | None = False,
-        back_data: str | None = None,
-        **kwargs: str) -> InlineKeyboardMarkup:
-    # Инициализируем билдер
+        back_data: str | None = None) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()
-    # Инициализируем список для кнопок
-    # buttons: list[InlineKeyboardButton] = []
-    buttons_row0: list[InlineKeyboardButton] = []
-    buttons_row1: list[InlineKeyboardButton] = []
-    buttons_row2: list[InlineKeyboardButton] = []
-    buttons_row3: list[InlineKeyboardButton] = []
-    buttons_row4: list[InlineKeyboardButton] = []
-    # Заполняем список кнопками из аргументов args и kwargs
-    keypad = [['all_clean', 'clean', 'open_parenthesis', 'closing_parenthesis'],
+    buttons: list[InlineKeyboardButton] = [[], [], [], [], []]
+
+    keypad = [['all_clean', 'clean', 'open_parenthesis', 'closing_parenthesis', 'square_root'],
               ['one', 'two', 'three', 'pow', 'pow_square'],
               ['four', 'five', 'six', 'divide', 'multiply'],
               ['seven', 'eight', 'nine', 'minus', 'plus'],
               ['zero', 'point', 'dooble_zero', 'equals']
               ]
-    # for row in range(0, 5):
-    # for button in keypad[row]:
-    #     if row == 0:
-    #         buttons_row0.append(InlineKeyboardButton(
-    #             text=i18n.get(button), callback_data=button))
-    #         kb_builder.row(*buttons_row0, width=4)
-    #     elif row == 4:
-    #         buttons_row4.append(InlineKeyboardButton(
-    #             text=i18n.get(button), callback_data=button))
-    #         kb_builder.row(*buttons_row4, width=4)
+    keypad_dict = {'square_root': '[ √ ]',
+                   'clean': 'DEL', 'all_clean': 'AC', 'open_parenthesis': ' ❪ ', 'closing_parenthesis': ' ❫ ',
+                   'one': '𝟭', 'two': '𝟮', 'three': '𝟯', 'pow': '[ x^ ]', 'pow_square': '[ x² ]',
+                   'four': '𝟰', 'five': '𝟱', 'six': '𝟲', 'divide': '[ ÷ ]', 'multiply': '[ × ]',
+                   'seven': '𝟳', 'eight': '𝟴', 'nine': '𝟵', 'minus': '[ - ]', 'plus': '[ + ]',
+                   'zero': '𝟬', 'point': '[ . ]', 'dooble_zero': '𝟬𝟬', 'equals': '[enter =]'}
 
-    #         else:
-    #             kb_builder.row(InlineKeyboardButton(
-    #                 text=i18n.get(button), callback_data=button), width=5)
-
-    for button in keypad[0]:
-        buttons_row0.append(InlineKeyboardButton(
-            text=i18n.get(button), callback_data=button))
-    kb_builder.row(*buttons_row0, width=4)
-
-    for button in keypad[1]:
-        buttons_row1.append(InlineKeyboardButton(
-            text=i18n.get(button), callback_data=button))
-    kb_builder.row(*buttons_row1, width=5)
-
-    for button in keypad[2]:
-        buttons_row2.append(InlineKeyboardButton(
-            text=i18n.get(button), callback_data=button))
-    kb_builder.row(*buttons_row2, width=5)
-
-    for button in keypad[3]:
-        buttons_row3.append(InlineKeyboardButton(
-            text=i18n.get(button), callback_data=button))
-    kb_builder.row(*buttons_row3, width=5)
-
-    for button in keypad[4]:
-        buttons_row4.append(InlineKeyboardButton(
-            text=i18n.get(button), callback_data=button))
-    kb_builder.row(*buttons_row4, width=4)
-
-    # if args:
-    #     for button in args:
-    #         buttons.append(InlineKeyboardButton(
-    #             text=i18n.get(button),
-    #             callback_data=button))
-    # if kwargs:
-    #     for button, text in kwargs.items():
-    #         buttons.append(InlineKeyboardButton(
-    #             text=text,
-    #             callback_data=button))
-    # Распаковываем список с кнопками в билдер методом row c параметром width
-    # kb_builder.row(*buttons, width=width)
+    for row in range(0, len(buttons)):
+        for button in keypad[row]:
+            buttons[row].append(InlineKeyboardButton(
+                text=keypad_dict.get(button), callback_data=button)
+            )
+        width = 5 if row == 0 else (4 if row == 4 else 5)
+        kb_builder.row(*buttons[row], width=width)
 
     if penult_button != None:
         kb_builder.row(InlineKeyboardButton(
@@ -178,7 +130,6 @@ def get_keypad(
         kb_builder.row(InlineKeyboardButton(
             text=i18n.get(back_data), callback_data=back_data), width=1)
 
-    # Возвращаем объект инлайн-клавиатуры
     return kb_builder.as_markup()
 
 

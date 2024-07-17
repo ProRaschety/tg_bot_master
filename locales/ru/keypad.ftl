@@ -81,13 +81,10 @@ plus =
     +
 divide =
     /
-multiply =
-    ×
-pow =
-    ^
-pow_square =
-    x²
-
+multiply = *
+pow = **
+pow_square = **2
+square_root = **0.5
 equals =
     enter =
 
@@ -97,5 +94,14 @@ closing_parenthesis =
     )
 
 
-editable_parameter-text = {$text}
-    <blockquote>{$value}</blockquote>
+editable_parameter_st-text = Bвод: {$text}
+    Результат [enter=]:<blockquote>{$value}</blockquote>
+
+editable_parameter_nd-text = Bвoд: {$text}
+    Результат [enter=]:<blockquote>{$value}</blockquote>
+
+editable_parameter_rd-text = Bвод: {$text}
+    Рeзультат [enter=]:<blockquote>{$value}</blockquote>
+
+editable_parameter_th-text = Bвод: {$text}
+    Рeзультат [еnter=]:<blockquote>{$value}</blockquote>
