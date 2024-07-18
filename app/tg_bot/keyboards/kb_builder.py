@@ -85,7 +85,7 @@ def get_inline_cd_kb(width: int = 1,
         kb_builder.row(InlineKeyboardButton(
             text=i18n.get(penult_button), callback_data=penult_button), width=1)
 
-    if param_back:
+    if back_data != None:
         kb_builder.row(InlineKeyboardButton(
             text=i18n.get(back_data), callback_data=back_data), width=1)
 
@@ -98,7 +98,9 @@ def get_keypad(
         penult_button: str | None = 'ready',
         param_back: bool | None = False,
         back_data: str | None = None) -> InlineKeyboardMarkup:
+
     kb_builder = InlineKeyboardBuilder()
+
     buttons: list[InlineKeyboardButton] = [[], [], [], [], []]
 
     keypad = [['all_clean', 'clean', 'open_parenthesis', 'closing_parenthesis', 'square_root'],
@@ -107,7 +109,7 @@ def get_keypad(
               ['seven', 'eight', 'nine', 'minus', 'plus'],
               ['zero', 'point', 'dooble_zero', 'equals']
               ]
-    keypad_dict = {'square_root': '[ √ ]',
+    keypad_dict = {'square_root': '[ √x ]',
                    'clean': 'DEL', 'all_clean': 'AC', 'open_parenthesis': ' ❪ ', 'closing_parenthesis': ' ❫ ',
                    'one': '𝟭', 'two': '𝟮', 'three': '𝟯', 'pow': '[ x^ ]', 'pow_square': '[ x² ]',
                    'four': '𝟰', 'five': '𝟱', 'six': '𝟲', 'divide': '[ ÷ ]', 'multiply': '[ × ]',

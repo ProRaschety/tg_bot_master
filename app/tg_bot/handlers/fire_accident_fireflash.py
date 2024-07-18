@@ -86,8 +86,11 @@ async def edit_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(4, *i18n.get('edit_fire_flash_kb').split('\n'),
-                                      i18n=i18n, penult_button='run_fire_flash', param_back=True, back_data='back_fire_flash'))
-    await callback.answer('')
+                                      i18n=i18n,
+                                      penult_button='run_fire_flash',
+                                      back_data='back_fire_flash'
+                                      )
+    )
 
 
 @fire_accident_fireflash_router.callback_query(F.data.in_(['edit_flash_mass', 'edit_flash_lcl']))

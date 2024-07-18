@@ -93,15 +93,25 @@ open_parenthesis =
 closing_parenthesis =
     )
 
+# editable_parameter-text = Bвод: {$text}
+#     Результат [enter=]:<blockquote>{$value}</blockquote>
 
-editable_parameter_st-text = Bвод: {$text}
-    Результат [enter=]:<blockquote>{$value}</blockquote>
+editable_parameter_st-text =
+    <b>{$text}</b>
+    Bвод: <b>{$input_string}</b>
+    Результат [enter=]: <b>{$value}</b>
 
-editable_parameter_nd-text = Bвoд: {$text}
-    Результат [enter=]:<blockquote>{$value}</blockquote>
+editable_parameter_nd-text =
+    <b>{$text}</b>
+    Bвoд: <b>{$input_string}</b>
+    Результат [enter=]: <b>{$value}</b>
 
-editable_parameter_rd-text = Bвод: {$text}
-    Рeзультат [enter=]:<blockquote>{$value}</blockquote>
+editable_parameter_rd-text =
+    <b>{$text}</b>
+    Bвод: <b>{$input_string}</b>
+    Рeзультат [enter=]: <b>{$value}</b>
 
-editable_parameter_th-text = Bвод: {$text}
-    Рeзультат [еnter=]:<blockquote>{$value}</blockquote>
+editable_parameter_th-text =
+    <b>{$text}</b>
+    Bвод: <b>{$input_string}</b>
+    Рeзультат [еnter=]: <b>{$value}</b>

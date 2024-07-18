@@ -1,4 +1,5 @@
 import logging
+import re
 import os
 import csv
 import io
@@ -53,6 +54,121 @@ def compute_value_with_eval(expression: str = '0'):
         result = 0
         log.info(f"Ошибка значения: {expression}", )
     return result
+
+
+def check_string(input_string: str):
+    # Паттерн для проверки: строка содержит только цифры и/или одну точку
+    # pattern = r'^[\d.]+$'
+    # pattern = r'^[0-9.]+$'
+    pattern = r'^[0-9]*\.?[0-9]*$'
+    # Проверка с использованием регулярного выражения
+    if re.match(pattern, input_string):
+        return True
+    else:
+        return False
+
+
+def check_if_string_empty(input_string: str):
+    if input_string.strip() != "":
+        return True
+    else:
+        return False
+
+
+def count_decimal_digits(number: int | float):
+    # Преобразование числа в строку
+    number_str = str(number)
+    # Поиск позиции десятичной точки
+    decimal_point_index = number_str.find('.')
+    if decimal_point_index != -1:
+        # Подсчет количества значимых цифр после запятой
+        count = len(number_str) - decimal_point_index - 1
+        return count
+    else:
+        return 0  # Если нет десятичной точки, значит нет значимых цифр после запятой
+
+
+def count_zeros_after_decimal(number: int | float):
+    # Преобразование числа в строку
+    number_str = str(number)
+    # Поиск позиции десятичной точки
+    decimal_point_index = number_str.find('.')
+    if decimal_point_index != -1:
+        # Подсчет количества нулей после запятой до первой значимой цифры
+        count_zeros = 0
+        for char in number_str[decimal_point_index + 1:]:
+            if char == '0':
+                count_zeros += 1
+            else:
+                break  # Прерываем цикл, если встречаем не ноль
+        return count_zeros
+    else:
+        return 0  # Если нет десятичной точки, значит нет нулей после запятой
+
+
+def count_zeros_and_digits(number: int | float):
+    # Преобразование числа в строку
+    number_str = str(number)
+    # Поиск позиции десятичной точки
+    decimal_point_index = number_str.find('.')
+    if decimal_point_index != -1:
+        # Подсчет количества нулей после запятой до первой значимой цифры
+        count_zeros = 0
+        for char in number_str[decimal_point_index + 1:]:
+            if char == '0':
+                count_zeros += 1
+            else:
+                break  # Прерываем цикл, если встречаем не ноль
+        # Подсчет количества цифр до следующего нуля
+        count_digits_to_next_zero = 0
+        for char in number_str[decimal_point_index + count_zeros + 1:]:
+            if char != '0':
+                count_digits_to_next_zero += 1
+            else:
+                break  # Прерываем цикл, если встречаем ноль
+        return count_zeros, count_digits_to_next_zero
+    else:
+        return 0, 0  # Если нет десятичной точки, значит нет нулей после запятой и цифр до следующего нуля
+
+
+def count_digits_before_dot(number: int | float):
+    input_string = str(number)
+    if '.' in input_string:
+        digits_before_dot = input_string.index('.')
+        return digits_before_dot
+    else:
+        return 0
+
+
+def result_formatting(input_string: str | None = None, formatting: bool = False, result: int | float = 0.0):
+    if formatting:
+        if input_string != None:
+            if check_if_string_empty(input_string):
+                editable_param = float(input_string)
+            else:
+                editable_param = 0
+        else:
+            editable_param = result
+
+        if editable_param >= -0.0001 and editable_param <= 0.0001:
+            form_param = "{:.2e}".format(editable_param)
+
+        elif editable_param >= -0.01 and editable_param <= 0.01:
+            form_param = "{:.2f}".format(editable_param)
+
+        elif editable_param >= -100.0 and editable_param <= 100:
+            form_param = "{:.1f}".format(editable_param)
+
+        elif editable_param > -100_000 and editable_param <= 100_000:
+            form_param = "{:.1f}".format(editable_param)
+
+        else:
+            form_param = "{:.2e}".format(editable_param)
+
+        return form_param
+
+    else:
+        return input_string
 
 
 def get_temp_folder(dir_name='temp_files', fold_name='temp'):
