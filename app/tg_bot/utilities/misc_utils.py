@@ -6,7 +6,7 @@ import io
 import pandas as pd
 import numpy as np
 # import inspect
-
+from typing import Any
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -56,6 +56,13 @@ def compute_value_with_eval(expression: str = '0'):
     return result
 
 
+def check_if_string_empty(input_string: str):
+    if input_string.strip() != "":
+        return True
+    else:
+        return False
+
+
 def check_string(input_string: str):
     # Паттерн для проверки: строка содержит только цифры и/или одну точку
     # pattern = r'^[\d.]+$'
@@ -63,13 +70,6 @@ def check_string(input_string: str):
     pattern = r'^[0-9]*\.?[0-9]*$'
     # Проверка с использованием регулярного выражения
     if re.match(pattern, input_string):
-        return True
-    else:
-        return False
-
-
-def check_if_string_empty(input_string: str):
-    if input_string.strip() != "":
         return True
     else:
         return False
@@ -150,10 +150,19 @@ def result_formatting(input_string: str | None = None, formatting: bool = False,
         else:
             editable_param = result
 
-        if editable_param >= -0.0001 and editable_param <= 0.0001:
+        if editable_param >= -0.0009 and editable_param <= 0.0009:
             form_param = "{:.2e}".format(editable_param)
 
+        elif editable_param >= -0.0001 and editable_param <= 0.0001:
+            form_param = "{:.5f}".format(editable_param)
+
+        elif editable_param >= -0.001 and editable_param <= 0.001:
+            form_param = "{:.4f}".format(editable_param)
+
         elif editable_param >= -0.01 and editable_param <= 0.01:
+            form_param = "{:.3f}".format(editable_param)
+
+        elif editable_param >= -10.0 and editable_param <= 10:
             form_param = "{:.2f}".format(editable_param)
 
         elif editable_param >= -100.0 and editable_param <= 100:
@@ -169,6 +178,117 @@ def result_formatting(input_string: str | None = None, formatting: bool = False,
 
     else:
         return input_string
+
+
+def custom_round(number: int | float = 0.0):
+    # count = count_decimal_digits(number=number)
+    # count_digits = count_digits_before_dot(number=number)
+    # count_zero, count_to_next_zero = count_zeros_and_digits(number=number)
+    # # adj_result = round(number, rou_int)
+    # print(f'Проверка значимых чисел после запятой: {count}')
+    # print(f'Количество цифр до запятой: {count_digits}')
+    # print(f'Количество 0 после запятой: {count_zero}')
+    # print(f'Количество цифр после 0: {count_to_next_zero}')
+
+    # if number >= 100000:
+    #     return round(number)
+    # elif number <= 0.0000000001:
+    #     return round(number, 10)  # Округляем до 10 знаков после запятой
+    # else:
+    #     return number
+
+    if number > -0.0001 and number < 0.0001:
+        # form_param = "{:.2e}".format(number)
+        rou_int = 6
+
+    # добавлено доп условие
+    elif number >= -0.0001 and number <= 0.0001:
+        # form_param = "{:.5f}".format(number)
+        rou_int = 6
+    # добавлено доп условие
+    elif number >= -0.001 and number <= 0.001:
+        # form_param = "{:.4f}".format(number)
+        rou_int = 5
+
+    elif number >= -0.01 and number <= 0.01:
+        # form_param = "{:.3f}".format(number)
+        rou_int = 3
+
+    # добавлено доп условие
+    elif number >= -10.0 and number <= 10:
+        # form_param = "{:.2f}".format(number)
+        rou_int = 2
+
+    elif number >= -100.0 and number <= 100:
+        # form_param = "{:.1f}".format(number)
+        rou_int = 1
+
+    elif number > -100_000 and number <= 100_000:
+        # form_param = "{:,.1f}".format(number)
+        rou_int = 1
+
+    else:
+        form_param = "{:.2e}".format(number)
+        rou_int = 1
+
+    return round(number, rou_int)
+
+
+def find_value_path(data: dict, target: Any, path=None):
+    if path is None:
+        path = []
+
+    for key, value in data.items():
+        if value == target:
+            return path + [key]
+
+        if isinstance(value, dict):
+            new_path = find_value_path(value, target, path + [key])
+            if new_path:
+                return new_path
+
+    return None
+
+
+def find_key_by_value(data: dict, target: Any):
+    for key, value in data.items():
+        if value == target:
+            return key
+        if isinstance(value, dict):
+            nested_key = find_key_by_value(value, target)
+            if nested_key:
+                return nested_key
+    return None
+
+
+def find_value_path_2d(data: list[list], target: Any, path=None):
+    if path is None:
+        path = []
+
+    for i, row in enumerate(data):
+        for j, value in enumerate(row):
+            if value == target:
+                return path + [(i, j)]
+
+    return None
+
+
+def find_value_path_nested(data: dict, target: Any, path=None):
+    if path is None:
+        path = []
+
+    for key, value in data.items():
+        if isinstance(value, list):
+            for i, row in enumerate(value):
+                for j, val in enumerate(row):
+                    if val == target:
+                        return path + [key, (i, j)]
+        elif isinstance(value, dict):
+            new_path = find_value_path_nested(value, target, path + [key])
+            if new_path:
+                return new_path
+
+    return None
 
 
 def get_temp_folder(dir_name='temp_files', fold_name='temp'):

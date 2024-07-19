@@ -235,9 +235,9 @@ edit_flash_mass =
     m
 edit_flash_lcl =
     Снкпр
-name_fire_flash_mass =
+name_edit_flash_mass =
     Введите массу вещества:
-name_fire_flash_lcl =
+name_edit_flash_lcl =
     Введите значение НКПР вещества:
 edit_fire_flash-text = {$fire_flash_param}
     <blockquote>{$edit_fire_flash}</blockquote>

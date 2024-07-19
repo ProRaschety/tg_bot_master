@@ -17,10 +17,16 @@ class SubstanceModel(BaseModel):
     molar_mass: float = 0
     boiling_point: float = 0
     mass_burning_rate: float = 0
-    heat_of_combustion: float = 0
+    heat_of_combustion: float = 0  # Дж
+    lower_flammability_limit: float = 0
+    upper_flammability_limit: float = 0
+    class_fuel: int = 1
+    correction_parameter: float = 1.0  # beta
+    coefficient_z_participation_in_explosion: float = 0.1
 
     def __post_init__(self):
         self.density = float(self.density)
+        self.lower_flammability_limit = float(self.lower_flammability_limit)
 
 
 @dataclass

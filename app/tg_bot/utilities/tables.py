@@ -130,4 +130,40 @@ def get_dataframe(request: str,
 
             ]
 
+    if request in ['fire_flash', 'back_fire_flash', 'run_fire_flash']:
+        air_density = compute_density_gas_phase(
+            molar_mass=28.97,
+            temperature=accmodel.air_temperature)
+        rad_pool = accmodel.liquid_spill_radius
+        lcl = substance.lower_flammability_limit
+        density_fuel = compute_density_gas_phase(
+            molar_mass=substance.molar_mass, temperature=accmodel.fuel_temperature)
+        f_flash = AccidentParameters(type_accident='fire_flash')
+        radius_LFL = f_flash.compute_radius_LFL(
+            density=density_fuel, mass=accmodel.mass_vapor_fuel, clfl=lcl)
+        height_LFL = f_flash.compute_height_LFL(
+            density=density_fuel, mass=accmodel.mass_vapor_fuel, clfl=lcl)
+
+        dataframe = [
+            [i18n.get('radius_zone_Rf'), i18n.get(
+                'radius_Rf'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool) * 1.2:.2f}", i18n.get('meter')],
+            [i18n.get('height_zone_LFL'), i18n.get('height_LFL'),
+             f"{height_LFL:.2f}", i18n.get('meter')],
+            [i18n.get('radius_zone_LFL'), i18n.get(
+                'radius_LFL'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool):.2f}", i18n.get('meter')],
+            [i18n.get('density_flammable_gases_at_ambient_temperature'),
+             'ρг', f"{density_fuel:.3f}", i18n.get('kg_per_m_cub')],
+            [i18n.get('radius_of_the_strait_above_which_an_explosive_zone_is_formed'),
+             'r', accmodel.liquid_spill_radius,  i18n.get('meter')],
+            [i18n.get('mass_of_flammable_gases_entering_the_surrounding_space'),
+             'mг', accmodel.mass_vapor_fuel, i18n.get('kilogram')],
+            [i18n.get('lower_concentration_limit_of_flame_propagation'), 'Cнкпр',
+             substance.lower_flammability_limit, i18n.get('percent_volume')],
+            [i18n.get('ambient_air_density'), 'ρₒ',
+             f"{air_density:.2f}",  i18n.get('kg_per_m_cub')],
+            [i18n.get('ambient_temperature'), 'tₒ',
+             accmodel.air_temperature,  i18n.get('celsius')],
+            [i18n.get('substance'), '-', accmodel.substance_name,  '-']
+        ]
+
     return DataFrameModel(label=label, headers=headers, dataframe=dataframe)

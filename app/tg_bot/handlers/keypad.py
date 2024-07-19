@@ -20,8 +20,12 @@ from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest, IsSubscriber
 from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm, FSMEditForm
 
-from app.tg_bot.utilities.misc_utils import get_picture_filling, compute_value_with_eval, check_string, count_decimal_digits, count_zeros_after_decimal, count_zeros_and_digits, result_formatting, count_digits_before_dot
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad
+from app.tg_bot.utilities import tables
+from app.tg_bot.utilities.misc_utils import get_data_table, get_plot_graph, get_dataframe_table
+from app.tg_bot.utilities.misc_utils import compute_value_with_eval, check_string, count_decimal_digits, count_zeros_after_decimal, count_zeros_and_digits, result_formatting, count_digits_before_dot, custom_round
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
+
+from app.infrastructure.database.models.calculations import AccidentModel
 
 from pprint import pprint
 
@@ -193,23 +197,24 @@ async def editable_parameter_call(callback: CallbackQuery, bot: Bot, state: FSMC
         await callback.answer('')
 
 
-@keypad_router.callback_query(StateFilter(*keypad_filter), F.data.in_([
-    'ready'
-]))
+@keypad_router.callback_query(StateFilter(*keypad_filter), F.data.in_(['ready']))
 async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner,) -> None:
     log.info(f'Request keypad handler from: {callback.data} ')
 
     context_data = await state.get_data()
     value = context_data.get('editable_parameter')
+
     result = compute_value_with_eval(expression=value)
+    adj_result = custom_round(number=result)
+    equals_result = result_formatting(formatting=True, result=adj_result)
 
-    user_state = await state.get_state()
-    if user_state == FSMEditForm.keypad_state:
-        log.info(f'FSMState: {FSMEditForm.keypad_state} ')
-        await state.update_data()
+    # user_state = await state.get_state()
+    # if user_state == FSMEditForm.keypad_state:
+    #     log.info(f'FSMState: {FSMEditForm.keypad_state} ')
+    #     await state.update_data()
 
-    else:
-        log.info(f'FSMState: unknown')
+    # else:
+    #     log.info(f'FSMState: unknown')
 
     # if value != '' and value != '.' and (float(value)) > 0:
     #     await state.update_data()
@@ -217,21 +222,27 @@ async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
     #     await state.update_data(accmodel.update(pool_area=10))
 
     # media = get_picture_filling(i18n.get('path_start'))
-    form_result = "{:,.2e}".format(result) if result < -100 else (
-        "{:,.2e}".format(result) if result > 10000 else "{:,.2f}".format(result))
-    text = f'INPUT: {form_result}'
+    # form_result = "{:,.2e}".format(result) if result < -100 else (
+    #     "{:,.2e}".format(result) if result > 10000 else "{:,.2f}".format(result))
+    # text = f'INPUT: {form_result}'
+    text = 'Готово'
+    # kb = {
+    #     'width': '4',
+    #     'buttons': 'edit_fire_flash_kb',
+    #     'penult_button': 'run_fire_flash',
+    #     'back_data': 'back_fire_flash'
+    # }
+    accmodel = AccidentModel(**context_data.get('accident_model'))
+    dataframe = tables.get_dataframe(
+        request='fire_flash', i18n=i18n, accmodel=accmodel)
+    media = get_dataframe_table(data=dataframe)
 
-    kb = {
-        'width': '4',
-        'buttons': 'edit_fire_flash_kb',
-        'penult_button': 'run_fire_flash',
-        'back_data': 'back_fire_flash'
-    }
-
-    await bot.edit_message_caption(
+    kb = context_data['keyboard_section']
+    await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        caption=text,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename='pic_filling'), caption=text),
         reply_markup=get_inline_cd_kb(
             int(kb['width']),
             *i18n.get(kb['buttons']).split('\n'),

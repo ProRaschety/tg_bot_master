@@ -93,8 +93,8 @@ open_parenthesis =
 closing_parenthesis =
     )
 
-# editable_parameter-text = Bвод: {$text}
-#     Результат [enter=]:<blockquote>{$value}</blockquote>
+editable_parameter-text =
+    <b>{$text}</b>: <b>{$value}</b>
 
 editable_parameter_st-text =
     <b>{$text}</b>

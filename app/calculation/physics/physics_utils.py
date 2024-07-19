@@ -31,6 +31,12 @@ async def get_property_fuel(subst: str):
         boiling_point = -252.87
         molar_mass = 0.002016
         mass_burning_rate = 0.17
+    else:
+        molar_mass = 95
+        boiling_point = 115
+        mass_burning_rate = 0.06
+        lower_flammability_limit = 1.0
+
     return molar_mass, boiling_point, mass_burning_rate
 
 

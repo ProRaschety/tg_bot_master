@@ -3,7 +3,7 @@ import io
 import ormsgpack
 import json
 
-from dataclasses import dataclass, asdict, astuple
+from dataclasses import asdict, astuple
 
 from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
@@ -19,18 +19,19 @@ from app.tg_bot.models.tables import DataFrameModel
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm
+from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph, get_dataframe_table
+from app.tg_bot.utilities import tables
+
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 
 from app.calculation.physics.accident_parameters import AccidentParameters
-from app.infrastructure.database.models.calculations import AccidentModel
-from app.infrastructure.database.models.substance import FlammableMaterialModel, SubstanceModel
-
 from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel, compute_stoichiometric_coefficient_with_fuel, compute_stoichiometric_coefficient_with_oxygen
 from app.calculation.qra_mode import probits
 from app.calculation.utilities import misc_utils
 
-from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph, get_dataframe_table
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
-from app.tg_bot.utilities import tables
+from app.infrastructure.database.models.calculations import AccidentModel
+from app.infrastructure.database.models.substance import SubstanceModel
+
 
 log = logging.getLogger(__name__)
 
@@ -131,12 +132,12 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
                                       )
     )
     context_data = await state.get_data()
-    molar_mass, boling_point, m = await get_property_fuel(subst='gasoline')
+    molar_mass, boling_point, mass_burning_rate = await get_property_fuel(subst='gasoline')
     # 'solid', 'liquid', 'gas', 'dust', 'liquid_gas', 'nonflammable'
     substance = SubstanceModel(substance_name='',
                                molar_mass=molar_mass,
                                boiling_point=boling_point,
-                               mass_burning_rate=m)
+                               mass_burning_rate=mass_burning_rate)
     # 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen'
     accmodel = AccidentModel(substance_state='liquid',
                              substance_name='gasoline',

@@ -7,7 +7,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 # from app.tg_bot.models.role import UserRole
-
+from app.tg_bot.models.keyboard import InlineKeyboardModel
 
 log = logging.getLogger(__name__)
 
@@ -90,6 +90,45 @@ def get_inline_cd_kb(width: int = 1,
             text=i18n.get(back_data), callback_data=back_data), width=1)
 
     # Возвращаем объект инлайн-клавиатуры
+    return kb_builder.as_markup()
+
+
+def get_inline_keyboard(
+    *args: str,
+    i18n: TranslatorRunner,
+    keyboard: InlineKeyboardModel,
+        **kwargs: str) -> InlineKeyboardMarkup:
+    kb_builder = InlineKeyboardBuilder()
+
+    buttons: list[InlineKeyboardButton] = []
+
+    if keyboard.buttons != None:
+        for button in i18n.get(keyboard.buttons).split('\n'):
+            buttons.append(InlineKeyboardButton(
+                text=i18n.get(button),
+                callback_data=button))
+
+    if kwargs:
+        for button, text in kwargs.items():
+            buttons.append(InlineKeyboardButton(
+                text=text,
+                callback_data=button))
+
+    # Распаковываем список с кнопками в билдер методом row c параметром width
+    kb_builder.row(*buttons, width=keyboard.width)
+
+    if keyboard.penultimate != None:
+        kb_builder.row(InlineKeyboardButton(
+            text=i18n.get(keyboard.penultimate), callback_data=keyboard.penultimate), width=1)
+
+    if keyboard.ultimate != None:
+        kb_builder.row(InlineKeyboardButton(
+            text=i18n.get(keyboard.ultimate), callback_data=keyboard.ultimate), width=1)
+
+    if keyboard.reference != None:
+        kb_builder.row(InlineKeyboardButton(
+            text=i18n.get(keyboard.reference), callback_data=keyboard.reference), width=1)
+
     return kb_builder.as_markup()
 
 
