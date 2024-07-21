@@ -33,10 +33,12 @@ class AccidentParameters:
         self.heat_burn_specific = 44094000  # Дж/кг
 
     def compute_radius_LFL(self, density: int | float, mass: int | float, clfl: int | float):
-        return 7.80 * (mass / (density * clfl)) ** 0.33
+        LFL = clfl if clfl > 0 else (0.1 if clfl == '' else 0.1)
+        return 7.80 * (mass / (density * LFL)) ** 0.33
 
     def compute_height_LFL(self, density: int | float, mass: int | float, clfl: int | float):
-        return 0.26 * (mass / (density * clfl)) ** 0.33
+        LFL = clfl if clfl > 0 else (0.1 if clfl == '' else 0.1)
+        return 0.26 * (mass / (density * LFL)) ** 0.33
 
     def compute_overpres_inopen(self,
                                 reduced_mass: int | float,

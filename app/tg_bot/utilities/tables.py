@@ -9,6 +9,8 @@ import logging
 # import matplotlib.gridspec as gridspec
 # import inspect
 
+from typing import Any
+
 from fluentogram import TranslatorRunner
 
 # from datetime import datetime
@@ -34,64 +36,58 @@ def get_dataframe(request: str,
                   i18n: TranslatorRunner,
                   substance: SubstanceModel = None,
                   flammable_material: FlammableMaterialModel = None,
-                  accmodel: AccidentModel = None
+                  accident_model: AccidentModel = None
                   ):
     log.info(f'Requst dataframe: {i18n.get(request)}')
 
-    # pprint(f'accmodel: {accmodel}')
-    # pprint(f'accmodel.substance: {accmodel.substance}')
-
     """Собирает данные для формирования таблицы"""
 
-    label: str = i18n.get('Неизвестный запрос')
+    label: str = i18n.get('unknown_request')
     headers: list[str] = [i18n.get('name'), i18n.get(
         'variable'), i18n.get('value'), i18n.get('unit')]
-    dataframe: list[dict] = None
+    dataframe: list[list[Any]] = None
+
+    substance = accident_model.substance
 
     if request in ['fire_pool', 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', 'run_fire_pool', 'run_fire_pool_guest']:
-        # label: str = i18n.get(request)
-        if request in ['fire_pool', 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', ]:
-            substance = SubstanceModel(
-                **accmodel.substance)
+        if request in ['fire_pool', 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', 'any_substance',]:
             air_density = compute_density_gas_phase(
                 molar_mass=28.97,
-                temperature=accmodel.air_temperature
+                temperature=accident_model.air_temperature
             )
             label: str = i18n.get('fire_pool')
             dataframe = [
                 [i18n.get('substance'), '-',
-                 i18n.get(accmodel.substance_name), '-'],
+                 i18n.get(accident_model.substance_name), '-'],
                 [i18n.get('specific_mass_fuel_burning_rate'), 'm',
                  substance.mass_burning_rate, i18n.get('kg_per_m_square_in_sec')],
                 [i18n.get('ambient_temperature'), 'tₒ',
-                 accmodel.air_temperature, i18n.get('celsius')],
+                 accident_model.air_temperature, i18n.get('celsius')],
                 [i18n.get('ambient_air_density'), 'ρₒ',
                  f"{air_density:.2f}", i18n.get('kg_per_m_cub')],
                 [i18n.get('wind_velocity'), 'wₒ',
-                 accmodel.velocity_wind, i18n.get('m_per_sec')],
-                [i18n.get('pool_area'), 'F',  accmodel.pool_area,
+                 accident_model.velocity_wind, i18n.get('m_per_sec')],
+                [i18n.get('pool_area'), 'F',  accident_model.pool_area,
                  i18n.get('meter_square')],
                 [i18n.get('pool_distance'), 'r',
-                 accmodel.distance, i18n.get('meter')]
+                 accident_model.distance, i18n.get('meter')]
             ]
         elif request in ['run_fire_pool', 'run_fire_pool_guest']:
-            substance = SubstanceModel(**accmodel.substance)
-
-            # distance = accmodel.distance
-            diameter = compute_characteristic_diameter(area=accmodel.pool_area)
+            diameter = compute_characteristic_diameter(
+                area=accident_model.pool_area)
             air_density = compute_density_gas_phase(
-                molar_mass=28.97, temperature=accmodel.air_temperature)
+                molar_mass=28.97, temperature=accident_model.air_temperature)
             fuel_density = compute_density_vapor_at_boiling(molar_mass=substance.molar_mass,
                                                             boiling_point=substance.boiling_point)
             f_pool = AccidentParameters(type_accident='fire_pool')
             nonvelocity = f_pool.compute_nonvelocity(
-                wind=accmodel.velocity_wind, density_fuel=fuel_density, mass_burn_rate=substance.mass_burning_rate, eff_diameter=diameter)
+                wind=accident_model.velocity_wind, density_fuel=fuel_density, mass_burn_rate=substance.mass_burning_rate, eff_diameter=diameter)
             flame_angle = f_pool.get_flame_deflection_angle(
                 nonvelocity=nonvelocity)
             flame_lenght = f_pool.compute_lenght_flame_pool(
                 nonvelocity=nonvelocity, density_air=air_density, mass_burn_rate=substance.mass_burning_rate, eff_diameter=diameter)
             sep = f_pool.compute_surface_emissive_power(
-                eff_diameter=diameter, subst=accmodel.substance_name)
+                eff_diameter=diameter, subst=accident_model.substance_name)
             x, y = f_pool.compute_heat_flux(
                 eff_diameter=diameter, sep=sep, lenght_flame=flame_lenght, angle=flame_angle)
 
@@ -101,19 +97,19 @@ def get_dataframe(request: str,
             label: str = i18n.get('run_fire_pool_text')
             dataframe = [
                 [i18n.get('substance'), '-',
-                 i18n.get(accmodel.substance_name), '-'],
+                 i18n.get(accident_model.substance_name), '-'],
                 [i18n.get('specific_mass_fuel_burning_rate'), 'm',
                  substance.mass_burning_rate, i18n.get('kg_per_m_square_in_sec')],
                 [i18n.get('ambient_temperature'), 'tₒ',
-                 accmodel.air_temperature, i18n.get('celsius')],
+                 accident_model.air_temperature, i18n.get('celsius')],
                 [i18n.get('ambient_air_density'), 'ρₒ',
                  f"{air_density:.2f}", i18n.get('kg_per_m_cub')],
                 [i18n.get('wind_velocity'), 'wₒ',
-                 accmodel.velocity_wind, i18n.get('m_per_sec')],
-                [i18n.get('pool_area'), 'F',  accmodel.pool_area,
+                 accident_model.velocity_wind, i18n.get('m_per_sec')],
+                [i18n.get('pool_area'), 'F',  accident_model.pool_area,
                  i18n.get('meter_square')],
                 [i18n.get('pool_distance'), 'r',
-                 accmodel.distance, i18n.get('meter')],
+                 accident_model.distance, i18n.get('meter')],
                 [i18n.get('saturated_fuel_vapor_density_at_boiling_point'), 'ρп',
                  f"{fuel_density:.3f}", i18n.get('kg_per_m_cub')],
                 [i18n.get('distance_to_safe_zone_from_the_heat_flux'), 'x0',
@@ -131,39 +127,85 @@ def get_dataframe(request: str,
             ]
 
     if request in ['fire_flash', 'back_fire_flash', 'run_fire_flash']:
-        air_density = compute_density_gas_phase(
-            molar_mass=28.97,
-            temperature=accmodel.air_temperature)
-        rad_pool = accmodel.liquid_spill_radius
-        lcl = substance.lower_flammability_limit
-        density_fuel = compute_density_gas_phase(
-            molar_mass=substance.molar_mass, temperature=accmodel.fuel_temperature)
-        f_flash = AccidentParameters(type_accident='fire_flash')
-        radius_LFL = f_flash.compute_radius_LFL(
-            density=density_fuel, mass=accmodel.mass_vapor_fuel, clfl=lcl)
-        height_LFL = f_flash.compute_height_LFL(
-            density=density_fuel, mass=accmodel.mass_vapor_fuel, clfl=lcl)
+        if request in ['fire_flash', 'back_fire_flash']:
+            label: str = i18n.get('fire_flash')
 
-        dataframe = [
-            [i18n.get('radius_zone_Rf'), i18n.get(
-                'radius_Rf'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool) * 1.2:.2f}", i18n.get('meter')],
-            [i18n.get('height_zone_LFL'), i18n.get('height_LFL'),
-             f"{height_LFL:.2f}", i18n.get('meter')],
-            [i18n.get('radius_zone_LFL'), i18n.get(
-                'radius_LFL'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool):.2f}", i18n.get('meter')],
-            [i18n.get('density_flammable_gases_at_ambient_temperature'),
-             'ρг', f"{density_fuel:.3f}", i18n.get('kg_per_m_cub')],
-            [i18n.get('radius_of_the_strait_above_which_an_explosive_zone_is_formed'),
-             'r', accmodel.liquid_spill_radius,  i18n.get('meter')],
-            [i18n.get('mass_of_flammable_gases_entering_the_surrounding_space'),
-             'mг', accmodel.mass_vapor_fuel, i18n.get('kilogram')],
-            [i18n.get('lower_concentration_limit_of_flame_propagation'), 'Cнкпр',
-             substance.lower_flammability_limit, i18n.get('percent_volume')],
-            [i18n.get('ambient_air_density'), 'ρₒ',
-             f"{air_density:.2f}",  i18n.get('kg_per_m_cub')],
-            [i18n.get('ambient_temperature'), 'tₒ',
-             accmodel.air_temperature,  i18n.get('celsius')],
-            [i18n.get('substance'), '-', accmodel.substance_name,  '-']
-        ]
+            air_density = compute_density_gas_phase(
+                molar_mass=28.97,
+                temperature=accident_model.air_temperature)
+            rad_pool = accident_model.liquid_spill_radius
+            lfl = substance.lower_flammability_limit
+            LFL = lfl if lfl > 0 else (0.1 if lfl == '' else 0.1)
+            density_fuel = compute_density_gas_phase(
+                molar_mass=substance.molar_mass, temperature=accident_model.fuel_temperature)
+
+            # f_flash = AccidentParameters(type_accident='fire_flash')
+            # radius_LFL = f_flash.compute_radius_LFL(
+            #     density=density_fuel, mass=accident_model.mass_vapor_fuel, clfl=LFL)
+            # height_LFL = f_flash.compute_height_LFL(
+            #     density=density_fuel, mass=accident_model.mass_vapor_fuel, clfl=LFL)
+
+            dataframe = [
+                [i18n.get('substance'), '', '',
+                 i18n.get(accident_model.substance_name),],
+                [i18n.get('ambient_temperature'), 'tₒ',
+                 accident_model.air_temperature,  i18n.get('celsius')],
+                [i18n.get('ambient_air_density'), 'ρₒ',
+                 f"{air_density:.2f}",  i18n.get('kg_per_m_cub')],
+                [i18n.get('lower_concentration_limit_of_flame_propagation'), 'Cнкпр',
+                 LFL, i18n.get('percent_volume')],
+                [i18n.get('mass_of_flammable_gases_entering_the_surrounding_space'),
+                 'mг', accident_model.mass_vapor_fuel, i18n.get('kilogram')],
+                [i18n.get('radius_of_the_strait_above_which_an_explosive_zone_is_formed'),
+                 'r', accident_model.liquid_spill_radius,  i18n.get('meter')],
+                [i18n.get('density_flammable_gases_at_ambient_temperature'),
+                 'ρг', f"{density_fuel:.3f}", i18n.get('kg_per_m_cub')],
+                # [i18n.get('radius_zone_LFL'), i18n.get(
+                #     'radius_LFL'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool):.2f}", i18n.get('meter')],
+                # [i18n.get('height_zone_LFL'), i18n.get('height_LFL'),
+                # f"{height_LFL:.2f}", i18n.get('meter')],
+                # [i18n.get('radius_zone_Rf'), i18n.get(
+                #     'radius_Rf'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool) * 1.2:.2f}", i18n.get('meter')]
+            ]
+        elif request in ['run_fire_flash']:
+            label: str = i18n.get('fire_flash')
+
+            air_density = compute_density_gas_phase(
+                molar_mass=28.97,
+                temperature=accident_model.air_temperature)
+            rad_pool = accident_model.liquid_spill_radius
+            lfl = substance.lower_flammability_limit
+            LFL = lfl if lfl > 0 else (0.1 if lfl == '' else 0.1)
+            density_fuel = compute_density_gas_phase(
+                molar_mass=substance.molar_mass, temperature=accident_model.fuel_temperature)
+
+            f_flash = AccidentParameters(type_accident='fire_flash')
+            radius_LFL = f_flash.compute_radius_LFL(
+                density=density_fuel, mass=accident_model.mass_vapor_fuel, clfl=LFL)
+            height_LFL = f_flash.compute_height_LFL(
+                density=density_fuel, mass=accident_model.mass_vapor_fuel, clfl=LFL)
+
+            dataframe = [
+                [i18n.get('substance'), '', '',
+                 i18n.get(accident_model.substance_name)],
+                [i18n.get('ambient_temperature'), 'tₒ',
+                 accident_model.air_temperature,  i18n.get('celsius')],
+                [i18n.get('ambient_air_density'), 'ρₒ',
+                 f"{air_density:.2f}",  i18n.get('kg_per_m_cub')],
+                [i18n.get('lower_concentration_limit_of_flame_propagation'), 'Cнкпр',
+                 LFL, i18n.get('percent_volume')],
+                [i18n.get('mass_of_flammable_gases_entering_the_surrounding_space'),
+                 'mг', accident_model.mass_vapor_fuel, i18n.get('kilogram')],
+                [i18n.get('radius_of_the_strait_above_which_an_explosive_zone_is_formed'),
+                 'r', accident_model.liquid_spill_radius,  i18n.get('meter')],
+                [i18n.get('density_flammable_gases_at_ambient_temperature'),
+                 'ρг', f"{density_fuel:.3f}", i18n.get('kg_per_m_cub')],
+                [i18n.get('radius_zone_LFL'), i18n.get(
+                    'radius_LFL'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool):.2f}", i18n.get('meter')],
+                [i18n.get('height_zone_LFL'), i18n.get('height_LFL'),
+                 f"{height_LFL:.2f}", i18n.get('meter')],
+                [i18n.get('radius_zone_Rf'), i18n.get(
+                    'radius_Rf'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool) * 1.2:.2f}", i18n.get('meter')]
+            ]
 
     return DataFrameModel(label=label, headers=headers, dataframe=dataframe)

@@ -15,29 +15,34 @@ async def get_property_fuel(subst: str):
         molar_mass = 95
         boiling_point = 115
         mass_burning_rate = 0.06
+        lower_flammability_limit = 1.10  # AN-93-зимний
     elif subst == 'diesel':
         boiling_point = 380
         molar_mass = 230
         mass_burning_rate = 0.04
+        lower_flammability_limit = 0.52  # ДТ-"Л"
     elif subst == 'LNG':
         boiling_point = -163
         molar_mass = 16.7
         mass_burning_rate = 0.08
+        lower_flammability_limit = 5.28  # Метан
     elif subst == 'LPG':
         boiling_point = -50
         molar_mass = 30.068
         mass_burning_rate = 0.10
+        lower_flammability_limit = 2.0  # Пропан
     elif subst == 'liq_hydrogen':
         boiling_point = -252.87
         molar_mass = 0.002016
         mass_burning_rate = 0.17
+        lower_flammability_limit = 4.12  # Водород
     else:
         molar_mass = 95
         boiling_point = 115
         mass_burning_rate = 0.06
-        lower_flammability_limit = 1.0
+        lower_flammability_limit = 1.10
 
-    return molar_mass, boiling_point, mass_burning_rate
+    return molar_mass, boiling_point, mass_burning_rate, lower_flammability_limit
 
 
 def compute_characteristic_diameter(area: int | float):

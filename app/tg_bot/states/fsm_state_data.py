@@ -12,6 +12,7 @@ class FSMAdminForm(StatesGroup):
 
 class FSMEditForm(StatesGroup):
     keypad_state = State()
+    select_substance_state = State()
 
 
 class FSMFDSForm(StatesGroup):

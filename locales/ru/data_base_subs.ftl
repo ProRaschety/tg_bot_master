@@ -168,3 +168,25 @@ data_base_report_gas = ℹ  <b>{ $substance_name }</b>
 
                     <i>Источник:</i>
                     <b>{$source}</b>
+
+gasoline =
+    Бензин
+diesel =
+    Дизельное
+    топливо
+LNG =
+    СПГ
+LPG =
+    СУГ
+liq_hydrogen =
+    Сжиженный
+    водород
+other_fuel =
+    Другое
+    горючее
+other_liquid =
+    Другое
+    вещество
+any_substance =
+    Произвольное
+    вещество

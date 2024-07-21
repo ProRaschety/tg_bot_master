@@ -141,6 +141,16 @@ def count_digits_before_dot(number: int | float):
 
 
 def result_formatting(input_string: str | None = None, formatting: bool = False, result: int | float = 0.0):
+    """_summary_
+
+    Args:
+        input_string (str | None, optional): _description_. Defaults to None.
+        formatting (bool, optional): _description_. Defaults to False.
+        result (int | float, optional): _description_. Defaults to 0.0.
+
+    Returns:
+        _type_: _description_
+    """
     if formatting:
         if input_string != None:
             if check_if_string_empty(input_string):
@@ -162,6 +172,9 @@ def result_formatting(input_string: str | None = None, formatting: bool = False,
         elif editable_param >= -0.01 and editable_param <= 0.01:
             form_param = "{:.3f}".format(editable_param)
 
+        elif editable_param >= -9.9 and editable_param <= 9.9:
+            form_param = "{:.3f}".format(editable_param)
+
         elif editable_param >= -10.0 and editable_param <= 10:
             form_param = "{:.2f}".format(editable_param)
 
@@ -181,6 +194,14 @@ def result_formatting(input_string: str | None = None, formatting: bool = False,
 
 
 def custom_round(number: int | float = 0.0):
+    """_summary_
+
+    Args:
+        number (int | float, optional): _description_. Defaults to 0.0.
+
+    Returns:
+        _type_: _description_
+    """
     # count = count_decimal_digits(number=number)
     # count_digits = count_digits_before_dot(number=number)
     # count_zero, count_to_next_zero = count_zeros_and_digits(number=number)
@@ -190,22 +211,14 @@ def custom_round(number: int | float = 0.0):
     # print(f'Количество 0 после запятой: {count_zero}')
     # print(f'Количество цифр после 0: {count_to_next_zero}')
 
-    # if number >= 100000:
-    #     return round(number)
-    # elif number <= 0.0000000001:
-    #     return round(number, 10)  # Округляем до 10 знаков после запятой
-    # else:
-    #     return number
-
     if number > -0.0001 and number < 0.0001:
         # form_param = "{:.2e}".format(number)
         rou_int = 6
 
-    # добавлено доп условие
     elif number >= -0.0001 and number <= 0.0001:
         # form_param = "{:.5f}".format(number)
         rou_int = 6
-    # добавлено доп условие
+
     elif number >= -0.001 and number <= 0.001:
         # form_param = "{:.4f}".format(number)
         rou_int = 5
@@ -214,7 +227,10 @@ def custom_round(number: int | float = 0.0):
         # form_param = "{:.3f}".format(number)
         rou_int = 3
 
-    # добавлено доп условие
+    elif number >= -9.9 and number <= 9.9:
+        # form_param = "{:.2f}".format(number)
+        rou_int = 3
+
     elif number >= -10.0 and number <= 10:
         # form_param = "{:.2f}".format(number)
         rou_int = 2
@@ -228,13 +244,22 @@ def custom_round(number: int | float = 0.0):
         rou_int = 1
 
     else:
-        form_param = "{:.2e}".format(number)
         rou_int = 1
 
     return round(number, rou_int)
 
 
 def find_value_path(data: dict, target: Any, path=None):
+    """_summary_
+
+    Args:
+        data (dict): _description_
+        target (Any): _description_
+        path (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     if path is None:
         path = []
 
@@ -250,7 +275,31 @@ def find_value_path(data: dict, target: Any, path=None):
     return None
 
 
+def find_key_path(key: str, dictionary: dict, path=None):
+    if path is None:
+        path = []
+
+    for k, v in dictionary.items():
+        if k == key:
+            return path + [k]
+        elif isinstance(v, dict):
+            sub_path = find_key_path(key, v, path + [k])
+            if sub_path:
+                return sub_path
+
+    return None
+
+
 def find_key_by_value(data: dict, target: Any):
+    """_summary_
+
+    Args:
+        data (dict): _description_
+        target (Any): _description_
+
+    Returns:
+        _type_: _description_
+    """
     for key, value in data.items():
         if value == target:
             return key
@@ -262,6 +311,16 @@ def find_key_by_value(data: dict, target: Any):
 
 
 def find_value_path_2d(data: list[list], target: Any, path=None):
+    """_summary_
+
+    Args:
+        data (list[list]): _description_
+        target (Any): _description_
+        path (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     if path is None:
         path = []
 
@@ -274,6 +333,16 @@ def find_value_path_2d(data: list[list], target: Any, path=None):
 
 
 def find_value_path_nested(data: dict, target: Any, path=None):
+    """_summary_
+
+    Args:
+        data (dict): _description_
+        target (Any): _description_
+        path (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     if path is None:
         path = []
 
@@ -289,6 +358,51 @@ def find_value_path_nested(data: dict, target: Any, path=None):
                 return new_path
 
     return None
+
+
+def modify_dict_value(dictionary: dict, keys_list: list, value: Any):
+    """Записывает значение в словарь
+    по пути составленному по ключам из переданнго списка
+
+    Args:
+        dictionary (dict): _description_
+        keys_list (list): _description_
+        value (Any): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if len(keys_list) == 1:
+        dictionary[keys_list[0]] = value
+    else:
+        current_key = keys_list[0]
+        if current_key in dictionary:
+            modify_dict_value(dictionary[current_key], keys_list[1:], value)
+        else:
+            log.info(f"Ключ '{current_key}' не найден в словаре.")
+
+    return dictionary
+
+
+def get_dict_value(dictionary: dict, keys_list: list):
+    """Возвращает значение из словаря
+    по пти составленному из ключей переданному в виде списка
+
+    Args:
+        dictionary (dict): _description_
+        keys_list (list): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    current_dict = dictionary
+    for key in keys_list:
+        if key in current_dict:
+            current_dict = current_dict[key]
+        else:
+            return None
+
+    return current_dict
 
 
 def get_temp_folder(dir_name='temp_files', fold_name='temp'):
@@ -578,7 +692,7 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
             fig_ax_2.text(x=x, y=y, s=d[i], weight=wh, ha=ha,
                           va='center_baseline', c=color['anitracite_gray'], **font_nd)
 
-            if d[1] == '' and d[cols - 2] == '' and std_table == False:
+            if d[1] == '' and d[cols - 2] == '' and std_table == True:
                 fig_ax_2.add_patch(patches.Rectangle((x, row/2 if row > 0 else step/2),  # нижняя левая начальная позиция (x, y)
                                                      width=w_fig_ax_2,
                                                      height=step,

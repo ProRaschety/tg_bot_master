@@ -13,6 +13,8 @@ log = logging.getLogger(__name__)
 class SubstanceModel(BaseModel):
     id: int = None
     substance_name: str = None
+    description: str = None
+    data_source: str = None
     density: float = 0
     molar_mass: float = 0
     boiling_point: float = 0
@@ -30,7 +32,7 @@ class SubstanceModel(BaseModel):
 
 
 @dataclass
-class FlammableMaterialModel:
+class FlammableMaterialModel(BaseModel):
     # substance_name: str
     # description: str
     # data_source: str

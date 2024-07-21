@@ -8,4 +8,5 @@ class InlineKeyboardModel:
     buttons: str | None = None
     penultimate: str | None = None
     ultimate: str | None = None
+    report: str | None = None
     reference: str | None = None

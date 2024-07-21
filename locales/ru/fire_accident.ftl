@@ -162,20 +162,7 @@ saturated_fuel_vapor_density_at_boiling_point =
     при температуре кипения
 pool_distance =
     Расстояние от края пролива
-gasoline =
-    Бензин
-diesel =
-    Дизельное
-    топливо
-LNG =
-    СПГ
-LPG =
-    СУГ
-liq_hydrogen =
-    Сжиженный
-    водород
-other_liquid =
-    Другое вещество
+
 name_fire_pool_area =
     Введите площадь пролива:
 name_fire_pool_distance =
@@ -201,8 +188,19 @@ edit_fire_flash_guest =
     🔒 Редактировать
 
 edit_fire_flash_kb =
-    edit_flash_mass
-    edit_flash_lcl
+    mass_vapor_fuel
+    lower_flammability_limit
+
+mass_vapor_fuel =
+    mг
+lower_flammability_limit =
+    Снкпр
+name_mass_vapor_fuel =
+    Введите массу вещества:
+name_lower_flammability_limit =
+    Введите значение Cнкпр вещества:
+edit_fire_flash-text = {$fire_flash_param}
+    <blockquote>{$edit_fire_flash}</blockquote>
 
 back_fire_flash =
     ↩ Назад
@@ -231,16 +229,6 @@ radius_zone_Rf =
 density_flammable_gases_at_ambient_temperature =
     Плотность горючих газов (паров)
     при температуре окружающей среды
-edit_flash_mass =
-    m
-edit_flash_lcl =
-    Снкпр
-name_edit_flash_mass =
-    Введите массу вещества:
-name_edit_flash_lcl =
-    Введите значение НКПР вещества:
-edit_fire_flash-text = {$fire_flash_param}
-    <blockquote>{$edit_fire_flash}</blockquote>
 
 
 

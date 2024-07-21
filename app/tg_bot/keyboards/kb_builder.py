@@ -98,6 +98,7 @@ def get_inline_keyboard(
     i18n: TranslatorRunner,
     keyboard: InlineKeyboardModel,
         **kwargs: str) -> InlineKeyboardMarkup:
+
     kb_builder = InlineKeyboardBuilder()
 
     buttons: list[InlineKeyboardButton] = []

@@ -1,5 +1,7 @@
 import logging
 
+from dataclasses import dataclass, asdict, astuple
+
 from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, Command, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -10,6 +12,8 @@ from fluentogram import TranslatorRunner
 
 from app.infrastructure.database.database.db import DB
 from app.infrastructure.database.models.users import UsersModel
+
+
 from app.tg_bot.filters.filter_role import IsGuest
 # from app.tg_bot.utilities.check_sub_admin import check_sub_admin
 # from app.tg_bot.utilities.check_sub_member import check_sub_member
@@ -17,7 +21,9 @@ from app.tg_bot.utilities.misc_utils import get_picture_filling
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_url_kb
 from app.tg_bot.states.fsm_state_data import FSMPromoCodeForm
 from app.tg_bot.models.role import UserRole
+from app.tg_bot.models.keyboard import InlineKeyboardModel
 
+from pprint import pprint
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +35,6 @@ user_router.callback_query.filter(IsGuest())
 @user_router.message(CommandStart())
 async def process_start_command(message: Message, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await message.delete()
-    await state.set_state(state=None)
     await state.clear()
     media = get_picture_filling(i18n.get('path_start'))
     text = i18n.get('start_' + role + '-menu')
@@ -38,7 +43,20 @@ async def process_start_command(message: Message, state: FSMContext, i18n: Trans
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('user_kb_' + role).split('\n'),
-                                      i18n=i18n))
+                                      i18n=i18n
+                                      )
+    )
+
+    await state.set_state(state=None)
+    context_data = await state.get_data()
+    context_data.setdefault('temporary_request', '')
+    context_data.setdefault('temporary_parameter', '')
+    context_data.setdefault('temporary_text', '')
+    context_data.setdefault('path_edited_parameter', '')
+    context_data.setdefault('substance', 'gasoline')
+    context_data.setdefault('substance_state', 'liquid')
+    context_data.setdefault('keyboard_model', asdict(InlineKeyboardModel()))
+    await state.update_data(context_data)
 
 
 @user_router.callback_query(F.data == 'general_menu')
@@ -48,7 +66,9 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
         chat_id=callback_data.message.chat.id,
         message_id=callback_data.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(1, *i18n.get('user_kb_' + role).split('\n'), i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, *i18n.get('user_kb_' + role).split('\n'), i18n=i18n
+                                      )
+    )
 
     await state.set_state(state=None)
 
@@ -60,7 +80,10 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *i18n.get('user_kb_' + role).split('\n'), i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, *i18n.get('user_kb_' + role).split('\n'), i18n=i18n
+                                      )
+    )
+    # pprint(await state.get_data())
 
 
 @user_router.callback_query(F.data.in_(['tools_guest', 'fire_resistance_guest', 'fire_risks_guest', 'fire_category_guest', 'substances_guest', "to_cities_guest"]))
@@ -166,7 +189,10 @@ async def enter_promo_code_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'cansel_enter_promo_code', i18n=i18n))
+        reply_markup=get_inline_cd_kb(1, 'cansel_enter_promo_code', i18n=i18n
+                                      )
+    )
+
     await state.set_state(state=FSMPromoCodeForm.promo_code_state)
 
 

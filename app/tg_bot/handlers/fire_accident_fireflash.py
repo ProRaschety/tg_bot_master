@@ -18,7 +18,7 @@ from app.tg_bot.models.keyboard import InlineKeyboardModel
 from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm, FSMEditForm
 from app.tg_bot.utilities import tables
-from app.tg_bot.utilities.misc_utils import get_data_table, get_plot_graph, get_dataframe_table
+from app.tg_bot.utilities.misc_utils import get_data_table, get_plot_graph, get_dataframe_table, find_key_path, get_dict_value
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
 
 from app.calculation.physics.accident_parameters import AccidentParameters
@@ -34,9 +34,6 @@ fire_accident_fireflash_router = Router()
 fire_accident_fireflash_router.message.filter(IsGuest())
 fire_accident_fireflash_router.callback_query.filter(IsGuest())
 
-# SFilter_fire_flash = [FSMFireAccidentForm.edit_fire_flash_mass_state,
-#                       FSMFireAccidentForm.edit_fire_flash_lcl_state]
-
 
 @fire_accident_fireflash_router.callback_query(F.data.in_(['fire_flash', 'back_fire_flash']))
 async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
@@ -47,73 +44,26 @@ async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         caption=text,
         reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
 
-    # data = await state.get_data()
-    # data.setdefault("edit_accident_fire_flash_param", "1")
-    # data.setdefault("accident_fire_flash_sub", "gasoline")
-    # data.setdefault("accident_fire_flash_temperature", "20")
-    # data.setdefault("accident_fire_flash_lcl", "1.4")
-    # data.setdefault("accident_fire_flash_mass_fuel", "5")
-    # data.setdefault("accident_fire_flash_molar_mass_fuel", "100")
-    # data.setdefault("accident_fire_flash_radius_pool", "1")
-
     context_data = await state.get_data()
-    molar_mass, boling_point, mass_burning_rate = await get_property_fuel(subst='gasoline_95')
-
-    substance = SubstanceModel(substance_name='',
-                               molar_mass=molar_mass,
-                               boiling_point=boling_point,
-                               mass_burning_rate=mass_burning_rate,
-                               lower_flammability_limit=1.4,
-                               )
-
-    accmodel = AccidentModel(substance_state='liquid',
-                             substance_name='gasoline_95',
-                             substance=substance,
-                             mass_vapor_fuel=10,
-                             liquid_spill_radius=1,
-                             )
-
-    context_data.setdefault("accident_model", asdict(accmodel))
-    await state.update_data(context_data)
-
     text = i18n.fire_flash.text()
-    accmodel = AccidentModel(**context_data.get('accident_model'))
+
+    accident_model = AccidentModel(**context_data.get('accident_model'))
     dataframe = tables.get_dataframe(
-        request='fire_flash', i18n=i18n, accmodel=accmodel)
+        request=callback.data, i18n=i18n, accident_model=accident_model)
     media = get_dataframe_table(data=dataframe)
-
-    # subst = data.get('accident_fire_flash_sub')
-    # f_flash = AccidentParameters(type_accident='fire_flash')
-    # air_density = compute_density_gas_phase(
-    #     molar_mass=28.97, temperature=float(data.get('accident_fire_flash_temperature')))
-    # headers = (i18n.get('name'), i18n.get('variable'),
-    #            i18n.get('value'), i18n.get('unit'))
-    # label = i18n.get('fire_flash')
-    # data_out = [
-    #     {'id': i18n.get('radius_of_the_strait_above_which_an_explosive_zone_is_formed'), 'var': 'r',
-    #         'unit_1': data.get('accident_fire_flash_radius_pool'), 'unit_2': i18n.get('meter')},
-    #     {'id': i18n.get('mass_of_flammable_gases_entering_the_surrounding_space'), 'var': 'mг',  'unit_1': data.get(
-    #         'accident_fire_flash_mass_fuel'), 'unit_2': i18n.get('kilogram')},
-    #     {'id': i18n.get('lower_concentration_limit_of_flame_propagation'),
-    #         'var': 'Cнкпр', 'unit_1': data.get('accident_fire_flash_lcl'), 'unit_2': i18n.get('percent_volume')},
-    #     {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
-    #         'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
-    #     {'id': i18n.get('ambient_temperature'), 'var': 'tₒ', 'unit_1': data.get(
-    #         'accident_fire_flash_temperature'), 'unit_2': i18n.get('celsius')},
-    #     # {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}
-    # ]
-
-    # media = get_data_table(data=data_out, headers=headers, label=label)
 
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'edit_fire_flash', 'run_fire_flash',
+        reply_markup=get_inline_cd_kb(1, 'edit_fire_flash',
                                       i18n=i18n,
-                                      back_data='back_typical_accidents'))
-    # await state.update_data(data)
+                                      penult_button='run_fire_flash',
+                                      back_data='back_typical_accidents'
+                                      )
+    )
+    await state.update_data(temporary_request=callback.data)
     await callback.answer('')
 
 
@@ -125,39 +75,31 @@ async def edit_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(4, *i18n.get('edit_fire_flash_kb').split('\n'),
                                       i18n=i18n,
-                                      #   penult_button='run_fire_flash',
+                                      penult_button='run_fire_flash',
                                       back_data='back_fire_flash'
                                       )
     )
 
 
-@fire_accident_fireflash_router.callback_query(F.data.in_(['edit_flash_mass', 'edit_flash_lcl']))
+@fire_accident_fireflash_router.callback_query(F.data.in_(['mass_vapor_fuel', 'lower_flammability_limit']))
 async def edit_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    # if callback.data == 'edit_flash_mass':
-    #     await state.set_state(FSMFireAccidentForm.edit_fire_flash_mass_state)
-    # elif callback.data == 'edit_flash_lcl':
-    #     await state.set_state(FSMFireAccidentForm.edit_fire_flash_lcl_state)
 
     context_data = await state.get_data()
+    path_edited_parameter = find_key_path(
+        dictionary=context_data, key=callback.data)
 
-    editable_parameter = context_data['accident_model']['mass_vapor_fuel']
+    editable_parameter = get_dict_value(
+        dictionary=context_data, keys_list=path_edited_parameter)
 
-    text = i18n.editable_parameter.text(
+    text = i18n.temporary_parameter.text(
         text=i18n.get('name_' + callback.data), value=editable_parameter)
 
-    # клавиатуру которую вернет кнопка Сохранить
     kb = InlineKeyboardModel(
-        width=4, buttons='edit_fire_flash_kb', ultimate='back_fire_flash')
-    context_data['keyboard_section'] = asdict(kb)
-    # картинку которую вернет кнопка Сохранить
+        width=4, buttons='edit_fire_flash_kb', penultimate='run_fire_flash', ultimate='back_fire_flash')
 
-    # state_data = await state.get_state()
-    # if state_data == FSMFireAccidentForm.edit_fire_flash_mass_state:
-    #     text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
-    #         "name_fire_flash_mass"), edit_fire_flash=data.get("accident_fire_flash_mass_fuel", 0))
-    # elif state_data == FSMFireAccidentForm.edit_fire_flash_lcl_state:
-    #     text = i18n.edit_fire_flash.text(fire_flash_param=i18n.get(
-    #         "name_fire_flash_lcl"), edit_fire_flash=data.get("accident_fire_flash_lcl", 0))
+    context_data['keyboard_model'] = asdict(kb)
+    context_data['temporary_text'] = callback.data
+    context_data['path_edited_parameter'] = path_edited_parameter
 
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -167,11 +109,9 @@ async def edit_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
             i18n=i18n, penult_button='ready'
         )
     )
-    await state.update_data(editable_parameter=editable_parameter)
+
+    await state.update_data(context_data)
     await state.set_state(FSMEditForm.keypad_state)
-    # reply_markup=get_inline_cd_kb(3,
-    #                               *i18n.get('calculator_buttons').split('\n'),
-    #                               i18n=i18n))
 
 
 # @fire_accident_fireflash_router.callback_query(StateFilter(*SFilter_fire_flash), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero', 'point', 'clear']))
@@ -261,7 +201,7 @@ async def edit_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
 
 @fire_accident_fireflash_router.callback_query(F.data == 'run_fire_flash')
 async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    data = await state.get_data()
+    # data = await state.get_data()
     text = i18n.calculation_progress.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -270,49 +210,57 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_flash'))
 
     text = i18n.fire_flash.text()
-    subst = data.get('accident_fire_flash_sub')
-    rad_pool = float(data.get('accident_fire_flash_radius_pool'))
-    mass = float(data.get('accident_fire_flash_mass_fuel'))
-    lcl = float(data.get('accident_fire_flash_lcl'))
-    temperature = float(data.get('accident_fire_flash_temperature'))
-    molar_mass = float(data.get(
-        'accident_fire_flash_molar_mass_fuel'))
+    # subst = data.get('accident_fire_flash_sub')
+    # rad_pool = float(data.get('accident_fire_flash_radius_pool'))
+    # mass = float(data.get('accident_fire_flash_mass_fuel'))
+    # lcl = float(data.get('accident_fire_flash_lcl'))
+    # temperature = float(data.get('accident_fire_flash_temperature'))
+    # molar_mass = float(data.get(
+    #     'accident_fire_flash_molar_mass_fuel'))
 
-    density_fuel = compute_density_gas_phase(
-        molar_mass=molar_mass, temperature=temperature)
-    f_flash = AccidentParameters(type_accident='fire_flash')
-    radius_LFL = f_flash.compute_radius_LFL(
-        density=density_fuel, mass=mass, clfl=lcl)
-    height_LFL = f_flash.compute_height_LFL(
-        density=density_fuel, mass=mass, clfl=lcl)
+    # density_fuel = compute_density_gas_phase(
+    #     molar_mass=molar_mass, temperature=temperature)
+    # f_flash = AccidentParameters(type_accident='fire_flash')
+    # radius_LFL = f_flash.compute_radius_LFL(
+    #     density=density_fuel, mass=mass, clfl=lcl)
+    # height_LFL = f_flash.compute_height_LFL(
+    #     density=density_fuel, mass=mass, clfl=lcl)
 
-    headers = (i18n.get('name'), i18n.get('variable'),
-               i18n.get('value'), i18n.get('unit'))
-    label = i18n.get('fire_flash')
-    data_out = [
-        {'id': i18n.get('radius_zone_Rf'), 'var': i18n.get('radius_Rf'),
-            'unit_1': f"{(radius_LFL if radius_LFL>rad_pool else rad_pool) * 1.2:.2f}", 'unit_2': i18n.get('meter')},
-        {'id': i18n.get('height_zone_LFL'), 'var': i18n.get('height_LFL'),
-            'unit_1': f"{height_LFL:.2f}", 'unit_2': i18n.get('meter')},
-        {'id': i18n.get('radius_zone_LFL'), 'var': i18n.get('radius_LFL'),
-            'unit_1': f"{(radius_LFL if radius_LFL>rad_pool else rad_pool):.2f}", 'unit_2': i18n.get('meter')},
-        {'id': i18n.get('density_flammable_gases_at_ambient_temperature'),
-            'var': 'ρг', 'unit_1': f"{density_fuel:.3f}", 'unit_2': i18n.get('kg_per_m_cub')},
-        # {'id': i18n.get('radius_of_the_strait_above_which_an_explosive_zone_is_formed'), 'var': 'r',
-        #     'unit_1': f"{rad_pool:.2f}", 'unit_2': i18n.get('meter')},
-        {'id': i18n.get('mass_of_flammable_gases_entering_the_surrounding_space'),
-         'var': 'mг',  'unit_1': mass, 'unit_2': i18n.get('kilogram')},
-        {'id': i18n.get('lower_concentration_limit_of_flame_propagation'),
-            'var': i18n.get('lower_concentration_limit'), 'unit_1': f"{lcl:.2f}", 'unit_2': i18n.get('percent_volume')},
-        # {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
-        #     'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
-        {'id': i18n.get('ambient_temperature'), 'var': 'tₒ',
-         'unit_1': temperature, 'unit_2': i18n.get('celsius')},
-        # {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}
-    ]
+    # headers = (i18n.get('name'), i18n.get('variable'),
+    #            i18n.get('value'), i18n.get('unit'))
+    # label = i18n.get('fire_flash')
+    # data_out = [
+    #     {'id': i18n.get('radius_zone_Rf'), 'var': i18n.get('radius_Rf'),
+    #         'unit_1': f"{(radius_LFL if radius_LFL>rad_pool else rad_pool) * 1.2:.2f}", 'unit_2': i18n.get('meter')},
+    #     {'id': i18n.get('height_zone_LFL'), 'var': i18n.get('height_LFL'),
+    #         'unit_1': f"{height_LFL:.2f}", 'unit_2': i18n.get('meter')},
+    #     {'id': i18n.get('radius_zone_LFL'), 'var': i18n.get('radius_LFL'),
+    #         'unit_1': f"{(radius_LFL if radius_LFL>rad_pool else rad_pool):.2f}", 'unit_2': i18n.get('meter')},
+    #     {'id': i18n.get('density_flammable_gases_at_ambient_temperature'),
+    #         'var': 'ρг', 'unit_1': f"{density_fuel:.3f}", 'unit_2': i18n.get('kg_per_m_cub')},
+    #     # {'id': i18n.get('radius_of_the_strait_above_which_an_explosive_zone_is_formed'), 'var': 'r',
+    #     #     'unit_1': f"{rad_pool:.2f}", 'unit_2': i18n.get('meter')},
+    #     {'id': i18n.get('mass_of_flammable_gases_entering_the_surrounding_space'),
+    #      'var': 'mг',  'unit_1': mass, 'unit_2': i18n.get('kilogram')},
+    #     {'id': i18n.get('lower_concentration_limit_of_flame_propagation'),
+    #         'var': i18n.get('lower_concentration_limit'), 'unit_1': f"{lcl:.2f}", 'unit_2': i18n.get('percent_volume')},
+    #     # {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
+    #     #     'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
+    #     {'id': i18n.get('ambient_temperature'), 'var': 'tₒ',
+    #      'unit_1': temperature, 'unit_2': i18n.get('celsius')},
+    #     # {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}
+    # ]
 
-    media = get_data_table(data=data_out, headers=headers,
-                           label=label, results=True, row_num=4)
+    # media = get_data_table(data=data_out, headers=headers,
+    #                        label=label, results=True, row_num=4)
+
+    context_data = await state.get_data()
+
+    accident_model = AccidentModel(**context_data.get('accident_model'))
+    dataframe = tables.get_dataframe(
+        request=callback.data, i18n=i18n, accident_model=accident_model)
+    media = get_dataframe_table(data=dataframe, results=True, row_num=7)
+
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
