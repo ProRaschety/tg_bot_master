@@ -17,12 +17,14 @@ from fluentogram import TranslatorRunner
 # from app.infrastructure.database.database.db import DB
 from app.tg_bot.models.tables import DataFrameModel
 from app.tg_bot.models.role import UserRole
+from app.tg_bot.models.keyboard import InlineKeyboardModel
+
 from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.states.fsm_state_data import FSMEditForm, FSMFireAccidentForm
-from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph, get_dataframe_table
+from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph, get_dataframe_table, find_key_path, get_dict_value
 from app.tg_bot.utilities import tables
 
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad
 
 from app.calculation.physics.accident_parameters import AccidentParameters
 from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel, compute_stoichiometric_coefficient_with_fuel, compute_stoichiometric_coefficient_with_oxygen
@@ -40,9 +42,6 @@ fire_accident_router = Router()
 fire_accident_router.message.filter(IsGuest())
 fire_accident_router.callback_query.filter(IsGuest())
 
-SFilter_fire_pool = [FSMFireAccidentForm.edit_fire_pool_area_state,
-                     FSMFireAccidentForm.edit_fire_pool_distance_state,
-                     FSMFireAccidentForm.edit_fire_pool_wind_state]
 
 SFilter_horizontal_jet = [FSMFireAccidentForm.edit_horizontal_jet_mass_flow_state,
                           FSMFireAccidentForm.edit_horizontal_jet_distance_state]
@@ -71,7 +70,7 @@ async def back_typical_accidents_call(callback: CallbackQuery, bot: Bot, i18n: T
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=get_inline_cd_kb(
-            i18n=i18n, param_back=True, back_data='back_fire_risks'
+            i18n=i18n, back_data='back_fire_risks'
         )
     )
 
@@ -85,7 +84,7 @@ async def back_typical_accidents_call(callback: CallbackQuery, bot: Bot, i18n: T
         reply_markup=get_inline_cd_kb(
             1,
             *i18n.get('accidents_kb_' + role).split('\n'),
-            i18n=i18n, param_back=True, back_data='back_fire_risks'
+            i18n=i18n, back_data='back_fire_risks'
         )
     )
     await callback.answer('')
@@ -104,7 +103,7 @@ async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         reply_markup=get_inline_cd_kb(
             1,
             *i18n.get('accidents_kb_' + role).split('\n'),
-            i18n=i18n, param_back=True, back_data='back_fire_risks'
+            i18n=i18n, back_data='back_fire_risks'
         )
     )
 
@@ -125,11 +124,7 @@ async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMCo
                                    substance=substance,
                                    )
 
-    # context_data.setdefault('accident_model', asdict(accident_model))
     await state.update_data(accident_model=asdict(accident_model), temporary_parameter='', temporary_request='')
-    # await state.update_data(temporary_request='')
-    # await state.update_data(temporary_parameter='')
-    # await state.update_data(context_data)
 
 
 @fire_accident_router.callback_query(F.data.in_(['fire_pool', 'back_fire_pool']))
@@ -139,7 +134,7 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_typical_accidents'
                                       )
     )
 
@@ -159,9 +154,10 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         reply_markup=get_inline_cd_kb(
             1,
             *i18n.get('fire_pool_kb_guest').split('\n') if role in ['guest'] else i18n.get('fire_pool_kb').split('\n'),
-            i18n=i18n, param_back=True, back_data='back_typical_accidents'
+            i18n=i18n, back_data='back_typical_accidents'
         )
     )
+    await state.update_data(temporary_request=callback.data)
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_fire_pool_guest']))
@@ -174,7 +170,7 @@ async def edit_fire_pool_guest_call(callback: CallbackQuery, bot: Bot, state: FS
         reply_markup=get_inline_cd_kb(
             1,
             *i18n.get('fire_pool_kb_guest').split('\n'),
-            i18n=i18n, param_back=True, back_data='back_fire_pool'
+            i18n=i18n, back_data='back_fire_pool'
         )
     )
 
@@ -186,7 +182,7 @@ async def edit_fire_pool_guest_call(callback: CallbackQuery, bot: Bot, state: FS
         reply_markup=get_inline_cd_kb(
             1,
             *i18n.get('fire_pool_kb_guest').split('\n'),
-            i18n=i18n, param_back=True, back_data='back_fire_pool'
+            i18n=i18n, back_data='back_fire_pool'
         )
     )
 
@@ -202,7 +198,7 @@ async def edit_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         reply_markup=get_inline_cd_kb(
             4,
             *i18n.get('edit_fire_pool_kb').split('\n'),
-            i18n=i18n, penult_button='run_fire_pool', param_back=True, back_data='back_fire_pool'
+            i18n=i18n, penult_button='run_fire_pool', back_data='back_fire_pool'
         )
     )
     await callback.answer('')
@@ -227,7 +223,7 @@ async def fire_pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_typical_accidents'))
 
     molar_mass, boling_point, mass_burning_rate, LFL = await get_property_fuel(subst=call_data)
     substance = SubstanceModel(substance_name='',
@@ -254,7 +250,7 @@ async def fire_pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         reply_markup=get_inline_cd_kb(
             1,
             *i18n.get('fire_pool_kb_guest').split('\n') if role in ['guest'] else i18n.get('fire_pool_kb').split('\n'),
-            i18n=i18n, param_back=True, back_data='back_typical_accidents'
+            i18n=i18n, back_data='back_typical_accidents'
         )
     )
 
@@ -263,167 +259,41 @@ async def fire_pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(F.data.in_(['edit_pool_area', 'edit_pool_distance', 'edit_pool_wind']))
+@fire_accident_router.callback_query(F.data.in_(['pool_area', 'pool_distance', 'velocity_wind']))
 async def edit_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    if callback.data == 'edit_pool_area':
-        await state.set_state(FSMFireAccidentForm.edit_fire_pool_area_state)
-    elif callback.data == 'edit_pool_distance':
-        await state.set_state(FSMFireAccidentForm.edit_fire_pool_distance_state)
-    elif callback.data == 'edit_pool_wind':
-        await state.set_state(FSMFireAccidentForm.edit_fire_pool_wind_state)
+    context_data = await state.get_data()
 
-    data = await state.get_data()
-    user_state = await state.get_state()
+    path_edited_parameter = find_key_path(
+        dictionary=context_data, key=callback.data)
 
-    accident_model = AccidentModel(**data.get('accident_model'))
+    editable_parameter = get_dict_value(
+        dictionary=context_data, keys_list=path_edited_parameter)
 
-    if user_state == FSMFireAccidentForm.edit_fire_pool_area_state:
-        text = i18n.edit_fire_pool.text(fire_pool_param=i18n.get(
-            "name_fire_pool_area"), edit_fire_pool=accident_model.pool_area)
-    elif user_state == FSMFireAccidentForm.edit_fire_pool_distance_state:
-        text = i18n.edit_fire_pool.text(fire_pool_param=i18n.get(
-            "name_fire_pool_distance"), edit_fire_pool=accident_model.distance)
-    elif user_state == FSMFireAccidentForm.edit_fire_pool_wind_state:
-        text = i18n.edit_fire_pool.text(fire_pool_param=i18n.get(
-            "name_fire_pool_wind"), edit_fire_pool=accident_model.velocity_wind)
+    text = i18n.temporary_parameter.text(
+        text=i18n.get('name_' + callback.data), value=editable_parameter)
+
+    kb = InlineKeyboardModel(
+        width=4, buttons='edit_fire_pool_kb', penultimate='run_fire_pool', ultimate='back_fire_pool')
+
+    context_data['keyboard_model'] = asdict(kb)
+    context_data['temporary_text'] = callback.data
+    context_data['path_edited_parameter'] = path_edited_parameter
 
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(
-            3,
-            *i18n.get('calculator_buttons').split('\n'),
-            i18n=i18n
+        reply_markup=get_keypad(
+            i18n=i18n, penult_button='ready'
         )
     )
+
+    await state.update_data(context_data)
+    await state.set_state(FSMEditForm.keypad_state)
     await callback.answer('')
 
 
-@fire_accident_router.callback_query(StateFilter(*SFilter_fire_pool), F.data.in_(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'zero', 'dooble_zero', 'point', 'clear']))
-async def edit_fire_pool_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
-    user_state = await state.get_state()
-    if user_state == FSMFireAccidentForm.edit_fire_pool_area_state:
-        fire_pool_param = i18n.get("name_fire_pool_area")
-    elif user_state == FSMFireAccidentForm.edit_fire_pool_distance_state:
-        fire_pool_param = i18n.get("name_fire_pool_distance")
-    elif user_state == FSMFireAccidentForm.edit_fire_pool_wind_state:
-        fire_pool_param = i18n.get("name_fire_pool_wind")
-
-    edit_data = await state.get_data()
-    if callback.data == 'clear':
-        await state.update_data(edit_accident_fire_pool_param="")
-        edit_d = await state.get_data()
-        edit_data = edit_d.get('edit_accident_fire_pool_param', 1)
-        text = i18n.edit_fire_pool.text(
-            fire_pool_param=fire_pool_param, edit_fire_pool=edit_data)
-
-    else:
-        edit_param_1 = edit_data.get('edit_accident_fire_pool_param')
-        edit_sum = edit_param_1 + i18n.get(callback.data)
-        await state.update_data(edit_accident_fire_pool_param=edit_sum)
-        edit_data = await state.get_data()
-        edit_param = edit_data.get('edit_accident_fire_pool_param', 0)
-        text = i18n.edit_fire_pool.text(
-            fire_pool_param=fire_pool_param, edit_fire_pool=edit_param
-        )
-
-    await bot.edit_message_caption(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        caption=text,
-        reply_markup=get_inline_cd_kb(
-            3,
-            *i18n.get('calculator_buttons').split('\n'),
-            i18n=i18n
-        )
-    )
-
-
-@fire_accident_router.callback_query(StateFilter(*SFilter_fire_pool), F.data.in_(['ready']))
-async def edit_fire_pool_param_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    user_state = await state.get_state()
-    context_data = await state.get_data()
-    accident_model = context_data.get('accident_model')
-
-    value = context_data.get("edit_accident_fire_pool_param")
-    if user_state == FSMFireAccidentForm.edit_fire_pool_area_state:
-        if value != '' and value != '.' and (float(value)) > 0:
-            await state.update_data(accident_model.update(pool_area=value))
-        else:
-            await state.update_data(accident_model.update(pool_area=10))
-
-    elif user_state == FSMFireAccidentForm.edit_fire_pool_distance_state:
-        if value != '' and value != '.' and (float(value)) > 0:
-            await state.update_data(accident_model.update(distance=value))
-        else:
-            await state.update_data(accident_model.update(distance=10))
-
-    elif user_state == FSMFireAccidentForm.edit_fire_pool_wind_state:
-        if value != '' and value != '.' and (float(value)) > 0:
-            # await state.update_data(accident_fire_pool_wind=value)
-            await state.update_data(accident_model.update(velocity_wind=value))
-        else:
-            await state.update_data(accident_model.update(velocity_wind=0))
-
-    await state.update_data(context_data)
-    # data = await state.get_data()
-
-    # subst = data.get('accident_fire_pool_sub')
-    context_data = await state.get_data()
-    # accident_model = AccidentModel(**context_data.get('accident_model'))
-    # substance = SubstanceModel(**accident_model.substance)
-    # print(accident_model)
-    # air_density = compute_density_gas_phase(
-    #     molar_mass=28.97,
-    #     temperature=accident_model.air_temperature
-    # )
-
-    # headers = (i18n.get('name'), i18n.get('variable'),
-    #            i18n.get('value'), i18n.get('unit'))
-    # label = i18n.get('fire_pool')
-    # data_out = [
-    #     {'id': i18n.get('pool_distance'), 'var': 'r',
-    #      'unit_1': accident_model.distance, 'unit_2': i18n.get('meter')},
-    #     {'id': i18n.get('pool_area'), 'var': 'F',
-    #      'unit_1': accident_model.pool_area, 'unit_2': i18n.get('meter_square')},
-    #     {'id': i18n.get('wind_velocity'), 'var': 'wₒ',
-    #         'unit_1': accident_model.velocity_wind, 'unit_2': i18n.get('m_per_sec')},
-    #     {'id': i18n.get('ambient_air_density'), 'var': 'ρₒ',
-    #         'unit_1': f"{air_density:.2f}", 'unit_2': i18n.get('kg_per_m_cub')},
-    #     {'id': i18n.get('ambient_temperature'), 'var': 'tₒ',
-    #      'unit_1': accident_model.air_temperature, 'unit_2': i18n.get('celsius')},
-    #     {'id': i18n.get('specific_mass_fuel_burning_rate'),
-    #         'var': 'm', 'unit_1': data.get('accident_fire_pool_mass_burning_rate'), 'unit_2': i18n.get('kg_per_m_square_in_sec')},
-    #     # {'id': i18n.get('specific_heat_of_combustion'), 'var': 'Hсг',
-    #     #     'unit_1': data.get(
-    #     #     'accident_fire_pool_heat_of_combustion'), 'unit_2': i18n.get('kJ_per_kg')},
-    #     {'id': i18n.get('substance'), 'var': '-', 'unit_1': i18n.get(subst), 'unit_2': '-'}]
-
-    # media = get_data_table(data=data_out, headers=headers, label=label)
-
-    accident_model = AccidentModel(**context_data.get('accident_model'))
-    dataframe = tables.get_dataframe(
-        request='fire_pool', i18n=i18n, accident_model=accident_model)
-    media = get_dataframe_table(data=dataframe)
-    text = i18n.fire_pool.text()
-    await bot.edit_message_media(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        media=InputMediaPhoto(media=BufferedInputFile(
-            file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(
-            4,
-            *i18n.get('edit_fire_pool_kb').split('\n'),
-            i18n=i18n, penult_button='run_fire_pool', param_back=True, back_data='back_fire_pool'
-        )
-    )
-
-    await state.update_data(edit_accident_fire_pool_param='')
-    await state.set_state(state=None)
-
-
-@fire_accident_router.callback_query(F.data.in_(['run_fire_pool', 'run_fire_pool_guest']))
+@fire_accident_router.callback_query(F.data.in_(['run_fire_pool']))
 async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     context_data = await state.get_data()
     text = i18n.calculation_progress.text()
@@ -432,7 +302,7 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=get_inline_cd_kb(
-            i18n=i18n, param_back=True, back_data='back_fire_pool'
+            i18n=i18n, back_data='back_fire_pool'
         )
     )
 
@@ -450,7 +320,7 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         reply_markup=get_inline_cd_kb(
             1,
             *i18n.get('result_fire_pool_kb_' + role).split('\n'),
-            i18n=i18n, param_back=True, back_data='back_fire_pool'
+            i18n=i18n, back_data='back_fire_pool'
         )
     )
     await callback.answer('')
@@ -463,7 +333,7 @@ async def plot_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_pool'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_fire_pool'))
 
     context_data = await state.get_data()
     accident_model = AccidentModel(**context_data.get('accident_model'))
@@ -522,7 +392,7 @@ async def plot_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'probit_fire_pool', i18n=i18n, param_back=True, back_data='back_fire_pool'))
+        reply_markup=get_inline_cd_kb(1, 'probit_fire_pool', i18n=i18n, back_data='back_fire_pool'))
     await callback.answer('')
 
 
@@ -535,7 +405,7 @@ async def probability_defeat_firepool_call(callback: CallbackQuery, bot: Bot, st
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_pool'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_fire_pool'))
 
     context_data = await state.get_data()
     accident_model = AccidentModel(**context_data.get('accident_model'))
@@ -591,7 +461,7 @@ async def probability_defeat_firepool_call(callback: CallbackQuery, bot: Bot, st
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(
             1,
-            'plot_fire_pool', i18n=i18n, param_back=True, back_data='back_fire_pool'
+            'plot_fire_pool', i18n=i18n, back_data='back_fire_pool'
         )
     )
     await callback.answer('')
@@ -604,7 +474,7 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_typical_accidents'))
 
     data = await state.get_data()
     data.setdefault("edit_accident_cloud_explosion_param", "1")
@@ -697,7 +567,10 @@ async def cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSMCont
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('cloud_explosion_kb_guest').split('\n') if role in ['guest'] else i18n.get('cloud_explosion_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+                                      i18n=i18n, back_data='back_typical_accidents'
+                                      )
+    )
+    await state.update_data(temporary_request=callback.data)
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion_guest']))
@@ -709,7 +582,7 @@ async def edit_cloud_explosion_guest_call(callback: CallbackQuery, bot: Bot, sta
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('cloud_explosion_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_cloud_explosion'))
+                                      i18n=i18n, back_data='back_cloud_explosion'))
     text = i18n.get('repeated_request_guest')
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -717,7 +590,7 @@ async def edit_cloud_explosion_guest_call(callback: CallbackQuery, bot: Bot, sta
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('cloud_explosion_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_cloud_explosion'))
+                                      i18n=i18n, back_data='back_cloud_explosion'))
     await callback.answer('')
 
 
@@ -729,7 +602,7 @@ async def edit_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FS
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(2,
                                       *i18n.get('edit_cloud_explosion_kb').split('\n'),
-                                      i18n=i18n, penult_button='run_cloud_explosion', param_back=True, back_data='back_cloud_explosion'))
+                                      i18n=i18n, penult_button='run_cloud_explosion', back_data='back_cloud_explosion'))
     await callback.answer('')
 
 
@@ -738,7 +611,7 @@ async def cloud_explosion_state_call(callback: CallbackQuery, bot: Bot, state: F
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, 'cloud_explosion_state_gas', 'cloud_explosion_state_dust', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
+        reply_markup=get_inline_cd_kb(1, 'cloud_explosion_state_gas', 'cloud_explosion_state_dust', i18n=i18n, back_data='back_edit_cloud_explosion',))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion_class_fuel']))
@@ -748,7 +621,7 @@ async def cloud_explosion_class_fuel_call(callback: CallbackQuery, bot: Bot, sta
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(4, 'class_fuel_first', 'class_fuel_second', 'class_fuel_third', 'class_fuel_fourth', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
+        reply_markup=get_inline_cd_kb(4, 'class_fuel_first', 'class_fuel_second', 'class_fuel_third', 'class_fuel_fourth', i18n=i18n, back_data='back_edit_cloud_explosion',))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion_class_space']))
@@ -758,7 +631,7 @@ async def cloud_explosion_class_space_call(callback: CallbackQuery, bot: Bot, st
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(4, 'class_space_first', 'class_space_second', 'class_space_third', 'class_space_fourth', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
+        reply_markup=get_inline_cd_kb(4, 'class_space_first', 'class_space_second', 'class_space_third', 'class_space_fourth', i18n=i18n, back_data='back_edit_cloud_explosion',))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_cloud_explosion_expl_cond']))
@@ -766,7 +639,7 @@ async def cloud_explosion_cond_call(callback: CallbackQuery, bot: Bot, state: FS
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(1, 'above_surface', 'on_surface', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
+        reply_markup=get_inline_cd_kb(1, 'above_surface', 'on_surface', i18n=i18n, back_data='back_edit_cloud_explosion',))
 
 
 @fire_accident_router.callback_query(F.data.in_(['cloud_explosion_methodology']))
@@ -774,7 +647,7 @@ async def cloud_explosion_methodology_call(callback: CallbackQuery, bot: Bot, st
     await bot.edit_message_reply_markup(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(2, 'methodology_404', 'methodology_2024', i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion',))
+        reply_markup=get_inline_cd_kb(2, 'methodology_404', 'methodology_2024', i18n=i18n, back_data='back_edit_cloud_explosion',))
 
 
 @fire_accident_router.callback_query(F.data.in_(['cloud_explosion_state_gas', 'cloud_explosion_state_dust', 'class_fuel_first', 'class_fuel_second', 'class_fuel_third', 'class_fuel_fourth', 'class_space_first', 'class_space_second', 'class_space_third', 'class_space_fourth', 'above_surface', 'on_surface', 'methodology_404', 'methodology_2024']))
@@ -784,7 +657,7 @@ async def cloud_explosion_state_close(callback: CallbackQuery, bot: Bot, state: 
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_edit_cloud_explosion'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_edit_cloud_explosion'))
 
     call_data = callback.data
     if call_data == 'cloud_explosion_state_gas':
@@ -892,7 +765,7 @@ async def cloud_explosion_state_close(callback: CallbackQuery, bot: Bot, state: 
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(2,
                                       *i18n.get('edit_cloud_explosion_kb').split('\n'),
-                                      i18n=i18n, penult_button='run_cloud_explosion', param_back=True, back_data='back_cloud_explosion'))
+                                      i18n=i18n, penult_button='run_cloud_explosion', back_data='back_cloud_explosion'))
     await callback.answer('')
 
 
@@ -1096,7 +969,7 @@ async def edit_cloud_explosion_param_call(callback: CallbackQuery, bot: Bot, sta
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(2,
                                       *i18n.get('edit_cloud_explosion_kb').split('\n'),
-                                      i18n=i18n, penult_button='run_cloud_explosion', param_back=True, back_data='back_cloud_explosion'))
+                                      i18n=i18n, penult_button='run_cloud_explosion', back_data='back_cloud_explosion'))
     await state.update_data(edit_accident_cloud_explosion_param='')
     await state.set_state(state=None)
 
@@ -1109,7 +982,7 @@ async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSM
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_cloud_explosion'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_cloud_explosion'))
 
     methodology = True if data.get(
         'accident_cloud_explosion_methodology') == 'methodology_2024' else False
@@ -1201,7 +1074,7 @@ async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSM
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_accident_cloud_explosion_pressure', 'plot_accident_cloud_explosion_impuls', i18n=i18n, param_back=True, back_data='back_cloud_explosion'))
+        reply_markup=get_inline_cd_kb(1, 'plot_accident_cloud_explosion_pressure', 'plot_accident_cloud_explosion_impuls', i18n=i18n, back_data='back_cloud_explosion'))
     await callback.answer('')
 
 
@@ -1212,7 +1085,7 @@ async def plot_cloud_explosion_pres_call(callback: CallbackQuery, bot: Bot, stat
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_cloud_explosion'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_cloud_explosion'))
     data = await state.get_data()
     text = i18n.cloud_explosion.text()
 
@@ -1264,7 +1137,7 @@ async def plot_cloud_explosion_pres_call(callback: CallbackQuery, bot: Bot, stat
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_accident_cloud_explosion_impuls', i18n=i18n, param_back=True, back_data='back_cloud_explosion'))
+        reply_markup=get_inline_cd_kb(1, 'plot_accident_cloud_explosion_impuls', i18n=i18n, back_data='back_cloud_explosion'))
     await callback.answer('')
 
 
@@ -1275,7 +1148,7 @@ async def plot_cloud_explosion_impuls_call(callback: CallbackQuery, bot: Bot, st
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_cloud_explosion'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_cloud_explosion'))
     data = await state.get_data()
     text = i18n.cloud_explosion.text()
 
@@ -1325,7 +1198,7 @@ async def plot_cloud_explosion_impuls_call(callback: CallbackQuery, bot: Bot, st
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_accident_cloud_explosion_pressure', i18n=i18n, param_back=True, back_data='back_cloud_explosion'))
+        reply_markup=get_inline_cd_kb(1, 'plot_accident_cloud_explosion_pressure', i18n=i18n, back_data='back_cloud_explosion'))
     await callback.answer('')
 
 
@@ -1336,7 +1209,7 @@ async def horizontal_jet_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_typical_accidents'))
 
     data = await state.get_data()
     data.setdefault("edit_accident_horizontal_jet_param", "")
@@ -1392,7 +1265,10 @@ async def horizontal_jet_call(callback: CallbackQuery, bot: Bot, state: FSMConte
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('horizontal_jet_kb_guest').split('\n') if role in ['guest'] else i18n.get('horizontal_jet_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+                                      i18n=i18n, back_data='back_typical_accidents'
+                                      )
+    )
+    await state.update_data(temporary_request=callback.data)
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_horizontal_jet_guest']))
@@ -1404,7 +1280,7 @@ async def edit_horizontal_jet_guest_call(callback: CallbackQuery, bot: Bot, stat
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('horizontal_jet_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_horizontal_jet'))
+                                      i18n=i18n, back_data='back_horizontal_jet'))
     text = i18n.get('repeated_request_guest')
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -1412,7 +1288,7 @@ async def edit_horizontal_jet_guest_call(callback: CallbackQuery, bot: Bot, stat
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('horizontal_jet_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_horizontal_jet'))
+                                      i18n=i18n, back_data='back_horizontal_jet'))
     await callback.answer('')
 
 
@@ -1426,7 +1302,7 @@ async def horizontal_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSM
         reply_markup=get_inline_cd_kb(1,
                                       #   'edit_vertical_jet',
                                       #   'plot_vertical_jet',
-                                      i18n=i18n, param_back=True, back_data='back_horizontal_jet'))
+                                      i18n=i18n, back_data='back_horizontal_jet'))
     data = await state.get_data()
     text = i18n.horizontal_jet.text()
     distance = float(data.get('accident_horizontal_jet_human_distance'))
@@ -1451,7 +1327,7 @@ async def horizontal_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSM
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_horizontal_jet'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_horizontal_jet'))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_horizontal_jet']))
@@ -1461,7 +1337,7 @@ async def edit_horizontal_jet_call(callback: CallbackQuery, bot: Bot, state: FSM
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(1, *i18n.get('edit_horizontal_jet_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_horizontal_jet'))
+                                      i18n=i18n, back_data='back_horizontal_jet'))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_hjet_state']))
@@ -1529,7 +1405,7 @@ async def horizontal_jet_state_call(callback: CallbackQuery, bot: Bot, state: FS
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *i18n.get('edit_horizontal_jet_kb').split('\n'), i18n=i18n, param_back=True, back_data='back_horizontal_jet'))
+        reply_markup=get_inline_cd_kb(1, *i18n.get('edit_horizontal_jet_kb').split('\n'), i18n=i18n, back_data='back_horizontal_jet'))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_hjet_mass_rate', 'edit_hjet_distance']))
@@ -1655,7 +1531,7 @@ async def edit_hjet_param_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, *i18n.get('edit_horizontal_jet_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_horizontal_jet'))
+                                      i18n=i18n, back_data='back_horizontal_jet'))
     await state.update_data(edit_accident_horizontal_jet_param='')
     await state.set_state(state=None)
 
@@ -1667,7 +1543,7 @@ async def vertical_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_typical_accidents'))
 
     data = await state.get_data()
     data.setdefault("edit_accident_vertical_jet_param", "")
@@ -1723,7 +1599,10 @@ async def vertical_jet_call(callback: CallbackQuery, bot: Bot, state: FSMContext
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('vertical_jet_kb_guest').split('\n') if role in ['guest'] else i18n.get('vertical_jet_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+                                      i18n=i18n, back_data='back_typical_accidents'
+                                      )
+    )
+    await state.update_data(temporary_request=callback.data)
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_vertical_jet_guest']))
@@ -1735,7 +1614,7 @@ async def edit_vertical_jet_guest_call(callback: CallbackQuery, bot: Bot, state:
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('vertical_jet_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_vertical_jet'))
+                                      i18n=i18n, back_data='back_vertical_jet'))
     text = i18n.get('repeated_request_guest')
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -1743,7 +1622,7 @@ async def edit_vertical_jet_guest_call(callback: CallbackQuery, bot: Bot, state:
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('vertical_jet_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_vertical_jet'))
+                                      i18n=i18n, back_data='back_vertical_jet'))
     await callback.answer('')
 
 
@@ -1754,7 +1633,7 @@ async def edit_vertical_jet_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(1, *i18n.get('edit_vertical_jet_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_vertical_jet'))
+                                      i18n=i18n, back_data='back_vertical_jet'))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_vjet_state']))
@@ -1820,7 +1699,7 @@ async def vertical_jet_state_call(callback: CallbackQuery, bot: Bot, state: FSMC
         reply_markup=get_inline_cd_kb(1,
                                       'edit_vertical_jet',
                                       'plot_vertical_jet',
-                                      i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+                                      i18n=i18n, back_data='back_typical_accidents'))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_vjet_mass_rate', 'edit_vjet_distance']))
@@ -1946,7 +1825,7 @@ async def edit_vjet_param_call(callback: CallbackQuery, bot: Bot, state: FSMCont
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, *i18n.get('edit_vertical_jet_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_vertical_jet'))
+                                      i18n=i18n, back_data='back_vertical_jet'))
     await state.update_data(edit_accident_vertical_jet_param='')
     await state.set_state(state=None)
 
@@ -1959,7 +1838,7 @@ async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=get_inline_cd_kb(1,
-                                      i18n=i18n, param_back=True, back_data='back_vertical_jet'))
+                                      i18n=i18n, back_data='back_vertical_jet'))
     data = await state.get_data()
     text = i18n.vertical_jet.text()
     distance = float(data.get('accident_vertical_jet_human_distance'))
@@ -1988,7 +1867,7 @@ async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
-                                      i18n=i18n, param_back=True, back_data='back_vertical_jet'))
+                                      i18n=i18n, back_data='back_vertical_jet'))
 
 
 @fire_accident_router.callback_query(F.data.in_(['fire_ball', 'back_fire_ball']))
@@ -1998,7 +1877,7 @@ async def fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_typical_accidents'))
 
     data = await state.get_data()
     data.setdefault("edit_accident_fire_ball_param", "1")
@@ -2046,7 +1925,10 @@ async def fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1, *i18n.get('fire_ball_kb_guest').split('\n') if role in ['guest'] else i18n.get('fire_ball_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+                                      i18n=i18n, back_data='back_typical_accidents'
+                                      )
+    )
+    await state.update_data(temporary_request=callback.data)
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_fire_ball']))
@@ -2056,7 +1938,7 @@ async def edit_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(2, *i18n.get('edit_fire_ball_kb').split('\n'),
-                                      i18n=i18n, penult_button='run_fire_ball', param_back=True, back_data='back_fire_ball'))
+                                      i18n=i18n, penult_button='run_fire_ball', back_data='back_fire_ball'))
 
 
 @fire_accident_router.callback_query(F.data.in_(['edit_fire_ball_guest']))
@@ -2069,7 +1951,7 @@ async def edit_fire_ball_guest_call(callback: CallbackQuery, bot: Bot, state: FS
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('fire_ball_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_ball'))
+                                      i18n=i18n, back_data='back_fire_ball'))
     text = i18n.get('repeated_request_guest')
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -2077,7 +1959,7 @@ async def edit_fire_ball_guest_call(callback: CallbackQuery, bot: Bot, state: FS
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('fire_ball_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_ball'))
+                                      i18n=i18n, back_data='back_fire_ball'))
     await callback.answer('')
 
 
@@ -2114,7 +1996,7 @@ async def run_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_ball'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_fire_ball'))
     text = i18n.fire_ball.text()
     subst = data.get('accident_fire_ball_sub')
     mass = float(data.get('accident_fire_ball_mass_fuel'))
@@ -2163,7 +2045,7 @@ async def run_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMContex
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_fire_ball', 'probit_fire_ball', i18n=i18n, param_back=True, back_data='back_fire_ball'))
+        reply_markup=get_inline_cd_kb(1, 'plot_fire_ball', 'probit_fire_ball', i18n=i18n, back_data='back_fire_ball'))
     await callback.answer('')
 
 
@@ -2252,7 +2134,7 @@ async def edit_fire_ball_param_call(callback: CallbackQuery, bot: Bot, state: FS
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(2, *i18n.get('edit_fire_ball_kb').split('\n'),
-                                      i18n=i18n, penult_button='run_fire_ball', param_back=True, back_data='back_fire_ball'))
+                                      i18n=i18n, penult_button='run_fire_ball', back_data='back_fire_ball'))
     await state.update_data(edit_accident_fire_ball_param='')
     await state.set_state(state=None)
 
@@ -2264,7 +2146,7 @@ async def plot_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_ball'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_fire_ball'))
 
     data = await state.get_data()
     text = i18n.fire_ball.text()
@@ -2298,7 +2180,7 @@ async def plot_fire_ball_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'probit_fire_ball', i18n=i18n, param_back=True, back_data='back_fire_ball'))
+        reply_markup=get_inline_cd_kb(1, 'probit_fire_ball', i18n=i18n, back_data='back_fire_ball'))
     await callback.answer('')
 
 
@@ -2311,7 +2193,7 @@ async def probability_defeat_fireball_call(callback: CallbackQuery, bot: Bot, st
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_ball'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_fire_ball'))
 
     data = await state.get_data()
     text = i18n.probit_heat_flux.text()
@@ -2347,7 +2229,7 @@ async def probability_defeat_fireball_call(callback: CallbackQuery, bot: Bot, st
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_fire_ball', i18n=i18n, param_back=True, back_data='back_fire_ball'))
+        reply_markup=get_inline_cd_kb(1, 'plot_fire_ball', i18n=i18n, back_data='back_fire_ball'))
     await callback.answer('')
 
 
@@ -2358,7 +2240,7 @@ async def bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_typical_accidents'))
 
     data = await state.get_data()
     data.setdefault("edit_accident_bleve_param", "")
@@ -2410,7 +2292,10 @@ async def bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('accident_bleve_kb_guest').split('\n') if role in ['guest'] else i18n.get('accident_bleve_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_typical_accidents'))
+                                      i18n=i18n, back_data='back_typical_accidents'
+                                      )
+    )
+    await state.update_data(temporary_request=callback.data)
     await state.update_data(data)
     await callback.answer('')
 
@@ -2424,7 +2309,7 @@ async def edit_accident_bleve_guest_call(callback: CallbackQuery, bot: Bot, stat
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('accident_bleve_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_accident_bleve'))
+                                      i18n=i18n, back_data='back_accident_bleve'))
     text = i18n.get('repeated_request_guest')
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -2432,7 +2317,7 @@ async def edit_accident_bleve_guest_call(callback: CallbackQuery, bot: Bot, stat
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('accident_bleve_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_accident_bleve'))
+                                      i18n=i18n, back_data='back_accident_bleve'))
     await callback.answer('')
 
 
@@ -2443,7 +2328,7 @@ async def edit_accident_bleve_call(callback: CallbackQuery, bot: Bot, state: FSM
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         reply_markup=get_inline_cd_kb(2, *i18n.get('edit_accident_bleve_kb').split('\n'),
-                                      i18n=i18n, penult_button='run_accident_bleve', param_back=True, back_data='back_accident_bleve'
+                                      i18n=i18n, penult_button='run_accident_bleve', back_data='back_accident_bleve'
                                       )
     )
     await callback.answer('')
@@ -2482,7 +2367,7 @@ async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_accident_bleve'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_accident_bleve'))
 
     subst = data.get('accident_bleve_sub')
     coef_k = float(data.get("accident_bleve_energy_fraction"))
@@ -2532,7 +2417,7 @@ async def run_bleve_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'plot_accident_bleve_pressure', 'plot_accident_bleve_impuls', i18n=i18n, param_back=True, back_data='back_accident_bleve'))
+        reply_markup=get_inline_cd_kb(1, 'plot_accident_bleve_pressure', 'plot_accident_bleve_impuls', i18n=i18n, back_data='back_accident_bleve'))
 
     await state.update_data(accident_bleve_overpressure_on_30m=overpres)
     await state.update_data(accident_bleve_impuls_on_30m=impuls)
@@ -2546,7 +2431,7 @@ async def plot_accident_bleve_pressure_call(callback: CallbackQuery, bot: Bot, s
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_accident_bleve'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_accident_bleve'))
     data = await state.get_data()
     text = i18n.accident_bleve.text()
 
@@ -2586,7 +2471,7 @@ async def plot_accident_bleve_pressure_call(callback: CallbackQuery, bot: Bot, s
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       #   'plot_accident_bleve_pressure',
-                                      'plot_accident_bleve_impuls', i18n=i18n, param_back=True, back_data='back_accident_bleve'))
+                                      'plot_accident_bleve_impuls', i18n=i18n, back_data='back_accident_bleve'))
     await callback.answer('')
 
 
@@ -2597,7 +2482,7 @@ async def plot_accident_bleve_impuls_call(callback: CallbackQuery, bot: Bot, sta
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_accident_bleve'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_accident_bleve'))
     data = await state.get_data()
     text = i18n.accident_bleve.text()
 
@@ -2634,7 +2519,7 @@ async def plot_accident_bleve_impuls_call(callback: CallbackQuery, bot: Bot, sta
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       'plot_accident_bleve_pressure',
-                                      i18n=i18n, param_back=True, back_data='back_accident_bleve'))
+                                      i18n=i18n, back_data='back_accident_bleve'))
     await callback.answer('')
 
 
@@ -2727,7 +2612,7 @@ async def edit_bleve_param_call(callback: CallbackQuery, bot: Bot, state: FSMCon
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(2, *i18n.get('edit_accident_bleve_kb').split('\n'),
-                                      i18n=i18n, penult_button='run_accident_bleve', param_back=True, back_data='back_accident_bleve'
+                                      i18n=i18n, penult_button='run_accident_bleve', back_data='back_accident_bleve'
                                       )
     )
     await state.update_data(edit_accident_bleve_param='')

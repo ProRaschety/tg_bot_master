@@ -49,16 +49,16 @@ def get_dataframe(request: str,
 
     substance = accident_model.substance
 
-    if request in ['fire_pool', 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', 'run_fire_pool', 'run_fire_pool_guest']:
-        if request in ['fire_pool', 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', 'any_substance',]:
+    if request in ['fire_pool', 'back_fire_pool', 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', 'run_fire_pool']:
+        if request in ['fire_pool', 'back_fire_pool', 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', 'any_substance',]:
             air_density = compute_density_gas_phase(
                 molar_mass=28.97,
                 temperature=accident_model.air_temperature
             )
             label: str = i18n.get('fire_pool')
             dataframe = [
-                [i18n.get('substance'), '-',
-                 i18n.get(accident_model.substance_name), '-'],
+                [i18n.get('substance'), '', '',
+                 i18n.get(accident_model.substance_name)],
                 [i18n.get('specific_mass_fuel_burning_rate'), 'm',
                  substance.mass_burning_rate, i18n.get('kg_per_m_square_in_sec')],
                 [i18n.get('ambient_temperature'), 'tₒ',
@@ -67,12 +67,12 @@ def get_dataframe(request: str,
                  f"{air_density:.2f}", i18n.get('kg_per_m_cub')],
                 [i18n.get('wind_velocity'), 'wₒ',
                  accident_model.velocity_wind, i18n.get('m_per_sec')],
-                [i18n.get('pool_area'), 'F',  accident_model.pool_area,
+                [i18n.get('description_pool_area'), 'F',  accident_model.pool_area,
                  i18n.get('meter_square')],
-                [i18n.get('pool_distance'), 'r',
+                [i18n.get('description_pool_distance'), 'r',
                  accident_model.distance, i18n.get('meter')]
             ]
-        elif request in ['run_fire_pool', 'run_fire_pool_guest']:
+        elif request in ['run_fire_pool']:
             diameter = compute_characteristic_diameter(
                 area=accident_model.pool_area)
             air_density = compute_density_gas_phase(
@@ -96,8 +96,8 @@ def get_dataframe(request: str,
 
             label: str = i18n.get('run_fire_pool_text')
             dataframe = [
-                [i18n.get('substance'), '-',
-                 i18n.get(accident_model.substance_name), '-'],
+                [i18n.get('substance'), '', '',
+                 i18n.get(accident_model.substance_name)],
                 [i18n.get('specific_mass_fuel_burning_rate'), 'm',
                  substance.mass_burning_rate, i18n.get('kg_per_m_square_in_sec')],
                 [i18n.get('ambient_temperature'), 'tₒ',
@@ -106,22 +106,22 @@ def get_dataframe(request: str,
                  f"{air_density:.2f}", i18n.get('kg_per_m_cub')],
                 [i18n.get('wind_velocity'), 'wₒ',
                  accident_model.velocity_wind, i18n.get('m_per_sec')],
-                [i18n.get('pool_area'), 'F',  accident_model.pool_area,
+                [i18n.get('description__pool_area'), 'F',  accident_model.pool_area,
                  i18n.get('meter_square')],
-                [i18n.get('pool_distance'), 'r',
+                [i18n.get('description_pool_distance'), 'r',
                  accident_model.distance, i18n.get('meter')],
-                [i18n.get('saturated_fuel_vapor_density_at_boiling_point'), 'ρп',
+                [i18n.get('description_saturated_fuel_vapor_density_at_boiling_point'), 'ρп',
                  f"{fuel_density:.3f}", i18n.get('kg_per_m_cub')],
                 [i18n.get('distance_to_safe_zone_from_the_heat_flux'), 'x0',
                  f"{x0:.2f}", i18n.get('meter')],
 
                 [i18n.get('surface_density_thermal_radiation_flame'), 'Ef',
                  f"{sep:.2f}", i18n.get('kwatt_per_meter_square')],
-                [i18n.get('pool_flame_lenght'), 'L',
+                [i18n.get('description_pool_flame_lenght'), 'L',
                  f"{flame_lenght:.2f}", i18n.get('meter')],
-                [i18n.get('pool_flame_angle'), 'θ',
+                [i18n.get('description_pool_flame_angle'), 'θ',
                  f"{flame_angle:.2f}", i18n.get('degree')],
-                [i18n.get('pool_diameter'), 'deff',
+                [i18n.get('description_pool_diameter'), 'deff',
                  f"{diameter:.2f}", i18n.get('meter')]
 
             ]
@@ -207,5 +207,33 @@ def get_dataframe(request: str,
                 [i18n.get('radius_zone_Rf'), i18n.get(
                     'radius_Rf'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool) * 1.2:.2f}", i18n.get('meter')]
             ]
+
+    if request in ['cloud_explosion', 'back_cloud_explosion', 'run_cloud_explosion']:
+        if request in ['cloud_explosion', 'back_cloud_explosion']:
+            pass
+        elif request in ['run_cloud_explosion']:
+            pass
+    if request in ['horizontal_jet', 'back_horizontal_jet',]:
+        pass
+    if request in ['vertical_jet', 'back_vertical_jet']:
+        pass
+    if request in ['fire_ball', 'back_fire_ball', 'run_fire_ball']:
+        if request in ['fire_ball', 'back_fire_ball']:
+            pass
+        elif request in ['run_fire_ball']:
+            pass
+    if request in ['accident_bleve', 'back_accident_bleve', 'run_accident_bleve']:
+        if request in ['accident_bleve', 'back_accident_bleve']:
+            pass
+        elif request in ['run_accident_bleve']:
+            pass
+    if request in []:
+        pass
+    if request in []:
+        pass
+    if request in []:
+        pass
+    if request in []:
+        pass
 
     return DataFrameModel(label=label, headers=headers, dataframe=dataframe)

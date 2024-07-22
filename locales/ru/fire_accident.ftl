@@ -6,6 +6,10 @@ typical_accidents-text =
 back_typical_accidents =
     ↩ Назад
 
+substance =
+    Вещество
+velocity_wind =
+    w
 
 
 accidents_kb_owner =
@@ -119,11 +123,18 @@ result_fire_pool_kb_guest =
 
 edit_fire_pool =
     📝 Редактировать
-edit_fire_pool_kb =
+edit_fire_pool_kb1 =
     edit_pool_substance
     edit_pool_area
     edit_pool_wind
     edit_pool_distance
+
+edit_fire_pool_kb =
+    edit_pool_substance
+    pool_area
+    velocity_wind
+    pool_distance
+
 
 edit_fire_pool_guest =
     🔒 Редактировать
@@ -141,34 +152,36 @@ probit_fire_pool =
 
 edit_pool_substance =
     Вещество
-edit_pool_area =
-    F
-edit_pool_distance =
-    r
-edit_pool_wind =
-    w
 pool_area =
+    F
+pool_distance =
+    r
+velocity_wind =
+    w
+
+description_pool_area =
     Площадь пролива
-pool_diameter =
+description_pool_diameter =
     Эффективный диаметр пролива
-pool_wind =
+description_pool_wind =
     Скорость ветра
-pool_flame_angle =
+description_pool_flame_angle =
     Угол наклона пламени
-pool_flame_lenght =
+description_pool_flame_lenght =
     Длина пламени
-saturated_fuel_vapor_density_at_boiling_point =
+description_saturated_fuel_vapor_density_at_boiling_point =
     Плотность паров горючего
     при температуре кипения
-pool_distance =
+description_pool_distance =
     Расстояние от края пролива
 
-name_fire_pool_area =
+name_pool_area =
     Введите площадь пролива:
-name_fire_pool_distance =
+name_pool_distance =
     Введите расстояние от края пролива:
-name_fire_pool_wind =
+name_velocity_wind =
     Введите скорость ветра:
+
 edit_fire_pool-text = {$fire_pool_param}
     <blockquote>{$edit_fire_pool}</blockquote>
 
@@ -178,12 +191,19 @@ fire_flash =
     Пожар-вспышка
 fire_flash-text =
     Расчет параметров пожара-вспышки.
+
+fire_flash_kb =
+    edit_fire_flash
+    run_fire_flash
+fire_flash_kb_guest =
+    edit_fire_flash_guest
+    run_fire_flash
+
 run_fire_flash =
     ▶ Рассчитать
+
 edit_fire_flash =
     📝 Редактировать
-run_fire_flash_guest =
-    ▶ Рассчитать
 edit_fire_flash_guest =
     🔒 Редактировать
 

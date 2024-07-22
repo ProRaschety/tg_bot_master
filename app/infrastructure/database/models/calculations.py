@@ -29,6 +29,7 @@ class AccidentModel:
 
     # для пожара-пролива
     pool_area: float = 100
+    pool_distance: float = 30
 
     # для огненного шара
     fire_ball_sep: float = 350.0

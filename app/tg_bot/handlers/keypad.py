@@ -186,12 +186,15 @@ async def temporary_parameter_call(callback: CallbackQuery, bot: Bot, state: FSM
     context_data = await state.get_data()
     edit_param_1 = context_data.get('temporary_parameter', '')
     edit_sum = edit_param_1 + i18n.get(callback.data)
+
     await state.update_data(temporary_parameter=edit_sum)
     context_data = await state.get_data()
     temporary_parameter = context_data.get('temporary_parameter', '')
+
     form_result = ''
     text = i18n.temporary_parameter_th.text(
         text=i18n.get('name_' + context_data.get('temporary_text')), input_string=temporary_parameter, value=form_result)
+
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -207,6 +210,10 @@ async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
     log.info(f'Request keypad handler from: {callback.data} ')
 
     context_data = await state.get_data()
+
+    pprint(context_data
+           )
+
     value = context_data.get('temporary_parameter')
 
     result = compute_value_with_eval(expression=value)

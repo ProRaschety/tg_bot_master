@@ -94,7 +94,8 @@ closing_parenthesis =
     )
 
 temporary_parameter-text =
-    <b>{$text}</b> <b>{$value}</b>
+    <b>{$text}</b>
+    Bвод: <b>[ {$value} ]</b>
 
 temporary_parameter_st-text =
     <b>{$text}</b>
