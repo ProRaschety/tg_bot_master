@@ -211,8 +211,7 @@ async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
 
     context_data = await state.get_data()
 
-    pprint(context_data
-           )
+    # pprint(context_data)
 
     value = context_data.get('temporary_parameter')
 

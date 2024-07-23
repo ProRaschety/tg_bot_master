@@ -50,7 +50,8 @@ class AccidentModel:
     class_space: int = 1
     explosion_condition: str = 'above_surface'
     explosion_state_fuel: str = 'gas'
-    # data.setdefault("accident_cloud_explosion_stc_coef_oxygen", "9.953")
+    explosion_stc_coef_oxygen: float = 9.953
+    explosion_mass_fuel: float = 1000.0
 
     # для горизонтального факела
     horizontal_jet_state: str = None
@@ -86,6 +87,10 @@ class AccidentModel:
             self.bleve_heat_capacity_liquid_phase)
         self.class_space = int(self.class_space)
         self.jet_mass_rate = float(self.jet_mass_rate)
+        self.explosion_stc_coef_oxygen = float(self.explosion_stc_coef_oxygen)
+        self.explosion_mass_fuel = float(self.explosion_mass_fuel)
+
+        # self. = float(self.)
 
         if isinstance(self.substance, dict):
             self.substance = SubstanceModel(**self.substance)

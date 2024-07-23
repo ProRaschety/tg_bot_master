@@ -19,7 +19,7 @@ class SubstanceModel(BaseModel):
     molar_mass: float = 0
     boiling_point: float = 0
     mass_burning_rate: float = 0
-    heat_of_combustion: float = 0  # Дж
+    heat_of_combustion: float = 44000  # Дж
     lower_flammability_limit: float = 0
     upper_flammability_limit: float = 0
     class_fuel: int = 1

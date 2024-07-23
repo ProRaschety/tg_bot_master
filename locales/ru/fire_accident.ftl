@@ -45,6 +45,7 @@ accidents_kb_comrade =
 accidents_kb_subscriber =
     fire_flash
     fire_pool
+disabled_buttons =
     horizontal_jet
     vertical_jet
     fire_ball
@@ -53,6 +54,7 @@ accidents_kb_subscriber =
 accidents_kb_guest =
     fire_flash
     fire_pool
+disabled_buttons =
     horizontal_jet
     vertical_jet
     fire_ball
@@ -269,11 +271,11 @@ edit_cloud_explosion_kb =
     edit_cloud_explosion_state
     edit_cloud_explosion_correction_parameter
     edit_cloud_explosion_stc_coef_oxygen
-    edit_cloud_explosion_class_fuel
-    edit_cloud_explosion_class_space
+    class_fuel
+    class_space
     edit_cloud_explosion_expl_cond
     edit_cloud_explosion_coef_z
-    edit_cloud_explosion_mass_fuel
+    explosion_mass_fuel
     edit_cloud_explosion_distance
     cloud_explosion_methodology
 
@@ -319,6 +321,7 @@ gas =
     Газ/Пар
 dust =
     Пыль
+
 cloud_explosion_heat_combustion =
     Удельная теплота сгорания
     горючего вещества
@@ -330,7 +333,7 @@ cloud_explosion_correction_parameter =
 cloud_explosion_class_fuel =
     Класс чувствительности горючего
     к возбуждению взрывных процессов
-cloud_explosion_class_space =
+class_space =
     Класс загроможденности
     окружающего пространства
 cloud_explosion_cond_ground =
@@ -372,7 +375,7 @@ edit_cloud_explosion_correction_parameter =
     β
 edit_cloud_explosion_stc_coef_oxygen =
     k
-edit_cloud_explosion_class_fuel =
+class_fuel =
     Класс горючего вещества
 edit_cloud_explosion_class_fuel-text =
     Класс 1: Особо чувствительные вещества. Размер детоционной ячейки менее 2 см.
@@ -387,7 +390,7 @@ class_fuel_third =
     3
 class_fuel_fourth =
     4
-edit_cloud_explosion_class_space =
+class_space =
     Класс загроможденности пространства
 edit_cloud_explosion_class_space-text =
     Класс I: Наличие длинных труб, полостей, каверн, заполненных горючей смесью, при сгорании которой возможно ожидать формирование турбулентных струй продуктов сгорания, имеющих размеры не менее трех размеров детонационной ячейки данной смеси. Если размер детонационной ячейки для данной смеси не известен, то минимальный характерный размер струй принимается равным 5 см для веществ класса 1, 20 см для веществ класса 2, 50 см для веществ класса 3 и 150 см для веществ класса 4.
@@ -407,7 +410,7 @@ edit_cloud_explosion_expl_cond =
     Расположение взрывоопасного облака
 edit_cloud_explosion_coef_z =
     Z
-edit_cloud_explosion_mass_fuel =
+explosion_mass_fuel =
     m
 edit_cloud_explosion_distance =
     R
@@ -423,7 +426,7 @@ name_cloud_explosion_stc_coef_oxygen =
 name_cloud_explosion_coef_z =
     Введите значение коэффициента Z
     участия горючего во взрыве:
-name_cloud_explosion_mass_fuel =
+name_explosion_mass_fuel =
     Введите массу вещества:
 name_cloud_explosion_distance =
     Введите расстояние от центра взрыва:

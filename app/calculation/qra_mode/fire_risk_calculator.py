@@ -424,4 +424,5 @@ class FireModel:
         with open(file="app/infrastructure/data_base/db_standard_fire_load_1140.json", mode="r", encoding='utf-8') as file_op:
             db_fire_load = json.load(file_op)
         data = db_fire_load[name]
+
         return FlammableMaterialModel(**data) if data else None

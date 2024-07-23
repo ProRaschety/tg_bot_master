@@ -48,6 +48,7 @@ def get_dataframe(request: str,
     dataframe: list[list[Any]] = None
 
     substance = accident_model.substance
+    # print(substance)
 
     if request in ['fire_pool', 'back_fire_pool', 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', 'run_fire_pool']:
         if request in ['fire_pool', 'back_fire_pool', 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', 'any_substance',]:
@@ -72,6 +73,8 @@ def get_dataframe(request: str,
                 [i18n.get('description_pool_distance'), 'r',
                  accident_model.distance, i18n.get('meter')]
             ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
         elif request in ['run_fire_pool']:
             diameter = compute_characteristic_diameter(
                 area=accident_model.pool_area)
@@ -106,7 +109,7 @@ def get_dataframe(request: str,
                  f"{air_density:.2f}", i18n.get('kg_per_m_cub')],
                 [i18n.get('wind_velocity'), 'wₒ',
                  accident_model.velocity_wind, i18n.get('m_per_sec')],
-                [i18n.get('description__pool_area'), 'F',  accident_model.pool_area,
+                [i18n.get('description_pool_area'), 'F',  accident_model.pool_area,
                  i18n.get('meter_square')],
                 [i18n.get('description_pool_distance'), 'r',
                  accident_model.distance, i18n.get('meter')],
@@ -125,6 +128,7 @@ def get_dataframe(request: str,
                  f"{diameter:.2f}", i18n.get('meter')]
 
             ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
 
     if request in ['fire_flash', 'back_fire_flash', 'run_fire_flash']:
         if request in ['fire_flash', 'back_fire_flash']:
@@ -167,6 +171,8 @@ def get_dataframe(request: str,
                 # [i18n.get('radius_zone_Rf'), i18n.get(
                 #     'radius_Rf'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool) * 1.2:.2f}", i18n.get('meter')]
             ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
         elif request in ['run_fire_flash']:
             label: str = i18n.get('fire_flash')
 
@@ -207,33 +213,259 @@ def get_dataframe(request: str,
                 [i18n.get('radius_zone_Rf'), i18n.get(
                     'radius_Rf'), f"{(radius_LFL if radius_LFL>rad_pool else rad_pool) * 1.2:.2f}", i18n.get('meter')]
             ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
 
     if request in ['cloud_explosion', 'back_cloud_explosion', 'run_cloud_explosion']:
-        if request in ['cloud_explosion', 'back_cloud_explosion']:
-            pass
-        elif request in ['run_cloud_explosion']:
-            pass
-    if request in ['horizontal_jet', 'back_horizontal_jet',]:
-        pass
-    if request in ['vertical_jet', 'back_vertical_jet']:
-        pass
-    if request in ['fire_ball', 'back_fire_ball', 'run_fire_ball']:
-        if request in ['fire_ball', 'back_fire_ball']:
-            pass
-        elif request in ['run_fire_ball']:
-            pass
-    if request in ['accident_bleve', 'back_accident_bleve', 'run_accident_bleve']:
-        if request in ['accident_bleve', 'back_accident_bleve']:
-            pass
-        elif request in ['run_accident_bleve']:
-            pass
-    if request in []:
-        pass
-    if request in []:
-        pass
-    if request in []:
-        pass
-    if request in []:
-        pass
+        subst = accident_model.explosion_state_fuel
+        methodology = accident_model.methodology
+        mass = accident_model.explosion_mass_fuel
+        stc_coef_oxygen = accident_model.explosion_stc_coef_oxygen
+        class_fuel = substance.class_fuel
+        class_space = accident_model.class_space
+        distance = accident_model.distance
 
-    return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+        cloud_exp = AccidentParameters(type_accident='cloud_explosion')
+        mode_expl = cloud_exp.get_mode_explosion(
+            class_fuel=class_fuel, class_space=class_space)
+
+        if request in ['cloud_explosion', 'back_cloud_explosion']:
+            dataframe = [
+                [i18n.get('cloud_explosion_state_fuel'),
+                 '', '', i18n.get(subst)],
+                #  [i18n.get('cloud_explosion_heat_combustion'), 'Eуд0', data.get('accident_cloud_explosion_heat_combustion'), i18n.get('kJ_per_kg')],
+                [i18n.get('cloud_explosion_correction_parameter'),
+                 'β', substance.correction_parameter, '-'],
+                [i18n.get('stoichiometric_coefficient_for_oxygen'),
+                 'k', f"{stc_coef_oxygen:.3f}", '-'],
+                [i18n.get('cloud_explosion_class_fuel'), '-',
+                 class_fuel, '-'],
+                [i18n.get('cloud_explosion_class_space'), '-',
+                 class_space, '-'],
+                [i18n.get('cloud_explosion_mode_expl'),
+                 '-', f"{mode_expl:.0f}", '-'],
+                [i18n.get('cloud_explosion_coefficient_z'), 'Z',
+                 substance.coefficient_z_participation_in_explosion, '-'],
+
+                [i18n.get('cloud_explosion_cond_ground'), '-',
+                 i18n.get(accident_model.explosion_condition), '-'],
+
+                [i18n.get('cloud_explosion_mass_fuel'), 'm',
+                 f"{mass:.1f}", i18n.get('kilogram')],
+                [i18n.get('cloud_explosion_distance'), 'R',
+                 f"{distance:.1f}", i18n.get('meter')],
+                [i18n.get('cloud_explosion_methodology'),
+                 '-', i18n.get(methodology), '-']
+            ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+        elif request in ['run_cloud_explosion']:
+            heat = substance.heat_of_combustion
+            beta = substance.correction_parameter
+            stc_coef_oxygen = accident_model.explosion_stc_coef_oxygen
+            stc_coef_fuel = compute_stoichiometric_coefficient_with_fuel(
+                beta=stc_coef_oxygen)
+            coef_z = substance.coefficient_z_participation_in_explosion
+            expl_sf = True if accident_model.explosion_condition == 'on_surface' else False
+
+            cloud_exp = AccidentParameters()
+            eff_energy = cloud_exp.compute_eff_energy_reserve(
+                phi_fuel=stc_coef_fuel, phi_stc=stc_coef_fuel, mass_gas_phase=mass * coef_z, explosion_superficial=expl_sf)
+            mode_expl = cloud_exp.get_mode_explosion(
+                class_fuel=class_fuel, class_space=class_space)
+            ufront = cloud_exp.compute_velocity_flame(
+                cloud_combustion_mode=mode_expl, mass_gas_phase=mass * coef_z)
+
+            nondimensional_distance, nondimensional_pressure, overpres, nondimensional_impuls, impuls = cloud_exp.compute_overpres_inclosed(
+                energy_reserve=eff_energy, distance_run=False, distance=distance, ufront=ufront, mode_explosion=mode_expl, new_methodology=methodology)
+
+            dataframe = [
+                [i18n.get('cloud_explosion_mass_expl'), 'Mт',
+                 f"{(mass * coef_z):.2f}", i18n.get('kilogram')],
+                #  [i18n.get('cloud_explosion_spec_heat_combustion'), 'Eуд',  f"{(heat * beta):.1f}", i18n.get('kJ_per_kg')],
+                #  [i18n.get('stoichiometric_coefficient_for_oxygen'), 'β', f"{stc_coef_oxygen:.3f}", '-'],
+                [i18n.get('cloud_explosion_stoichiometric_fuel'), 'Cст',
+                 f"{stc_coef_fuel:.3f}", i18n.get('percent_volume')],
+                [i18n.get('cloud_explosion_efficient_energy_reserve'), 'E',
+                 f"{2 * (mass * coef_z) * (heat * beta) * 1000:.2e}", i18n.get('Joule')],
+                #  [i18n.get('apparent_speed_of_flame_front'), 'uр', f"{103.2:.2f}", i18n.get('m_per_sec')],
+                [i18n.get('max_speed_of_flame_front'), 'u',
+                 f"{ufront:.2f}", i18n.get('m_per_sec')],
+                [i18n.get('cloud_explosion_nondimensional_distance'),
+                 'Rx', f"{nondimensional_distance:.3f}", '-'],
+                [i18n.get('cloud_explosion_nondimensional_pressure'),
+                 'px', f"{nondimensional_pressure:.3f}", '-'],
+                [i18n.get('cloud_explosion_nondimensional_impuls'),
+                 'Ix', f"{nondimensional_impuls:.3f}", '-'],
+                [i18n.get('overpressure'), 'ΔP',
+                 f"{overpres:.2e}", i18n.get('pascal')],
+                [i18n.get('impuls_overpressure'), 'I+',
+                 f"{impuls:.2e}", i18n.get('pascal_in_sec')],
+            ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+    if request in ['horizontal_jet', 'back_horizontal_jet', 'vertical_jet', 'back_vertical_jet']:
+        jet_state_phase = accident_model.horizontal_jet_state
+        k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
+        mass_rate = accident_model.jet_mass_rate
+        lenght_flame = k_coef * mass_rate ** 0.4
+        diameter_flame = 0.15 * lenght_flame
+        if request in ['horizontal_jet', 'back_horizontal_jet']:
+
+            dataframe = [
+                [i18n.get('jet_state_fuel'),  '-',
+                 i18n.get(jet_state_phase), '-'],
+                [i18n.get('empirical_coefficient'), 'K', k_coef, '-'],
+                [i18n.get('jet_mass_rate'), 'G',
+                 f'{mass_rate:.2f}', i18n.get('kg_per_sec')],
+                [i18n.get('hjet_flame_length'), 'Lf',
+                 f'{lenght_flame:.2f}', i18n.get('meter')],
+                [i18n.get('hjet_flame_width'), 'Df',
+                 f'{diameter_flame:.2f}', i18n.get('meter')],
+                [i18n.get('jet_human_distance'), 'r',
+                 accident_model.distance, i18n.get('meter')]
+            ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+        elif request in ['vertical_jet', 'back_vertical_jet']:
+            dataframe = [
+                [i18n.get('jet_state_fuel'), '-',
+                 i18n.get(jet_state_phase), '-'],
+                [i18n.get('empirical_coefficient'), 'K', k_coef, '-'],
+                [i18n.get('jet_mass_rate'), 'G',
+                 f'{mass_rate:.2f}', i18n.get('kg_per_sec')],
+                [i18n.get('hjet_flame_length'), 'Lf',
+                 f'{lenght_flame:.2f}', i18n.get('meter')],
+                [i18n.get('hjet_flame_width'), 'Df',
+                 f'{diameter_flame:.2f}', i18n.get('meter')],
+                [i18n.get('jet_human_distance'), 'r',
+                 accident_model.distance, i18n.get('meter')],
+            ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+    if request in ['fire_ball', 'back_fire_ball', 'run_fire_ball']:
+        subst = accident_model.substance_name
+        mass = accident_model.fire_ball_mass_fuel
+
+        f_ball = AccidentParameters(type_accident='fire_ball')
+        ts = f_ball.compute_fire_ball_existence_time(mass=mass)
+        d = f_ball.compute_fire_ball_diameter(mass=mass)
+        if request in ['fire_ball', 'back_fire_ball']:
+            dataframe = [
+                [i18n.get('substance'), '', '', i18n.get(subst)],
+                [i18n.get('surface_density_thermal_radiation_flame'), 'Ef',
+                 accident_model.fire_ball_sep, i18n.get('kwatt_per_meter_square')],
+                [i18n.get('ball_mass_fuel'), 'm',
+                 mass, i18n.get('kilogram')],
+                [i18n.get('ball_existence_time'), 'ts',
+                 f"{ts:.2f}", i18n.get('second')],
+                [i18n.get('ball_diameter'), 'Ds',
+                 f"{d:.2f}", i18n.get('meter')],
+                [i18n.get('ball_height_center'), 'H',
+                 f"{d:.2f}", i18n.get('meter')],
+                [i18n.get('ball_distance'), 'r',
+                 accident_model.distance, i18n.get('meter')]
+            ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+        elif request in ['run_fire_ball']:
+            # f_ball = AccidentParameters(type_accident='fire_ball')
+            # ts = f_ball.compute_fire_ball_existence_time(mass=mass)
+            # d = f_ball.compute_fire_ball_diameter(mass=mass)
+            fq = f_ball.compute_fire_ball_view_factor(
+                eff_diameter=d, height=d, distance=distance)
+            t = f_ball.compute_fire_ball_atmospheric_transmittance(
+                eff_diameter=d, height=d, distance=distance)
+            q = sep * fq * t
+
+            dataframe = [
+                        [i18n.get('substance'), '', '', i18n.get(subst)],
+                        [i18n.get('surface_density_thermal_radiation_flame'),
+                         'Ef', accident_model.distance.fire_ball_sep, i18n.get('kwatt_per_meter_square')],
+                        [i18n.get('ball_mass_fuel'), 'm',
+                         mass, i18n.get('kilogram')],
+                        [i18n.get('ball_existence_time'), 'ts',
+                         f"{ts:.2f}", i18n.get('second')],
+                        [i18n.get('ball_diameter'), 'Ds',
+                         f"{d:.2f}", i18n.get('meter')],
+                        [i18n.get('ball_height_center'), 'H',
+                         f"{d:.2f}", i18n.get('meter')],
+                        [i18n.get('ball_distance'), 'r',
+                         accident_model.distance, i18n.get('meter')],
+                        [i18n.get('ball_view_factor'), 'Fq', f"{fq:.3f}", '-'],
+                        [i18n.get('ball_atmospheric_transmittance'),
+                         'τ',  f"{t:.2f}", '-'],
+                        [i18n.get('ball_heat_flux'), 'q', f"{q:.2f}", i18n.get(
+                            'kwatt_per_meter_square')]
+            ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+    if request in ['accident_bleve', 'back_accident_bleve', 'run_accident_bleve']:
+        subst = accident_model.substance_name
+        coef_k = accident_model.bleve_energy_fraction
+        heat_capacity = accident_model.bleve_heat_capacity_liquid_phase
+        mass = accident_model.bleve_mass_fuel
+        temp_liq = accident_model.bleve_temperature_liquid_phase
+        boiling_point = substance.boiling_point
+        acc_bleve = AccidentParameters(type_accident='accident_bleve')
+        expl_energy = acc_bleve.compute_expl_energy(
+            k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
+        if request in ['accident_bleve', 'back_accident_bleve']:
+            dataframe = [
+                [i18n.get('substance'), '', '', i18n.get(subst)],
+                [i18n.get('specific_heat_capacity_liquid_phase'), 'Cp',
+                 heat_capacity, i18n.get('J_per_kg_in_kelvin')],
+                [i18n.get('boiling_point'),
+                 'Tb', f"{boiling_point + 273.15:.2f}", i18n.get('kelvin')],
+                [i18n.get('temperature_liquid_phase'), 'Tₒ',
+                 temp_liq, i18n.get('kelvin')],
+                [i18n.get('mass_liquid_phase'), 'm',
+                 mass, i18n.get('kilogram')],
+                [i18n.get('pressure_wave_energy_fraction'), 'k', coef_k, '-'],
+                [i18n.get('effective_explosion_energy'),
+                 'Eeff', f"{expl_energy:.2e}", '-'],
+                [i18n.get('distance_bleve'), 'r',
+                 accident_model.distance, i18n.get('meter')],
+            ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+        elif request in ['run_accident_bleve']:
+            reduced_mass = acc_bleve.compute_redused_mass(
+                expl_energy=expl_energy)
+            overpres, impuls = acc_bleve.compute_overpres_inopen(
+                reduced_mass=reduced_mass, distance=distance)
+            dataframe = [
+                [i18n.get('substance'), '', '', i18n.get(subst)],
+                [i18n.get('specific_heat_capacity_liquid_phase'), 'Cp',
+                 heat_capacity, i18n.get('J_per_kg_in_kelvin')],
+                [i18n.get('boiling_point'),
+                 'Tb', f"{boiling_point + 273.15:.2f}", i18n.get('kelvin')],
+                [i18n.get('temperature_liquid_phase'), 'Tₒ',
+                 temp_liq, i18n.get('kelvin')],
+                [i18n.get('mass_liquid_phase'), 'm',
+                 mass, i18n.get('kilogram')],
+                [i18n.get('pressure_wave_energy_fraction'), 'k', coef_k, '-'],
+                [i18n.get('effective_explosion_energy'),
+                 'Eeff', f"{expl_energy:.2e}", '-'],
+                [i18n.get('distance_bleve'), 'r',
+                 accident_model.distance, i18n.get('meter')],
+                [i18n.get('reduced_mass_liquid_phase'),
+                 'mпр', f"{reduced_mass:.2f}", '-'],
+                [i18n.get('overpressure'), 'ΔP',
+                 f"{overpres:.2e}", i18n.get('pascal')],
+                [i18n.get('impuls_overpressure'), 'I+',
+                 f"{impuls:.2e}", i18n.get('pascal_in_sec')],
+            ]
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+    # if request in []:
+    #     pass
+    #     return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+    # if request in []:
+    #     pass
+    #     return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+    # if request in []:
+    #     pass
+    #     return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+    # if request in []:
+    #     pass
+    #     return DataFrameModel(label=label, headers=headers, dataframe=dataframe)

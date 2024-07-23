@@ -19,6 +19,8 @@ from datetime import datetime
 
 from app.tg_bot.models.tables import DataFrameModel
 
+from pprint import pprint
+
 # font_dirs = ['app/tg_bot/fonts']  # The path to the custom font file.
 # font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
 # for font_file in font_files:
@@ -395,6 +397,7 @@ def get_dict_value(dictionary: dict, keys_list: list):
     Returns:
         _type_: _description_
     """
+    # pprint(dictionary)
     current_dict = dictionary
     for key in keys_list:
         if key in current_dict:
@@ -456,18 +459,18 @@ def get_csv_bt_file(data) -> bytes:
     return byte_file
 
 
-def get_xlsx_bt_file(data) -> bytes:
-    writer = pd.ExcelWriter('simple-report.xlsx', engine='xlsxwriter')
-    df.to_excel(writer, index=False)
-    df_footer.to_excel(writer, startrow=6, index=False)
-    writer.save()
-    output = io.StringIO()
-    with output as file_w:
-        writer = csv.writer(file_w, dialect='excel', delimiter=';',
-                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerows(data)
-        byte_file = output.getvalue().encode("ANSI")
-    return byte_file
+# def get_xlsx_bt_file(data) -> bytes:
+#     writer = pd.ExcelWriter('simple-report.xlsx', engine='xlsxwriter')
+#     df.to_excel(writer, index=False)
+#     df_footer.to_excel(writer, startrow=6, index=False)
+#     writer.save()
+#     output = io.StringIO()
+#     with output as file_w:
+#         writer = csv.writer(file_w, dialect='excel', delimiter=';',
+#                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
+#         writer.writerows(data)
+#         byte_file = output.getvalue().encode("ANSI")
+#     return byte_file
 
 
 def get_picture_filling(file_path) -> bytes:
