@@ -22,6 +22,7 @@ from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.states.fsm_state_data import FSMEditForm, FSMFireAccidentForm
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph, get_dataframe_table, find_key_path, get_dict_value
 from app.tg_bot.utilities import tables
+from app.tg_bot.utilities.tables import DataFrameBuilder
 
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad
 
@@ -139,9 +140,10 @@ async def fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
 
     context_data = await state.get_data()
     accident_model = AccidentModel(**context_data.get('accident_model'))
-    dataframe = tables.get_dataframe(
-        request='fire_pool', i18n=i18n, accident_model=accident_model)
-
+    dfb = DataFrameBuilder(i18n=i18n,  request='fire_pool',
+                           accident_model=accident_model)
+    # dataframe = tables.get_dataframe(request='fire_pool', i18n=i18n, accident_model=accident_model)
+    dataframe = dfb.process_request()
     media = get_dataframe_table(data=dataframe)
 
     text = i18n.fire_pool.text()
@@ -236,8 +238,10 @@ async def fire_pool_subst_call(callback: CallbackQuery, bot: Bot, state: FSMCont
     accident_model.substance_name = call_data
     accident_model.substance = substance
 
-    dataframe = tables.get_dataframe(
-        request='fire_pool', i18n=i18n, accident_model=accident_model)
+    dfb = DataFrameBuilder(i18n=i18n,  request='fire_pool',
+                           accident_model=accident_model)
+    # dataframe = tables.get_dataframe(request='fire_pool', i18n=i18n, accident_model=accident_model)
+    dataframe = dfb.process_request()
     media = get_dataframe_table(data=dataframe)
 
     text = i18n.fire_pool.text()
@@ -306,8 +310,11 @@ async def run_fire_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContex
     )
 
     accident_model = AccidentModel(**context_data.get('accident_model'))
-    dataframe = tables.get_dataframe(
-        request='run_fire_pool', i18n=i18n, accident_model=accident_model)
+    # dataframe = tables.get_dataframe(request='run_fire_pool', i18n=i18n, accident_model=accident_model)
+    dfb = DataFrameBuilder(i18n=i18n,  request='run_fire_pool',
+                           accident_model=accident_model)
+    # dataframe = tables.get_dataframe(request='fire_pool', i18n=i18n, accident_model=accident_model)
+    dataframe = dfb.process_request()
     media = get_dataframe_table(data=dataframe, results=True, row_num=7)
     text = i18n.fire_pool.text()
 

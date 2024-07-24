@@ -21,6 +21,7 @@ from app.tg_bot.filters.filter_role import IsGuest, IsSubscriber
 from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm, FSMEditForm
 
 from app.tg_bot.utilities import tables
+from app.tg_bot.utilities.tables import DataFrameBuilder
 from app.tg_bot.utilities.misc_utils import get_data_table, get_plot_graph, get_dataframe_table
 from app.tg_bot.utilities.misc_utils import compute_value_with_eval, check_string, count_decimal_digits, count_zeros_and_digits, result_formatting, count_digits_before_dot, custom_round, modify_dict_value
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
@@ -206,9 +207,9 @@ async def temporary_parameter_call(callback: CallbackQuery, bot: Bot, state: FSM
 
 @keypad_router.callback_query(StateFilter(*keypad_filter), F.data.in_(['ready']))
 async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner,) -> None:
-    log.info(f'Request keypad handler from: {callback.data} ')
-
     context_data = await state.get_data()
+    log.info(
+        f"Request keypad handler from: {context_data.get('temporary_request')}")
 
     # pprint(context_data)
 
@@ -227,8 +228,12 @@ async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
     context_data = await state.get_data()
 
     accident_model = AccidentModel(**context_data.get('accident_model'))
-    dataframe = tables.get_dataframe(
-        request=context_data.get('temporary_request'), i18n=i18n, accident_model=accident_model)
+    # dataframe = tables.get_dataframe( request=context_data.get('temporary_request'), i18n=i18n, accident_model=accident_model)
+    # media = get_dataframe_table(data=dataframe)
+
+    dfb = DataFrameBuilder(i18n=i18n,  request=context_data.get(
+        'temporary_request'), accident_model=accident_model)
+    dataframe = dfb.process_request()
     media = get_dataframe_table(data=dataframe)
 
     kb = InlineKeyboardModel(**context_data['keyboard_model'])
