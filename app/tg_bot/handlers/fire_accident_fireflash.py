@@ -12,12 +12,14 @@ from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
 from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
+# from app.tg_bot.models.tables import DataFrameModel
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.models.keyboard import InlineKeyboardModel
 
 from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.states.fsm_state_data import FSMEditForm
-from app.tg_bot.utilities import tables
+# from app.tg_bot.utilities import tables
+from app.tg_bot.utilities.tables import DataFrameBuilder
 from app.tg_bot.utilities.misc_utils import get_plot_graph, get_dataframe_table, find_key_path, get_dict_value
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
 
@@ -27,6 +29,7 @@ from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_in
 from app.infrastructure.database.models.calculations import AccidentModel
 # from app.infrastructure.database.models.substance import SubstanceModel
 
+from pprint import pprint
 
 log = logging.getLogger(__name__)
 
@@ -48,8 +51,10 @@ async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
     text = i18n.fire_flash.text()
 
     accident_model = AccidentModel(**context_data.get('accident_model'))
-    dataframe = tables.get_dataframe(
-        request=callback.data, i18n=i18n, accident_model=accident_model)
+    dfb = DataFrameBuilder(i18n=i18n,  request='fire_flash',
+                           accident_model=accident_model)
+    dataframe = dfb.action_request()
+
     media = get_dataframe_table(data=dataframe)
 
     await bot.edit_message_media(
@@ -63,7 +68,38 @@ async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
             i18n=i18n, back_data='back_typical_accidents'
         )
     )
-    await state.update_data(temporary_request=callback.data)
+    await state.update_data(temporary_request='fire_flash')
+    await callback.answer('')
+
+
+@fire_accident_fireflash_router.callback_query(F.data == 'run_fire_flash')
+async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+
+    text = i18n.calculation_progress.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_flash'))
+
+    text = i18n.fire_flash.text()
+
+    context_data = await state.get_data()
+
+    accident_model = AccidentModel(**context_data.get('accident_model'))
+    dfb = DataFrameBuilder(i18n=i18n,  request='run_fire_flash',
+                           accident_model=accident_model)
+    dataframe = dfb.action_request()
+    media = get_dataframe_table(data=dataframe, results=True, row_num=7)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_fire_flash'
+                                      )
+    )
     await callback.answer('')
 
 
@@ -141,33 +177,3 @@ async def edit_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
 
     await state.update_data(context_data)
     await state.set_state(FSMEditForm.keypad_state)
-
-
-@fire_accident_fireflash_router.callback_query(F.data == 'run_fire_flash')
-async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-
-    text = i18n.calculation_progress.text()
-    await bot.edit_message_caption(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_flash'))
-
-    text = i18n.fire_flash.text()
-
-    context_data = await state.get_data()
-
-    accident_model = AccidentModel(**context_data.get('accident_model'))
-    dataframe = tables.get_dataframe(
-        request=callback.data, i18n=i18n, accident_model=accident_model)
-    media = get_dataframe_table(data=dataframe, results=True, row_num=7)
-
-    await bot.edit_message_media(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        media=InputMediaPhoto(media=BufferedInputFile(
-            file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_fire_flash'
-                                      )
-    )
-    await callback.answer('')

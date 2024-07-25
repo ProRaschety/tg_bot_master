@@ -6,6 +6,6 @@ from dataclasses import dataclass, field, InitVar, FrozenInstanceError, asdict, 
 
 @dataclass
 class DataFrameModel:
-    label: str = None
-    headers: list[str] = None
-    dataframe: list[list[str | Any]] = None
+    label: str
+    headers: list[str]
+    dataframe: list[list[str | Any]]

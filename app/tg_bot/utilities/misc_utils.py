@@ -16,6 +16,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from matplotlib import font_manager
 from datetime import datetime
 # from fluentogram import TranslatorRunner
+from dataclasses import asdict
 
 from app.tg_bot.models.tables import DataFrameModel
 
@@ -604,6 +605,17 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
             x_st = 2.0
             hspace = 0.085
             zoom = 0.095
+    else:
+        w_fig, h_fig, dpi = 26, 14, 100  # 12.8, 12.8
+        w_size, h_size = cols * dpi, rows * dpi
+        font_size_title = 22
+        font_size_header = 18
+        font_size_text = 22
+        lw_line = 4
+        logo_size = 17
+        x_st = 2.0
+        hspace = 0.085
+        zoom = 0.095
 
     left = 0.025
     bottom = 0.020
