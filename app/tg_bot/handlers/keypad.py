@@ -14,21 +14,23 @@ from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
 from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
-from app.tg_bot.models.tables import DataFrameModel
-from app.tg_bot.models.role import UserRole
+# from app.tg_bot.models.tables import DataFrameModel
+# from app.tg_bot.models.role import UserRole
 from app.tg_bot.models.keyboard import InlineKeyboardModel
-from app.tg_bot.filters.filter_role import IsGuest, IsSubscriber
-from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm, FSMEditForm
+from app.tg_bot.filters.filter_role import IsSubscriber
+from app.tg_bot.states.fsm_state_data import FSMEditForm
 
-from app.tg_bot.utilities import tables
+# from app.tg_bot.utilities import tables
 from app.tg_bot.utilities.tables import DataFrameBuilder
-from app.tg_bot.utilities.misc_utils import get_data_table, get_plot_graph, get_dataframe_table
-from app.tg_bot.utilities.misc_utils import compute_value_with_eval, check_string, count_decimal_digits, count_zeros_and_digits, result_formatting, count_digits_before_dot, custom_round, modify_dict_value
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
+from app.tg_bot.utilities.misc_utils import get_dataframe_table
+from app.tg_bot.utilities.misc_utils import compute_value_with_eval, check_string, count_zeros_and_digits, result_formatting, count_digits_before_dot, custom_round, modify_dict_value
+from app.tg_bot.keyboards.kb_builder import get_keypad, get_inline_keyboard
 
 from app.infrastructure.database.models.calculations import AccidentModel
+from app.infrastructure.database.models.substance import FlammableMaterialModel, SubstanceModel
 
-from pprint import pprint
+
+# from pprint import pprint
 
 log = logging.getLogger(__name__)
 
@@ -36,10 +38,10 @@ keypad_router = Router()
 keypad_router.message.filter(IsSubscriber())
 keypad_router.callback_query.filter(IsSubscriber())
 
-keypad_filter = [FSMEditForm.keypad_state]
+# keypad_filter = [FSMEditForm.keypad_state]
 
 
-@keypad_router.callback_query(StateFilter(*keypad_filter), F.data.in_(['all_clean']))
+@keypad_router.callback_query(StateFilter(FSMEditForm.keypad_state), F.data.in_(['all_clean']))
 async def all_clean_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner,) -> None:
     context_data = await state.get_data()
     # elif callback.data == 'all_clean':
@@ -69,7 +71,7 @@ async def all_clean_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i
     )
 
 
-@keypad_router.callback_query(StateFilter(*keypad_filter), F.data.in_(['clean']))
+@keypad_router.callback_query(StateFilter(FSMEditForm.keypad_state), F.data.in_(['clean']))
 async def clean_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner,) -> None:
     context_data = await state.get_data()
     temporary_parameter = context_data.get('temporary_parameter', '')
@@ -117,7 +119,7 @@ async def clean_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
         )
 
 
-@keypad_router.callback_query(StateFilter(*keypad_filter), F.data.in_(['equals']))
+@keypad_router.callback_query(StateFilter(FSMEditForm.keypad_state), F.data.in_(['equals']))
 async def equals_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner,) -> None:
     context_data = await state.get_data()
     # if callback.data == 'equals':
@@ -170,7 +172,7 @@ async def equals_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n
     await state.update_data(temporary_parameter=str(adj_result))
 
 
-@keypad_router.callback_query(StateFilter(*keypad_filter), F.data.in_([
+@keypad_router.callback_query(StateFilter(FSMEditForm.keypad_state), F.data.in_([
     'open_parenthesis', 'closing_parenthesis',
     'one', 'two', 'three', 'pow', 'pow_square',
     'four', 'five', 'six', 'divide', 'multiply',
@@ -205,13 +207,11 @@ async def temporary_parameter_call(callback: CallbackQuery, bot: Bot, state: FSM
     await callback.answer('')
 
 
-@keypad_router.callback_query(StateFilter(*keypad_filter), F.data.in_(['ready']))
+@keypad_router.callback_query(StateFilter(FSMEditForm.keypad_state), F.data.in_(['ready']))
 async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner,) -> None:
     context_data = await state.get_data()
     log.info(
         f"Request keypad handler from: {context_data.get('temporary_request')}")
-
-    # pprint(context_data)
 
     value = context_data.get('temporary_parameter')
 
@@ -227,13 +227,24 @@ async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
     await state.update_data(context_data_modify)
     context_data = await state.get_data()
 
-    accident_model = AccidentModel(**context_data.get('accident_model'))
-    # dataframe = tables.get_dataframe( request=context_data.get('temporary_request'), i18n=i18n, accident_model=accident_model)
-    # media = get_dataframe_table(data=dataframe)
+    requests = {
+        'fire_flash': AccidentModel,
+        'fire_pool': AccidentModel,
+        'cloud_explosion': AccidentModel,
+        'fire_ball': AccidentModel,
+        'accident_bleve': AccidentModel,
+        'horizontal_jet': AccidentModel,
+        'vertical_jet': AccidentModel,
+        'standard_flammable_load': FlammableMaterialModel,
+        'handbooks': SubstanceModel,
+    }
+
+    model = requests[context_data.get('temporary_request', None)](
+        **context_data.get('accident_model'))
 
     dfb = DataFrameBuilder(i18n=i18n,  request=context_data.get(
-        'temporary_request'), accident_model=accident_model)
-    dataframe = dfb.process_request()
+        'temporary_request'), model=model)
+    dataframe = dfb.action_request()
     media = get_dataframe_table(data=dataframe)
 
     kb = InlineKeyboardModel(**context_data['keyboard_model'])
@@ -245,13 +256,8 @@ async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename='pic_filling'), caption=text),
-        reply_markup=get_inline_cd_kb(
-            kb.width,
-            *i18n.get(kb.buttons).split('\n'),
-            i18n=i18n,
-            penult_button=kb.penultimate,
-            back_data=kb.ultimate,
-        ),
+        reply_markup=get_inline_keyboard(keyboard=kb, i18n=i18n,
+                                         )
     )
 
     await state.update_data(temporary_parameter='')

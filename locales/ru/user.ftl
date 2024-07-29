@@ -5,6 +5,7 @@ user_kb_owner =
     fire_resistance
     fire_risks
     fire_category
+    typical_accidents
     admin_panel
     owner_panel
 user_kb_admin =
@@ -14,6 +15,7 @@ user_kb_admin =
     fire_resistance
     fire_risks
     fire_category
+    typical_accidents
     admin_panel
     owner_panel
 user_kb_comrade =
@@ -23,6 +25,7 @@ user_kb_comrade =
     fire_resistance
     fire_risks
     fire_category
+    typical_accidents
 user_kb_subscriber =
     handbooks
     fire_resistance
@@ -30,6 +33,7 @@ user_kb_subscriber =
     tools
     fire_risks
     fire_category
+    typical_accidents
 user_kb_guest =
     handbooks
     fire_resistance
@@ -37,6 +41,7 @@ user_kb_guest =
     tools
     fire_risks
     fire_category
+    typical_accidents
 
 start-menu =
     <b></b>

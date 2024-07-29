@@ -47,7 +47,13 @@ async def fire_risks_call(callback_data: CallbackQuery, bot: Bot, i18n: Translat
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, 'fire_model', 'fire_risks_calculator', 'typical_accidents', i18n=i18n, param_back=True, back_data='general_menu'))
+        reply_markup=get_inline_cd_kb(1,
+                                      'fire_model',
+                                      'fire_risks_calculator',
+                                      #   'typical_accidents',
+                                      i18n=i18n, param_back=True, back_data='general_menu'
+                                      )
+    )
 
 
 @fire_risk_router.callback_query(F.data == 'back_fire_risks')
@@ -63,8 +69,10 @@ async def back_fire_risks_call(callback: CallbackQuery, bot: Bot, i18n: Translat
         reply_markup=get_inline_cd_kb(1,
                                       'fire_model',
                                       'fire_risks_calculator',
-                                      'typical_accidents',
-                                      i18n=i18n, param_back=True, back_data='general_menu'))
+                                      #   'typical_accidents',
+                                      i18n=i18n, param_back=True, back_data='general_menu'
+                                      )
+    )
 
 
 @fire_risk_router.callback_query(F.data.in_(['fire_risks_calculator', 'back_fire_risks_calc']))

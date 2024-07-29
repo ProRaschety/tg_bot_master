@@ -19,6 +19,7 @@ from datetime import datetime
 from dataclasses import asdict
 
 from app.tg_bot.models.tables import DataFrameModel
+from app.tg_bot.models.plotter import DataPlotterModel
 
 from pprint import pprint
 
@@ -1161,6 +1162,201 @@ def get_init_data_table(data, headers: str, label: str, column: int = 4, results
     plt.style.use('default')
     plt.close(fig)
     return image_png
+
+
+def plot_graph(data: DataPlotterModel):
+
+    log.info(f"plot_graph: {data.label}")
+
+    font_dirs = ['app/tg_bot/fonts']  # The path to the custom font file.
+    font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
+    for font_file in font_files:
+        font_manager.fontManager.addfont(font_file)
+    # размеры рисунка в дюймах
+    px = 96.358115  # 1 дюйм = 2.54 см = 96.358115 pixel
+    w = 650  # px
+    h = 650  # px
+    bottom = 0.090
+    right = 0.970
+    left = 0.110 if data.ylim == None else 0.115  # 0.100
+    top = 0.900 if data.ylim == None else 0.890
+    hspace = 0.100
+    xmax = 4.0
+    margins = {
+        "left": left,  # 0.030
+        "bottom": bottom,  # 0.030
+        "right": right,  # 0.970
+        "top": top,  # 0.900
+        "hspace": hspace  # 0.200
+    }
+
+    color = {
+        'red': (0.9, 0.1, 0.0, 0.90),
+        'violet': (0.19367589, 0.20948617, 0.43478261, 0.80),  # 49,53,110
+        'white': (1.00, 1.00, 1.00, 1.00),  #
+        'rich_black': (1/253, 11/253, 19/253, 0.80),  # 1,11,19
+        'total_black': (0.0, 0.0, 0.0, 1.0),
+        'orange': (0.913, 0.380, 0.082, 0.80),  # 49,53,110
+        'yellow': (0.9372, 0.9098, 0.8353, 1.00),
+        'grey': (229/253, 228/253, 226/253, 1.00),  # 247,247,247
+        'light_green': (238/253, 244/253, 232/253, 1.00),  # 238,244,232
+        'brown_sugar': (95/253, 96/253, 92/253, 1.00),  # 95,96,92
+        'anitracite_gray': (15/253, 18/253, 19/253, 0.90)  # 15, 18, 19
+    }  # (0.4941, 0.5686, 0.5843, 1.0) ранее были окрашены заголовки в этот цвет https://get-color.ru/grey/
+
+    fig = plt.figure(figsize=(w / px, h / px),
+                     dpi=300, constrained_layout=False)
+    fig.subplots_adjust(**margins)
+    # plt.style.use('bmh')
+    plt.style.use('Solarize_Light2')
+    widths = [1.0]
+    heights = [xmax]
+    gs = gridspec.GridSpec(
+        ncols=1, nrows=1, width_ratios=widths, height_ratios=heights)
+    ft_label_size = {'fontname': 'Acrobat', 'fontsize': w*0.018}
+    # ft_title_size = {'fontname': 'Arial', 'fontsize': 8}
+    ft_size = {'fontname': 'Roboto', 'fontsize': 12}
+    logo = plt.imread('temp_files/temp/logo.png')
+
+    """____Первая часть таблицы____"""
+    # [left, bottom, width, height]
+    fig_ax_1 = fig.add_axes(
+        [0.03, 0.0, 1.0, 1.86], frameon=True, aspect=1.0, xlim=(0.0, xmax+0.25))
+    fig_ax_1.axis('off')
+
+    fig_ax_1.text(x=0.0, y=0.025, s=data.label,
+                  weight='normal', ha='left', va='baseline', c=color['anitracite_gray'], fontstyle='oblique', **ft_label_size)
+    fig_ax_1.plot([0, xmax], [0.0, 0.0], lw='1.0', c=color['orange'])
+    imagebox = OffsetImage(logo, zoom=w*0.000085, dpi_cor=True)
+    # ab = AnnotationBbox(imagebox, (xmax-(xmax/33.3), 0.025),
+    #                     frameon=False, pad=0, box_alignment=(0.00, 0.0))
+    fig_ax_1.add_artist(AnnotationBbox(imagebox, (xmax-(xmax/33.3), 0.025),
+                        frameon=False, pad=0, box_alignment=(0.00, 0.0)))
+
+    """____Вторая часть таблицы____"""
+    fig_ax_2 = fig.add_subplot(gs[0, 0])
+    # log.info(plot_label)
+    fig_ax_2.plot(data.x_values, data.y_values, '-',
+                  #   linewidth=3,
+                  color=color['red'],
+                  label=data.plot_label if data.plot_label != None else data.label,
+                  )
+
+    # fig_ax_2.plot(abscissa, plot_second, '-', linewidth=3,
+    #               label=text_legend_second, color=(0, 0, 0, 0.9))
+    # fig_ax_2.hlines(y=Tcr, xmin=0, xmax=time_fsr*0.96, linestyle='--',
+    #                 linewidth=1, color=(0.1, 0.1, 0, 1.0))
+    # fig_ax_2.vlines(x=time_fsr, ymin=0, ymax=Tcr*0.98, linestyle='--',
+    #                 linewidth=1, color=(0.1, 0.1, 0, 1.0))
+    # fig_ax_2.scatter(time_fsr, Tcr, s=90, marker='o',
+    #                  color=(0.9, 0.1, 0, 1))
+
+    # Ось абсцисс Xaxis
+    fig_ax_2.set_xlim(0.0, max(data.x_values) + max(data.x_values)*0.05)
+    fig_ax_2.set_xlabel(xlabel=data.x_label, fontdict=None,
+                        labelpad=None, weight='bold', loc='center', color=color['anitracite_gray'], **ft_size)
+
+    # Ось ординат Yaxis
+    if data.ylim == None:
+        fig_ax_2.set_ylim(data.ymin, max(data.y_values) +
+                          max(data.y_values)*0.01)
+    else:
+        fig_ax_2.set_ylim(data.ymin, data.ylim)
+        fig_ax_2.ticklabel_format(
+            axis='y', style='sci', scilimits=(0, 2), useOffset=True)
+    if data.ylim_tick:
+        fig_ax_2.set_yticks(np.arange(
+            0, max(data.y_values) + 0.1, 0.10), minor=False)
+        fig_ax_2.ticklabel_format(
+            axis='y', style='plain', scilimits=(0, 2), useOffset=True)
+
+    fig_ax_2.set_ylabel(ylabel=data.y_label,
+                        fontdict=None, labelpad=None, weight='bold', loc='center', color=color['anitracite_gray'], **ft_size)
+
+    if data.add_annotate:
+        fig_ax_2.annotate(data.text_annotate,
+                          xy=(0, max(data.y_values) + max(data.y_values)
+                              * 0.01 if data.ylim == None else data.ylim),
+                          xytext=(data.x_ann + (data.x_ann / 50) if data.x_ann else 0.05,
+                                  data.y_ann + (data.y_ann / 50) if data.y_ann else (min(data.y_values) + 0.01)),
+                          xycoords='data', textcoords='data', weight='bold', **ft_size)
+        if data.y_ann:
+            fig_ax_2.hlines(y=data.y_ann, xmin=0, xmax=data.x_ann*0.99, linestyle='--',
+                            linewidth=1, color=color['anitracite_gray'],)
+        if data.x_ann:
+            fig_ax_2.vlines(x=data.x_ann, ymin=0, ymax=data.y_ann*0.99, linestyle='--',
+                            linewidth=1, color=color['anitracite_gray'],)
+        if data.y_ann and data.x_ann:
+            fig_ax_2.scatter(data.x_ann, data.y_ann, s=90, marker='o',
+                             color=color['red'],)
+
+    if data.add_annotate_nd:
+        fig_ax_2.annotate(data.text_annotate_nd,
+                          xy=(0, max(data.y_values) + max(data.y_values)
+                              * 0.01 if data.ylim == None else data.ylim),
+                          xytext=(data.x_ann_nd + (data.x_ann_nd / 50) if data.x_ann_nd else 0.05,
+                                  data.y_ann_nd + (data.y_ann_nd / 50) if data.y_ann_nd else (min(data.y_values) + 0.01)),
+                          xycoords='data', textcoords='data', weight='bold', **ft_size)
+        if data.y_ann_nd:
+            fig_ax_2.hlines(y=data.y_ann_nd, xmin=0, xmax=data.x_ann_nd*0.99, linestyle='--',
+                            linewidth=1, c=color['anitracite_gray'])
+        if data.x_ann_nd:
+            fig_ax_2.vlines(x=data.x_ann_nd, ymin=0, ymax=data.y_ann_nd*0.99, linestyle='--',
+                            linewidth=1, c=color['anitracite_gray'])
+        if data.y_ann_nd and data.x_ann_nd:
+            fig_ax_2.scatter(data.x_ann_nd, data.y_ann_nd, s=90, marker='o',
+                             c=color['red'])
+
+    if data.add_axhline:
+        fig_ax_2.axhline(data.param_fill,
+                         c=color['red'], linestyle="--", lw=1, label=f'{data.label_axline} ≥ {data.param_fill} м²/м²')
+
+    if data.add_fill_between:
+        fig_ax_2.fill_between(data.x_values,
+                              data.y_values,
+                              data.param_fill,
+                              where=[d > data.param_fill for d in data.y_values],
+                              c=color['red'], alpha=0.25, label=data.label_fill)
+
+    # Цветовая шкала
+    # plt.colorbar()
+    # Подпись горизонтальной оси абсцисс OY -> cbar.ax.set_xlabel();
+    # Подпись вертикальной оси абсцисс OY -> cbar.ax.set_ylabel();
+
+    # Деления на оси абсцисс OX
+    # fig_ax_2.set_xticks(np.arange(min(x_t), max(x_t), 1000.0), minor=False)
+
+    # Деления на оси ординат OY
+    # fig_ax_2.set_yticks(np.arange(0, max(Tm)+100, 100.0), minor=False)
+
+    # Вспомогательная сетка (grid)
+    fig_ax_2.grid(visible=True,
+                  which='major',
+                  axis='both',
+                  c=color['anitracite_gray'],
+                  linestyle=':',
+                  linewidth=0.250)
+
+    if data.add_legend:
+        fig_ax_2.legend(fontsize=10, framealpha=0.95,
+                        facecolor=color['white'], loc=data.loc_legend)
+    # directory = get_temp_folder(fold_name='temp_pic')
+    # name_plot = "".join(['fig_steel_fr_', str(self.chat_id), '.png'])
+    # name_dir = '/'.join([directory, name_plot])
+    # fig.savefig(name_dir, format='png', transparent=True)
+    # plt.cla()
+    # plt.close(fig)
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format='png')
+    buffer.seek(0)
+    plot = buffer.getvalue()
+    buffer.close()
+    plt.cla()
+    plt.style.use('default')
+    plt.close(fig)
+
+    return plot
+
 
 # def get_plot_graph(data, add_annotate: bool = False, add_legend: bool = False, add_colorbar: bool = False, **kwargs) -> bytes:
 #     log.info("График данных")

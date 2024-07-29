@@ -24,11 +24,21 @@ class SubstanceModel(BaseModel):
     upper_flammability_limit: float = 0
     class_fuel: int = 1
     correction_parameter: float = 1.0  # beta
-    coefficient_z_participation_in_explosion: float = 0.1
+    # коэффициент участия горючего во взрыве Z
+    coefficient_participation_in_explosion: float = 0.1
 
     def __post_init__(self):
         self.density = float(self.density)
+        self.molar_mass = float(self.molar_mass)
+        self.boiling_point = float(self.boiling_point)
+        self.mass_burning_rate = float(self.mass_burning_rate)
+        self.heat_of_combustion = float(self.heat_of_combustion)
         self.lower_flammability_limit = float(self.lower_flammability_limit)
+        self.upper_flammability_limit = float(self.upper_flammability_limit)
+        self.class_fuel = int(self.class_fuel)
+        self.correction_parameter = float(self.correction_parameter)
+        self.coefficient_participation_in_explosion = float(
+            self.coefficient_participation_in_explosion)
 
 
 @dataclass

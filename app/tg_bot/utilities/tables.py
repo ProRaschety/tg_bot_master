@@ -35,64 +35,132 @@ log = logging.getLogger(__name__)
 class DataFrameBuilder:
     def __init__(self, i18n: TranslatorRunner,
                  request: str,
-                 substance: SubstanceModel = None,
-                 flammable_material: FlammableMaterialModel = None,
-                 accident_model: AccidentModel = None
+                 substance: FlammableMaterialModel | SubstanceModel = None,
+                 #  flammable_material: FlammableMaterialModel = None,
+                 model: AccidentModel = None
                  ) -> None:
 
         self.i18n = i18n
         self.request = request
-        self.flammable_material = flammable_material
-        self.accident_model = accident_model
+        # self.flammable_material = flammable_material
+        # self.accident_model = accident_model
+        self.accident_model = model
         self.substance = substance if substance is not None else self.accident_model.substance
 
         log.info(f'Requst dataframe: {self.i18n.get(request)}')
 
-    # def _get_substance(self, substance):
-    #     if substance != None:
-    #         self.substance = substance
-    #     else:
-    #         self.substance = self.accident_model.substance
-
-    # def process_request(self):
-    #     if self.request in set(['fire_pool', 'back_fire_pool', 'gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', 'run_fire_pool']):
-    #         return self.get_dataframe_from_fire_pool()
-    #     elif self.request in set(['fire_flash', 'back_fire_flash', 'run_fire_flash']):
-    #         return self.get_dataframe_from_fire_flash()
-
     def _create_2d_array(self, rows: int = 10, cols: int = 4):
         label: str = self.i18n.get('unknown_request')
         headers = ['', '', '', '']
-        # Создаем пустой двумерный массив
         array_2d = []
         for _ in range(rows + 1):
             row = []
             for _ in range(cols):
-                row.append('')  # Заполняем ячейки пустыми строками
+                row.append('')
             array_2d.append(row)
         return DataFrameModel(label=label, headers=headers, dataframe=array_2d)
 
+    def action_request_admins(self):
+        admins_actions = {
+            # команды администратора
+            # ('handbooks', ''): self.,
+            # ('', ''): self.,
+            # (): self.,
+            # (): self.,
+            # (): self.,
+        }
+
+        if self.request in admins_actions:
+            return admins_actions[self.request]()
+        else:
+            for key in admins_actions:
+                if self.request in key:
+                    return admins_actions[key]()
+        return self._create_2d_array()
+
+    def action_request_reports(self):
+        reports_actions = {
+            # отчеты и протоколы расчетов
+            # ('handbooks', ''): self.,
+            # ('', ''): self.,
+            # (): self.,
+            # (): self.,
+            # (): self.,
+        }
+
+        if self.request in reports_actions:
+            return reports_actions[self.request]()
+        else:
+            for key in reports_actions:
+                if self.request in key:
+                    return reports_actions[key]()
+        return self._create_2d_array()
+
     def action_request(self):
         actions = {
-            'fire_flash': self.get_dataframe_from_fire_flash,
-            'run_fire_flash': self.get_dataframe_from_fire_flash,
-            ('fire_pool', 'run_fire_flash'): self.get_dataframe_from_fire_pool,
+            # типовые аварии
+            ('fire_flash', 'run_fire_flash'): self.get_dataframe_from_fire_flash,
+            ('fire_pool', 'run_fire_pool'): self.get_dataframe_from_fire_pool,
             ('cloud_explosion', 'run_cloud_explosion'): self.get_dataframe_from_cloud_explosion,
             ('horizontal_jet', 'vertical_jet'): self.get_dataframe_from_jet_flame,
             ('fire_ball', 'run_fire_ball'): self.get_dataframe_from_fire_ball,
             ('accident_bleve', 'run_accident_bleve'): self.get_dataframe_from_accident_bleve,
+
+            # категорирование
+            ('category_build', 'run_category_build'): self.get_dataframe_from_category_build,
+            ('category_premises', 'run_category_premises'): self.get_dataframe_from_category_premises,
+            ('category_external_installation', 'run_category_external_installation'): self.get_dataframe_from_category_external_installation,
+
+            # расчет ОФП
+            ('analytics_model', 'run_analytics_model'): self.get_dataframe_from_analytics_model,
+
+            # калькуляторы риска
+            # ('public', 'run_public'): self.,
+            # ('industrial', 'run_industrial'): self.,
+
+            # огнестойкость
+            ('strength_calculation', 'run_strength_steel'): self.get_dataframe_from_strength_calculation_steel,
+            ('thermal_calculation', 'run_thermal_steel'): self.get_dataframe_from_thermal_calculation_steel,
+
+            # инструменты
+            # ('tool_liquid', 'run_tool_liquid'): self.,
+            # ('tool_comp_gas', 'run_tool_comp_gas'): self.,
+            # ('tool_liq_gas', ''): self.,
+            # ('tool_evaporation_rate', ''): self.,
+
+            # утилиты FDS
+            # ('fds_tools_density', ''): self.,
+            # ('', ''): self.,
+            # ('', ''): self.,
+
+            # справочники
+            # ('handbooks', ''): self.,
+            # ('climate', ''): self.,
+            # ('frequencies', 'table_404'): self.,
+            # ('type_to_table_1_3', 'type_to_table_2_3', 'type_to_table_2_4'): self.,
+            # ('standard_flammable_load', 'analytics_model_flammable_load'): self.,
+
+            # ('', ''): self.,
+            # (): self.,
+            # (): self.,
             # (): self.,
         }
 
-        if isinstance(self.request, str):
-            if self.request in actions:
-                return actions[self.request]()
-            else:
-                for key in actions:
-                    if isinstance(key, tuple) and self.request in key:
-                        return actions[key]()
-                    else:
-                        return self._create_2d_array()
+        if self.request in actions:
+            # print('1')
+            return actions[self.request]()
+            # return actions.get(self.request, '')()
+        else:
+            # print('2')
+            for key in actions:
+                if self.request in key:
+                    # if isinstance(key, tuple) and self.request in key:
+                    # print('key:', key)
+                    # print('3')
+                    return actions[key]()
+            # else:
+        # print('4')
+        return self._create_2d_array()
 
     def get_dataframe_from_fire_flash(self):
         label: str = self.i18n.get('fire_flash')
@@ -101,6 +169,7 @@ class DataFrameBuilder:
         i18n = self.i18n
         accident_model = self.accident_model
         substance = self.substance
+
         if self.request == 'run_fire_flash':
             label: str = self.i18n.get('fire_flash')
             air_density = compute_density_gas_phase(
@@ -150,6 +219,7 @@ class DataFrameBuilder:
             LFL = lfl if lfl > 0 else (0.1 if lfl == '' else 0.1)
             density_fuel = compute_density_gas_phase(
                 molar_mass=substance.molar_mass, temperature=accident_model.fuel_temperature)
+            # print(f'density_fuel: {density_fuel}')
 
             # f_flash = AccidentParameters(type_accident='fire_flash')
             # radius_LFL = f_flash.compute_radius_LFL(
@@ -227,7 +297,7 @@ class DataFrameBuilder:
                 [i18n.get('description_pool_area'), 'F',  accident_model.pool_area,
                  i18n.get('meter_square')],
                 [i18n.get('description_pool_distance'), 'r',
-                 accident_model.distance, i18n.get('meter')],
+                 accident_model.pool_distance, i18n.get('meter')],
                 [i18n.get('description_saturated_fuel_vapor_density_at_boiling_point'), 'ρп',
                  f"{fuel_density:.3f}", i18n.get('kg_per_m_cub')],
                 [i18n.get('distance_to_safe_zone_from_the_heat_flux'), 'x0',
@@ -263,7 +333,7 @@ class DataFrameBuilder:
                 [self.i18n.get('description_pool_area'), 'F',  self.accident_model.pool_area,
                  self.i18n.get('meter_square')],
                 [self.i18n.get('description_pool_distance'), 'r',
-                 self.accident_model.distance, self.i18n.get('meter')]
+                 self.accident_model.pool_distance, self.i18n.get('meter')]
             ]
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
 
@@ -292,8 +362,9 @@ class DataFrameBuilder:
             stc_coef_oxygen = accident_model.explosion_stc_coef_oxygen
             stc_coef_fuel = compute_stoichiometric_coefficient_with_fuel(
                 beta=stc_coef_oxygen)
-            coef_z = substance.coefficient_z_participation_in_explosion
-            expl_sf = True if accident_model.explosion_condition == 'on_surface' else False
+            coef_z = substance.coefficient_participation_in_explosion
+            # expl_sf = True if accident_model.explosion_condition == 'on_surface' else False
+            expl_sf = accident_model.explosion_condition == 'on_surface'
 
             cloud_exp = AccidentParameters()
             eff_energy = cloud_exp.compute_eff_energy_reserve(
@@ -307,22 +378,22 @@ class DataFrameBuilder:
                 energy_reserve=eff_energy, distance_run=False, distance=distance, ufront=ufront, mode_explosion=mode_expl, new_methodology=methodology)
 
             dataframe = [
-                [i18n.get('cloud_explosion_mass_expl'), 'Mт',
+                [i18n.get('description_explosion_mass_explosion'), 'Mт',
                     f"{(mass * coef_z):.2f}", i18n.get('kilogram')],
                 #  [i18n.get('cloud_explosion_spec_heat_combustion'), 'Eуд',  f"{(heat * beta):.1f}", i18n.get('kJ_per_kg')],
                 #  [i18n.get('stoichiometric_coefficient_for_oxygen'), 'β', f"{stc_coef_oxygen:.3f}", '-'],
-                [i18n.get('cloud_explosion_stoichiometric_fuel'), 'Cст',
+                [i18n.get('description_explosion_stoichiometric_fuel'), 'Cст',
                     f"{stc_coef_fuel:.3f}", i18n.get('percent_volume')],
-                [i18n.get('cloud_explosion_efficient_energy_reserve'), 'E',
+                [i18n.get('description_explosion_efficient_energy_reserve'), 'E',
                     f"{2 * (mass * coef_z) * (heat * beta) * 1000:.2e}", i18n.get('Joule')],
                 #  [i18n.get('apparent_speed_of_flame_front'), 'uр', f"{103.2:.2f}", i18n.get('m_per_sec')],
                 [i18n.get('max_speed_of_flame_front'), 'u',
                     f"{ufront:.2f}", i18n.get('m_per_sec')],
-                [i18n.get('cloud_explosion_nondimensional_distance'),
+                [i18n.get('description_explosion_nondimensional_distance'),
                     'Rx', f"{nondimensional_distance:.3f}", '-'],
-                [i18n.get('cloud_explosion_nondimensional_pressure'),
+                [i18n.get('description_explosion_nondimensional_pressure'),
                     'px', f"{nondimensional_pressure:.3f}", '-'],
-                [i18n.get('cloud_explosion_nondimensional_impuls'),
+                [i18n.get('description_explosion_nondimensional_impuls'),
                     'Ix', f"{nondimensional_impuls:.3f}", '-'],
                 [i18n.get('overpressure'), 'ΔP',
                     f"{overpres:.2e}", i18n.get('pascal')],
@@ -332,30 +403,30 @@ class DataFrameBuilder:
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
         else:
             dataframe = [
-                [i18n.get('cloud_explosion_state_fuel'),
+                [i18n.get('description_explosion_state_fuel'),
                     '', '', i18n.get(subst)],
                 #  [i18n.get('cloud_explosion_heat_combustion'), 'Eуд0', data.get('accident_cloud_explosion_heat_combustion'), i18n.get('kJ_per_kg')],
-                [i18n.get('cloud_explosion_correction_parameter'),
+                [i18n.get('description_explosion_correction_parameter'),
                     'β', substance.correction_parameter, '-'],
                 [i18n.get('stoichiometric_coefficient_for_oxygen'),
                     'k', f"{stc_coef_oxygen:.3f}", '-'],
-                [i18n.get('cloud_explosion_class_fuel'), '-',
+                [i18n.get('description_class_fuel'), '-',
                     class_fuel, '-'],
-                [i18n.get('cloud_explosion_class_space'), '-',
+                [i18n.get('description_class_space'), '-',
                     class_space, '-'],
-                [i18n.get('cloud_explosion_mode_expl'),
+                [i18n.get('description_explosion_mode_explosion'),
                     '-', f"{mode_expl:.0f}", '-'],
-                [i18n.get('cloud_explosion_coefficient_z'), 'Z',
-                    substance.coefficient_z_participation_in_explosion, '-'],
+                [i18n.get('description_coefficient_participation_in_explosion'), 'Z',
+                    substance.coefficient_participation_in_explosion, '-'],
 
-                [i18n.get('cloud_explosion_cond_ground'), '-',
+                [i18n.get('description_condition_on_ground'), '-',
                     i18n.get(accident_model.explosion_condition), '-'],
 
-                [i18n.get('cloud_explosion_mass_fuel'), 'm',
+                [i18n.get('description_explosion_mass_fuel'), 'm',
                     f"{mass:.1f}", i18n.get('kilogram')],
-                [i18n.get('cloud_explosion_distance'), 'R',
+                [i18n.get('description_explosion_distance'), 'R',
                     f"{distance:.1f}", i18n.get('meter')],
-                [i18n.get('cloud_explosion_methodology'),
+                [i18n.get('description_methodology'),
                     '-', i18n.get(methodology), '-']
             ]
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
@@ -367,38 +438,40 @@ class DataFrameBuilder:
         i18n = self.i18n
         accident_model = self.accident_model
         substance = self.substance
-        jet_state_phase = accident_model.horizontal_jet_state
+        jet_state_phase = accident_model.jet_state_fuel
         k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
         mass_rate = accident_model.jet_mass_rate
         lenght_flame = k_coef * mass_rate ** 0.4
         diameter_flame = 0.15 * lenght_flame
         if self.request == 'horizontal_jet':
             dataframe = [
-                [i18n.get('jet_state_fuel'),  '-',
-                    i18n.get(jet_state_phase), '-'],
-                [i18n.get('empirical_coefficient'), 'K', k_coef, '-'],
-                [i18n.get('jet_mass_rate'), 'G',
+                [i18n.get('description_jet_state_fuel'),  '', '',
+                    i18n.get(jet_state_phase)],
+                [i18n.get('description_empirical_coefficient'),
+                 'K', k_coef, '-'],
+                [i18n.get('description_jet_mass_rate'), 'G',
                     f'{mass_rate:.2f}', i18n.get('kg_per_sec')],
-                [i18n.get('hjet_flame_length'), 'Lf',
+                [i18n.get('description_jet_flame_length'), 'Lf',
                     f'{lenght_flame:.2f}', i18n.get('meter')],
-                [i18n.get('hjet_flame_width'), 'Df',
+                [i18n.get('description_jet_flame_width'), 'Df',
                     f'{diameter_flame:.2f}', i18n.get('meter')],
-                [i18n.get('jet_human_distance'), 'r',
+                [i18n.get('description_jet_human_distance'), 'r',
                     accident_model.distance, i18n.get('meter')]
             ]
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
         elif self.request == 'vertical_jet':
             dataframe = [
-                [i18n.get('jet_state_fuel'), '-',
-                    i18n.get(jet_state_phase), '-'],
-                [i18n.get('empirical_coefficient'), 'K', k_coef, '-'],
-                [i18n.get('jet_mass_rate'), 'G',
+                [i18n.get('description_jet_state_fuel'),  '', '',
+                    i18n.get(jet_state_phase)],
+                [i18n.get('description_empirical_coefficient'),
+                 'K', k_coef, '-'],
+                [i18n.get('description_jet_mass_rate'), 'G',
                     f'{mass_rate:.2f}', i18n.get('kg_per_sec')],
-                [i18n.get('hjet_flame_length'), 'Lf',
+                [i18n.get('description_jet_flame_length'), 'Lf',
                     f'{lenght_flame:.2f}', i18n.get('meter')],
-                [i18n.get('hjet_flame_width'), 'Df',
+                [i18n.get('description_jet_flame_width'), 'Df',
                     f'{diameter_flame:.2f}', i18n.get('meter')],
-                [i18n.get('jet_human_distance'), 'r',
+                [i18n.get('description_jet_human_distance'), 'r',
                     accident_model.distance, i18n.get('meter')],
             ]
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
@@ -411,13 +484,12 @@ class DataFrameBuilder:
             'variable'), self.i18n.get('value'), self.i18n.get('unit')]
         i18n = self.i18n
         accident_model = self.accident_model
-        substance = self.substance
         subst = accident_model.substance_name
         mass = accident_model.fire_ball_mass_fuel
-        distance = accident_model.distance
+        distance = accident_model.fire_ball_distance
         sep = accident_model.fire_ball_sep
 
-        f_ball = AccidentParameters(type_accident='fire_ball')
+        f_ball = AccidentParameters()
         ts = f_ball.compute_fire_ball_existence_time(mass=mass)
         d = f_ball.compute_fire_ball_diameter(mass=mass)
 
@@ -432,21 +504,21 @@ class DataFrameBuilder:
                         [i18n.get('substance'), '', '', i18n.get(subst)],
                         [i18n.get('surface_density_thermal_radiation_flame'),
                             'Ef', accident_model.fire_ball_sep, i18n.get('kwatt_per_meter_square')],
-                        [i18n.get('ball_mass_fuel'), 'm',
+                        [i18n.get('description_ball_mass_fuel'), 'm',
                             mass, i18n.get('kilogram')],
-                        [i18n.get('ball_existence_time'), 'ts',
+                        [i18n.get('description_ball_existence_time'), 'ts',
                             f"{ts:.2f}", i18n.get('second')],
-                        [i18n.get('ball_diameter'), 'Ds',
+                        [i18n.get('description_ball_diameter'), 'Ds',
                             f"{d:.2f}", i18n.get('meter')],
-                        [i18n.get('ball_height_center'), 'H',
+                        [i18n.get('description_ball_height_center'), 'H',
                             f"{d:.2f}", i18n.get('meter')],
-                        [i18n.get('ball_distance'), 'r',
-                            accident_model.distance, i18n.get('meter')],
-                        [i18n.get('ball_view_factor'),
+                        [i18n.get('description_ball_distance'), 'r',
+                            accident_model.fire_ball_distance, i18n.get('meter')],
+                        [i18n.get('description_ball_view_factor'),
                             'Fq', f"{fq:.3f}", '-'],
-                        [i18n.get('ball_atmospheric_transmittance'),
+                        [i18n.get('description_ball_atmospheric_transmittance'),
                             'τ',  f"{t:.2f}", '-'],
-                        [i18n.get('ball_heat_flux'), 'q', f"{q:.2f}", i18n.get(
+                        [i18n.get('description_ball_heat_flux'), 'q', f"{q:.2f}", i18n.get(
                             'kwatt_per_meter_square')]
             ]
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
@@ -455,21 +527,21 @@ class DataFrameBuilder:
                 [i18n.get('substance'), '', '', i18n.get(subst)],
                 [i18n.get('surface_density_thermal_radiation_flame'), 'Ef',
                     accident_model.fire_ball_sep, i18n.get('kwatt_per_meter_square')],
-                [i18n.get('ball_mass_fuel'), 'm',
+                [i18n.get('description_ball_mass_fuel'), 'm',
                     mass, i18n.get('kilogram')],
-                [i18n.get('ball_existence_time'), 'ts',
+                [i18n.get('description_ball_existence_time'), 'ts',
                     f"{ts:.2f}", i18n.get('second')],
-                [i18n.get('ball_diameter'), 'Ds',
+                [i18n.get('description_ball_diameter'), 'Ds',
                     f"{d:.2f}", i18n.get('meter')],
-                [i18n.get('ball_height_center'), 'H',
+                [i18n.get('description_ball_height_center'), 'H',
                     f"{d:.2f}", i18n.get('meter')],
-                [i18n.get('ball_distance'), 'r',
-                    accident_model.distance, i18n.get('meter')]
+                [i18n.get('description_ball_distance'), 'r',
+                    accident_model.fire_ball_distance, i18n.get('meter')]
             ]
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
 
     def get_dataframe_from_accident_bleve(self):
-        label: str = self.i18n.get('')
+        label: str = self.i18n.get('accident_bleve')
         headers: list[str] = [self.i18n.get('name'), self.i18n.get(
             'variable'), self.i18n.get('value'), self.i18n.get('unit')]
         i18n = self.i18n
@@ -479,12 +551,12 @@ class DataFrameBuilder:
         coef_k = accident_model.bleve_energy_fraction
         heat_capacity = accident_model.bleve_heat_capacity_liquid_phase
         mass = accident_model.bleve_mass_fuel
-        temp_liq = accident_model.bleve_temperature_liquid_phase
-        distance = accident_model.distance
+        # temp_liq = accident_model.bleve_temperature_liquid_phase
+        distance = accident_model.bleve_distance
         boiling_point = substance.boiling_point
         acc_bleve = AccidentParameters(type_accident='accident_bleve')
-        expl_energy = acc_bleve.compute_expl_energy(
-            k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=temp_liq, boiling_point=boiling_point)
+        expl_energy, temp_liq = acc_bleve.compute_expl_energy(
+            k=coef_k, Cp=heat_capacity, mass=mass, temp_liquid=accident_model.bleve_temperature_liquid_phase, boiling_point=boiling_point)
 
         if self.request == 'run_accident_bleve':
             reduced_mass = acc_bleve.compute_redused_mass(
@@ -497,17 +569,17 @@ class DataFrameBuilder:
                     heat_capacity, i18n.get('J_per_kg_in_kelvin')],
                 [i18n.get('boiling_point'),
                     'Tb', f"{boiling_point + 273.15:.2f}", i18n.get('kelvin')],
-                [i18n.get('temperature_liquid_phase'), 'Tₒ',
+                [i18n.get('description_temperature_liquid_phase'), 'Tₒ',
                     temp_liq, i18n.get('kelvin')],
-                [i18n.get('mass_liquid_phase'), 'm',
+                [i18n.get('description_mass_liquid_phase'), 'm',
                     mass, i18n.get('kilogram')],
-                [i18n.get('pressure_wave_energy_fraction'),
+                [i18n.get('description_pressure_wave_energy_fraction'),
                     'k', coef_k, '-'],
-                [i18n.get('effective_explosion_energy'),
+                [i18n.get('description_effective_explosion_energy'),
                     'Eeff', f"{expl_energy:.2e}", '-'],
-                [i18n.get('distance_bleve'), 'r',
-                    accident_model.distance, i18n.get('meter')],
-                [i18n.get('reduced_mass_liquid_phase'),
+                [i18n.get('description_bleve_distance'), 'r',
+                    accident_model.bleve_distance, i18n.get('meter')],
+                [i18n.get('description_reduced_mass_liquid_phase'),
                     'mпр', f"{reduced_mass:.2f}", '-'],
                 [i18n.get('overpressure'), 'ΔP',
                     f"{overpres:.2e}", i18n.get('pascal')],
@@ -522,18 +594,46 @@ class DataFrameBuilder:
                     heat_capacity, i18n.get('J_per_kg_in_kelvin')],
                 [i18n.get('boiling_point'),
                     'Tb', f"{boiling_point + 273.15:.2f}", i18n.get('kelvin')],
-                [i18n.get('temperature_liquid_phase'), 'Tₒ',
+                [i18n.get('description_temperature_liquid_phase'), 'Tₒ',
                     temp_liq, i18n.get('kelvin')],
-                [i18n.get('mass_liquid_phase'), 'm',
+                [i18n.get('description_mass_liquid_phase'), 'm',
                     mass, i18n.get('kilogram')],
-                [i18n.get('pressure_wave_energy_fraction'),
+                [i18n.get('description_pressure_wave_energy_fraction'),
                     'k', coef_k, '-'],
-                [i18n.get('effective_explosion_energy'),
+                [i18n.get('description_effective_explosion_energy'),
                     'Eeff', f"{expl_energy:.2e}", '-'],
-                [i18n.get('distance_bleve'), 'r',
-                    accident_model.distance, i18n.get('meter')],
+                [i18n.get('description_bleve_distance'), 'r',
+                    accident_model.bleve_distance, i18n.get('meter')],
             ]
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+    def get_dataframe_from_category_build(self):
+        print(self.request)
+        return 'Категория здания'
+
+    def get_dataframe_from_category_premises(self):
+        print(self.request)
+        return 'Категория помещения'
+
+    def get_dataframe_from_category_external_installation(self):
+        print(self.request)
+        return 'Категория наружной установки'
+
+    def get_dataframe_from_analytics_model(self):
+        print(self.request)
+        return 'Аналитическая модель'
+
+    def get_dataframe_from_strength_calculation_steel(self):
+        print(self.request)
+        return 'Прочностной расчет. Сталь'
+
+    def get_dataframe_from_thermal_calculation_steel(self):
+        print(self.request)
+        return 'Теплотехнический расчет. Сталь'
+
+    def get_dataframe_from_(self):
+        print(self.request)
+        return ''
 
     # def get_dataframe_from__(self):
     #     label: str = self.i18n.get('')

@@ -52,7 +52,7 @@ async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
 
     accident_model = AccidentModel(**context_data.get('accident_model'))
     dfb = DataFrameBuilder(i18n=i18n,  request='fire_flash',
-                           accident_model=accident_model)
+                           model=accident_model)
     dataframe = dfb.action_request()
 
     media = get_dataframe_table(data=dataframe)
@@ -88,7 +88,7 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
     accident_model = AccidentModel(**context_data.get('accident_model'))
     dfb = DataFrameBuilder(i18n=i18n,  request='run_fire_flash',
-                           accident_model=accident_model)
+                           model=accident_model)
     dataframe = dfb.action_request()
     media = get_dataframe_table(data=dataframe, results=True, row_num=7)
 
@@ -135,15 +135,23 @@ async def edit_fire_flash_guest_call(callback: CallbackQuery, bot: Bot, state: F
 async def edit_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     await state.set_state(state=None)
 
-    await bot.edit_message_reply_markup(
+    context_data = await state.get_data()
+
+    kb = InlineKeyboardModel(
+        width=4, buttons='edit_fire_flash_kb', penultimate='run_fire_flash', ultimate='back_fire_flash', reference=None)
+
+    context_data['keyboard_model'] = asdict(kb)
+
+    text = ''
+    await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        reply_markup=get_inline_cd_kb(4, *i18n.get('edit_fire_flash_kb').split('\n'),
-                                      i18n=i18n,
-                                      penult_button='run_fire_flash',
-                                      back_data='back_fire_flash'
-                                      )
+        caption=text,
+        reply_markup=get_inline_keyboard(keyboard=kb, i18n=i18n,
+                                         )
     )
+    await state.update_data(context_data)
+    await callback.answer('')
 
 
 @fire_accident_fireflash_router.callback_query(F.data.in_(['mass_vapor_fuel', 'lower_flammability_limit']))

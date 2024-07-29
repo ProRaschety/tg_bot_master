@@ -1,23 +1,27 @@
 
 typical_accidents =
-    Типовые аварии
+    Аварийные события
 typical_accidents-text =
-    Типовые аварии
+    <b></b>
 back_typical_accidents =
     ↩ Назад
 
 substance =
     Вещество
+edit_substance =
+    Вещество
 velocity_wind =
     w
 
+jet_flame =
+    Струйное пламя (не используется)
 
+# кнопки для Типовые аварии
 accidents_kb_owner =
     dissipation_without_ignition
     fire_flash
     fire_pool
-    horizontal_jet
-    vertical_jet
+    jet_and_flare_combustion
     fire_ball
     cloud_explosion
     accident_bleve
@@ -45,16 +49,10 @@ accidents_kb_comrade =
 accidents_kb_subscriber =
     fire_flash
     fire_pool
-disabled_buttons =
-    horizontal_jet
-    vertical_jet
-    fire_ball
-    cloud_explosion
-    accident_bleve
 accidents_kb_guest =
     fire_flash
     fire_pool
-disabled_buttons =
+disabled_buttons = (не используется)
     horizontal_jet
     vertical_jet
     fire_ball
@@ -92,103 +90,8 @@ gas_jet_burning =
     Струевое горение газа (для газопроводов)
 
 
-fire_pool =
-    Пожар-пролива
-fire_pool-text =
-    Расчет параметров пожара-пролива.
-fire_pool_kb =
-    edit_fire_pool
-    run_fire_pool
-fire_pool_kb_guest =
-    edit_fire_pool_guest
-    run_fire_pool
 
-run_fire_pool =
-    ▶ Рассчитать
-run_fire_pool_text =
-    Пожар-пролива. Результаты расчета
-result_fire_pool_kb_owner =
-    plot_fire_pool
-    probit_fire_pool
-result_fire_pool_kb_admin =
-    plot_fire_pool
-    probit_fire_pool
-result_fire_pool_kb_comrade =
-    plot_fire_pool
-    probit_fire_pool
-result_fire_pool_kb_subscriber =
-    plot_fire_pool
-
-result_fire_pool_kb_guest =
-    plot_fire_pool
-
-
-edit_fire_pool =
-    📝 Редактировать
-edit_fire_pool_kb1 =
-    edit_pool_substance
-    edit_pool_area
-    edit_pool_wind
-    edit_pool_distance
-
-edit_fire_pool_kb =
-    edit_pool_substance
-    pool_area
-    velocity_wind
-    pool_distance
-
-
-edit_fire_pool_guest =
-    🔒 Редактировать
-back_fire_pool =
-    ↩ Назад
-plot_fire_pool =
-    📉 Тепловой поток
-plot_pool_label =
-    График теплового потока
-y_pool_label =
-    Интенсивность теплового потока, кВт/м²
-
-probit_fire_pool =
-    📈 Вероятность поражения
-
-edit_pool_substance =
-    Вещество
-pool_area =
-    F
-pool_distance =
-    r
-velocity_wind =
-    w
-
-description_pool_area =
-    Площадь пролива
-description_pool_diameter =
-    Эффективный диаметр пролива
-description_pool_wind =
-    Скорость ветра
-description_pool_flame_angle =
-    Угол наклона пламени
-description_pool_flame_lenght =
-    Длина пламени
-description_saturated_fuel_vapor_density_at_boiling_point =
-    Плотность паров горючего
-    при температуре кипения
-description_pool_distance =
-    Расстояние от края пролива
-
-name_pool_area =
-    Введите площадь пролива:
-name_pool_distance =
-    Введите расстояние от края пролива:
-name_velocity_wind =
-    Введите скорость ветра:
-
-edit_fire_pool-text = {$fire_pool_param}
-    <blockquote>{$edit_fire_pool}</blockquote>
-
-
-
+# пожар-вспышка
 fire_flash =
     Пожар-вспышка
 fire_flash-text =
@@ -210,6 +113,7 @@ edit_fire_flash_guest =
     🔒 Редактировать
 
 edit_fire_flash_kb =
+    edit_substance
     mass_vapor_fuel
     lower_flammability_limit
 
@@ -253,7 +157,96 @@ density_flammable_gases_at_ambient_temperature =
     при температуре окружающей среды
 
 
+# пожар-пролива
+fire_pool =
+    Пожар-пролива
+fire_pool-text =
+    Расчет параметров пожара-пролива.
+fire_pool_kb =
+    edit_fire_pool
+    run_fire_pool
+fire_pool_kb_guest =
+    edit_fire_pool_guest
+    run_fire_pool
 
+run_fire_pool =
+    ▶ Рассчитать
+run_fire_pool_text =
+    Пожар-пролива. Результаты расчета
+result_fire_pool_kb_owner =
+    plot_fire_pool
+    probit_fire_pool
+result_fire_pool_kb_admin =
+    plot_fire_pool
+    probit_fire_pool
+result_fire_pool_kb_comrade =
+    plot_fire_pool
+    probit_fire_pool
+result_fire_pool_kb_subscriber =
+    plot_fire_pool
+
+result_fire_pool_kb_guest =
+    plot_fire_pool
+
+edit_fire_pool =
+    📝 Редактировать
+
+edit_fire_pool_kb =
+    edit_substance
+    pool_area
+    velocity_wind
+    pool_distance
+
+edit_fire_pool_guest =
+    🔒 Редактировать
+back_fire_pool =
+    ↩ Назад
+plot_fire_pool =
+    📉 Тепловой поток
+plot_pool_label =
+    График теплового потока
+y_pool_label =
+    Интенсивность теплового потока, кВт/м²
+
+probit_fire_pool =
+    📈 Вероятность поражения
+
+
+pool_area =
+    F
+pool_distance =
+    r
+velocity_wind =
+    w
+
+description_pool_area =
+    Площадь пролива
+description_pool_diameter =
+    Эффективный диаметр пролива
+description_pool_wind =
+    Скорость ветра
+description_pool_flame_angle =
+    Угол наклона пламени
+description_pool_flame_lenght =
+    Длина пламени
+description_saturated_fuel_vapor_density_at_boiling_point =
+    Плотность паров горючего
+    при температуре кипения
+description_pool_distance =
+    Расстояние от края пролива
+
+name_pool_area =
+    Введите площадь пролива:
+name_pool_distance =
+    Введите расстояние от края пролива:
+name_velocity_wind =
+    Введите скорость ветра:
+
+edit_fire_pool-text = {$fire_pool_param}
+    <blockquote>{$edit_fire_pool}</blockquote>
+
+
+# взрыв ТВС
 cloud_explosion =
     Взрыв ТВС
 cloud_explosion-text =
@@ -268,16 +261,16 @@ cloud_explosion_kb_guest =
     edit_cloud_explosion_guest
     run_cloud_explosion
 edit_cloud_explosion_kb =
-    edit_cloud_explosion_state
-    edit_cloud_explosion_correction_parameter
-    edit_cloud_explosion_stc_coef_oxygen
+    edit_substance
+    explosion_state_fuel
+    correction_parameter
+    explosion_stc_coef_oxygen
     class_fuel
     class_space
-    edit_cloud_explosion_expl_cond
-    edit_cloud_explosion_coef_z
+    cloud_explosion_condition
     explosion_mass_fuel
-    edit_cloud_explosion_distance
-    cloud_explosion_methodology
+    explosion_distance
+    methodology
 
 run_cloud_explosion =
     ▶ Рассчитать
@@ -297,20 +290,29 @@ back_edit_cloud_explosion =
     ↩ Назад
 plot_cloud_explosion_pressure-text =
     <blockquote></blockquote>
+
+cloud_explosion_condition =
+    Расположение взрывоопасного облака
+cloud_explosion_condition-text =
+    При расчете параметров сгорания облака, расположенного <b>на поверхности земли</b>, величина эффективного энергозапаса удваивается.
 above_surface =
     Над
-    землей
+    поверхностью
 on_surface =
     На
-    земле
+    поверхности
 
-cloud_explosion_methodology =
+methodology =
+    Методика расчета
+methodology-text =
+    <b></b>
+description_methodology =
     Методика расчета
 methodology_404 =
     Мет.404
 methodology_2024 =
     Мет.2024
-cloud_explosion_state_fuel =
+explosion_state_fuel =
     Агрегатное состояние
     горючего вещества
 cloud_explosion_state_gas =
@@ -322,66 +324,62 @@ gas =
 dust =
     Пыль
 
-cloud_explosion_heat_combustion =
-    Удельная теплота сгорания
+description_explosion_state_fuel =
+    Агрегатное состояние
     горючего вещества
-cloud_explosion_coefficient_z =
+description_coefficient_participation_in_explosion =
     Коэффициент участия горючего
     во взрыве
-cloud_explosion_correction_parameter =
+description_explosion_correction_parameter =
     Корректировочный параметр
-cloud_explosion_class_fuel =
-    Класс чувствительности горючего
-    к возбуждению взрывных процессов
-class_space =
+description_class_space =
     Класс загроможденности
     окружающего пространства
-cloud_explosion_cond_ground =
+description_condition_on_ground =
     Расположение облака паров горючего
     относительно поверхности земли
-cloud_explosion_mass_fuel =
+description_explosion_mass_fuel =
     Масса вышедшего газа (пара)
     в окружающее пространство
-cloud_explosion_mode_expl =
+description_explosion_mode_explosion =
     Ожидаемый режим
     сгорания облака
-cloud_explosion_distance =
+description_explosion_distance =
     Расстояние от центра
     облака паров горючего
-cloud_explosion_mass_expl =
+description_explosion_mass_explosion =
     Масса горючих газов (паров)
     участвующих во взрыве
-cloud_explosion_spec_heat_combustion =
+description_explosion_spec_heat_combustion =
     Удельная теплота сгорания
     при расчете энерговыделения
-cloud_explosion_stoichiometric_fuel =
+description_explosion_stoichiometric_fuel =
     Стехиометрическая концентрация
     паров горючего
-cloud_explosion_efficient_energy_reserve =
+description_explosion_efficient_energy_reserve =
     Эффективный энергозапас
     горючей смеси
-cloud_explosion_nondimensional_distance =
+description_explosion_nondimensional_distance =
     Безразмерное расстояние
     от центра облака
-cloud_explosion_nondimensional_pressure =
+description_explosion_nondimensional_pressure =
     Безразмерное давление
-cloud_explosion_nondimensional_impuls =
+description_explosion_nondimensional_impuls =
     Безразмерный импульс
     фазы сжатия
 
-edit_cloud_explosion_state =
-    Агрегатное состояние горючего вещества
-edit_cloud_explosion_correction_parameter =
+correction_parameter =
     β
-edit_cloud_explosion_stc_coef_oxygen =
+explosion_stc_coef_oxygen =
     k
+
 class_fuel =
     Класс горючего вещества
 edit_cloud_explosion_class_fuel-text =
-    Класс 1: Особо чувствительные вещества. Размер детоционной ячейки менее 2 см.
-    Класс 2: Чувствительные вещества. Размер детоционной ячейки от 2 до 10 см.
-    Класс 3: Среднечувствительные вещества. Размер детоционной ячейки от 10 до 40 см.
-    Класс 4: Слабочувствительные вещества. Размер детоционной ячейки больше 40 см.
+    <b>Класс 1</b>: Особо чувствительные вещества. Размер детоционной ячейки менее 2 см.
+    <b>Класс 2</b>: Чувствительные вещества. Размер детоционной ячейки от 2 до 10 см.
+    <b>Класс 3</b>: Среднечувствительные вещества. Размер детоционной ячейки от 10 до 40 см.
+    <b>Класс 4</b>: Слабочувствительные вещества. Размер детоционной ячейки больше 40 см.
 class_fuel_first =
     1
 class_fuel_second =
@@ -390,13 +388,14 @@ class_fuel_third =
     3
 class_fuel_fourth =
     4
+
 class_space =
     Класс загроможденности пространства
 edit_cloud_explosion_class_space-text =
-    Класс I: Наличие длинных труб, полостей, каверн, заполненных горючей смесью, при сгорании которой возможно ожидать формирование турбулентных струй продуктов сгорания, имеющих размеры не менее трех размеров детонационной ячейки данной смеси. Если размер детонационной ячейки для данной смеси не известен, то минимальный характерный размер струй принимается равным 5 см для веществ класса 1, 20 см для веществ класса 2, 50 см для веществ класса 3 и 150 см для веществ класса 4.
-    Класс II: Сильно загроможденное пространство: наличие полузамкнутых объемов высокая плотность размещения технологического оборудования, лес, большое количество повторяющихся препятствий.
-    Класс III: Средне загроможденное пространство: отдельно стоящие технологические установки, резервуарный парк.
-    Класс IV: Слабо загроможденное и свободное пространство.
+    <b>Класс I</b>: Наличие длинных труб, полостей, каверн, заполненных горючей смесью, при сгорании которой возможно ожидать формирование турбулентных струй продуктов сгорания, имеющих размеры не менее трех размеров детонационной ячейки данной смеси.
+    <b>Класс II</b>: Сильно загроможденное пространство: наличие полузамкнутых объемов высокая плотность размещения технологического оборудования, лес, большое количество повторяющихся препятствий.
+    <b>Класс III</b>: Средне загроможденное пространство: отдельно стоящие технологические установки, резервуарный парк.
+    <b>Класс IV</b>: Слабо загроможденное и свободное пространство.
 class_space_first =
     I
 class_space_second =
@@ -406,19 +405,17 @@ class_space_third =
 class_space_fourth =
     IV
 
-edit_cloud_explosion_expl_cond =
-    Расположение взрывоопасного облака
 edit_cloud_explosion_coef_z =
     Z
 explosion_mass_fuel =
     m
-edit_cloud_explosion_distance =
+explosion_distance =
     R
 
 edit_cloud_explosion-text = {$cloud_explosion_param}
     <blockquote>{$edit_cloud_explosion}</blockquote>
 
-name_cloud_explosion_correction_parameter =
+name_correction_parameter =
     Введите корретировочный параметр:
 name_cloud_explosion_stc_coef_oxygen =
     Введите значение стехиометрического коэффициента
@@ -428,144 +425,11 @@ name_cloud_explosion_coef_z =
     участия горючего во взрыве:
 name_explosion_mass_fuel =
     Введите массу вещества:
-name_cloud_explosion_distance =
+name_explosion_distance =
     Введите расстояние от центра взрыва:
 
 
-
-horizontal_jet =
-    Горизонтальный факел
-horizontal_jet-text =
-    Расчет параметров горизонтального факела.
-horizontal_jet_kb =
-    edit_horizontal_jet
-    plot_horizontal_jet
-horizontal_jet_kb_guest =
-    edit_horizontal_jet_guest
-    plot_horizontal_jet
-run_horizontal_jet =
-    ▶ Рассчитать
-edit_horizontal_jet =
-    📝 Редактировать
-edit_horizontal_jet_kb =
-    edit_hjet_state
-    edit_hjet_mass_rate
-    edit_hjet_distance
-run_horizontal_jet_guest =
-    ▶ Рассчитать
-edit_horizontal_jet_guest =
-    🔒 Редактировать
-
-back_horizontal_jet =
-    ↩ Назад
-plot_horizontal_jet_label =
-    График теплового потока
-y_horizontal_jet_label =
-    Интенсивность теплового потока, кВт/м²
-
-
-vertical_jet =
-    Вертикальный факел
-vertical_jet-text =
-    Расчет параметров вертикального факела.
-vertical_jet_kb =
-    edit_vertical_jet
-    plot_vertical_jet
-vertical_jet_kb_guest =
-    edit_vertical_jet_guest
-    plot_vertical_jet
-edit_vertical_jet_kb =
-    edit_vjet_state
-    edit_vjet_mass_rate
-    edit_vjet_distance
-
-run_vertical_jet =
-    ▶ Рассчитать
-edit_vertical_jet =
-    📝 Редактировать
-run_vertical_jet_guest =
-    ▶ Рассчитать
-edit_vertical_jet_guest =
-    🔒 Редактировать
-back_vertical_jet =
-    ↩ Назад
-
-plot_vertical_jet_label =
-    График теплового потока
-y_vertical_jet_label =
-    Интенсивность теплового потока, кВт/м²
-
-horizontal_jet_state_liquid_kb =
-    Жидкая фаза 💧
-horizontal_jet_state_comp_gas_kb =
-    Сжатый газ 💨
-horizontal_jet_state_liq_gas_vap_kb =
-    Паровая фаза ☁
-plot_horizontal_jet =
-    📉 Тепловой поток
-
-vertical_jet_state_liquid_kb =
-    Жидкая фаза 💧
-vertical_jet_state_comp_gas_kb =
-    Сжатый газ 💨
-vertical_jet_state_liq_gas_vap_kb =
-    Паровая фаза ☁
-plot_vertical_jet =
-    📉 Тепловой поток
-
-edit_hjet_state =
-    Агрегатное состояние
-    горючего вещества
-edit_hjet_mass_rate =
-    Расход продукта
-edit_hjet_distance =
-    Расстояние до облучаемого объекта
-name_hjet_mass_rate =
-    Введите расход продукта:
-name_hjet_distance =
-    Введите расстояние до облучаемого объекта:
-edit_hjet-text = {$hjet_param}
-    <blockquote>{$edit_hjet}</blockquote>
-
-edit_vjet_state =
-    Агрегатное состояние
-    горючего вещества
-edit_vjet_mass_rate =
-    Расход продукта
-edit_vjet_distance =
-    Расстояние до облучаемого объекта
-name_vjet_mass_rate =
-    Введите расход продукта:
-name_vjet_distance =
-    Введите расстояние до облучаемого объекта:
-edit_vjet-text = {$vjet_param}
-    <blockquote>{$edit_vjet}</blockquote>
-
-jet_state_fuel =
-    Агрегатное состояние горючего вещества
-jet_state_liquid =
-    Жидкая
-    фаза
-jet_state_liq_gas_vap =
-    Паровая
-    фаза
-jet_state_comp_gas =
-    Сжатый
-    газ
-empirical_coefficient =
-    Эмпирический коэффициент
-jet_mass_rate =
-    Расход сжатого газа, паровой
-    или жидкой фазы сжиженного газа
-hjet_flame_length =
-    Длина факела
-hjet_flame_width =
-    Ширина факела
-jet_human_distance =
-    Расстояние до облучаемого объекта
-
-
-
+# огненный шар
 fire_ball =
     Огненный шар
 fire_ball-text =
@@ -580,13 +444,14 @@ back_fire_ball =
     ↩ Назад
 run_fire_ball =
     ▶ Рассчитать
+
 edit_fire_ball =
     📝 Редактировать
 edit_fire_ball_kb =
-    edit_ball_mass
-    edit_ball_distance
-run_fire_ball_guest =
-    ▶ Рассчитать
+    edit_substance
+    fire_ball_mass_fuel
+    fire_ball_distance
+
 edit_fire_ball_guest =
     🔒 Редактировать
 plot_fire_ball =
@@ -597,43 +462,44 @@ plot_ball_label =
     График теплового потока
 y_ball_label =
     Интенсивность теплового потока, кВт/м²
-edit_ball_mass =
+
+fire_ball_mass_fuel =
     m
-edit_ball_distance =
+fire_ball_distance =
     r
-name_fire_ball_mass =
+name_fire_ball_mass_fuel =
     Введите массу горючего вещества:
 name_fire_ball_distance =
     Введите расстояние от ОШ:
 edit_fire_ball-text = {$fire_ball_param}
     <blockquote>{$edit_fire_ball}</blockquote>
-ball_height_center =
+description_ball_height_center =
     Высота центра
     огненного шара
-ball_mass_fuel =
+description_ball_mass_fuel =
     Масса горючего вещества
     поступившего
     в окружающее пространство
-ball_distance =
+description_ball_distance =
     Расстояние от облучаемого объекта
     до точки на поверхности земли
     под центром огненного шара
-ball_existence_time =
+description_ball_existence_time =
     Время существования
     огненного шара
-ball_diameter =
+description_ball_diameter =
     Эффективный диаметр
     огненного шара
-ball_view_factor =
+description_ball_view_factor =
     Угловой коэффициент облученности
-ball_atmospheric_transmittance =
+description_ball_atmospheric_transmittance =
     Коэффициент пропускания атмосферы
-ball_heat_flux =
+description_ball_heat_flux =
     Тепловой поток
     на расстоянии r
 
 
-
+# взрыв сосуда в очаге пожара
 accident_bleve =
     Взрыв резервуара
 accident_bleve-text =
@@ -652,40 +518,194 @@ run_accident_bleve =
 edit_accident_bleve =
     📝 Редактировать
 edit_accident_bleve_kb =
-    edit_bleve_mass
-    edit_bleve_distance
-run_accident_bleve_guest =
-    ▶ Рассчитать
+    edit_substance
+    bleve_mass_fuel
+    bleve_distance
+
 edit_accident_bleve_guest =
     🔒 Редактировать
 plot_accident_bleve_pressure =
     📉 Давление взрыва ΔP
 plot_accident_bleve_impuls =
     📉 Импульс I⁺
-edit_bleve_mass =
+
+bleve_mass_fuel =
     m
-name_bleve_mass =
+name_bleve_mass_fuel =
     Введите массу вещества:
-edit_bleve_distance =
+
+bleve_distance =
     r
 name_bleve_distance =
     Введите расстояние от центра взрыва:
+
 edit_bleve-text = {$bleve_param}
     <blockquote>{$edit_bleve}</blockquote>
-distance_bleve =
+
+description_bleve_distance =
     Расстояние
     от центра взрыва
-effective_explosion_energy =
+description_effective_explosion_energy =
     Эффективная энергия взрыва
-pressure_wave_energy_fraction =
+description_pressure_wave_energy_fraction =
     Доля энергии волны давления
-reduced_mass_liquid_phase =
+description_reduced_mass_liquid_phase =
     Приведенная масса жидкой фазы
-mass_liquid_phase =
+description_mass_liquid_phase =
     Масса жидкой фазы
     в резервуаре
-temperature_liquid_phase =
+description_temperature_liquid_phase =
     Температура жидкой фазы
-device_response_pressure =
+description_device_response_pressure =
     Давление срабатывания
     предохранительного устройства
+
+
+# Факельное горение веществ
+jet_and_flare_combustion =
+    Факельное горение
+back_jet_and_flare_combustion =
+    ↩ Назад
+
+jet_and_flare_combustion_kb =
+    horizontal_jet
+    vertical_jet
+    flare_combustion
+
+flare_combustion =
+    🚧 Сжигание газа на факеле
+back_flare_combustion =
+    ↩ Назад
+flare_combustion-text =
+    Расчет параметров горизонтального факела.
+    🚧 <i>Находится в разработке</i>
+flare_combustion_kb =
+    edit_flare_combustion
+    plot_flare_combustion
+flare_combustion_kb_guest =
+    edit_flare_combustion_guest
+    plot_flare_combustion
+run_flare_combustion =
+    ▶ Рассчитать
+edit_flare_combustion =
+    📝 Редактировать
+edit_flare_combustion_kb =
+    edit_flare_combustion_mass_rate
+    edit_distance
+edit_flare_combustion_guest =
+    🔒 Редактировать
+
+
+horizontal_jet =
+    Горизонтальный факел
+back_horizontal_jet =
+    ↩ Назад
+horizontal_jet-text =
+    Расчет параметров горизонтального факела.
+horizontal_jet_kb =
+    edit_horizontal_jet
+    plot_horizontal_jet
+horizontal_jet_kb_guest =
+    edit_horizontal_jet_guest
+    plot_horizontal_jet
+run_horizontal_jet =
+    ▶ Рассчитать
+edit_horizontal_jet =
+    📝 Редактировать
+edit_horizontal_jet_kb =
+    jet_state_fuel
+    jet_mass_rate
+    distance
+    plot_horizontal_jet
+
+edit_horizontal_jet_guest =
+    🔒 Редактировать
+
+plot_horizontal_jet_label =
+    График теплового потока
+y_horizontal_jet_label =
+    Интенсивность теплового потока, кВт/м²
+
+
+vertical_jet =
+    Вертикальный факел
+back_vertical_jet =
+    ↩ Назад
+vertical_jet-text =
+    Расчет параметров вертикального факела.
+vertical_jet_kb =
+    edit_vertical_jet
+    plot_vertical_jet
+vertical_jet_kb_guest =
+    edit_vertical_jet_guest
+    plot_vertical_jet
+
+edit_vertical_jet_kb =
+    jet_state_fuel
+    jet_mass_rate
+    distance
+    plot_vertical_jet
+
+jet_state_fuel =
+    Агрегатное состояние ГВ
+jet_mass_rate =
+    Расход ГВ
+distance =
+    Расстояние до облучаемого объекта
+
+run_vertical_jet =
+    ▶ Рассчитать
+edit_vertical_jet =
+    📝 Редактировать
+edit_vertical_jet_guest =
+    🔒 Редактировать
+
+
+plot_vertical_jet_label =
+    График теплового потока
+y_vertical_jet_label =
+    Интенсивность теплового потока, кВт/м²
+
+jet_state_liquid_kb =
+    Жидкая фаза 💧
+jet_state_comp_gas_kb =
+    Сжатый газ 💨
+jet_state_liq_gas_vap_kb =
+    Паровая фаза ☁
+
+plot_horizontal_jet =
+    📉 Тепловой поток
+
+plot_vertical_jet =
+    📉 Тепловой поток
+
+name_jet_mass_rate =
+    Введите расход продукта:
+name_distance =
+    Введите расстояние до облучаемого объекта:
+
+
+description_jet_mass_rate =
+    Расход продукта
+description_jet_distance =
+    Расстояние до облучаемого объекта
+
+description_jet_state_fuel =
+    Агрегатное состояние горючего вещества
+jet_state_liquid =
+    Жидкая фаза
+jet_state_liq_gas_vap =
+    Паровая фаза
+jet_state_comp_gas =
+    Сжатый газ
+description_empirical_coefficient =
+    Эмпирический коэффициент
+description_jet_mass_rate =
+    Расход сжатого газа, паровой
+    или жидкой фазы сжиженного газа
+description_jet_flame_length =
+    Длина факела
+description_jet_flame_width =
+    Ширина факела
+description_jet_human_distance =
+    Расстояние до облучаемого объекта

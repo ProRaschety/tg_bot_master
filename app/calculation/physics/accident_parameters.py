@@ -268,7 +268,11 @@ class AccidentParameters:
         return (expl_energy / 4.52) / 1_000_000
 
     def compute_expl_energy(self, k: int | float, Cp: int | float, mass: int | float, temp_liquid: int | float, boiling_point: int | float):
-        return k * Cp * mass * (temp_liquid - (boiling_point + self.K))
+        if temp_liquid < boiling_point + self.K:
+            t_liquid = boiling_point + self.K + 10
+        else:
+            t_liquid = temp_liquid
+        return k * Cp * mass * (t_liquid - (boiling_point + self.K)), t_liquid
 
     def compute_nonvelocity(self, wind: int | float, density_fuel: int | float, mass_burn_rate: int | float, eff_diameter: int | float):
         return wind / (np.cbrt((mass_burn_rate * self.g * eff_diameter) / density_fuel))

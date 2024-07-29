@@ -30,6 +30,8 @@ ambient_temperature =
     Темепература окружающей среды
 ambient_air_density =
     Плотность окружающего воздуха
+
+
 specific_heat_of_combustion =
     Удельная теплота сгорания
 specific_heat_capacity_liquid_phase =
@@ -52,9 +54,13 @@ specific_mass_fuel_burning_rate =
     выгорания топлива
 stoichiometric_coefficient_for_oxygen =
     Стехиометрический коэффициент
-    при кислороде при сгорании
+    кислорода при сгорании
 boiling_point =
     Температура кипения
+description_class_fuel =
+    Класс чувствительности горючего
+    к возбуждению взрывных процессов
+
 overpressure =
     Избыточное давление
 impuls_overpressure =
