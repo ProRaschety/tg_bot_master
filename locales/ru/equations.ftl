@@ -6,6 +6,10 @@ type_example_eq-text =
 eq_heat_flux =
     $q(r)= Ef \cdot Fq \cdot τ$
 
+eq_heat_flux_for_jet =
+    Тепловой поток
+
+
 eq_mode_standard =
     $t(τ)= 345 \cdot lg(8 \cdot τ/60 + 1) + 20$
 eq_mode_hydrocarbon =

@@ -376,7 +376,8 @@ async def run_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FSM
 
     media = get_dataframe_table(data=dataframe, results=True, row_num=7)
 
-    text = i18n.cloud_explosion_result.text(distance=accident_model.distance)
+    text = i18n.cloud_explosion_result.text(
+        distance=accident_model.explosion_distance)
 
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
@@ -419,7 +420,7 @@ async def edit_cloud_explosion_call(callback: CallbackQuery, bot: Bot, state: FS
     context_data = await state.get_data()
 
     kb = InlineKeyboardModel(
-        width=4, buttons='edit_cloud_explosion_kb', penultimate='run_cloud_explosion', ultimate='back_cloud_explosion', reference=None)
+        width=3, buttons='edit_cloud_explosion_kb', penultimate='run_cloud_explosion', ultimate='back_cloud_explosion', reference=None)
 
     context_data['keyboard_model'] = asdict(kb)
 

@@ -162,7 +162,7 @@ class DataPlotter:
             # ('plot_fire_flash', 'probit_fire_flash'): self.get_dataframe_from_fire_flash,
             ('plot_fire_pool', 'probit_fire_pool'): self.get_plot_from_fire_pool,
             ('plot_accident_cloud_explosion_pressure', 'plot_accident_cloud_explosion_impuls'): self.get_plot_from_cloud_explosion,
-            # ('horizontal_jet', 'vertical_jet'): self.get_dataframe_from_jet_flame,
+            ('plot_horizontal_jet', 'plot_vertical_jet'): self.get_plot_from_jet_flame,
             ('plot_fire_ball', 'probit_fire_ball'): self.get_plot_from_fire_ball,
             ('plot_accident_bleve_pressure', 'plot_accident_bleve_impuls'): self.get_plot_from_accident_bleve,
 
@@ -247,8 +247,8 @@ class DataPlotter:
                 x_values=x, y_values=y, distance=distance + diameter / 2)
 
             unit_sep = i18n.get('kwatt_per_meter_square')
-            text_annotate = f"q({distance + diameter / 2:.1f})= {sep_num:.1f} {unit_sep}"
-            plot_label = i18n.eq_heat_flux()
+            text_annotate = f"q({distance + diameter / 2:.1f})= {sep_num:.1f} {unit_sep}\n"
+            legend_label = i18n.eq_heat_flux()
             label = i18n.get('plot_pool_label')
 
             return DataPlotterModel(
@@ -256,7 +256,7 @@ class DataPlotter:
                 add_annotate=True, text_annotate=text_annotate, x_ann=distance + diameter / 2, y_ann=sep_num,
                 label=label, x_label=i18n.get('distance_label'), y_label=i18n.get('y_pool_label'),
                 add_legend=True, loc_legend=1,
-                plot_label=plot_label
+                plot_label=legend_label
             )
 
         else:
@@ -270,7 +270,7 @@ class DataPlotter:
                 x_values=x, y_values=y, distance=distance + diameter / 2)
             # unit_sep = i18n.get('kwatt_per_meter_square')
             unit_sep = ''
-            text_annotate = f"Q({distance + diameter / 2:.1f})= {value:.1e} {unit_sep}"
+            text_annotate = f"Q({distance + diameter / 2:.1f})= {value:.1e} {unit_sep}\n"
 
             plot_label = i18n.eq_heat_flux()
             return DataPlotterModel(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05, ymin=-0.01,
@@ -295,7 +295,7 @@ class DataPlotter:
             x_values=x, y_values=y, distance=distance)
         if self.request == 'plot_fire_ball':
             unit_sep = i18n.get('kwatt_per_meter_square')
-            text_annotate = f" q({distance:.1f})= {sep_num:.1f} {unit_sep}"
+            text_annotate = f" q({distance:.1f})= {sep_num:.1f} {unit_sep}\n"
             plot_label = i18n.eq_heat_flux()
 
             return DataPlotterModel(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
@@ -310,7 +310,7 @@ class DataPlotter:
             value = misc_utils.get_value_at_distance(
                 x_values=x, y_values=y, distance=distance)
             unit_sep = ''
-            text_annotate = f"Q({distance:.1f})= {value:.1e} {unit_sep}"
+            text_annotate = f"Q({distance:.1f})= {value:.1e} {unit_sep}\n"
 
             plot_label = i18n.eq_heat_flux()
 
@@ -345,7 +345,7 @@ class DataPlotter:
         if self.request == 'plot_accident_bleve_pressure':
             unit_p = i18n.get('pascal')
             unit_p1 = i18n.get('kg_per_santimeter_square')
-            text_annotate = f" ΔP\n = {overpresure_30:.2e} {unit_p}\n = {(overpresure_30*0.000010197):.2e} {unit_p1}"
+            text_annotate = f" ΔP\n = {overpresure_30:.2e} {unit_p}\n = {(overpresure_30*0.000010197):.2e} {unit_p1}\n"
             return DataPlotterModel(x_values=dist, y_values=overpres, ylim=overpresure_30 * 3.5,
                                     add_annotate=True,
                                     text_annotate=text_annotate, x_ann=distance, y_ann=overpresure_30,
@@ -356,7 +356,7 @@ class DataPlotter:
 
         else:
             unit_i = i18n.get('pascal_in_sec')
-            text_annotate = f" I+ = {impuls_30:.2e} {unit_i}"
+            text_annotate = f" I+ = {impuls_30:.2e} {unit_i}\n"
             return DataPlotterModel(x_values=dist, y_values=impuls, ylim=impuls_30 * 4.0,
                                     add_annotate=True,
                                     text_annotate=text_annotate, x_ann=distance, y_ann=impuls_30,
@@ -368,20 +368,20 @@ class DataPlotter:
         accident_model = self.accident_model
         substance = accident_model.substance
 
-        subst = accident_model.explosion_state_fuel
+        # subst = accident_model.explosion_state_fuel
         methodology = accident_model.methodology
         mass = accident_model.explosion_mass_fuel
         stc_coef_oxygen = accident_model.explosion_stc_coef_oxygen
         class_fuel = substance.class_fuel
         class_space = accident_model.class_space
-        distance = accident_model.distance
+        distance = accident_model.explosion_distance
         stc_coef_oxygen = accident_model.explosion_stc_coef_oxygen
         stc_coef_fuel = compute_stoichiometric_coefficient_with_fuel(
             beta=stc_coef_oxygen)
         coef_z = substance.coefficient_participation_in_explosion
         expl_sf = True if accident_model.explosion_condition == 'on_surface' else False
 
-        cloud_exp = AccidentParameters(type_accident='cloud_explosion')
+        cloud_exp = AccidentParameters()
         mode_expl = cloud_exp.get_mode_explosion(
             class_fuel=class_fuel, class_space=class_space)
         # cloud_exp = AccidentParameters()
@@ -425,3 +425,48 @@ class DataPlotter:
                 y_label=i18n.get(
                 'plot_impuls_legend'),
                 add_legend=True, loc_legend=1)
+
+    def get_plot_from_jet_flame(self):
+        i18n = self.i18n
+        accident_model = self.accident_model
+        # substance = accident_model.substance
+        distance = accident_model.distance
+        jet_state_phase = accident_model.jet_state_fuel
+        k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
+        mass_rate = accident_model.jet_mass_rate
+        lenght_flame = k_coef * mass_rate ** 0.4
+
+        if self.request == 'plot_horizontal_jet':
+            legend_label = i18n.eq_heat_flux_for_jet()
+            h_jet = AccidentParameters()
+            x, y = h_jet.compute_heat_jet_fire(lenght_flame=lenght_flame)
+            # dist_num = f_ball.get_distance_at_sep(x_values=x, y_values=y, sep=4)
+            sep_num = h_jet.get_sep_at_distance(
+                x_values=x, y_values=y, distance=distance)
+            unit_sep = i18n.get('kwatt_per_meter_square')
+            # text_annotate = f" q= {sep_num:.1f} {unit_sep}"
+            text_annotate = f"q({distance:.1f})= {sep_num:.1f} {unit_sep}\n"
+            return DataPlotterModel(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
+                                    add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
+                                    label=i18n.get('plot_horizontal_jet_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_horizontal_jet_label'),
+                                    add_legend=True, loc_legend=1, plot_label=legend_label)
+
+        elif self.request == 'plot_vertical_jet':
+            legend_label = i18n.eq_heat_flux_for_jet()
+            diameter_flame = 0.15 * lenght_flame
+            v_jet = AccidentParameters()
+            x, y = v_jet.compute_heat_flux(
+                eff_diameter=diameter_flame, lenght_flame=lenght_flame)
+            # dist_num = f_ball.get_distance_at_sep(x_values=x, y_values=y, sep=4)
+            sep_num = v_jet.get_sep_at_distance(
+                x_values=x, y_values=y, distance=distance)
+            unit_sep = i18n.get('kwatt_per_meter_square')
+            # text_annotate = f" q= {sep_num:.1f} {unit_sep}"
+            text_annotate = f"q({distance:.1f})= {sep_num:.1f} {unit_sep}\n"
+            return DataPlotterModel(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
+                                    add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
+                                    label=i18n.get('plot_vertical_jet_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_vertical_jet_label'),
+                                    add_legend=True, loc_legend=1, plot_label=legend_label)
+
+        elif self.request == 'plot_flare_combustion':
+            pass

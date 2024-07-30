@@ -350,7 +350,7 @@ class DataFrameBuilder:
         stc_coef_oxygen = accident_model.explosion_stc_coef_oxygen
         class_fuel = substance.class_fuel
         class_space = accident_model.class_space
-        distance = accident_model.distance
+        distance = accident_model.explosion_distance
 
         cloud_exp = AccidentParameters(type_accident='cloud_explosion')
         mode_expl = cloud_exp.get_mode_explosion(
@@ -424,7 +424,7 @@ class DataFrameBuilder:
 
                 [i18n.get('description_explosion_mass_fuel'), 'm',
                     f"{mass:.1f}", i18n.get('kilogram')],
-                [i18n.get('description_explosion_distance'), 'R',
+                [i18n.get('description_explosion_distance'), 'r',
                     f"{distance:.1f}", i18n.get('meter')],
                 [i18n.get('description_methodology'),
                     '-', i18n.get(methodology), '-']
@@ -437,7 +437,7 @@ class DataFrameBuilder:
             'variable'), self.i18n.get('value'), self.i18n.get('unit')]
         i18n = self.i18n
         accident_model = self.accident_model
-        substance = self.substance
+        # substance = self.substance
         jet_state_phase = accident_model.jet_state_fuel
         k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
         mass_rate = accident_model.jet_mass_rate

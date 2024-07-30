@@ -20,7 +20,8 @@ from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.states.fsm_state_data import FSMEditForm
 # from app.tg_bot.utilities import tables
 from app.tg_bot.utilities.tables import DataFrameBuilder
-from app.tg_bot.utilities.misc_utils import get_plot_graph, get_dataframe_table, find_key_path, get_dict_value, get_picture_filling
+from app.tg_bot.utilities.result_plotter import DataPlotter
+from app.tg_bot.utilities.misc_utils import get_plot_graph, plot_graph, get_dataframe_table, find_key_path, get_dict_value, get_picture_filling
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
 
 from app.calculation.physics.accident_parameters import AccidentParameters
@@ -396,25 +397,14 @@ async def horizontal_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSM
                                       #   'edit_vertical_jet',
                                       #   'plot_vertical_jet',
                                       i18n=i18n, back_data='back_horizontal_jet'))
-    data = await state.get_data()
+
+    context_data = await state.get_data()
+    accident_model = AccidentModel(**context_data.get('accident_model'))
+    dpm = DataPlotter(i18n=i18n, request=callback.data, model=accident_model)
+    data = dpm.action_request()
+    media = plot_graph(data=data)
+
     text = i18n.horizontal_jet.text()
-    distance = float(data.get('accident_horizontal_jet_human_distance'))
-    jet_state_phase = data.get('accident_horizontal_jet_state')
-    k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
-    mass_rate = float(data.get('accident_horizontal_jet_mass_rate'))
-    lenght_flame = k_coef * mass_rate ** 0.4
-    # diameter_flame = 0.15 * lenght_flame
-    h_jet = AccidentParameters()
-    x, y = h_jet.compute_heat_jet_fire(lenght_flame=lenght_flame)
-    # dist_num = f_ball.get_distance_at_sep(x_values=x, y_values=y, sep=4)
-    sep_num = h_jet.get_sep_at_distance(
-        x_values=x, y_values=y, distance=distance)
-    unit_sep = i18n.get('kwatt_per_meter_square')
-    text_annotate = f" q= {sep_num:.1f} {unit_sep} "
-    media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
-                           add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
-                           label=i18n.get('plot_horizontal_jet_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_horizontal_jet_label'),
-                           add_legend=True, loc_legend=1)
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
@@ -432,28 +422,14 @@ async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       i18n=i18n, back_data='back_vertical_jet'))
-    data = await state.get_data()
+
+    context_data = await state.get_data()
+    accident_model = AccidentModel(**context_data.get('accident_model'))
+    dpm = DataPlotter(i18n=i18n, request=callback.data, model=accident_model)
+    data = dpm.action_request()
+    media = plot_graph(data=data)
+
     text = i18n.vertical_jet.text()
-    distance = float(data.get('accident_vertical_jet_human_distance'))
-    jet_state_phase = data.get('accident_vertical_jet_state')
-    k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
-    mass_rate = float(data.get('accident_vertical_jet_mass_rate'))
-    lenght_flame = k_coef * mass_rate ** 0.4
-    diameter_flame = 0.15 * lenght_flame
-
-    v_jet = AccidentParameters()
-    x, y = v_jet.compute_heat_flux(
-        eff_diameter=diameter_flame, lenght_flame=lenght_flame)
-    # dist_num = f_ball.get_distance_at_sep(x_values=x, y_values=y, sep=4)
-    sep_num = v_jet.get_sep_at_distance(
-        x_values=x, y_values=y, distance=distance)
-    unit_sep = i18n.get('kwatt_per_meter_square')
-    text_annotate = f" q= {sep_num:.1f} {unit_sep} "
-    media = get_plot_graph(x_values=x, y_values=y, ylim=max(y) + max(y) * 0.05,
-                           add_annotate=True, text_annotate=text_annotate, x_ann=distance, y_ann=sep_num,
-                           label=i18n.get('plot_vertical_jet_label'), x_label=i18n.get('distance_label'), y_label=i18n.get('y_vertical_jet_label'),
-                           add_legend=True, loc_legend=1)
-
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,

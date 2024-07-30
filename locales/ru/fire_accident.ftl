@@ -16,6 +16,10 @@ velocity_wind =
 jet_flame =
     Струйное пламя (не используется)
 
+run_calculation =
+    ▶ Выполнить расчет (не используется)
+
+
 # кнопки для Типовые аварии
 accidents_kb_owner =
     dissipation_without_ignition
@@ -252,8 +256,7 @@ cloud_explosion =
 cloud_explosion-text =
     Расчет параметров взрыва облака
 cloud_explosion_result-text =
-    Параметры взрыва облака
-    на расстоянии {$distance} м.
+    Параметры взрыва облака на расстоянии <b>{$distance}</b> м.
 cloud_explosion_kb =
     edit_cloud_explosion
     run_cloud_explosion
@@ -261,13 +264,12 @@ cloud_explosion_kb_guest =
     edit_cloud_explosion_guest
     run_cloud_explosion
 edit_cloud_explosion_kb =
-    edit_substance
     explosion_state_fuel
-    correction_parameter
-    explosion_stc_coef_oxygen
     class_fuel
-    class_space
+    correction_parameter
     cloud_explosion_condition
+    class_space
+    explosion_stc_coef_oxygen
     explosion_mass_fuel
     explosion_distance
     methodology
@@ -410,7 +412,7 @@ edit_cloud_explosion_coef_z =
 explosion_mass_fuel =
     m
 explosion_distance =
-    R
+    r
 
 edit_cloud_explosion-text = {$cloud_explosion_param}
     <blockquote>{$edit_cloud_explosion}</blockquote>
