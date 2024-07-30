@@ -297,7 +297,8 @@ async def subscribe_channel_call(callback_data: CallbackQuery, bot: Bot, state: 
 async def process_get_admin_contacts(message: Message, state: FSMContext, i18n: TranslatorRunner) -> None:
     media = get_picture_filling(i18n.get('path_contacts'))
     text = i18n.contacts.admin()
-    dict_kb = {"link_owner": "link_owner-text", "link_1": "link_1-text"}
+    # dict_kb = {"link_owner": "link_owner-text", "link_1": "link_1-text"}
+    dict_kb = {"link_owner": "link_owner-text"}
 
     await message.answer_photo(
         photo=BufferedInputFile(file=media, filename="pic_filling.png"),
