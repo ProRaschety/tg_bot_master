@@ -59,7 +59,7 @@ async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         reply_markup=get_inline_cd_kb(
             1,
             *i18n.get('accidents_kb_' + role).split('\n'),
-            i18n=i18n, back_data='back_fire_risks'
+            i18n=i18n, back_data='general_menu'
         )
     )
 
@@ -91,7 +91,7 @@ async def back_typical_accidents_call(callback: CallbackQuery, bot: Bot, i18n: T
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=get_inline_cd_kb(
-            i18n=i18n, back_data='back_fire_risks'
+            i18n=i18n, back_data='general_menu'
         )
     )
 
@@ -105,7 +105,7 @@ async def back_typical_accidents_call(callback: CallbackQuery, bot: Bot, i18n: T
         reply_markup=get_inline_cd_kb(
             1,
             *i18n.get('accidents_kb_' + role).split('\n'),
-            i18n=i18n, back_data='back_fire_risks'
+            i18n=i18n, back_data='general_menu'
         )
     )
     await callback.answer('')
