@@ -3,16 +3,12 @@ import logging
 from dataclasses import asdict
 
 from aiogram import Router, F, Bot
-# from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
-# , InlineQueryResultArticle, InputTextMessageContent
-# from aiogram.types import InlineQuery
 from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
 
 from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
-# from app.tg_bot.models.tables import DataFrameModel
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.models.keyboard import InlineKeyboardModel
 
@@ -21,16 +17,14 @@ from app.tg_bot.states.fsm_state_data import FSMEditForm
 # from app.tg_bot.utilities import tables
 from app.tg_bot.utilities.tables import DataFrameBuilder
 from app.tg_bot.utilities.result_plotter import DataPlotter
-from app.tg_bot.utilities.misc_utils import get_plot_graph, plot_graph, get_dataframe_table, find_key_path, get_dict_value, get_picture_filling
+from app.tg_bot.utilities.misc_utils import plot_graph, get_dataframe_table, find_key_path, get_dict_value, get_picture_filling
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
 
-from app.calculation.physics.accident_parameters import AccidentParameters
-from app.calculation.physics.physics_utils import compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel, compute_stoichiometric_coefficient_with_fuel, compute_stoichiometric_coefficient_with_oxygen
+from app.calculation.physics.physics_utils import get_property_fuel
 
-from app.infrastructure.database.models.calculations import AccidentModel
+from app.calculation.models.calculations import AccidentModel
 from app.infrastructure.database.models.substance import SubstanceModel
 
-from pprint import pprint
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +51,6 @@ async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMCo
     )
 
     context_data = await state.get_data()
-    # pprint(context_data)
     subst = context_data.get('substance')
     subs_state = context_data.get('substance_state')
 
@@ -183,7 +176,9 @@ async def edit_horizontal_jet_guest_call(callback: CallbackQuery, bot: Bot, stat
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('horizontal_jet_kb_guest').split('\n'),
-                                      i18n=i18n, back_data='back_horizontal_jet'))
+                                      i18n=i18n, back_data='back_horizontal_jet'
+                                      )
+    )
     text = i18n.get('repeated_request_guest')
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -191,7 +186,9 @@ async def edit_horizontal_jet_guest_call(callback: CallbackQuery, bot: Bot, stat
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('horizontal_jet_kb_guest').split('\n'),
-                                      i18n=i18n, back_data='back_horizontal_jet'))
+                                      i18n=i18n, back_data='back_horizontal_jet'
+                                      )
+    )
     await callback.answer('')
 
 
@@ -216,12 +213,6 @@ async def edit_horizontal_jet_call(callback: CallbackQuery, bot: Bot, state: FSM
     )
     await state.update_data(context_data)
     await callback.answer('')
-
-    # await bot.edit_message_reply_markup(
-    #     chat_id=callback.message.chat.id,
-    #     message_id=callback.message.message_id,
-    #     reply_markup=get_inline_cd_kb(1, *i18n.get('edit_horizontal_jet_kb').split('\n'),
-    #                                   i18n=i18n, back_data='back_horizontal_jet'))
 
 
 @fire_accident_jet_and_flare_router.callback_query(F.data.in_(['vertical_jet', 'back_vertical_jet']))
@@ -268,7 +259,9 @@ async def edit_vertical_jet_guest_call(callback: CallbackQuery, bot: Bot, state:
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('vertical_jet_kb_guest').split('\n'),
-                                      i18n=i18n, back_data='back_vertical_jet'))
+                                      i18n=i18n, back_data='back_vertical_jet'
+                                      )
+    )
     text = i18n.get('repeated_request_guest')
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
@@ -276,7 +269,9 @@ async def edit_vertical_jet_guest_call(callback: CallbackQuery, bot: Bot, state:
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('vertical_jet_kb_guest').split('\n'),
-                                      i18n=i18n, back_data='back_vertical_jet'))
+                                      i18n=i18n, back_data='back_vertical_jet'
+                                      )
+    )
     await callback.answer('')
 
 
@@ -394,9 +389,9 @@ async def horizontal_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSM
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=get_inline_cd_kb(1,
-                                      #   'edit_vertical_jet',
-                                      #   'plot_vertical_jet',
-                                      i18n=i18n, back_data='back_horizontal_jet'))
+                                      i18n=i18n, back_data='back_horizontal_jet'
+                                      )
+    )
 
     context_data = await state.get_data()
     accident_model = AccidentModel(**context_data.get('accident_model'))
@@ -410,7 +405,9 @@ async def horizontal_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSM
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_horizontal_jet'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_horizontal_jet'
+                                      )
+    )
 
 
 @fire_accident_jet_and_flare_router.callback_query(F.data.in_(['plot_vertical_jet']))
@@ -421,7 +418,9 @@ async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         message_id=callback.message.message_id,
         caption=text,
         reply_markup=get_inline_cd_kb(1,
-                                      i18n=i18n, back_data='back_vertical_jet'))
+                                      i18n=i18n, back_data='back_vertical_jet'
+                                      )
+    )
 
     context_data = await state.get_data()
     accident_model = AccidentModel(**context_data.get('accident_model'))
@@ -436,4 +435,6 @@ async def vertical_jet_plot_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
-                                      i18n=i18n, back_data='back_vertical_jet'))
+                                      i18n=i18n, back_data='back_vertical_jet'
+                                      )
+    )

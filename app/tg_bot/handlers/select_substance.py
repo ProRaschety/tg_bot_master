@@ -1,37 +1,29 @@
 import logging
-import io
-import json
 
-from dataclasses import dataclass, asdict, astuple
+from dataclasses import asdict
 
 from aiogram import Router, F, Bot
-from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
-# , InlineQueryResultArticle, InputTextMessageContent
-# from aiogram.types import InlineQuery
 from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
 
 from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
-from app.tg_bot.models.tables import DataFrameModel
-from app.tg_bot.models.role import UserRole
+# from app.tg_bot.models.tables import DataFrameModel
+# from app.tg_bot.models.role import UserRole
 from app.tg_bot.models.keyboard import InlineKeyboardModel
-from app.tg_bot.filters.filter_role import IsGuest, IsSubscriber
-from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm, FSMEditForm
+from app.tg_bot.filters.filter_role import IsSubscriber
+# from app.tg_bot.states.fsm_state_data import FSMFireAccidentForm, FSMEditForm
 
-from app.tg_bot.utilities import tables
 from app.tg_bot.utilities.tables import DataFrameBuilder
-from app.tg_bot.utilities.misc_utils import get_data_table, get_plot_graph, get_dataframe_table
-from app.tg_bot.utilities.misc_utils import compute_value_with_eval, check_string, count_decimal_digits, count_zeros_and_digits, result_formatting, count_digits_before_dot, custom_round, modify_dict_value
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
+from app.tg_bot.utilities.misc_utils import get_dataframe_table
+# from app.tg_bot.utilities.misc_utils import compute_value_with_eval, check_string, count_decimal_digits, count_zeros_and_digits, result_formatting, count_digits_before_dot, custom_round, modify_dict_value
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_inline_keyboard
 
-from app.infrastructure.database.models.calculations import AccidentModel
+from app.calculation.models.calculations import AccidentModel
 from app.calculation.physics.physics_utils import get_property_fuel
 from app.infrastructure.database.models.substance import FlammableMaterialModel, SubstanceModel
 
-
-from pprint import pprint
 
 log = logging.getLogger(__name__)
 
@@ -66,7 +58,6 @@ async def edit_substance_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 @select_substance_router.callback_query(F.data.in_(['gasoline', 'diesel', 'LNG', 'LPG', 'liq_hydrogen', 'other_liquid', 'any_substance']))
 async def select_substance_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner,) -> None:
-
     context_data = await state.get_data()
     call_data = callback.data
     log.info(

@@ -188,9 +188,11 @@ result_fire_pool_kb_comrade =
     probit_fire_pool
 result_fire_pool_kb_subscriber =
     plot_fire_pool
+    probit_fire_pool
 
 result_fire_pool_kb_guest =
     plot_fire_pool
+    probit_fire_pool
 
 edit_fire_pool =
     📝 Редактировать

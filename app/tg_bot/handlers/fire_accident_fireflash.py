@@ -3,33 +3,24 @@ import logging
 from dataclasses import asdict
 
 from aiogram import Router, F, Bot
-# from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
-# , InlineQueryResultArticle, InputTextMessageContent
-# from aiogram.types import InlineQuery
 from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
 
 from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
-# from app.tg_bot.models.tables import DataFrameModel
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.models.keyboard import InlineKeyboardModel
 
 from app.tg_bot.filters.filter_role import IsGuest
 from app.tg_bot.states.fsm_state_data import FSMEditForm
-# from app.tg_bot.utilities import tables
 from app.tg_bot.utilities.tables import DataFrameBuilder
-from app.tg_bot.utilities.misc_utils import get_plot_graph, get_dataframe_table, find_key_path, get_dict_value
+from app.tg_bot.utilities.misc_utils import get_dataframe_table, find_key_path, get_dict_value
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
 
-# from app.calculation.physics.accident_parameters import AccidentParameters
-# from app.calculation.physics.physics_utils import compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel, compute_stoichiometric_coefficient_with_fuel, compute_stoichiometric_coefficient_with_oxygen
-
-from app.infrastructure.database.models.calculations import AccidentModel
+from app.calculation.models.calculations import AccidentModel
 # from app.infrastructure.database.models.substance import SubstanceModel
 
-from pprint import pprint
 
 log = logging.getLogger(__name__)
 
@@ -45,7 +36,9 @@ async def fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMContext, 
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_typical_accidents'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_typical_accidents'
+                                      )
+    )
 
     context_data = await state.get_data()
     text = i18n.fire_flash.text()
@@ -80,7 +73,9 @@ async def run_fire_flash_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_flash'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_flash'
+                                      )
+    )
 
     text = i18n.fire_flash.text()
 

@@ -2,6 +2,7 @@ import logging
 
 # import json
 # from datetime import datetime
+from dataclasses import asdict
 
 from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
@@ -14,13 +15,21 @@ from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
 from fluentogram import TranslatorRunner
 
 # from app.infrastructure.database.database.db import DB
+from app.infrastructure.database.models.substance import FlammableMaterialModel
+
 from app.tg_bot.models.role import UserRole
+from app.tg_bot.models.keyboard import InlineKeyboardModel
 from app.tg_bot.filters.filter_role import IsSubscriber, IsGuest
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
-from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table
+from app.tg_bot.utilities.tables import DataFrameBuilder
 from app.tg_bot.states.fsm_state_data import FSMCatBuildForm
 from app.calculation.fire_hazard_category.fire_hazard_categories import FireCategoryBuild, FireCategoryOutInstall
+from app.calculation.models.calculations import RoomModel, SectionModel
 
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
+from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_dataframe_table
+
+
+from pprint import pprint
 
 logging.getLogger('matplotlib.font_manager').disabled = True
 
@@ -47,6 +56,13 @@ SFilter = [FSMCatBuildForm.edit_area_A_state,
 
 @fire_category_router.callback_query(F.data.in_(['fire_category', 'back_fire_category']))
 async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    section_st = SectionModel()
+    section_st.material.append(FlammableMaterialModel())
+    section_st.mass.append(20)
+    room_model = RoomModel()
+    room_model.sections.append(section_st)
+    await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
+
     text = i18n.fire_category.text()
     media = get_picture_filling(
         file_path='temp_files/temp/fire_category_logo.png')
@@ -503,71 +519,39 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
 
 @fire_category_router.callback_query(F.data.in_(['category_premises', 'back_category_premises']))
 async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    # pprint(await state.get_data())
+
     text = i18n.request_start.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_category'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_category'
+                                      )
+    )
 
-    data = await state.get_data()
-    data.setdefault("edit_category_premises_param", "")
+    context_data = await state.get_data()
+    # subst = context_data.get('substance')
+    # subs_state = context_data.get('substance_state')
+    # molar_mass, boling_point, mass_burning_rate, LFL = await get_property_fuel(subst=subst)
 
-    headers = (i18n.get('name'), i18n.get('variable'),
-               i18n.get('value'), i18n.get('unit'))
-    label = i18n.get('category_premises_label')
-    data_out = [
-        {'id': i18n.get('fire_load'),
-         'var': '',
-         'unit_1': '',
-            'unit_2': 'Древесина'},
-
-        {'id': i18n.get('section'),
-         'var': '№2',
-         'unit_1': '',
-            'unit_2': 'В4'},
-
-        {'id': i18n.get('fire_load'),
-         'var': '',
-         'unit_1': '',
-            'unit_2': 'Автомобиль'},
-
-        {'id': i18n.get('section'),
-         'var': '№1',
-         'unit_1': '',
-            'unit_2': 'В2'},
-
-        {'id': i18n.get('temperature'),
-         'var': 'tₒ',
-         'unit_1': f"{0:.1f}",
-            'unit_2': i18n.get('celsius')},
-
-        {'id': i18n.get('volume'),
-         'var': 'V',
-            'unit_1': f"{0:.1f}",
-            'unit_2': i18n.get('meter_cub')},
-
-        {'id': i18n.get('area'),
-         'var': 'S',
-            'unit_1': f"{0:.1f}",
-            'unit_2': i18n.get('meter_square')},
-
-        {'id': i18n.get('width'),
-         'var': 'b',
-         'unit_1': f"{0:.1f}",
-            'unit_2': i18n.get('meter')},
-
-        {'id': i18n.get('lenght'),
-            'var': 'a',
-            'unit_1': f"{0:.1f}",
-            'unit_2': i18n.get('meter')},
-
-        {'id': i18n.get('height'),
-         'var': 'h',
-         'unit_1': f"{0:.1f}",
-         'unit_2': i18n.get('meter')}]
-
-    media = get_data_table(data=data_out, headers=headers, label=label)
+    # substance = SubstanceModel(substance_name=subst,
+    #                            molar_mass=molar_mass,
+    #                            boiling_point=boling_point,
+    #                            mass_burning_rate=mass_burning_rate,
+    #                            lower_flammability_limit=LFL,
+    #                            )
+    # section_st = SectionModel()
+    # section_st.material.append(FlammableMaterialModel())
+    # section_st.mass.append(20)
+    # room_model = RoomModel()
+    # room_model.sections.append(section_st)
+    # await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
+    room_model = RoomModel(**context_data.get('room_model'))
+    dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
+                           fire_category_model=room_model)
+    dataframe = dfb.action_request()
+    media = get_dataframe_table(data=dataframe)
 
     text = i18n.category_premises.text()
     await bot.edit_message_media(
@@ -577,7 +561,10 @@ async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMCo
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('category_premises_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_premises_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'
+                                      )
+    )
+
     await callback.answer('')
 
 
@@ -590,7 +577,9 @@ async def edit_category_premises_guest_call(callback: CallbackQuery, bot: Bot, s
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('category_premises_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'
+                                      )
+    )
 
     text = i18n.get('repeated_request_guest')
     await bot.edit_message_caption(
@@ -599,18 +588,33 @@ async def edit_category_premises_guest_call(callback: CallbackQuery, bot: Bot, s
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('category_premises_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'
+                                      )
+    )
     await callback.answer('')
 
 
 @fire_category_router.callback_query(F.data.in_(['edit_category_premises']))
 async def edit_category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    await bot.edit_message_reply_markup(
+    context_data = await state.get_data()
+
+    kb = InlineKeyboardModel(
+        width=1, buttons='edit_category_premises_kb', penultimate='run_category_premises', ultimate='back_fire_category', reference=None)
+
+    context_data['keyboard_model'] = asdict(kb)
+
+    text = ''
+    await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
+        caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('edit_category_premises_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_category_premises'))
+                                      i18n=i18n, param_back=True, back_data='back_category_premises'
+                                      )
+    )
+    await state.update_data(context_data)
+    await callback.answer('')
 
 
 @fire_category_router.callback_query((F.data.in_(['category_outdoor_installation', 'back_outdoor_installation',])))
@@ -638,7 +642,9 @@ async def category_outdoor_installation_call(callback: CallbackQuery, bot: Bot, 
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       # 'run_category_outdoor_installation',
-                                      'back_fire_category', i18n=i18n))
+                                      'back_fire_category', i18n=i18n
+                                      )
+    )
     await callback.answer('')
 
 

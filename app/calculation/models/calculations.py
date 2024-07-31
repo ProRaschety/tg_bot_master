@@ -1,13 +1,18 @@
 import logging
 
 from dataclasses import dataclass, field, InitVar
-from datetime import datetime
-from enum import Enum
+# from datetime import datetime
+# from enum import Enum
 
 from app.infrastructure.database.models.substance import FlammableMaterialModel
 from app.infrastructure.database.models.substance import SubstanceModel
 
 log = logging.getLogger(__name__)
+
+
+@dataclass
+class FireRiskAssessment:
+    pass
 
 
 @dataclass
@@ -98,3 +103,63 @@ class AccidentModel:
         # self. = float(self.)
         if isinstance(self.substance, dict):
             self.substance = SubstanceModel(**self.substance)
+
+
+@dataclass
+class SectionModel:
+    section_length: float = 1
+    section_width: float = 1
+    share_fire_load_area: float = 1
+    distance_to_ceiling: float = 0
+    distance_to_section: float = 0
+    section_area: float = field(init=False)
+    material: list = field(
+        init=True, default_factory=list[FlammableMaterialModel])
+    mass: list = field(init=True, default_factory=list)
+
+    def __post_init__(self):
+        self.section_length = float(self.section_length)
+        self.section_width = float(self.section_width)
+        self.section_area = self.section_length * self.section_width
+
+        # if self.material:
+        #     self.material = [FlammableMaterialModel(**self.material)]
+        # else:
+        #     self.material = [FlammableMaterialModel()]
+
+        # if self.mass is not None and isinstance(self.mass, int) or isinstance(self.mass, float):
+        #     self.mass = [self.mass]
+        # else:
+        #     self.mass = self.mass
+
+
+@dataclass
+class RoomModel:
+    height: float = 3
+    width: float = 0
+    length: float = 0
+    area: float = 0
+    air_temperature: float = 20
+    air_changes_per_hour: int = 0
+    leakage_factor_room: int = 0
+    volume: float = 0
+    free_volume_fraction: float = 0
+    # free_volume_fraction: float = field(init=False)
+    sections: list = field(default_factory=list[SectionModel])
+
+    def __post_init__(self):
+        self.height = float(self.height)
+        self.width = float(self.width)
+        self.length = float(self.length)
+        self.area = float(self.area)
+        self.air_temperature = float(self.air_temperature)
+        self.air_changes_per_hour = int(self.air_changes_per_hour)
+        self.leakage_factor_room = int(self.leakage_factor_room)
+        self.volume = float(self.volume)
+        self.free_volume_fraction = float(self.free_volume_fraction)
+
+        if isinstance(self.sections, dict):
+            self.sections.append(SectionModel(**self.sections))
+        # if isinstance(self.sections, dict):
+        #     print('################')
+        #     self.sections = [SectionModel(**self.sections)]

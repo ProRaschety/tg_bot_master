@@ -1,32 +1,22 @@
 import logging
-import io
-import json
-
-from dataclasses import dataclass, asdict, astuple
 
 from aiogram import Router, F, Bot
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
-# , InlineQueryResultArticle, InputTextMessageContent
-# from aiogram.types import InlineQuery
 from aiogram.types import CallbackQuery, BufferedInputFile, InputMediaPhoto
 
 from fluentogram import TranslatorRunner
 
-# from app.infrastructure.database.database.db import DB
-# from app.tg_bot.models.tables import DataFrameModel
-# from app.tg_bot.models.role import UserRole
 from app.tg_bot.models.keyboard import InlineKeyboardModel
 from app.tg_bot.filters.filter_role import IsSubscriber
 from app.tg_bot.states.fsm_state_data import FSMEditForm
 
-# from app.tg_bot.utilities import tables
 from app.tg_bot.utilities.tables import DataFrameBuilder
 from app.tg_bot.utilities.misc_utils import get_dataframe_table
 from app.tg_bot.utilities.misc_utils import compute_value_with_eval, check_string, count_zeros_and_digits, result_formatting, count_digits_before_dot, custom_round, modify_dict_value
 from app.tg_bot.keyboards.kb_builder import get_keypad, get_inline_keyboard
 
-from app.infrastructure.database.models.calculations import AccidentModel
+from app.calculation.models.calculations import AccidentModel
 from app.infrastructure.database.models.substance import FlammableMaterialModel, SubstanceModel
 
 
@@ -37,8 +27,6 @@ log = logging.getLogger(__name__)
 keypad_router = Router()
 keypad_router.message.filter(IsSubscriber())
 keypad_router.callback_query.filter(IsSubscriber())
-
-# keypad_filter = [FSMEditForm.keypad_state]
 
 
 @keypad_router.callback_query(StateFilter(FSMEditForm.keypad_state), F.data.in_(['all_clean']))

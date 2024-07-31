@@ -1,64 +1,20 @@
 import logging
-# import re
-# import os
-# import csv
-# import io
-# import pandas as pd
-# import numpy as np
-# import inspect
-# from typing import Any
-
-# import matplotlib.pyplot as plt
-# import matplotlib.patches as patches
-# import matplotlib.gridspec as gridspec
-# from matplotlib import font_manager as fm, rcParams
-# from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-# from matplotlib import font_manager
-# from datetime import datetime
-
 
 from fluentogram import TranslatorRunner
 
-# from datetime import datetime
 from app.calculation.physics.accident_parameters import AccidentParameters
-from app.infrastructure.database.models.calculations import AccidentModel
+from app.calculation.models.calculations import AccidentModel
 from app.infrastructure.database.models.substance import FlammableMaterialModel, SubstanceModel
 
-from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, compute_stoichiometric_coefficient_with_fuel, compute_stoichiometric_coefficient_with_oxygen
+from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, compute_stoichiometric_coefficient_with_fuel
 from app.calculation.qra_mode import probits
 from app.calculation.utilities import misc_utils
-
-# from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_plot_graph, get_dataframe_table
-# from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 
 from app.tg_bot.models.tables import DataFrameModel
 from app.tg_bot.models.plotter import DataPlotterModel
 
-# from pprint import pprint
 
 log = logging.getLogger(__name__)
-
-
-# class DataPlotter:
-#     def __init__(self, data):
-#         self.data = data
-
-#     def plot_graph(self):
-#         x = [item[0] for item in self.data]
-#         y = [item[1] for item in self.data]
-
-#         plt.plot(x, y)
-#         plt.xlabel('X-axis')
-#         plt.ylabel('Y-axis')
-#         plt.title('Data Plot')
-#         plt.grid(True)
-#         plt.show()
-
-
-# # Пример использования класса
-# data = [(1, 2), (2, 4), (3, 6), (4, 8)]
-# plotter = DataPlotter(data)
-# plotter.plot_graph()
 
 
 # class DataPlotter:

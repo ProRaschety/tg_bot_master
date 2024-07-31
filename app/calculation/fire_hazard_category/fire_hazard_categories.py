@@ -1,22 +1,23 @@
 import logging
-import io
-import json
+# import io
+# import json
 
-from fluentogram import TranslatorRunner
-from dataclasses import dataclass, asdict
+# from fluentogram import TranslatorRunner
+# from dataclasses import dataclass, asdict
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import math as m
-import numpy as np
+# import matplotlib as mpl
+# import matplotlib.pyplot as plt
+# import matplotlib.patches as patches
+# import math as m
+# import numpy as np
 
-from scipy.interpolate import RectBivariateSpline
+from scipy.interpolate import RectBivariateSpline, interp1d
 from scipy.stats import norm
+from scipy.constants import physical_constants
 
-from CoolProp import CoolProp
+# from CoolProp import CoolProp
 
-from app.calculation.fire_hazard_category.model_premises import ModelRoom
+from app.calculation.models.calculations import RoomModel, SectionModel
 
 log = logging.getLogger(__name__)
 
@@ -412,16 +413,6 @@ class FireCategoryBuild(FireHazardCategory):
         return cat_build, cause
 
 
-class FireCategoryPremises(FireHazardCategory):
-    def __init__(self):
-        pass
-
-    def get_category_premises(self, combustable_mass: int | float, specific_heat_combustion: float):
-        lower_heat_combustion = 1
-        category_premises = 1
-        return category_premises
-
-
 class FireCategoryOutInstall(FireHazardCategory):
     """Опеределение Категории по взрывопожароопасности по СП 12.13130 наружной установки"""
 
@@ -525,3 +516,149 @@ class FireCategoryOutInstall(FireHazardCategory):
 class FireExplosiveZones(FireHazardCategory):
     """Опеределение Класса зоны взрывопожароопасности по СП 423.1325800.2018"""
     pass
+
+
+class FireCategoryPremises:
+    def __init__(self, room: RoomModel, init_temperature: int | float = 20) -> None:
+        self.pressure_ambient = physical_constants.get(
+            'standard atmosphere')[0]  # Па
+        self.heat_capacity_air = 1010  # Дж/кг*К
+        self.R = physical_constants.get('molar gas constant')[0]  # Дж/моль*К
+        self.K = 273.15  # К
+        self.g = physical_constants.get('standard acceleration of gravity')[0]
+        self.sound_speed = 340
+        self.init_temperature = init_temperature
+        self.room: RoomModel = room
+
+    def get_lim_distance_from_heat_flux(self, heat_flux: int | float):
+        data = interp1d([12, 8, 6, 5, 4, 3.8, 3.2, 2.8],
+                        [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0],
+                        'quadratic')  # Предельное расстояние в зависимости от критического значения теплового потока, м
+        return data(heat_flux)
+
+    def compute_lim_distance(self, height: int | float, distance: int | float):
+        state_material = 'solid'
+        if state_material == 'solid':
+            if height >= 11:
+                return distance
+            else:
+                return distance + (11 - height)
+        elif state_material == 'liquid':
+            if height >= 11:
+                return 15
+            else:
+                return 26 - height
+
+    def compute_criteria_fire_load_and_height(self, gt: int | float, height: int | float):
+        return 0.64 * gt * height ** 2
+
+    def compute_fire_load_per_unit_area(self, Q: list[int | float], area: int | float = 10):
+        area_room = self.room.area
+        # log.info(f'Q: {Q}')
+        g = []
+        i = 0
+        for sec in self.room.sections:
+            # log.info(f'sec: {sec}')
+            for i in range(len(sec.material)):
+                _area_sec = sec.area
+                log.info(f'area_sec: {_area_sec}, i: {i}')
+
+                if area <= 10:
+                    g.append(Q[i] / 10)
+                else:
+                    g.append(Q[i] / _area_sec)
+            i += 1
+        return g, sum(g)
+
+    def compute_fire_load_in_section(self):
+        Q = []
+        i = 0
+        for section in self.room.sections:
+            if len(section.mass) > 1:
+                for i in range(len(section.mass)):
+                    _mass = section.mass[i]
+                    _Q = section.material[i].lower_heat_of_combustion
+                    Q.append(_Q * _mass)
+                    # Q1.append(10)
+            else:
+                _mass = section.mass[-1]
+                _Q = section.material[-1].lower_heat_of_combustion
+                Q.append(_Q * _mass)
+            i += 1
+        return Q, sum(Q)
+
+    def get_result_check_category(self, pre_cat: int, Q: int | float, gt: int | float, height: int | float):
+        _condition = self.compute_criteria_fire_load_and_height(
+            gt=gt, height=height)
+        if pre_cat == 3 and Q < _condition:
+            return 3
+        elif (pre_cat == 3 and Q >= _condition) or (pre_cat == 2 and Q < _condition):
+            return 2
+        elif (pre_cat == 2 and Q >= _condition) or pre_cat == 1:
+            return 1
+
+    def get_fire_hazard_category(self) -> str:
+        log.info('Запрос: Определение категории помещения В1-В4')
+        cat_data = {1: 'В1', 2: 'В2', 3: 'В3', 4: 'В4', '-': None}
+        category = []
+        Q, Qs = self.compute_fire_load_in_section()
+        g, gt = self.compute_fire_load_per_unit_area(Q=Q)
+        i = 0
+        # log.info(f'g[i]: {g[i]}, Q: {Q}')
+        for sec in self.room.sections:
+            # print(sec, i)
+            # log.info(f'g[{i}]: {g[i]}, Q: {Q}')
+            if g[i] > 0 and g[i] <= 180:
+                l0 = sec.distance_to_section if len(sec.mass) > 1 else 1000
+                l1 = self.get_lim_distance_from_heat_flux(
+                    heat_flux=sec.material[i].critical_heat_flux)
+                l2 = self.compute_lim_distance(
+                    height=sec.distance_to_ceiling, distance=l1)
+                # log.info(f'l0:{l0}, l1:{l1}, l2: {l2}')
+                if sec.share_fire_load_area <= 10 and l0 >= l2:
+                    log.info(f'lпр:{l2}')
+                    category.append(4)
+                elif g[i] > 0 and g[i] <= 1400:
+                    pre_category = 3
+                    cat = self.get_result_check_category(
+                        pre_cat=pre_category, Q=Q[i], gt=1400, height=sec.distance_to_ceiling)
+                    category.append(cat)
+                elif g[i] > 1400 and g[i] <= 2200:
+                    pre_category = 2
+                    cat = self.get_result_check_category(
+                        pre_cat=pre_category, Q=Q[i], gt=2200, height=sec.distance_to_ceiling)
+                    category.append(cat)
+                else:
+                    pre_category = 1
+                    cat = self.get_result_check_category(
+                        pre_cat=pre_category, Q=Q[i], gt=22000, height=sec.distance_to_ceiling)
+                    category.append(cat)
+
+            elif g[i] > 0 and g[i] <= 1400:
+                pre_category = 3
+                cat = self.get_result_check_category(
+                    pre_cat=pre_category, Q=Q[i], gt=1400, height=sec.distance_to_ceiling)
+                category.append(cat)
+            elif g[i] > 1400 and g[i] <= 2200:
+                pre_category = 2
+                cat = self.get_result_check_category(
+                    pre_cat=pre_category, Q=Q[i], gt=2200, height=sec.distance_to_ceiling)
+                category.append(cat)
+            else:
+                pre_category = 1
+                cat = self.get_result_check_category(
+                    pre_cat=pre_category, Q=Q[i], gt=22000, height=sec.distance_to_ceiling)
+                category.append(cat)
+            # else:
+            #     category.append(1)
+            i += 1
+        result_cat = cat_data.get(min(category), '-')
+        log.info(
+            f'\nПожарная нагрузка: Q= {Qs} МДж\n'
+            f'Удельная пожарная нагрузка: g= {gt} МДж/м2\n'
+            f'Категория: {result_cat}'
+        )
+        return Q, g, result_cat
+
+    def get_explosion_and_fire_hazard_category(self) -> str:
+        pass

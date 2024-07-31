@@ -9,13 +9,13 @@ import logging
 # import matplotlib.gridspec as gridspec
 # import inspect
 
-from typing import Any
+# from typing import Any
 
 from fluentogram import TranslatorRunner
 
 # from datetime import datetime
 from app.calculation.physics.accident_parameters import AccidentParameters
-from app.infrastructure.database.models.calculations import AccidentModel
+from app.calculation.models.calculations import AccidentModel, RoomModel, SectionModel
 from app.infrastructure.database.models.substance import FlammableMaterialModel, SubstanceModel
 
 from app.calculation.physics.physics_utils import compute_characteristic_diameter, compute_density_gas_phase, compute_density_vapor_at_boiling, get_property_fuel, compute_stoichiometric_coefficient_with_fuel, compute_stoichiometric_coefficient_with_oxygen
@@ -37,7 +37,8 @@ class DataFrameBuilder:
                  request: str,
                  substance: FlammableMaterialModel | SubstanceModel = None,
                  #  flammable_material: FlammableMaterialModel = None,
-                 model: AccidentModel = None
+                 model: AccidentModel = None,
+                 fire_category_model: RoomModel = None,
                  ) -> None:
 
         self.i18n = i18n
@@ -45,7 +46,9 @@ class DataFrameBuilder:
         # self.flammable_material = flammable_material
         # self.accident_model = accident_model
         self.accident_model = model
-        self.substance = substance if substance is not None else self.accident_model.substance
+        # self.substance = substance if substance is not None else self.accident_model.substance
+        self.substance = self.accident_model.substance if self.accident_model is not None else None
+        self.room_model = fire_category_model
 
         log.info(f'Requst dataframe: {self.i18n.get(request)}')
 
@@ -147,19 +150,11 @@ class DataFrameBuilder:
         }
 
         if self.request in actions:
-            # print('1')
             return actions[self.request]()
-            # return actions.get(self.request, '')()
         else:
-            # print('2')
             for key in actions:
                 if self.request in key:
-                    # if isinstance(key, tuple) and self.request in key:
-                    # print('key:', key)
-                    # print('3')
                     return actions[key]()
-            # else:
-        # print('4')
         return self._create_2d_array()
 
     def get_dataframe_from_fire_flash(self):
@@ -612,8 +607,46 @@ class DataFrameBuilder:
         return 'Категория здания'
 
     def get_dataframe_from_category_premises(self):
-        print(self.request)
-        return 'Категория помещения'
+        headers: list[str] = [self.i18n.get('name'), self.i18n.get(
+            'variable'), self.i18n.get('value'), self.i18n.get('unit')]
+        i18n = self.i18n
+        label = i18n.get('category_premises_label')
+        room = self.room_model
+        # pprint(room)
+        dataframe = [
+            ['Параметры помещения', '', '', '',],
+            [i18n.get('height'), 'h', f"{0:.1f}", i18n.get('meter')],
+            [i18n.get('lenght'), 'a', f"{0:.1f}", i18n.get('meter')],
+            [i18n.get('width'), 'b', f"{0:.1f}", i18n.get('meter')],
+            [i18n.get('area'), 'S', f"{0:.1f}", i18n.get('meter_square')],
+            [i18n.get('volume'), 'V', f"{0:.1f}", i18n.get('meter_cub')],
+            [i18n.get('temperature'), 'tₒ', f"{0:.1f}", i18n.get('celsius')],
+        ]
+
+        for sec in room.sections:
+            dataframe.append(['', '', '', '',])
+        # dataframe = [
+        #     {'id': i18n.get('fire_load'),
+        #      'var': '',
+        #      'unit_1': '',
+        #      'unit_2': 'Древесина'},
+
+        #     {'id': i18n.get('section'),
+        #      'var': '№2',
+        #      'unit_1': '',
+        #      'unit_2': 'В4'},
+
+        #     {'id': i18n.get('fire_load'),
+        #      'var': '',
+        #      'unit_1': '',
+        #      'unit_2': 'Автомобиль'},
+
+        #     {'id': i18n.get('section'),
+        #      'var': '№1',
+        #      'unit_1': '',
+        #      'unit_2': 'В2'},]
+
+        return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
 
     def get_dataframe_from_category_external_installation(self):
         print(self.request)
