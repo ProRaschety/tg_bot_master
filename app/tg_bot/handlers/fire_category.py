@@ -61,7 +61,7 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
     section_st.mass.append(20)
     room_model = RoomModel()
     room_model.sections.append(section_st)
-    await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
+    # await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
 
     text = i18n.fire_category.text()
     media = get_picture_filling(
@@ -71,8 +71,16 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
         message_id=callback_data.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, *i18n.get('category_kb_' + role).split('\n'),
-                                      i18n=i18n, param_back=True, back_data='general_menu'))
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('category_kb_' +
+                                                role).split('\n'),
+                                      i18n=i18n, back_data='general_menu'
+                                      )
+    )
+
+    context_data = await state.get_data()
+    context_data.setdefault('room_model', asdict(room_model))
+    await state.update_data(context_data)
 
 
 @fire_category_router.callback_query(F.data.in_(['category_build', 'back_category_build']))
@@ -169,7 +177,8 @@ async def edit_init_data_strength_call(callback: CallbackQuery, bot: Bot, i18n: 
                                       'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2',
                                       'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
                                       'edit_area_A_EFS', 'edit_area_B_EFS', 'edit_area_V1_EFS', 'edit_area_V2_EFS', 'edit_area_V3_EFS',
-                                      param_back=True, back_data='back_category_build', i18n=i18n))
+                                      i18n=i18n, penult_button='run_category_build',
+                                      back_data='back_category_build'))
     await callback.answer('')
 
 
@@ -519,7 +528,7 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
 
 @fire_category_router.callback_query(F.data.in_(['category_premises', 'back_category_premises']))
 async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    # pprint(await state.get_data())
+    pprint(await state.get_data())
 
     text = i18n.request_start.text()
     await bot.edit_message_caption(
@@ -548,6 +557,53 @@ async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMCo
     # room_model.sections.append(section_st)
     # await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
     room_model = RoomModel(**context_data.get('room_model'))
+    dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
+                           fire_category_model=room_model)
+    dataframe = dfb.action_request()
+    media = get_dataframe_table(data=dataframe)
+
+    text = i18n.category_premises.text()
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('category_premises_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_premises_kb').split('\n'),
+                                      i18n=i18n, param_back=True, back_data='back_fire_category'
+                                      )
+    )
+
+    await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['add_section_room']))
+async def add_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    pprint(await state.get_data())
+
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_category'
+                                      )
+    )
+
+    material = FlammableMaterialModel()
+
+    context_data = await state.get_data()
+    room_model = RoomModel(**context_data.get('room_model'))
+    # room_model.sections.append(SectionModel())
+
+    section = SectionModel()
+    section.material.append(material)
+    section.mass.append(10)
+
+    room_model.sections.append(section)
+
+    await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
+
     dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
                            fire_category_model=room_model)
     dataframe = dfb.action_request()

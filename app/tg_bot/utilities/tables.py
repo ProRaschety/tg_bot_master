@@ -612,7 +612,7 @@ class DataFrameBuilder:
         i18n = self.i18n
         label = i18n.get('category_premises_label')
         room = self.room_model
-        # pprint(room)
+        pprint(f'room: {room}')
         dataframe = [
             ['Параметры помещения', '', '', '',],
             [i18n.get('height'), 'h', f"{0:.1f}", i18n.get('meter')],
@@ -622,9 +622,25 @@ class DataFrameBuilder:
             [i18n.get('volume'), 'V', f"{0:.1f}", i18n.get('meter_cub')],
             [i18n.get('temperature'), 'tₒ', f"{0:.1f}", i18n.get('celsius')],
         ]
-
-        for sec in room.sections:
-            dataframe.append(['', '', '', '',])
+        i = 1
+        for section in room.sections:
+            print('sec', section)
+            # row_data = []
+            dataframe.append([i18n.get('section'), '', '', f'№{i}',])
+            dataframe.append(['Расстояние до перекрытия',
+                             'L', '0', i18n.get('meter')])
+            dataframe.append(
+                ['Площадь размещения\nгорючей нагрузки', 'Sгн', '0', i18n.get('meter_square')])
+            j = 0
+            for material in section.material:
+                print('material', material)
+                dataframe.append([i18n.get('flammable_load'),
+                                 '', '', 'material[j].substance_name'])
+                dataframe.append(
+                    [i18n.get('mass_flammable_load'), 'L', '0', i18n.get('kilogram')])
+                dataframe.append(
+                    ['Площадь размещения\nгорючей нагрузки', 'Sгн', '0', i18n.get('meter_square')])
+            i += 1
         # dataframe = [
         #     {'id': i18n.get('fire_load'),
         #      'var': '',
