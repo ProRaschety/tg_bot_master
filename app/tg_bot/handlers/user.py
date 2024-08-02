@@ -23,7 +23,7 @@ from app.tg_bot.states.fsm_state_data import FSMPromoCodeForm
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.models.keyboard import InlineKeyboardModel
 
-from pprint import pprint
+# from pprint import pprint
 
 log = logging.getLogger(__name__)
 

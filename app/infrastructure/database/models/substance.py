@@ -11,10 +11,10 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class SubstanceModel(BaseModel):
-    id: int = None
-    substance_name: str = None
-    description: str = None
-    data_source: str = None
+    id: int | None = None
+    substance_name: str | None = None
+    description: str | None = None
+    data_source: str | None = None
     density: float = 0
     molar_mass: float = 0
     boiling_point: float = 0
@@ -64,10 +64,10 @@ class FlammableMaterialModel(BaseModel):
     # molecular_weight: float
     # combustion_efficiency: float
     # critical_heat_flux: float
-    substance_name: str = None
-    description: str = None
-    data_source: str = None
-    combustibility: str = None
+    substance_name: str | None | None = None
+    description: str | None | None = None
+    data_source: str | None = None
+    combustibility: str | None = None
     density: float = 0
     conductivity: float = 0
     emissivity: float = 0
@@ -81,7 +81,7 @@ class FlammableMaterialModel(BaseModel):
     carbon_dioxide_output: float = 0
     carbon_monoxide_output: float = 0
     hydrogen_chloride_output: float = 0
-    substance_type: str = None
+    substance_type: str | None = None
     molecular_weight: float = 0
     combustion_efficiency: float = 0
     critical_heat_flux: float = 0

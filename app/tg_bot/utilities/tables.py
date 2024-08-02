@@ -612,55 +612,34 @@ class DataFrameBuilder:
         i18n = self.i18n
         label = i18n.get('category_premises_label')
         room = self.room_model
-        pprint(f'room: {room}')
+        # pprint(f'room: {room}')
         dataframe = [
             ['Параметры помещения', '', '', '',],
-            [i18n.get('height'), 'h', f"{0:.1f}", i18n.get('meter')],
-            [i18n.get('lenght'), 'a', f"{0:.1f}", i18n.get('meter')],
-            [i18n.get('width'), 'b', f"{0:.1f}", i18n.get('meter')],
-            [i18n.get('area'), 'S', f"{0:.1f}", i18n.get('meter_square')],
-            [i18n.get('volume'), 'V', f"{0:.1f}", i18n.get('meter_cub')],
-            [i18n.get('temperature'), 'tₒ', f"{0:.1f}", i18n.get('celsius')],
+            [i18n.get('height'), 'h', room.height, i18n.get('meter')],
+            [i18n.get('lenght'), 'a', room.length, i18n.get('meter')],
+            [i18n.get('width'), 'b', room.width, i18n.get('meter')],
+            [i18n.get('area'), 'S', room.area, i18n.get('meter_square')],
+            [i18n.get('volume'), 'V', room.volume, i18n.get('meter_cub')],
+            [i18n.get('temperature'), 'tₒ',
+             f"{room.air_temperature:.1f}", i18n.get('celsius')],
         ]
         i = 1
         for section in room.sections:
-            print('sec', section)
-            # row_data = []
+            material = section.material
+            mass = section.mass
             dataframe.append([i18n.get('section'), '', '', f'№{i}',])
             dataframe.append(['Расстояние до перекрытия',
-                             'L', '0', i18n.get('meter')])
+                             'L', section.distance_to_ceiling, i18n.get('meter')])
             dataframe.append(
-                ['Площадь размещения\nгорючей нагрузки', 'Sгн', '0', i18n.get('meter_square')])
+                ['Площадь размещения\nгорючей нагрузки', 'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
             j = 0
             for material in section.material:
-                print('material', material)
-                dataframe.append([i18n.get('flammable_load'),
-                                 '', '', 'material[j].substance_name'])
-                dataframe.append(
-                    [i18n.get('mass_flammable_load'), 'L', '0', i18n.get('kilogram')])
-                dataframe.append(
-                    ['Площадь размещения\nгорючей нагрузки', 'Sгн', '0', i18n.get('meter_square')])
+                dataframe.append([i18n.get('flammable_load'), '',
+                                  '', material.substance_name])
+                dataframe.append([i18n.get('mass_flammable_load'),
+                                  'L', mass[j], i18n.get('kilogram')])
+                j += 1
             i += 1
-        # dataframe = [
-        #     {'id': i18n.get('fire_load'),
-        #      'var': '',
-        #      'unit_1': '',
-        #      'unit_2': 'Древесина'},
-
-        #     {'id': i18n.get('section'),
-        #      'var': '№2',
-        #      'unit_1': '',
-        #      'unit_2': 'В4'},
-
-        #     {'id': i18n.get('fire_load'),
-        #      'var': '',
-        #      'unit_1': '',
-        #      'unit_2': 'Автомобиль'},
-
-        #     {'id': i18n.get('section'),
-        #      'var': '№1',
-        #      'unit_1': '',
-        #      'unit_2': 'В2'},]
 
         return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
 

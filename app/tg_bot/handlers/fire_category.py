@@ -23,7 +23,7 @@ from app.tg_bot.filters.filter_role import IsSubscriber, IsGuest
 from app.tg_bot.utilities.tables import DataFrameBuilder
 from app.tg_bot.states.fsm_state_data import FSMCatBuildForm
 from app.calculation.fire_hazard_category.fire_hazard_categories import FireCategoryBuild, FireCategoryOutInstall
-from app.calculation.models.calculations import RoomModel, SectionModel
+from app.calculation.models.calculations import RoomModel, SectionModel, from_dict
 
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_dataframe_table
@@ -56,8 +56,23 @@ SFilter = [FSMCatBuildForm.edit_area_A_state,
 
 @fire_category_router.callback_query(F.data.in_(['fire_category', 'back_fire_category']))
 async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    property = {
+        'АБС_Пластик': {
+            'substance_name': 'АБС_Пластик',
+            'density': 1000,
+            'molecular_weight': 10
+        },
+        'Древесина': {
+            'substance_name': 'Древесина',
+            'density': 800,
+            'molecular_weight': 20
+        }
+    }
+
+    material = FlammableMaterialModel(
+        substance_name=property['АБС_Пластик']['substance_name'])
     section_st = SectionModel()
-    section_st.material.append(FlammableMaterialModel())
+    section_st.material.append(material)
     section_st.mass.append(20)
     room_model = RoomModel()
     room_model.sections.append(section_st)
@@ -540,23 +555,8 @@ async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMCo
     )
 
     context_data = await state.get_data()
-    # subst = context_data.get('substance')
-    # subs_state = context_data.get('substance_state')
-    # molar_mass, boling_point, mass_burning_rate, LFL = await get_property_fuel(subst=subst)
 
-    # substance = SubstanceModel(substance_name=subst,
-    #                            molar_mass=molar_mass,
-    #                            boiling_point=boling_point,
-    #                            mass_burning_rate=mass_burning_rate,
-    #                            lower_flammability_limit=LFL,
-    #                            )
-    # section_st = SectionModel()
-    # section_st.material.append(FlammableMaterialModel())
-    # section_st.mass.append(20)
-    # room_model = RoomModel()
-    # room_model.sections.append(section_st)
-    # await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
-    room_model = RoomModel(**context_data.get('room_model'))
+    room_model = from_dict(data=context_data.get('room_model'))
     dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
                            fire_category_model=room_model)
     dataframe = dfb.action_request()
@@ -579,7 +579,7 @@ async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
 @fire_category_router.callback_query(F.data.in_(['add_section_room']))
 async def add_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    pprint(await state.get_data())
+    # pprint(await state.get_data())
 
     text = i18n.request_start.text()
     await bot.edit_message_caption(
@@ -593,23 +593,29 @@ async def add_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMCon
     material = FlammableMaterialModel()
 
     context_data = await state.get_data()
-    room_model = RoomModel(**context_data.get('room_model'))
-    # room_model.sections.append(SectionModel())
+    num_sections = len(context_data['room_model']['sections'])
+    if num_sections < 3:
+        room_model = RoomModel(**context_data.get('room_model'))
+        # room_model.sections.append(SectionModel())
 
-    section = SectionModel()
-    section.material.append(material)
-    section.mass.append(10)
+        section = SectionModel()
+        section.material.append(material)
+        section.mass.append(10)
 
-    room_model.sections.append(section)
+        room_model.sections.append(section)
 
-    await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
+        await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
+        text = i18n.category_premises.text()
+    else:
+        text = 'В помещение можно добавить не более 3-х участков'
 
+    context_data = await state.get_data()
+    room_model = from_dict(data=context_data.get('room_model'))
     dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
                            fire_category_model=room_model)
     dataframe = dfb.action_request()
     media = get_dataframe_table(data=dataframe)
 
-    text = i18n.category_premises.text()
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,

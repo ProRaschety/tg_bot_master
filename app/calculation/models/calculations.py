@@ -120,25 +120,10 @@ class SectionModel:
     def __post_init__(self):
         self.section_length = float(self.section_length)
         self.section_width = float(self.section_width)
-        # self.section_area = self.section_length * self.section_width
-
-        if isinstance(self.material, dict):
-            self.material.append(FlammableMaterialModel(**self.material))
-        if isinstance(self.material, list):
-            for m in self.material:
-                # print(m)
-                for n in m:
-                    self.material.append(FlammableMaterialModel(**n))
-
-        # if self.material:
-        #     self.material = [FlammableMaterialModel(**self.material)]
-        # else:
-        #     self.material = [FlammableMaterialModel()]
-
-        # if self.mass is not None and isinstance(self.mass, int) or isinstance(self.mass, float):
-        #     self.mass = [self.mass]
-        # else:
-        #     self.mass = self.mass
+        self.share_fire_load_area = float(self.share_fire_load_area)
+        self.distance_to_ceiling = float(self.distance_to_ceiling)
+        self.distance_to_section = float(self.distance_to_section)
+        self.section_area = float(self.section_area)
 
 
 @dataclass
@@ -166,41 +151,30 @@ class RoomModel:
         self.volume = float(self.volume)
         self.free_volume_fraction = float(self.free_volume_fraction)
 
-        if isinstance(self.sections, dict):
-            self.sections.append(SectionModel(**self.sections))
 
-        if isinstance(self.sections, list):
-            for d in self.sections:
-                self.sections.append(SectionModel(**d))
+def from_dict(data: dict) -> RoomModel:
+    sections = [
+        SectionModel(
+            distance_to_ceiling=section['distance_to_ceiling'],
+            distance_to_section=section['distance_to_section'],
+            mass=section['mass'],
+            material=[
+                FlammableMaterialModel(**material) for material in section['material']
+            ],
+            section_area=section['section_area'],
+            section_length=section['section_length'],
+            section_width=section['section_width'],
+            share_fire_load_area=section['share_fire_load_area']
+        ) for section in data['sections']
+    ]
 
-        # if isinstance(self.sections, dict):
-        #     print('################')
-        #     self.sections = [SectionModel(**self.sections)]
-
-
-# def from_dict(data: dict) -> RoomModel:
-#     sections = [
-#         SectionModel(
-#             distance_to_ceiling=section['distance_to_ceiling'],
-#             distance_to_section=section['distance_to_section'],
-#             mass=section['mass'],
-#             material=[
-#                 FlammableMaterialModel(**material) for material in section['material']
-#             ],
-#             section_area=section['section_area'],
-#             section_length=section['section_length'],
-#             section_width=section['section_width'],
-#             share_fire_load_area=section['share_fire_load_area']
-#         ) for section in data['sections']
-#     ]
-
-#     return RoomModel(
-#         air_changes_per_hour=data['air_changes_per_hour'],
-#         air_temperature=data['air_temperature'],
-#         area=data['area'],
-#         free_volume_fraction=data['free_volume_fraction'],
-#         height=data['height'],
-#         leakage_factor_room=data['leakage_factor_room'],
-#         length=data['length'],
-#         sections=sections
-#     )
+    return RoomModel(
+        air_changes_per_hour=data['air_changes_per_hour'],
+        air_temperature=data['air_temperature'],
+        area=data['area'],
+        free_volume_fraction=data['free_volume_fraction'],
+        height=data['height'],
+        leakage_factor_room=data['leakage_factor_room'],
+        length=data['length'],
+        sections=sections
+    )
