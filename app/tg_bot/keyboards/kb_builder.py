@@ -118,6 +118,10 @@ def get_inline_keyboard(
     # Распаковываем список с кнопками в билдер методом row c параметром width
     kb_builder.row(*buttons, width=keyboard.width)
 
+    if keyboard.prepenultimate != None:
+        kb_builder.row(InlineKeyboardButton(
+            text=i18n.get(keyboard.prepenultimate), callback_data=keyboard.prepenultimate), width=1)
+
     if keyboard.penultimate != None:
         kb_builder.row(InlineKeyboardButton(
             text=i18n.get(keyboard.penultimate), callback_data=keyboard.penultimate), width=1)

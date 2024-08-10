@@ -6,7 +6,32 @@ import math as m
 from scipy.constants import physical_constants
 from scipy.interpolate import RectBivariateSpline, interp1d
 
+from app.infrastructure.database.models.substance import FlammableMaterialModel
+
 log = logging.getLogger(__name__)
+
+
+def get_property_flammable_material(material: str):
+    property = {
+        'АБС_Пластик': {
+            'substance_name': 'АБС Пластик',
+            'lower_heat_of_combustion': 39,
+            'critical_heat_flux': 12
+        },
+        'Древесина': {
+            'substance_name': 'Древесина',
+            'lower_heat_of_combustion': 13800,
+            'critical_heat_flux': 13.9
+        },
+        'Полиэтилен': {
+            'substance_name': 'Полиэтилен (упаковка)',
+            'lower_heat_of_combustion': 47,
+            'critical_heat_flux': 1
+        }
+    }
+    return FlammableMaterialModel(substance_name=property[material]['substance_name'],
+                                  lower_heat_of_combustion=property[material]['lower_heat_of_combustion'],
+                                  critical_heat_flux=property[material]['critical_heat_flux'],)
 
 
 async def get_property_fuel(subst: str):

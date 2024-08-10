@@ -111,7 +111,7 @@ class DataFrameBuilder:
 
             # категорирование
             ('category_build', 'run_category_build'): self.get_dataframe_from_category_build,
-            ('category_premises', 'run_category_premises'): self.get_dataframe_from_category_premises,
+            ('category_premises', 'run_category_premises', 'edit_section_room', 'edit_parameter_room'): self.get_dataframe_from_category_premises,
             ('category_external_installation', 'run_category_external_installation'): self.get_dataframe_from_category_external_installation,
 
             # расчет ОФП
@@ -610,38 +610,114 @@ class DataFrameBuilder:
         headers: list[str] = [self.i18n.get('name'), self.i18n.get(
             'variable'), self.i18n.get('value'), self.i18n.get('unit')]
         i18n = self.i18n
-        label = i18n.get('category_premises_label')
-        room = self.room_model
-        # pprint(f'room: {room}')
-        dataframe = [
-            ['Параметры помещения', '', '', '',],
-            [i18n.get('height'), 'h', room.height, i18n.get('meter')],
-            [i18n.get('lenght'), 'a', room.length, i18n.get('meter')],
-            [i18n.get('width'), 'b', room.width, i18n.get('meter')],
-            [i18n.get('area'), 'S', room.area, i18n.get('meter_square')],
-            [i18n.get('volume'), 'V', room.volume, i18n.get('meter_cub')],
-            [i18n.get('temperature'), 'tₒ',
-             f"{room.air_temperature:.1f}", i18n.get('celsius')],
-        ]
-        i = 1
-        for section in room.sections:
-            material = section.material
-            mass = section.mass
-            dataframe.append([i18n.get('section'), '', '', f'№{i}',])
-            dataframe.append(['Расстояние до перекрытия',
-                             'L', section.distance_to_ceiling, i18n.get('meter')])
-            dataframe.append(
-                ['Площадь размещения\nгорючей нагрузки', 'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
-            j = 0
-            for material in section.material:
-                dataframe.append([i18n.get('flammable_load'), '',
-                                  '', material.substance_name])
-                dataframe.append([i18n.get('mass_flammable_load'),
-                                  'L', mass[j], i18n.get('kilogram')])
-                j += 1
-            i += 1
+        if self.request == 'category_premises':
+            label = i18n.get('category_premises_label')
+            room = self.room_model
+            # pprint(f'room: {room}')
+            dataframe = [
+                ['Параметры помещения', '', '', '',],
+                [i18n.get('height'), 'h', room.height, i18n.get('meter')],
+                # [i18n.get('lenght'), 'a', room.length, i18n.get('meter')],
+                # [i18n.get('width'), 'b', room.width, i18n.get('meter')],
+                [i18n.get('area'), 'S', room.area, i18n.get('meter_square')],
+                # [i18n.get('volume'), 'V', room.volume, i18n.get('meter_cub')],
+                [i18n.get('temperature'), 'tₒ',
+                 f"{room.air_temperature:.1f}", i18n.get('celsius')],
+            ]
+            i = 1
+            for section in room.sections:
+                material = section.material
+                mass = section.mass
+                # dataframe.append([i18n.get('section'), '', '', f'№{i}',])
+                dataframe.append(
+                    [i18n.get('section') + ' ' + f'№{i}', '', '', '',])
+                dataframe.append(['Расстояние до перекрытия',
+                                  'L', section.distance_to_ceiling, i18n.get('meter')])
+                dataframe.append(
+                    ['Площадь размещения\nгорючей нагрузки', 'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
+                j = 0
+                for material in section.material:
+                    dataframe.append([i18n.get('flammable_load'), '',
+                                      '', material.substance_name])
+                    dataframe.append([i18n.get('mass_flammable_load'),
+                                      'm', mass[j], i18n.get('kilogram')])
+                    j += 1
+                i += 1
 
-        return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+        elif self.request == 'edit_parameter_room':
+            label = i18n.get('category_premises_label')
+            room = self.room_model
+            # pprint(f'room: {room}')
+            dataframe = [
+                ['Параметры помещения', '', '', '',],
+                [i18n.get('height'), 'h', room.height, i18n.get('meter')],
+                [i18n.get('lenght'), 'a', room.length, i18n.get('meter')],
+                [i18n.get('width'), 'b', room.width, i18n.get('meter')],
+                [i18n.get('area'), 'S', room.area,
+                 i18n.get('meter_square')],
+                [i18n.get('volume'), 'V', room.volume,
+                 i18n.get('meter_cub')],
+                [i18n.get('temperature'), 'tₒ',
+                 f"{room.air_temperature:.1f}", i18n.get('celsius')],
+            ]
+            # i = 1
+            # for section in room.sections:
+            #     material = section.material
+            #     mass = section.mass
+            #     dataframe.append([i18n.get('section'), '', '', f'№{i}',])
+            #     dataframe.append(['Расстояние до перекрытия',
+            #                       'L', section.distance_to_ceiling, i18n.get('meter')])
+            #     dataframe.append(
+            #         ['Площадь размещения\nгорючей нагрузки', 'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
+            #     j = 0
+            #     for material in section.material:
+
+            #         dataframe.append([i18n.get('flammable_load'), '',
+            #                           '', material.substance_name])
+            #         dataframe.append([i18n.get('mass_flammable_load'),
+            #                           'm', mass[j], i18n.get('kilogram')])
+            #         j += 1
+            #     i += 1
+
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+        elif self.request == 'edit_section_room':
+            label = i18n.get('category_premises_label')
+            room = self.room_model
+            # pprint(f'room: {room}')
+            dataframe = [
+                #     ['Параметры помещения', '', '', '',],
+                #     [i18n.get('height'), 'h', room.height, i18n.get('meter')],
+                #     # [i18n.get('lenght'), 'a', room.length, i18n.get('meter')],
+                #     # [i18n.get('width'), 'b', room.width, i18n.get('meter')],
+                #     [i18n.get('area'), 'S', room.area, i18n.get('meter_square')],
+                #     # [i18n.get('volume'), 'V', room.volume, i18n.get('meter_cub')],
+                #     [i18n.get('temperature'), 'tₒ',
+                #     f"{room.air_temperature:.1f}", i18n.get('celsius')],
+            ]
+            i = 1
+            for section in room.sections:
+                material = section.material
+                mass = section.mass
+                dataframe.append(
+                    [i18n.get('section') + ' ' + f'№{i}', '', '', '',])
+                dataframe.append(['Расстояние до перекрытия',
+                                  'L', section.distance_to_ceiling, i18n.get('meter')])
+                dataframe.append(
+                    ['Площадь размещения\nгорючей нагрузки', 'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
+                j = 0
+                for material in section.material:
+
+                    dataframe.append([i18n.get('flammable_load'), '',
+                                      '', material.substance_name])
+                    dataframe.append([i18n.get('mass_flammable_load'),
+                                      'm', mass[j], i18n.get('kilogram')])
+                    j += 1
+                i += 1
+
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
 
     def get_dataframe_from_category_external_installation(self):
         print(self.request)

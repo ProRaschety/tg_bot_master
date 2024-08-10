@@ -6,6 +6,7 @@ from dataclasses import dataclass, field, InitVar, FrozenInstanceError, asdict, 
 class InlineKeyboardModel:
     width: int = 1
     buttons: str | None = None
+    prepenultimate: str | None = None
     penultimate: str | None = None
     ultimate: str | None = None
     report: str | None = None

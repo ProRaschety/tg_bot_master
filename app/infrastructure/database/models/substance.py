@@ -23,7 +23,8 @@ class SubstanceModel(BaseModel):
     lower_flammability_limit: float = 0
     upper_flammability_limit: float = 0
     class_fuel: int = 1
-    correction_parameter: float = 1.0  # beta
+    # beta
+    correction_parameter: float = 1.0
     # коэффициент участия горючего во взрыве Z
     coefficient_participation_in_explosion: float = 0.1
 
@@ -43,27 +44,6 @@ class SubstanceModel(BaseModel):
 
 @dataclass
 class FlammableMaterialModel(BaseModel):
-    # substance_name: str
-    # description: str
-    # data_source: str
-    # combustibility: str
-    # density: float
-    # conductivity: float
-    # emissivity: float
-    # specific_heat: float
-    # absorption_coefficient: float
-    # lower_heat_of_combustion: float
-    # linear_flame_velocity: float
-    # specific_burnout_rate: float
-    # smoke_forming_ability: float
-    # oxygen_consumption: float
-    # carbon_dioxide_output: float
-    # carbon_monoxide_output: float
-    # hydrogen_chloride_output: float
-    # substance_type: str
-    # molecular_weight: float
-    # combustion_efficiency: float
-    # critical_heat_flux: float
     substance_name: str | None | None = None
     description: str | None | None = None
     data_source: str | None = None

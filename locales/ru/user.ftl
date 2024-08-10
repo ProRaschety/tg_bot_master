@@ -37,7 +37,6 @@ user_kb_subscriber =
 user_kb_guest =
     handbooks
     fire_resistance
-    fds_tools
     tools
     fire_risks
     fire_category
@@ -112,9 +111,9 @@ link_owner =
 link_owner-text =
     Связаться с разработчиком
 link_1 =
-    https://t.me/fireengin_ru
+    https://t.me/fireengin_advisor
 link_1-text =
-    Связаться с техподдержкой
+    Консультант по боту
 
 handbooks =
     Справочники

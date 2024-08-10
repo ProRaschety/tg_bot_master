@@ -51,6 +51,8 @@ async def process_start_command(message: Message, state: FSMContext, i18n: Trans
     context_data = await state.get_data()
     context_data.setdefault('temporary_request', '')
     context_data.setdefault('temporary_parameter', '')
+    context_data.setdefault('temporary_material', '')
+    context_data.setdefault('temporary_section', '')
     context_data.setdefault('temporary_text', '')
     context_data.setdefault('path_edited_parameter', '')
     context_data.setdefault('substance', 'gasoline')
@@ -83,6 +85,16 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
         reply_markup=get_inline_cd_kb(1, *i18n.get('user_kb_' + role).split('\n'), i18n=i18n
                                       )
     )
+    await state.set_state(state=None)
+    context_data = await state.get_data()
+    context_data.setdefault('temporary_request', '')
+    context_data.setdefault('temporary_parameter', '')
+    context_data.setdefault('temporary_text', '')
+    context_data.setdefault('path_edited_parameter', '')
+    context_data.setdefault('substance', 'gasoline')
+    context_data.setdefault('substance_state', 'liquid')
+    context_data.setdefault('keyboard_model', asdict(InlineKeyboardModel()))
+    await state.update_data(context_data)
     # pprint(await state.get_data())
 
 

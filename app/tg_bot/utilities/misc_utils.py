@@ -41,23 +41,27 @@ def deserializer(model: dict):
 
 def compute_value_with_eval(expression: str = '0'):
     try:
-        result = eval(expression)
+        return eval(expression)
+
     except ZeroDivisionError as e:
-        result = 0
-        log.info(f"Ошибка деления на ноль: {expression}", )
+        log.info(f"Ошибка деления на ноль: {expression}")
+        return 0
+
     except SyntaxError as e:
-        result = 0
-        log.info(f"Синтаксическая ошибка: {expression}", )
+        log.info(f"Синтаксическая ошибка: {expression}")
+        return 0
+
     except NameError as e:
-        result = 0
-        log.info(f"Ошибка имени переменной: {expression}", )
+        log.info(f"Ошибка имени переменной: {expression}")
+        return 0
+
     except TypeError as e:
-        result = 0
-        log.info(f"Ошибка типа данных: {expression}", )
+        log.info(f"Ошибка типа данных: {expression}")
+        return 0
+
     except ValueError as e:
-        result = 0
-        log.info(f"Ошибка значения: {expression}", )
-    return result
+        log.info(f"Ошибка значения: {expression}")
+        return 0
 
 
 def check_if_string_empty(input_string: str):
@@ -492,7 +496,13 @@ def get_dict(list_: list) -> dict:
     return {first: get_dict(rest)} if rest else first
 
 
-def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: bool | None = False, row_num: int | None = None, row_num_patch: int | None = None, sel_row_num: int = 0) -> bytes:
+def get_dataframe_table(data: DataFrameModel,
+                        std_table: bool = True,
+                        results: bool | None = False,
+                        row_num: int | None = None,
+                        row_num_patch: int | None = None,
+                        line_numbers: list[int] | None = None, ) -> bytes:
+
     log.info(f'Requst dataframe table: {data.label}')
 
     """Рисует таблицу по данным полученным из функции get_dataframe()"""
@@ -522,7 +532,7 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
     if cols == 4:
         if rows < 10:
             log.info(f'Таблица_4/9: cols={cols}, rows={rows}')
-            w_fig, h_fig, dpi = 13.0, 13.0, 100  # 12.8, 12.8
+            w_fig, h_fig, dpi = 13.0, 11.0, 100  # 12.8, 12.8
             w_size, h_size = cols * dpi, rows * dpi
             font_size_title = 22
             font_size_header = 20
@@ -532,7 +542,7 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
             x_st = 4.0
             hspace = 0.105
             zoom = 0.085
-        elif rows < 15:
+        elif rows < 17:
             log.info(f'Таблица_4/14: cols={cols}, rows={rows}')
             w_fig, h_fig, dpi = 15.0, 15.0, 100  # 12.8, 12.8
             w_size, h_size = cols * dpi, rows * dpi
@@ -543,19 +553,19 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
             logo_size = 15
             x_st = 4.5
             hspace = 0.10
-            zoom = 0.095
+            zoom = 0.099
         else:
             log.info(f'Таблица_4/n: cols={cols}, rows={rows}')
-            w_fig, h_fig, dpi = 12.8, 12.8, 100  # 12.8, 12.8
+            w_fig, h_fig, dpi = 17.0, 22.0, 120  # 12.8, 12.8
             w_size, h_size = cols * dpi, rows * dpi
-            font_size_title = 22
-            font_size_header = 20
-            font_size_text = 22
-            lw_line = 3
-            logo_size = 17
+            font_size_title = 28
+            font_size_header = 26
+            font_size_text = 28
+            lw_line = 5
+            logo_size = 21
             x_st = 3.5
             hspace = 0.085
-            zoom = 0.095
+            zoom = 0.121
     elif cols == 9:
         if rows < 16:
             log.info(f'Таблица_9/16: cols={cols}, rows={rows}')
@@ -596,7 +606,7 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
             zoom = 0.095
         else:
             log.info(f'Таблица_11/n: cols={cols}, rows={rows}')
-            w_fig, h_fig, dpi = 26, 14, 100  # 12.8, 12.8
+            w_fig, h_fig, dpi = 36, 14, 100  # 12.8, 12.8
             w_size, h_size = cols * dpi, rows * dpi
             font_size_title = 22
             font_size_header = 18
@@ -684,6 +694,7 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
     for row in np.arange(0, rows):
         fig_ax_2.plot([0.0, w_fig_ax_2], [row / 2 + step, row / 2 + step], ls=':', lw=lw_line *
                       0.5, c=color['anitracite_gray']) if row < rows-1 else None  # линия сетки
+
         y = step / 2 + row / 2 if row > 0 else step / 2
         for i in np.arange(0, cols):
             d = df[row]
@@ -723,8 +734,14 @@ def get_dataframe_table(data: DataFrameModel, std_table: bool = True, results: b
                   lw=lw_line, c=color['violet'])
     fig_ax_2.plot([0, w_fig_ax_2], [0.0, 0.0],
                   lw=lw_line * 2.0, c=color['violet'])
-    fig_ax_2.plot([0, w_fig_ax_2], [(rows-row_num)*step, (rows-row_num)
-                  * step], lw=lw_line, c=color['violet']) if results else None
+    if results:
+        if line_numbers != None:
+            for line in line_numbers:
+                fig_ax_2.plot([0, w_fig_ax_2], [(rows-line)*step, (rows-line)
+                                                * step], lw=lw_line, c=color['violet'])
+        else:
+            fig_ax_2.plot([0, w_fig_ax_2], [(rows-row_num)*step, (rows-row_num)
+                                            * step], lw=lw_line, c=color['violet']) if row_num != None else None
 
     """Сохранение картинки в буфер памяти"""
     buffer = io.BytesIO()

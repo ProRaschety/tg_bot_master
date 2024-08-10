@@ -24,12 +24,13 @@ from app.tg_bot.utilities.tables import DataFrameBuilder
 from app.tg_bot.states.fsm_state_data import FSMCatBuildForm
 from app.calculation.fire_hazard_category.fire_hazard_categories import FireCategoryBuild, FireCategoryOutInstall
 from app.calculation.models.calculations import RoomModel, SectionModel, from_dict
+from app.calculation.physics.physics_utils import get_property_flammable_material
 
-from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb
+from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
 from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_dataframe_table
 
 
-from pprint import pprint
+# from pprint import pprint
 
 logging.getLogger('matplotlib.font_manager').disabled = True
 
@@ -56,25 +57,12 @@ SFilter = [FSMCatBuildForm.edit_area_A_state,
 
 @fire_category_router.callback_query(F.data.in_(['fire_category', 'back_fire_category']))
 async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    property = {
-        'АБС_Пластик': {
-            'substance_name': 'АБС_Пластик',
-            'density': 1000,
-            'molecular_weight': 10
-        },
-        'Древесина': {
-            'substance_name': 'Древесина',
-            'density': 800,
-            'molecular_weight': 20
-        }
-    }
 
-    material = FlammableMaterialModel(
-        substance_name=property['АБС_Пластик']['substance_name'])
-    section_st = SectionModel()
+    material = get_property_flammable_material(material='АБС_Пластик')
+    section_st = SectionModel(distance_to_ceiling=2, share_fire_load_area=5)
     section_st.material.append(material)
     section_st.mass.append(20)
-    room_model = RoomModel()
+    room_model = RoomModel(height=3.0, air_temperature=25.0, area=100.0)
     room_model.sections.append(section_st)
     # await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
 
@@ -105,7 +93,7 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_category'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_fire_category'))
 
     await state.set_state(state=None)
 
@@ -157,7 +145,7 @@ async def category_build_call(callback: CallbackQuery, bot: Bot, state: FSMConte
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('category_build_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_build_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+                                      i18n=i18n, back_data='back_fire_category'))
     await callback.answer('')
 
 
@@ -170,7 +158,7 @@ async def edit_category_build_guest_call(callback: CallbackQuery, bot: Bot, stat
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('category_build_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+                                      i18n=i18n, back_data='back_fire_category'))
 
     text = i18n.get('repeated_request_guest')
     await bot.edit_message_caption(
@@ -179,7 +167,7 @@ async def edit_category_build_guest_call(callback: CallbackQuery, bot: Bot, stat
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('category_build_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'))
+                                      i18n=i18n, back_data='back_fire_category'))
     await callback.answer('')
 
 
@@ -270,7 +258,7 @@ async def edit_area_efs_in_call(callback: CallbackQuery, bot: Bot, state: FSMCon
                                       'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2',
                                       'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
                                       'edit_area_A_EFS', 'edit_area_B_EFS', 'edit_area_V1_EFS', 'edit_area_V2_EFS', 'edit_area_V3_EFS',
-                                      i18n=i18n, param_back=True, back_data='back_category_build'))
+                                      i18n=i18n, back_data='back_category_build'))
     await state.set_state(state=None)
     await callback.answer('')
 
@@ -488,7 +476,7 @@ async def edit_area_in_call(callback: CallbackQuery, bot: Bot, state: FSMContext
                                       'edit_area_A', 'edit_area_B', 'edit_area_V1', 'edit_area_V2',
                                       'edit_area_V3', 'edit_area_V4', 'edit_area_G', 'edit_area_D',
                                       'edit_area_A_EFS', 'edit_area_B_EFS', 'edit_area_V1_EFS', 'edit_area_V2_EFS', 'edit_area_V3_EFS',
-                                      i18n=i18n, param_back=True, back_data='back_category_build'))
+                                      i18n=i18n, back_data='back_category_build'))
     await state.update_data(area_build='')
     await state.set_state(state=None)
     await callback.answer('')
@@ -537,30 +525,30 @@ async def run_category_build_call(callback: CallbackQuery, bot: Bot, state: FSMC
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_category_build'))
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_category_build'))
     await callback.answer('')
 
 
 @fire_category_router.callback_query(F.data.in_(['category_premises', 'back_category_premises']))
 async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    pprint(await state.get_data())
-
     text = i18n.request_start.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_category'
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_fire_category'
                                       )
     )
 
     context_data = await state.get_data()
+    line_numbers = [4, 9, 14]
 
     room_model = from_dict(data=context_data.get('room_model'))
     dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
                            fire_category_model=room_model)
     dataframe = dfb.action_request()
-    media = get_dataframe_table(data=dataframe)
+    media = get_dataframe_table(
+        data=dataframe, results=True, line_numbers=line_numbers)
 
     text = i18n.category_premises.text()
     await bot.edit_message_media(
@@ -568,43 +556,150 @@ async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1,
+        reply_markup=get_inline_cd_kb(2,
                                       *i18n.get('category_premises_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_premises_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'
+                                      i18n=i18n, penult_button='run_category_premises', back_data='back_fire_category'
                                       )
     )
 
     await callback.answer('')
 
 
-@fire_category_router.callback_query(F.data.in_(['add_section_room']))
-async def add_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    # pprint(await state.get_data())
+@fire_category_router.callback_query(F.data.in_(['edit_category_premises']))
+async def edit_category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    context_data = await state.get_data()
 
+    kb = InlineKeyboardModel(
+        width=1, buttons='edit_category_premises_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+
+    context_data['keyboard_model'] = asdict(kb)
+
+    text = 'Какие параметры нужно изменить?'
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(2,
+                                      *i18n.get('edit_category_premises_kb').split('\n'),
+                                      i18n=i18n, penult_button='run_category_premises', back_data='back_category_premises'
+                                      )
+    )
+    await state.update_data(context_data)
+    await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['edit_parameter_room']))
+async def edit_parameter_room_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.request_start.text()
     await bot.edit_message_caption(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
         caption=text,
-        reply_markup=get_inline_cd_kb(i18n=i18n, param_back=True, back_data='back_fire_category'
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_category_premises'
                                       )
     )
 
-    material = FlammableMaterialModel()
+    context_data = await state.get_data()
+    room_model = from_dict(data=context_data.get('room_model'))
+    dfb = DataFrameBuilder(i18n=i18n,  request='edit_parameter_room',
+                           fire_category_model=room_model)
+    dataframe = dfb.action_request()
+    media = get_dataframe_table(data=dataframe)
+
+    text = ''
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(1,
+                                      *i18n.get('edit_parameter_room_kb').split('\n'),
+                                      i18n=i18n, penult_button='run_category_premises', back_data='back_category_premises'
+                                      )
+    )
+
+
+@fire_category_router.callback_query(F.data.in_(['edit_section_room']))
+async def edit_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_category_premises'
+                                      )
+    )
+
+    text = 'Выбрать участок для редактирования'
+    context_data = await state.get_data()
+    num_sections = len(context_data['room_model']['sections'])
+
+    if num_sections > 1:
+        if num_sections == 2:
+            kb = InlineKeyboardModel(
+                width=3, buttons='num_two_sections_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+        else:
+            kb = InlineKeyboardModel(
+                width=3, buttons='num_three_sections_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+        await bot.edit_message_caption(
+            chat_id=callback.message.chat.id,
+            message_id=callback.message.message_id,
+            caption=text,
+            reply_markup=get_inline_keyboard(keyboard=kb, i18n=i18n,
+                                             )
+        )
+        await callback.answer('')
+
+    else:
+        context_data = await state.get_data()
+        room_model = from_dict(data=context_data.get('room_model'))
+        dfb = DataFrameBuilder(i18n=i18n,  request='edit_section_room',
+                               fire_category_model=room_model)
+        dataframe = dfb.action_request()
+        media = get_dataframe_table(data=dataframe, results=True, row_num=4)
+
+        await bot.edit_message_media(
+            chat_id=callback.message.chat.id,
+            message_id=callback.message.message_id,
+            media=InputMediaPhoto(media=BufferedInputFile(
+                file=media, filename="pic_filling"), caption=text),
+            reply_markup=get_inline_cd_kb(2,
+                                          *i18n.get('category_premises_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_premises_kb').split('\n'),
+                                          i18n=i18n, penult_button='run_category_premises', back_data='back_category_premises'
+                                          )
+        )
+
+
+@fire_category_router.callback_query(F.data.in_(['add_section_room']))
+async def add_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_category_premises'
+                                      )
+    )
 
     context_data = await state.get_data()
     num_sections = len(context_data['room_model']['sections'])
+    line_numbers = [4, 9, 14]
     if num_sections < 3:
+        if num_sections == 2:
+            material = get_property_flammable_material(material='Древесина')
+        else:
+            material = get_property_flammable_material(material='Полиэтилен')
+
         room_model = RoomModel(**context_data.get('room_model'))
         # room_model.sections.append(SectionModel())
-
-        section = SectionModel()
+        section = SectionModel(distance_to_ceiling=2, share_fire_load_area=5)
         section.material.append(material)
         section.mass.append(10)
 
         room_model.sections.append(section)
 
         await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
+
         text = i18n.category_premises.text()
     else:
         text = 'В помещение можно добавить не более 3-х участков'
@@ -614,6 +709,184 @@ async def add_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMCon
     dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
                            fire_category_model=room_model)
     dataframe = dfb.action_request()
+    media = get_dataframe_table(
+        data=dataframe, results=True, line_numbers=line_numbers)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(2,
+                                      *i18n.get('category_premises_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_premises_kb').split('\n'),
+                                      i18n=i18n, penult_button='run_category_premises', back_data='back_category_premises'
+                                      )
+    )
+
+    await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['del_section_room']))
+async def del_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_category_premises'
+                                      )
+    )
+
+    context_data = await state.get_data()
+
+    num_sections = len(context_data['room_model']['sections'])
+    line_numbers = [4, 9, 14]
+    if num_sections == 1:
+        text = 'В помещении должно быть не менее 1-го участка'
+    else:
+        # Нужно удалить из словаря по ключу 'room_model'
+        room_model = RoomModel(**context_data.get('room_model'))
+
+        section = room_model.sections
+        del section[-1]
+        await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
+        text = i18n.category_premises.text()
+
+    context_data = await state.get_data()
+    room_model = from_dict(data=context_data.get('room_model'))
+    dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
+                           fire_category_model=room_model)
+    dataframe = dfb.action_request()
+    media = get_dataframe_table(
+        data=dataframe, results=True, line_numbers=line_numbers)
+
+    await bot.edit_message_media(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
+        reply_markup=get_inline_cd_kb(2,
+                                      *i18n.get('category_premises_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_premises_kb').split('\n'),
+                                      i18n=i18n, penult_button='run_category_premises',
+                                      back_data='back_category_premises'
+                                      )
+    )
+
+    await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['first_section', 'second_section', 'third_section']))
+async def select_section_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    context_data = await state.get_data()
+    num_sections = len(context_data['room_model']['sections'])
+
+    # if num_sections > 1:
+    #     if num_sections == 2:
+    #         kb = InlineKeyboardModel(
+    #             width=1, buttons='num_two_sections_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+    #     else:
+    #         kb = InlineKeyboardModel(
+    #             width=1, buttons='num_three_sections_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+
+    # else:
+    kb = InlineKeyboardModel(
+        width=1, buttons=callback.data + '_kb', penultimate=None, ultimate='back_category_premises', reference=None)
+
+    # context_data['keyboard_model'] = asdict(kb)
+
+    text = i18n.category_premises.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_keyboard(keyboard=kb, i18n=i18n,
+                                         )
+    )
+    context_data['temporary_section'] = callback.data
+    await state.update_data(context_data)
+    await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['add_material_section']))
+async def add_material_section_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    # context_data = await state.get_data()
+    # num_sections = len(context_data['room_model']['sections'])
+    kb = InlineKeyboardModel(
+        width=2, buttons='list_flammable_material_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+
+    text = 'Выберите материал'
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_keyboard(keyboard=kb, i18n=i18n,
+                                         )
+    )
+    # context_data['temporary_material'] = asdict(kb)
+    # await state.update_data(context_data)
+    await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['ABS_plastic', 'wood', 'polyethylene']))
+async def select_material_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    context_data = await state.get_data()
+    num_sections = len(context_data['room_model']['sections'])
+
+    if num_sections > 1:
+        if num_sections == 2:
+            kb = InlineKeyboardModel(
+                width=1, buttons='num_two_sections_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+        else:
+            kb = InlineKeyboardModel(
+                width=1, buttons='num_three_sections_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+
+    else:
+        kb = InlineKeyboardModel(
+            width=1, buttons='first_section', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+
+    text = 'Выберите участок'
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_keyboard(keyboard=kb, i18n=i18n,
+                                         )
+    )
+    context_data['temporary_material'] = callback.data
+    await state.update_data(context_data)
+    await callback.answer('')
+
+
+@fire_category_router.callback_query(F.data.in_(['add_material_section_process']))
+async def add_material_section_process_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_cd_kb(i18n=i18n, back_data='back_category_premises'
+                                      )
+    )
+
+    context_data = await state.get_data()
+
+    num_sections = len(context_data['room_model']['sections'])
+    if num_sections > 1:
+        text = 'На один участок можно добавить не более 5-и материалов'
+    else:
+        # Нужно добавить материал на выбранный участок
+        room_model = RoomModel(**context_data.get('room_model'))
+
+        section = room_model.sections
+        del section[-1]
+        await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
+        text = i18n.category_premises.text()
+
+    context_data = await state.get_data()
+    room_model = from_dict(data=context_data.get('room_model'))
+    dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
+                           fire_category_model=room_model)
+    dataframe = dfb.action_request()
     media = get_dataframe_table(data=dataframe)
 
     await bot.edit_message_media(
@@ -623,7 +896,7 @@ async def add_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMCon
             file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('category_premises_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_premises_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'
+                                      i18n=i18n, penult_button='run_category_premises', back_data='back_category_premises'
                                       )
     )
 
@@ -639,7 +912,7 @@ async def edit_category_premises_guest_call(callback: CallbackQuery, bot: Bot, s
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('category_premises_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'
+                                      i18n=i18n, penult_button='run_category_premises', back_data='back_category_premises'
                                       )
     )
 
@@ -650,32 +923,9 @@ async def edit_category_premises_guest_call(callback: CallbackQuery, bot: Bot, s
         caption=text,
         reply_markup=get_inline_cd_kb(1,
                                       *i18n.get('category_premises_kb_guest').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_fire_category'
+                                      i18n=i18n, penult_button='run_category_premises', back_data='back_category_premises'
                                       )
     )
-    await callback.answer('')
-
-
-@fire_category_router.callback_query(F.data.in_(['edit_category_premises']))
-async def edit_category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
-    context_data = await state.get_data()
-
-    kb = InlineKeyboardModel(
-        width=1, buttons='edit_category_premises_kb', penultimate='run_category_premises', ultimate='back_fire_category', reference=None)
-
-    context_data['keyboard_model'] = asdict(kb)
-
-    text = ''
-    await bot.edit_message_caption(
-        chat_id=callback.message.chat.id,
-        message_id=callback.message.message_id,
-        caption=text,
-        reply_markup=get_inline_cd_kb(1,
-                                      *i18n.get('edit_category_premises_kb').split('\n'),
-                                      i18n=i18n, param_back=True, back_data='back_category_premises'
-                                      )
-    )
-    await state.update_data(context_data)
     await callback.answer('')
 
 
@@ -737,7 +987,10 @@ async def run_category_outdoor_installation_call(callback: CallbackQuery, bot: B
         message_id=callback.message.message_id,
         media=InputMediaPhoto(media=BufferedInputFile(
             file=media, filename="pic_filling"), caption=text),
-        reply_markup=get_inline_cd_kb(1, i18n=i18n, param_back=True, back_data='back_outdoor_installation'))
+        reply_markup=get_inline_cd_kb(1,
+                                      i18n=i18n, back_data='back_outdoor_installation'
+                                      )
+    )
     await callback.answer('')
 
 # @fire_category_router.callback_query(F.data == 'back_fire_category')

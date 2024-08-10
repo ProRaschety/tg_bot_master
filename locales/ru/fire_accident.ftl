@@ -25,7 +25,6 @@ accidents_kb_owner =
     dissipation_without_ignition
     fire_flash
     fire_pool
-    jet_and_flare_combustion
     fire_ball
     cloud_explosion
     accident_bleve
@@ -34,28 +33,36 @@ accidents_kb_owner =
     explosion_of_pressurized_equipment
     column_fire
     gas_jet_burning
+    jet_and_flare_combustion
 accidents_kb_admin =
     fire_flash
     fire_pool
-    horizontal_jet
-    vertical_jet
     fire_ball
     cloud_explosion
     accident_bleve
+    jet_and_flare_combustion
 accidents_kb_comrade =
     fire_flash
     fire_pool
-    horizontal_jet
-    vertical_jet
     fire_ball
     cloud_explosion
     accident_bleve
+    jet_and_flare_combustion
 accidents_kb_subscriber =
     fire_flash
     fire_pool
+    fire_ball
+    cloud_explosion
+    accident_bleve
+    jet_and_flare_combustion
 accidents_kb_guest =
     fire_flash
     fire_pool
+    fire_ball
+    cloud_explosion
+    accident_bleve
+    jet_and_flare_combustion
+
 disabled_buttons = (не используется)
     horizontal_jet
     vertical_jet
@@ -581,7 +588,7 @@ flare_combustion =
 back_flare_combustion =
     ↩ Назад
 flare_combustion-text =
-    Расчет параметров горизонтального факела.
+    Расчет параметров пламени для факельных установок (Руководство по безопасности факельных систем (утв. Приказ Ростехнадзора от 22.12.2021г N450).
     🚧 <i>Находится в разработке</i>
 flare_combustion_kb =
     edit_flare_combustion
