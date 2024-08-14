@@ -128,28 +128,28 @@ class SectionModel:
 
 @dataclass
 class RoomModel:
-    height: float = 3
-    width: float = 0
-    length: float = 0
-    area: float = 0
-    air_temperature: float = 20
-    air_changes_per_hour: int = 0
-    leakage_factor_room: int = 0
-    volume: float = 0
-    free_volume_fraction: float = 0
+    room_height: float = 3
+    room_width: float = 0
+    room_length: float = 0
+    room_area: float = 0
+    room_air_temperature: float = 20
+    room_air_changes_per_hour: int = 0
+    room_leakage_factor: int = 0
+    room_volume: float = 0
+    room_free_volume_fraction: float = 0
     # free_volume_fraction: float = field(init=False)
     sections: list = field(default_factory=list[SectionModel])
 
     def __post_init__(self):
-        self.height = float(self.height)
-        self.width = float(self.width)
-        self.length = float(self.length)
-        self.area = float(self.area)
-        self.air_temperature = float(self.air_temperature)
-        self.air_changes_per_hour = int(self.air_changes_per_hour)
-        self.leakage_factor_room = int(self.leakage_factor_room)
-        self.volume = float(self.volume)
-        self.free_volume_fraction = float(self.free_volume_fraction)
+        self.room_height = float(self.room_height)
+        self.room_width = float(self.room_width)
+        self.room_length = float(self.room_length)
+        self.room_area = float(self.room_area)
+        self.room_air_temperature = float(self.room_air_temperature)
+        self.room_air_changes_per_hour = int(self.room_air_changes_per_hour)
+        self.room_leakage_factor = int(self.room_leakage_factor)
+        self.room_volume = float(self.room_volume)
+        self.room_free_volume_fraction = float(self.room_free_volume_fraction)
 
 
 def from_dict(data: dict) -> RoomModel:
@@ -169,12 +169,12 @@ def from_dict(data: dict) -> RoomModel:
     ]
 
     return RoomModel(
-        air_changes_per_hour=data['air_changes_per_hour'],
-        air_temperature=data['air_temperature'],
-        area=data['area'],
-        free_volume_fraction=data['free_volume_fraction'],
-        height=data['height'],
-        leakage_factor_room=data['leakage_factor_room'],
-        length=data['length'],
+        room_air_changes_per_hour=data['room_air_changes_per_hour'],
+        room_air_temperature=data['room_air_temperature'],
+        room_area=data['room_area'],
+        room_free_volume_fraction=data['room_free_volume_fraction'],
+        room_height=data['room_height'],
+        room_leakage_factor=data['room_leakage_factor'],
+        room_length=data['room_length'],
         sections=sections
     )

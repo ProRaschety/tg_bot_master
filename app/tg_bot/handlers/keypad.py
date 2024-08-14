@@ -16,7 +16,7 @@ from app.tg_bot.utilities.misc_utils import get_dataframe_table
 from app.tg_bot.utilities.misc_utils import compute_value_with_eval, check_string, count_zeros_and_digits, result_formatting, count_digits_before_dot, custom_round, modify_dict_value
 from app.tg_bot.keyboards.kb_builder import get_keypad, get_inline_keyboard
 
-from app.calculation.models.calculations import AccidentModel
+from app.calculation.models.calculations import AccidentModel, RoomModel, from_dict
 from app.infrastructure.database.models.substance import FlammableMaterialModel, SubstanceModel
 
 
@@ -198,6 +198,7 @@ async def temporary_parameter_call(callback: CallbackQuery, bot: Bot, state: FSM
 @keypad_router.callback_query(StateFilter(FSMEditForm.keypad_state), F.data.in_(['ready']))
 async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner,) -> None:
     context_data = await state.get_data()
+    # pprint(context_data)
     log.info(
         f"Request keypad handler from: {context_data.get('temporary_request')}")
 
@@ -214,6 +215,8 @@ async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
 
     await state.update_data(context_data_modify)
     context_data = await state.get_data()
+    temporary_model = context_data.get('temporary_model')
+    request = context_data.get('temporary_request')
 
     requests = {
         'fire_flash': AccidentModel,
@@ -223,15 +226,18 @@ async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
         'accident_bleve': AccidentModel,
         'horizontal_jet': AccidentModel,
         'vertical_jet': AccidentModel,
+        # 'category_premises': RoomModel,
         'standard_flammable_load': FlammableMaterialModel,
         'handbooks': SubstanceModel,
     }
 
-    model = requests[context_data.get('temporary_request', None)](
-        **context_data.get('accident_model'))
+    if request == 'category_premises':
+        model = from_dict(data=context_data.get(temporary_model))
+    else:
+        model = requests[request](**context_data.get(temporary_model))
 
-    dfb = DataFrameBuilder(i18n=i18n,  request=context_data.get(
-        'temporary_request'), model=model)
+    dfb = DataFrameBuilder(i18n=i18n,  request=request, model=model)
+
     dataframe = dfb.action_request()
     media = get_dataframe_table(data=dataframe)
 

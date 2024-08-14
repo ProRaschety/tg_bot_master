@@ -37,8 +37,8 @@ class DataFrameBuilder:
                  request: str,
                  substance: FlammableMaterialModel | SubstanceModel = None,
                  #  flammable_material: FlammableMaterialModel = None,
-                 model: AccidentModel = None,
-                 fire_category_model: RoomModel = None,
+                 model: AccidentModel | RoomModel = None,
+                 #  fire_category_model: RoomModel = None,
                  ) -> None:
 
         self.i18n = i18n
@@ -47,8 +47,9 @@ class DataFrameBuilder:
         # self.accident_model = accident_model
         self.accident_model = model
         # self.substance = substance if substance is not None else self.accident_model.substance
-        self.substance = self.accident_model.substance if self.accident_model is not None else None
-        self.room_model = fire_category_model
+        # self.substance = self.accident_model.substance if self.accident_model is not None else None
+        self.substance = substance
+        self.room_model = model
 
         log.info(f'Requst dataframe: {self.i18n.get(request)}')
 
@@ -163,7 +164,7 @@ class DataFrameBuilder:
             'variable'), self.i18n.get('value'), self.i18n.get('unit')]
         i18n = self.i18n
         accident_model = self.accident_model
-        substance = self.substance
+        substance = self.accident_model.substance
 
         if self.request == 'run_fire_flash':
             label: str = self.i18n.get('fire_flash')
@@ -252,7 +253,7 @@ class DataFrameBuilder:
 
         i18n = self.i18n
         accident_model = self.accident_model
-        substance = self.substance
+        substance = self.accident_model.substance
 
         if self.request == 'run_fire_pool':
             label: str = self.i18n.get('run_fire_pool_text')
@@ -318,7 +319,7 @@ class DataFrameBuilder:
                 [self.i18n.get('substance'), '', '',
                  self.i18n.get(self.accident_model.substance_name)],
                 [self.i18n.get('specific_mass_fuel_burning_rate'), 'm',
-                 self.substance.mass_burning_rate, self.i18n.get('kg_per_m_square_in_sec')],
+                 self.accident_model.substance.mass_burning_rate, self.i18n.get('kg_per_m_square_in_sec')],
                 [self.i18n.get('ambient_temperature'), 'tₒ',
                  self.accident_model.air_temperature, self.i18n.get('celsius')],
                 [self.i18n.get('ambient_air_density'), 'ρₒ',
@@ -338,7 +339,7 @@ class DataFrameBuilder:
             'variable'), self.i18n.get('value'), self.i18n.get('unit')]
         i18n = self.i18n
         accident_model = self.accident_model
-        substance = self.substance
+        substance = self.accident_model.substance
         subst = accident_model.explosion_state_fuel
         methodology = accident_model.methodology
         mass = accident_model.explosion_mass_fuel
@@ -427,12 +428,12 @@ class DataFrameBuilder:
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
 
     def get_dataframe_from_jet_flame(self):
-        label: str = self.i18n.get('')
+        label: str = self.i18n.get(self.request)
         headers: list[str] = [self.i18n.get('name'), self.i18n.get(
             'variable'), self.i18n.get('value'), self.i18n.get('unit')]
         i18n = self.i18n
         accident_model = self.accident_model
-        # substance = self.substance
+        # substance = self.accident_model.substance
         jet_state_phase = accident_model.jet_state_fuel
         k_coef = 15.0 if jet_state_phase == 'jet_state_liquid' else 13.5 if jet_state_phase == 'jet_state_liq_gas_vap' else 12.5
         mass_rate = accident_model.jet_mass_rate
@@ -454,6 +455,7 @@ class DataFrameBuilder:
                     accident_model.distance, i18n.get('meter')]
             ]
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
         elif self.request == 'vertical_jet':
             dataframe = [
                 [i18n.get('description_jet_state_fuel'),  '', '',
@@ -541,7 +543,7 @@ class DataFrameBuilder:
             'variable'), self.i18n.get('value'), self.i18n.get('unit')]
         i18n = self.i18n
         accident_model = self.accident_model
-        substance = self.substance
+        substance = self.accident_model.substance
         subst = accident_model.substance_name
         coef_k = accident_model.bleve_energy_fraction
         heat_capacity = accident_model.bleve_heat_capacity_liquid_phase
@@ -616,13 +618,14 @@ class DataFrameBuilder:
             # pprint(f'room: {room}')
             dataframe = [
                 ['Параметры помещения', '', '', '',],
-                [i18n.get('height'), 'h', room.height, i18n.get('meter')],
+                [i18n.get('height'), 'h', room.room_height, i18n.get('meter')],
                 # [i18n.get('lenght'), 'a', room.length, i18n.get('meter')],
                 # [i18n.get('width'), 'b', room.width, i18n.get('meter')],
-                [i18n.get('area'), 'S', room.area, i18n.get('meter_square')],
+                [i18n.get('area'), 'S', room.room_area,
+                 i18n.get('meter_square')],
                 # [i18n.get('volume'), 'V', room.volume, i18n.get('meter_cub')],
                 [i18n.get('temperature'), 'tₒ',
-                 f"{room.air_temperature:.1f}", i18n.get('celsius')],
+                 f"{room.room_air_temperature:.1f}", i18n.get('celsius')],
             ]
             i = 1
             for section in room.sections:
@@ -631,10 +634,11 @@ class DataFrameBuilder:
                 # dataframe.append([i18n.get('section'), '', '', f'№{i}',])
                 dataframe.append(
                     [i18n.get('section') + ' ' + f'№{i}', '', '', '',])
-                dataframe.append(['Расстояние до перекрытия',
+                dataframe.append([i18n.get('description_distance_to_ceiling'),
                                   'L', section.distance_to_ceiling, i18n.get('meter')])
                 dataframe.append(
-                    ['Площадь размещения\nгорючей нагрузки', 'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
+                    [i18n.get('description_share_fire_load_area'),
+                     'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
                 j = 0
                 for material in section.material:
                     dataframe.append([i18n.get('flammable_load'), '',
@@ -649,18 +653,21 @@ class DataFrameBuilder:
         elif self.request == 'edit_parameter_room':
             label = i18n.get('category_premises_label')
             room = self.room_model
+            length = (room.room_area / 2) ** 0.5
+            width = 2 * length
+            volume = room.room_area * room.room_height
             # pprint(f'room: {room}')
             dataframe = [
                 ['Параметры помещения', '', '', '',],
-                [i18n.get('height'), 'h', room.height, i18n.get('meter')],
-                [i18n.get('lenght'), 'a', room.length, i18n.get('meter')],
-                [i18n.get('width'), 'b', room.width, i18n.get('meter')],
-                [i18n.get('area'), 'S', room.area,
+                [i18n.get('height'), 'h', room.room_height, i18n.get('meter')],
+                [i18n.get('lenght'), 'a', f"{length:.1f}", i18n.get('meter')],
+                [i18n.get('width'), 'b', f"{width:.1f}", i18n.get('meter')],
+                [i18n.get('area'), 'S', room.room_area,
                  i18n.get('meter_square')],
-                [i18n.get('volume'), 'V', room.volume,
+                [i18n.get('volume'), 'V', f"{volume:.1f}",
                  i18n.get('meter_cub')],
                 [i18n.get('temperature'), 'tₒ',
-                 f"{room.air_temperature:.1f}", i18n.get('celsius')],
+                 f"{room.room_air_temperature:.1f}", i18n.get('celsius')],
             ]
             # i = 1
             # for section in room.sections:
@@ -703,10 +710,21 @@ class DataFrameBuilder:
                 mass = section.mass
                 dataframe.append(
                     [i18n.get('section') + ' ' + f'№{i}', '', '', '',])
-                dataframe.append(['Расстояние до перекрытия',
+                dataframe.append(
+                    [i18n.get('description_section_length'),
+                     'a', section.section_length, i18n.get('meter')])
+                dataframe.append(
+                    [i18n.get('description_section_width'),
+                     'b', section.section_width, i18n.get('meter')])
+                dataframe.append([i18n.get('description_distance_to_ceiling'),
                                   'L', section.distance_to_ceiling, i18n.get('meter')])
                 dataframe.append(
-                    ['Площадь размещения\nгорючей нагрузки', 'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
+                    [i18n.get('description_share_fire_load_area'),
+                     'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
+                dataframe.append(
+                    [i18n.get('description_section_area'),
+                     'Sу', section.section_area, i18n.get('meter_square')])
+
                 j = 0
                 for material in section.material:
 
@@ -745,7 +763,7 @@ class DataFrameBuilder:
     #         'variable'), self.i18n.get('value'), self.i18n.get('unit')]
     #     i18n = self.i18n
     #     accident_model = self.accident_model
-    #     substance = self.substance
+    #     substance = self.accident_model.substance
     #     if self.request == '':
     #         pass
     #     else:

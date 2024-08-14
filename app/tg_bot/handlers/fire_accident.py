@@ -63,7 +63,7 @@ async def typical_accidents_call(callback: CallbackQuery, bot: Bot, state: FSMCo
                                    substance_name=subst,
                                    substance=substance,
                                    )
-    await state.update_data(accident_model=asdict(accident_model), temporary_parameter='', temporary_request='')
+    await state.update_data(accident_model=asdict(accident_model), temporary_parameter='', temporary_request='', temporary_model='accident_model')
 
 
 @fire_accident_router.callback_query(F.data == 'back_typical_accidents')

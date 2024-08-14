@@ -21,13 +21,13 @@ from app.tg_bot.models.role import UserRole
 from app.tg_bot.models.keyboard import InlineKeyboardModel
 from app.tg_bot.filters.filter_role import IsSubscriber, IsGuest
 from app.tg_bot.utilities.tables import DataFrameBuilder
-from app.tg_bot.states.fsm_state_data import FSMCatBuildForm
+from app.tg_bot.states.fsm_state_data import FSMCatBuildForm, FSMEditForm
 from app.calculation.fire_hazard_category.fire_hazard_categories import FireCategoryBuild, FireCategoryOutInstall
 from app.calculation.models.calculations import RoomModel, SectionModel, from_dict
 from app.calculation.physics.physics_utils import get_property_flammable_material
 
 from app.tg_bot.keyboards.kb_builder import get_inline_cd_kb, get_keypad, get_inline_keyboard
-from app.tg_bot.utilities.misc_utils import get_picture_filling, get_data_table, get_dataframe_table
+from app.tg_bot.utilities.misc_utils import get_picture_filling, plot_graph, get_dataframe_table, find_key_path, get_dict_value, get_data_table
 
 
 # from pprint import pprint
@@ -62,7 +62,8 @@ async def fire_category_call(callback_data: CallbackQuery, bot: Bot, state: FSMC
     section_st = SectionModel(distance_to_ceiling=2, share_fire_load_area=5)
     section_st.material.append(material)
     section_st.mass.append(20)
-    room_model = RoomModel(height=3.0, air_temperature=25.0, area=100.0)
+    room_model = RoomModel(
+        room_height=3.0, room_air_temperature=25.0, room_area=100.0)
     room_model.sections.append(section_st)
     # await state.update_data(room_model=asdict(room_model), temporary_parameter='', temporary_request='')
 
@@ -545,7 +546,7 @@ async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMCo
 
     room_model = from_dict(data=context_data.get('room_model'))
     dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
-                           fire_category_model=room_model)
+                           model=room_model)
     dataframe = dfb.action_request()
     media = get_dataframe_table(
         data=dataframe, results=True, line_numbers=line_numbers)
@@ -561,7 +562,7 @@ async def category_premises_call(callback: CallbackQuery, bot: Bot, state: FSMCo
                                       i18n=i18n, penult_button='run_category_premises', back_data='back_fire_category'
                                       )
     )
-
+    # await state.update_data(temporary_request='category_premises', temporary_model='room_model')
     await callback.answer('')
 
 
@@ -570,9 +571,11 @@ async def edit_category_premises_call(callback: CallbackQuery, bot: Bot, state: 
     context_data = await state.get_data()
 
     kb = InlineKeyboardModel(
-        width=1, buttons='edit_category_premises_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+        width=2, buttons='edit_category_premises_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
 
     context_data['keyboard_model'] = asdict(kb)
+    context_data['temporary_request'] = 'category_premises'
+    context_data['temporary_model'] = 'room_model'
 
     text = 'Какие параметры нужно изменить?'
     await bot.edit_message_caption(
@@ -585,6 +588,7 @@ async def edit_category_premises_call(callback: CallbackQuery, bot: Bot, state: 
                                       )
     )
     await state.update_data(context_data)
+    # await state.update_data(temporary_request='category_premises', temporary_model='room_model')
     await callback.answer('')
 
 
@@ -602,7 +606,7 @@ async def edit_parameter_room_call(callback: CallbackQuery, bot: Bot, state: FSM
     context_data = await state.get_data()
     room_model = from_dict(data=context_data.get('room_model'))
     dfb = DataFrameBuilder(i18n=i18n,  request='edit_parameter_room',
-                           fire_category_model=room_model)
+                           model=room_model)
     dataframe = dfb.action_request()
     media = get_dataframe_table(data=dataframe)
 
@@ -619,6 +623,36 @@ async def edit_parameter_room_call(callback: CallbackQuery, bot: Bot, state: FSM
     )
 
 
+@fire_category_router.callback_query(F.data.in_(['room_height', 'room_area', 'room_air_temperature']))
+async def edit_pool_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner) -> None:
+    context_data = await state.get_data()
+
+    path_edited_parameter = find_key_path(
+        dictionary=context_data, key=callback.data)
+
+    editable_parameter = get_dict_value(
+        dictionary=context_data, keys_list=path_edited_parameter)
+
+    text = i18n.temporary_parameter.text(
+        text=i18n.get('name_' + callback.data), value=editable_parameter)
+
+    context_data['temporary_text'] = callback.data
+    context_data['path_edited_parameter'] = path_edited_parameter
+
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_keypad(
+            i18n=i18n, penult_button='ready'
+        )
+    )
+
+    await state.update_data(context_data)
+    await state.set_state(FSMEditForm.keypad_state)
+    await callback.answer('')
+
+
 @fire_category_router.callback_query(F.data.in_(['edit_section_room']))
 async def edit_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner, role: UserRole) -> None:
     text = i18n.request_start.text()
@@ -630,17 +664,17 @@ async def edit_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMCo
                                       )
     )
 
-    text = 'Выбрать участок для редактирования'
     context_data = await state.get_data()
     num_sections = len(context_data['room_model']['sections'])
 
     if num_sections > 1:
         if num_sections == 2:
             kb = InlineKeyboardModel(
-                width=3, buttons='num_two_sections_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+                width=3, buttons='num_two_sections_kb', prepenultimate='distance_to_section', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
         else:
             kb = InlineKeyboardModel(
-                width=3, buttons='num_three_sections_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+                width=3, buttons='num_three_sections_kb', prepenultimate='distance_to_section', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+        text = 'Выбрать участок для редактирования'
         await bot.edit_message_caption(
             chat_id=callback.message.chat.id,
             message_id=callback.message.message_id,
@@ -654,19 +688,19 @@ async def edit_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMCo
         context_data = await state.get_data()
         room_model = from_dict(data=context_data.get('room_model'))
         dfb = DataFrameBuilder(i18n=i18n,  request='edit_section_room',
-                               fire_category_model=room_model)
+                               model=room_model)
         dataframe = dfb.action_request()
-        media = get_dataframe_table(data=dataframe, results=True, row_num=4)
-
+        media = get_dataframe_table(data=dataframe)
+        kb = InlineKeyboardModel(
+            width=1, buttons='edit_section_kb', penultimate='run_category_premises', ultimate='back_category_premises', reference=None)
+        text = 'Выбрать параметр для редактирования'
         await bot.edit_message_media(
             chat_id=callback.message.chat.id,
             message_id=callback.message.message_id,
             media=InputMediaPhoto(media=BufferedInputFile(
                 file=media, filename="pic_filling"), caption=text),
-            reply_markup=get_inline_cd_kb(2,
-                                          *i18n.get('category_premises_kb_guest').split('\n') if role in ['guest'] else i18n.get('category_premises_kb').split('\n'),
-                                          i18n=i18n, penult_button='run_category_premises', back_data='back_category_premises'
-                                          )
+            reply_markup=get_inline_keyboard(keyboard=kb, i18n=i18n,
+                                             )
         )
 
 
@@ -707,7 +741,7 @@ async def add_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMCon
     context_data = await state.get_data()
     room_model = from_dict(data=context_data.get('room_model'))
     dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
-                           fire_category_model=room_model)
+                           model=room_model)
     dataframe = dfb.action_request()
     media = get_dataframe_table(
         data=dataframe, results=True, line_numbers=line_numbers)
@@ -755,7 +789,7 @@ async def del_section_room_call(callback: CallbackQuery, bot: Bot, state: FSMCon
     context_data = await state.get_data()
     room_model = from_dict(data=context_data.get('room_model'))
     dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
-                           fire_category_model=room_model)
+                           model=room_model)
     dataframe = dfb.action_request()
     media = get_dataframe_table(
         data=dataframe, results=True, line_numbers=line_numbers)
@@ -794,14 +828,29 @@ async def select_section_call(callback: CallbackQuery, bot: Bot, state: FSMConte
 
     # context_data['keyboard_model'] = asdict(kb)
 
-    text = i18n.category_premises.text()
-    await bot.edit_message_caption(
+    context_data = await state.get_data()
+    room_model = from_dict(data=context_data.get('room_model'))
+    dfb = DataFrameBuilder(i18n=i18n,  request='edit_section_room',
+                           model=room_model)
+    dataframe = dfb.action_request()
+    media = get_dataframe_table(data=dataframe)
+    text = 'Выбрать параметр для редактирования'
+
+    await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,
-        caption=text,
+        media=InputMediaPhoto(media=BufferedInputFile(
+            file=media, filename="pic_filling"), caption=text),
         reply_markup=get_inline_keyboard(keyboard=kb, i18n=i18n,
                                          )
     )
+    # await bot.edit_message_caption(
+    #     chat_id=callback.message.chat.id,
+    #     message_id=callback.message.message_id,
+    #     caption=text,
+    #     reply_markup=get_inline_keyboard(keyboard=kb, i18n=i18n,
+    #                                      )
+    # )
     context_data['temporary_section'] = callback.data
     await state.update_data(context_data)
     await callback.answer('')
@@ -885,7 +934,7 @@ async def add_material_section_process_call(callback: CallbackQuery, bot: Bot, s
     context_data = await state.get_data()
     room_model = from_dict(data=context_data.get('room_model'))
     dfb = DataFrameBuilder(i18n=i18n,  request='category_premises',
-                           fire_category_model=room_model)
+                           model=room_model)
     dataframe = dfb.action_request()
     media = get_dataframe_table(data=dataframe)
 

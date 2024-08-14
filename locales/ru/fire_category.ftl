@@ -132,14 +132,23 @@ mass_flammable_load =
 edit_parameter_room =
     Помещение
 edit_parameter_room_kb =
-    air_temperature
-    area
-air_temperature =
+    room_height
+    room_area
+    room_air_temperature
+room_air_temperature =
     Температура воздуха
-height =
+room_height =
     Высота помещения
-area =
+room_area =
     Площадь помещения
+
+name_room_air_temperature =
+    Температура воздуха
+name_room_height =
+    Высота помещения
+name_room_area =
+    Площадь помещения
+
 
 add_section_room =
     Добавить участок
@@ -154,10 +163,6 @@ edit_section_room_kb =
     share_fire_load_area
     distance_to_ceiling
 
-share_fire_load_area =
-    Площадь размещения нагрузки
-distance_to_ceiling =
-    Расстояние до перекрытия
 
 edit_material_section =
     Изменить материал на участке
@@ -180,6 +185,7 @@ num_three_sections_kb =
     second_section
     third_section
 
+
 first_section =
     Участок №1
 second_section =
@@ -187,26 +193,34 @@ second_section =
 third_section =
     Участок №3
 
+distance_to_section =
+    Расстояние между участками
+mutual_arrangement_of_plots =
+    Расположение участков
+
+edit_section_kb =
+    section_length
+    section_width
+    share_fire_load_area
+    distance_to_ceiling
+    section_area
 first_section_kb =
     section_length
     section_width
     share_fire_load_area
     distance_to_ceiling
-    distance_to_section
     section_area
 second_section_kb =
     section_length
     section_width
     share_fire_load_area
     distance_to_ceiling
-    distance_to_section
     section_area
 third_section_kb =
     section_length
     section_width
     share_fire_load_area
     distance_to_ceiling
-    distance_to_section
     section_area
 
 section_length =
@@ -214,14 +228,23 @@ section_length =
 section_width =
     Ширина
 share_fire_load_area =
-    Площадь нагрузки
+    Площадь размещения нагрузки
 distance_to_ceiling =
     Расстояние до перекрытия
-distance_to_section =
-    Расстояние между секциями
 section_area =
-    Площадь секции
+    Площадь участка
 
+description_section_length =
+    Длина
+description_section_width =
+    Ширина
+description_share_fire_load_area =
+    Площадь размещения
+    горючей нагрузки
+description_distance_to_ceiling =
+    Расстояние до перекрытия
+description_section_area =
+    Площадь участка
 
 
 list_flammable_material_kb =
@@ -235,16 +258,11 @@ wood =
 polyethylene =
     Полиэтилен
 
-mutual_arrangement_of_plots =
-    Расположение участков
-
-
 
 run_category_premises =
     ▶ Рассчитать
 edit_category_premises_guest =
     🔒 Редактировать
-
 
 
 
