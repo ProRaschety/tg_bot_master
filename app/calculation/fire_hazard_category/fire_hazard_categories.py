@@ -531,9 +531,13 @@ class FireCategoryPremises:
         self.room: RoomModel = room
 
     def get_lim_distance_from_heat_flux(self, heat_flux: int | float):
-        data = interp1d([12, 8, 6, 5, 4, 3.8, 3.2, 2.8],
-                        [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0],
-                        'quadratic')  # Предельное расстояние в зависимости от критического значения теплового потока, м
+        log.info(f'heat_flux: {heat_flux}')
+        data = interp1d(
+            [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0],
+            [12, 8, 6, 5, 4, 3.8, 3.2, 2.8],
+            kind='linear', bounds_error=False, fill_value='extrapolate'
+            # fill_value=(12.0, 2.8)
+        )  # Предельное расстояние в зависимости от критического значения теплового потока, м
         return data(heat_flux)
 
     def compute_lim_distance(self, height: int | float, distance: int | float):
@@ -553,14 +557,14 @@ class FireCategoryPremises:
         return 0.64 * gt * height ** 2
 
     def compute_fire_load_per_unit_area(self, Q: list[int | float], area: int | float = 10):
-        area_room = self.room.area
+        # area_room = self.room.area
         # log.info(f'Q: {Q}')
         g = []
         i = 0
         for sec in self.room.sections:
             # log.info(f'sec: {sec}')
             for i in range(len(sec.material)):
-                _area_sec = sec.area
+                _area_sec = sec.section_area
                 log.info(f'area_sec: {_area_sec}, i: {i}')
 
                 if area <= 10:
@@ -604,30 +608,35 @@ class FireCategoryPremises:
         Q, Qs = self.compute_fire_load_in_section()
         g, gt = self.compute_fire_load_per_unit_area(Q=Q)
         i = 0
-        # log.info(f'g[i]: {g[i]}, Q: {Q}')
+        j = 0
+        log.info(f'g[i]: {g}, Q: {Q}')
         for sec in self.room.sections:
-            # print(sec, i)
-            # log.info(f'g[{i}]: {g[i]}, Q: {Q}')
+            print(sec, i)
+            log.info(f'g[{i}]: {g[i]}, Q: {Q}')
             if g[i] > 0 and g[i] <= 180:
                 l0 = sec.distance_to_section if len(sec.mass) > 1 else 1000
                 l1 = self.get_lim_distance_from_heat_flux(
-                    heat_flux=sec.material[i].critical_heat_flux)
+                    heat_flux=sec.material[j].critical_heat_flux)
                 l2 = self.compute_lim_distance(
                     height=sec.distance_to_ceiling, distance=l1)
-                # log.info(f'l0:{l0}, l1:{l1}, l2: {l2}')
+                log.info(f'l0:{l0}, l1:{l1}, l2: {l2}')
+
                 if sec.share_fire_load_area <= 10 and l0 >= l2:
                     log.info(f'lпр:{l2}')
                     category.append(4)
+
                 elif g[i] > 0 and g[i] <= 1400:
                     pre_category = 3
                     cat = self.get_result_check_category(
                         pre_cat=pre_category, Q=Q[i], gt=1400, height=sec.distance_to_ceiling)
                     category.append(cat)
+
                 elif g[i] > 1400 and g[i] <= 2200:
                     pre_category = 2
                     cat = self.get_result_check_category(
                         pre_cat=pre_category, Q=Q[i], gt=2200, height=sec.distance_to_ceiling)
                     category.append(cat)
+
                 else:
                     pre_category = 1
                     cat = self.get_result_check_category(
@@ -639,11 +648,13 @@ class FireCategoryPremises:
                 cat = self.get_result_check_category(
                     pre_cat=pre_category, Q=Q[i], gt=1400, height=sec.distance_to_ceiling)
                 category.append(cat)
+
             elif g[i] > 1400 and g[i] <= 2200:
                 pre_category = 2
                 cat = self.get_result_check_category(
                     pre_cat=pre_category, Q=Q[i], gt=2200, height=sec.distance_to_ceiling)
                 category.append(cat)
+
             else:
                 pre_category = 1
                 cat = self.get_result_check_category(
@@ -652,6 +663,7 @@ class FireCategoryPremises:
             # else:
             #     category.append(1)
             i += 1
+
         result_cat = cat_data.get(min(category), '-')
         log.info(
             f'\nПожарная нагрузка: Q= {Qs} МДж\n'

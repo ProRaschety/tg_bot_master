@@ -171,7 +171,7 @@ async def temporary_parameter_call(callback: CallbackQuery, bot: Bot, state: FSM
     """Хендлер-калькулятор.
     Хендлер работает только в состоянии keypad_state и присваивает значение в требуемый ключ словаря.
     Функция eval() будет использоваться для получения значения по введенному выражению"""
-    log.info(f'Request keypad handler from: {callback.data} ')
+    # log.info(f'Request keypad handler from: {callback.data} ')
 
     context_data = await state.get_data()
     edit_param_1 = context_data.get('temporary_parameter', '')
@@ -198,10 +198,19 @@ async def temporary_parameter_call(callback: CallbackQuery, bot: Bot, state: FSM
 @keypad_router.callback_query(StateFilter(FSMEditForm.keypad_state), F.data.in_(['ready']))
 async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner,) -> None:
     context_data = await state.get_data()
-    # pprint(context_data)
     log.info(
-        f"Request keypad handler from: {context_data.get('temporary_request')}")
+        f"Request keypad handler: {context_data.get('temporary_request')}")
+    kb = InlineKeyboardModel(**context_data['keyboard_model'])
+    text = i18n.request_start.text()
+    await bot.edit_message_caption(
+        chat_id=callback.message.chat.id,
+        message_id=callback.message.message_id,
+        caption=text,
+        reply_markup=get_inline_keyboard(keyboard=kb, i18n=i18n,
+                                         )
+    )
 
+    # pprint(context_data)
     value = context_data.get('temporary_parameter')
 
     result = compute_value_with_eval(expression=value)
@@ -239,12 +248,19 @@ async def ready_call(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n:
     dfb = DataFrameBuilder(i18n=i18n,  request=request, model=model)
 
     dataframe = dfb.action_request()
-    media = get_dataframe_table(data=dataframe)
+
+    if request == 'category_premises':
+        line_numbers = [4, 9, 14]
+        media = get_dataframe_table(
+            data=dataframe, results=True, line_numbers=line_numbers)
+    else:
+        media = get_dataframe_table(data=dataframe)
 
     kb = InlineKeyboardModel(**context_data['keyboard_model'])
 
     text = i18n.temporary_parameter.text(
         text=i18n.get('name_' + context_data.get('temporary_text')), value=equals_result)
+
     await bot.edit_message_media(
         chat_id=callback.message.chat.id,
         message_id=callback.message.message_id,

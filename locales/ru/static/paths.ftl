@@ -21,3 +21,6 @@ path_subscribe_channel =
 
 path_typical_accident =
     temp_files/temp/fire_accident_logo.png
+
+path_other_tools =
+    temp_files/temp/logo_other_tools.png

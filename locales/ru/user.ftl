@@ -6,6 +6,7 @@ user_kb_owner =
     fire_risks
     fire_category
     typical_accidents
+    other_tools
     admin_panel
     owner_panel
 user_kb_admin =
@@ -16,8 +17,8 @@ user_kb_admin =
     fire_risks
     fire_category
     typical_accidents
+    other_tools
     admin_panel
-    owner_panel
 user_kb_comrade =
     handbooks
     fds_tools
@@ -26,6 +27,7 @@ user_kb_comrade =
     fire_risks
     fire_category
     typical_accidents
+    other_tools
 user_kb_subscriber =
     handbooks
     fire_resistance
@@ -34,6 +36,7 @@ user_kb_subscriber =
     fire_risks
     fire_category
     typical_accidents
+
 user_kb_guest =
     handbooks
     fire_resistance
@@ -41,6 +44,7 @@ user_kb_guest =
     fire_risks
     fire_category
     typical_accidents
+
 
 start-menu =
     <b></b>

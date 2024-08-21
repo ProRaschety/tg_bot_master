@@ -261,6 +261,9 @@ polyethylene =
 
 run_category_premises =
     ▶ Рассчитать
+category_premises_result-text =
+    Категория помещения по взрывопожарной и пожарной опасности: <b>[ { $category_premises } ]</b>
+
 edit_category_premises_guest =
     🔒 Редактировать
 

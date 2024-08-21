@@ -19,6 +19,10 @@ class FSMFDSForm(StatesGroup):
     accept_document_state = State()
 
 
+class FSMOtherForm(StatesGroup):
+    accept_document_state = State()
+
+
 class FSMCatBuildForm(StatesGroup):
     edit_area_A_state = State()
     edit_area_B_state = State()

@@ -556,7 +556,7 @@ def get_dataframe_table(data: DataFrameModel,
             zoom = 0.099
         else:
             log.info(f'Таблица_4/n: cols={cols}, rows={rows}')
-            w_fig, h_fig, dpi = 17.0, 22.0, 120  # 12.8, 12.8
+            w_fig, h_fig, dpi = 17.0, 22.0, 100  # 12.8, 12.8
             w_size, h_size = cols * dpi, rows * dpi
             font_size_title = 28
             font_size_header = 26

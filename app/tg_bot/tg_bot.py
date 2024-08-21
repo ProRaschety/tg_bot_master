@@ -30,6 +30,7 @@ from app.tg_bot.handlers.fire_accident import fire_accident_router
 from app.tg_bot.handlers.fire_accident_fireflash import fire_accident_fireflash_router
 from app.tg_bot.handlers.fire_accident_jet_and_flare import fire_accident_jet_and_flare_router
 from app.tg_bot.handlers.fds_tools import fds_tools_router
+from app.tg_bot.handlers.other_tools import other_tools_router
 from app.tg_bot.handlers.reports import report_router
 from app.tg_bot.handlers.select_substance import select_substance_router
 from app.tg_bot.handlers.keypad import keypad_router
@@ -89,6 +90,7 @@ async def main():
     dp.include_router(fire_accident_fireflash_router)
     dp.include_router(fire_accident_jet_and_flare_router)
     dp.include_router(fds_tools_router)
+    dp.include_router(other_tools_router)
     dp.include_router(report_router)
     dp.include_router(select_substance_router)
     dp.include_router(keypad_router)

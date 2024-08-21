@@ -64,7 +64,7 @@ class FlammableMaterialModel(BaseModel):
     substance_type: str | None = None
     molecular_weight: float = 0
     combustion_efficiency: float = 0
-    critical_heat_flux: float = 0
+    critical_heat_flux: float = 8.0
 
     def __post_init__(self):
         self.density = float(self.density)
