@@ -27,7 +27,7 @@ from app.calculation.utilities import misc_utils
 
 from app.tg_bot.models.tables import DataFrameModel
 
-from pprint import pprint
+# from pprint import pprint
 
 log = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ class DataFrameBuilder:
 
             # категорирование
             ('category_build', 'run_category_build'): self.get_dataframe_from_category_build,
-            ('category_premises', 'run_category_premises', 'edit_section_room', 'edit_parameter_room'): self.get_dataframe_from_category_premises,
+            ('category_premises', 'run_category_premises', 'first_section', 'second_section', 'third_section', 'edit_parameter_room'): self.get_dataframe_from_category_premises,
             ('category_external_installation', 'run_category_external_installation'): self.get_dataframe_from_category_external_installation,
 
             # расчет ОФП
@@ -612,6 +612,7 @@ class DataFrameBuilder:
         headers: list[str] = [self.i18n.get('name'), self.i18n.get(
             'variable'), self.i18n.get('value'), self.i18n.get('unit')]
         i18n = self.i18n
+
         if self.request == 'category_premises':
             label = i18n.get('category_premises_label')
             room = self.room_model
@@ -669,71 +670,111 @@ class DataFrameBuilder:
                 [i18n.get('temperature'), 'tₒ',
                  f"{room.room_air_temperature:.1f}", i18n.get('celsius')],
             ]
-            # i = 1
-            # for section in room.sections:
-            #     material = section.material
-            #     mass = section.mass
-            #     dataframe.append([i18n.get('section'), '', '', f'№{i}',])
-            #     dataframe.append(['Расстояние до перекрытия',
-            #                       'L', section.distance_to_ceiling, i18n.get('meter')])
-            #     dataframe.append(
-            #         ['Площадь размещения\nгорючей нагрузки', 'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
-            #     j = 0
-            #     for material in section.material:
-
-            #         dataframe.append([i18n.get('flammable_load'), '',
-            #                           '', material.substance_name])
-            #         dataframe.append([i18n.get('mass_flammable_load'),
-            #                           'm', mass[j], i18n.get('kilogram')])
-            #         j += 1
-            #     i += 1
 
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
 
-        elif self.request == 'edit_section_room':
+        elif self.request == 'first_section':
             label = i18n.get('category_premises_label')
             room = self.room_model
-            # pprint(f'room: {room}')
-            dataframe = [
-                #     ['Параметры помещения', '', '', '',],
-                #     [i18n.get('height'), 'h', room.height, i18n.get('meter')],
-                #     # [i18n.get('lenght'), 'a', room.length, i18n.get('meter')],
-                #     # [i18n.get('width'), 'b', room.width, i18n.get('meter')],
-                #     [i18n.get('area'), 'S', room.area, i18n.get('meter_square')],
-                #     # [i18n.get('volume'), 'V', room.volume, i18n.get('meter_cub')],
-                #     [i18n.get('temperature'), 'tₒ',
-                #     f"{room.air_temperature:.1f}", i18n.get('celsius')],
-            ]
-            i = 1
-            for section in room.sections:
-                material = section.material
-                mass = section.mass
-                dataframe.append(
-                    [i18n.get('section') + ' ' + f'№{i}', '', '', '',])
-                dataframe.append(
-                    [i18n.get('description_section_length'),
-                     'a', section.section_length, i18n.get('meter')])
-                dataframe.append(
-                    [i18n.get('description_section_width'),
-                     'b', section.section_width, i18n.get('meter')])
-                dataframe.append([i18n.get('description_distance_to_ceiling'),
-                                  'L', section.distance_to_ceiling, i18n.get('meter')])
-                dataframe.append(
-                    [i18n.get('description_share_fire_load_area'),
-                     'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
-                dataframe.append(
-                    [i18n.get('description_section_area'),
-                     'Sу', section.section_area, i18n.get('meter_square')])
+            dataframe = []
+            section = room.sections[0]
+            material = section.material
+            mass = section.mass
+            dataframe.append(
+                [i18n.get('section') + ' ' + f'№{1}', '', '', '',])
+            dataframe.append(
+                [i18n.get('description_section_length'),
+                    'a', section.section_length, i18n.get('meter')])
+            dataframe.append(
+                [i18n.get('description_section_width'),
+                    'b', section.section_width, i18n.get('meter')])
+            dataframe.append([i18n.get('description_distance_to_ceiling'),
+                              'L', section.distance_to_ceiling, i18n.get('meter')])
+            dataframe.append(
+                [i18n.get('description_share_fire_load_area'),
+                    'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
+            dataframe.append(
+                [i18n.get('description_section_area'),
+                    'Sу', section.section_area, i18n.get('meter_square')])
 
-                j = 0
-                for material in section.material:
+            j = 0
+            for material in section.material:
 
-                    dataframe.append([i18n.get('flammable_load'), '',
-                                      '', material.substance_name])
-                    dataframe.append([i18n.get('mass_flammable_load'),
-                                      'm', mass[j], i18n.get('kilogram')])
-                    j += 1
-                i += 1
+                dataframe.append([i18n.get('flammable_load'), '',
+                                  '', material.substance_name])
+                dataframe.append([i18n.get('mass_flammable_load'),
+                                  'm', mass[j], i18n.get('kilogram')])
+                j += 1
+
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+        elif self.request == 'second_section':
+            label = i18n.get('category_premises_label')
+            room = self.room_model
+            dataframe = []
+            section = room.sections[1]
+            material = section.material
+            mass = section.mass
+            dataframe.append(
+                [i18n.get('section') + ' ' + f'№{2}', '', '', '',])
+            dataframe.append(
+                [i18n.get('description_section_length'),
+                    'a', section.section_length, i18n.get('meter')])
+            dataframe.append(
+                [i18n.get('description_section_width'),
+                    'b', section.section_width, i18n.get('meter')])
+            dataframe.append([i18n.get('description_distance_to_ceiling'),
+                              'L', section.distance_to_ceiling, i18n.get('meter')])
+            dataframe.append(
+                [i18n.get('description_share_fire_load_area'),
+                    'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
+            dataframe.append(
+                [i18n.get('description_section_area'),
+                    'Sу', section.section_area, i18n.get('meter_square')])
+
+            j = 0
+            for material in section.material:
+
+                dataframe.append([i18n.get('flammable_load'), '',
+                                  '', material.substance_name])
+                dataframe.append([i18n.get('mass_flammable_load'),
+                                  'm', mass[j], i18n.get('kilogram')])
+                j += 1
+
+            return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
+
+        elif self.request == 'third_section':
+            label = i18n.get('category_premises_label')
+            room = self.room_model
+            dataframe = []
+            section = room.sections[2]
+            material = section.material
+            mass = section.mass
+            dataframe.append(
+                [i18n.get('section') + ' ' + f'№{3}', '', '', '',])
+            dataframe.append(
+                [i18n.get('description_section_length'),
+                    'a', section.section_length, i18n.get('meter')])
+            dataframe.append(
+                [i18n.get('description_section_width'),
+                    'b', section.section_width, i18n.get('meter')])
+            dataframe.append([i18n.get('description_distance_to_ceiling'),
+                              'L', section.distance_to_ceiling, i18n.get('meter')])
+            dataframe.append(
+                [i18n.get('description_share_fire_load_area'),
+                    'Sгн', section.share_fire_load_area, i18n.get('meter_square')])
+            dataframe.append(
+                [i18n.get('description_section_area'),
+                    'Sу', section.section_area, i18n.get('meter_square')])
+
+            j = 0
+            for material in section.material:
+
+                dataframe.append([i18n.get('flammable_load'), '',
+                                  '', material.substance_name])
+                dataframe.append([i18n.get('mass_flammable_load'),
+                                  'm', mass[j], i18n.get('kilogram')])
+                j += 1
 
             return DataFrameModel(label=label, headers=headers, dataframe=dataframe)
 

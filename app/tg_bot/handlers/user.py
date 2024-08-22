@@ -23,7 +23,7 @@ from app.tg_bot.states.fsm_state_data import FSMPromoCodeForm
 from app.tg_bot.models.role import UserRole
 from app.tg_bot.models.keyboard import InlineKeyboardModel
 
-from pprint import pprint
+# from pprint import pprint
 
 log = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
     context_data.setdefault('substance_state', 'liquid')
     context_data.setdefault('keyboard_model', asdict(InlineKeyboardModel()))
     await state.update_data(context_data)
-    pprint(await state.get_data())
+    # pprint(await state.get_data())
 
 
 @user_router.callback_query(F.data.in_(['tools_guest', 'fire_resistance_guest', 'fire_risks_guest', 'fire_category_guest', 'substances_guest', "to_cities_guest"]))

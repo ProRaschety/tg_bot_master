@@ -670,7 +670,7 @@ class FireCategoryPremises:
             f'Удельная пожарная нагрузка: g= {gt} МДж/м2\n'
             f'Категория: {result_cat}'
         )
-        return Q, g, result_cat
+        return Qs, gt, result_cat
 
     def get_explosion_and_fire_hazard_category(self) -> str:
         pass
