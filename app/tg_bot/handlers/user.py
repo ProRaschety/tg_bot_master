@@ -91,6 +91,8 @@ async def general_menu_call(callback_data: CallbackQuery, bot: Bot, state: FSMCo
     context_data.setdefault('temporary_request', '')
     context_data.setdefault('temporary_model', '')
     context_data.setdefault('temporary_parameter', '')
+    context_data.setdefault('temporary_material', '')
+    context_data.setdefault('temporary_section', '')
     context_data.setdefault('temporary_text', '')
     context_data.setdefault('path_edited_parameter', '')
     context_data.setdefault('substance', 'gasoline')

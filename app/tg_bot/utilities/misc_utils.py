@@ -1097,7 +1097,7 @@ def get_plot_graph(label, x_values, y_values,  x_label, y_label, plot_label: str
                               y_values,
                               param_fill,
                               where=[d > param_fill for d in y_values],
-                              c=color['red'], alpha=0.25, label=label_fill)
+                              color=color['red'], alpha=0.25, label=label_fill)
 
     # Цветовая шкала
     # plt.colorbar()

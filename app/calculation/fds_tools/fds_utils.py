@@ -141,15 +141,19 @@ class FDSTools:
         first_time_exceeded = None
         last_time_exceeded = None
         for time, max_density in evac_times:
+
             if max_density >= density_threshold:
                 if first_time_exceeded is None:
                     first_time_exceeded = time
                 last_time_exceeded = time
                 delta = time - \
                     evac_times[-1][0] if evac_times[-1][1] >= density_threshold else 0.2
+
             else:
                 delta = 0
+
             deltas.append(delta)
+
         return sum(deltas), first_time_exceeded, last_time_exceeded
 
     def compute_human_densities(self, file_paths, density_threshold=0.5):
@@ -179,8 +183,10 @@ class FDSTools:
 
             if current_max_density > 0 and time is not None:
                 evac_times.append((time, current_max_density))
+
         total_delta_sum, first_time_exceeded, last_time_exceeded = self.compute_deltas(
             evac_times, density_threshold)
+
         return evac_times, total_delta_sum, first_time_exceeded, last_time_exceeded
 
     def open_file(self, file_paths):
@@ -188,6 +194,10 @@ class FDSTools:
         density_threshold = 0.5
         evac_times, total_delta_sum, first_time_exceeded, last_time_exceeded = self.compute_human_densities(
             file_paths, density_threshold)
+
+        if total_delta_sum < 0:
+            total_delta_sum = 0
+
         try:
             times, densities = zip(*evac_times)
             return times, densities, total_delta_sum

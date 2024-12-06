@@ -1,5 +1,5 @@
 fds_tools-text =
-    <blockquote></blockquote>
+    <blockquote>Если "Время существования скоплений" равняется 0 попробуйте загрузить другой файл с данными об эвакуации</blockquote>
 
 back_fds_tools =
     ↩ Назад
